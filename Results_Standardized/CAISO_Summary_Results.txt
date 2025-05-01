@@ -1,0 +1,17 @@
+--- Summary Results for CAISO ---
+Optimal_Electrolyzer_Capacity_MW: 50.00
+Total_Electrolyzer_Startups: 0.00
+Final_DegradationState_Units: 0.00
+Total_Revenue_USD: 120,140,919.16
+Total_Hourly_Opex_USD: 6,657,600.00
+Electrolyzer_Capex_USD: 30,000,000.00
+Total_Profit_Calc_USD: 83,483,319.16
+Objective_Value_USD: 83,483,142.76
+Total_H2_Produced_kg: 0.00
+Total_H2_to_Market_kg: 0.00
+Total_H2_from_Storage_kg: 8,820.00
+Final_H2_Storage_Level_kg: 1,000.00
+Electrolyzer_Capacity_Factor_Actual: 0.00
+
+Objective vs Calculated Profit Diff: 176.40
+WARNING: Significant difference between objective value and calculated profit!
