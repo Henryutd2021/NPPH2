@@ -1,2 +1,63 @@
+# ========== Python Bytecode ==========
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ========== Virtual Environment ==========
+.venv/
+env/
+venv/
+ENV/
+*.env
+*.venv
+
+# ========== Jupyter Notebook ==========
+.ipynb_checkpoints/
+
+# ========== VSCode/IDE ==========
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ========== Logs / Outputs ==========
+*.log
+*.out
+*.tmp
+*.bak
+
+# ========== System Files ==========
+.DS_Store
+Thumbs.db
+
+# ========== Project-specific ==========
+# Ignore raw data and large files
 data/Raw/*
 !data/Raw/.gitkeep
+temp_sensitivity_runs/
+src/__pycache__
+
+# Ignore model checkpoints or intermediate files
+checkpoints/
+outputs/
+models/
+runs/
+
+# Ignore test artifacts
+htmlcov/
+coverage.*
+.tox/
+nosetests.xml
+*.cover
+*.py,cover
+
+# Ignore Python packaging files
+dist/
+build/
+*.egg-info/
+
+# Ignore compiled Cython or extensions
+*.so
+
+# ========== Jupyter Notebook Hidden Cells Metadata ==========
+.ipynb_hidden/
