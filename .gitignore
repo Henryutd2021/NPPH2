@@ -41,7 +41,6 @@ src/__pycache__
 checkpoints/
 outputs/
 models/
-runs/
 
 # Ignore test artifacts
 htmlcov/
