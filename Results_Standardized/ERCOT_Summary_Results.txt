@@ -1,0 +1,30 @@
+--- Summary Results for ERCOT ---
+Target_ISO: ERCOT
+Optimal_Electrolyzer_Capacity_MW: 50.0000
+Optimal_Battery_Capacity_MWh: 10.0000
+Optimal_Battery_Power_MW: 2.5000
+Total_Electrolyzer_Startups: 1.0000
+Final_DegradationState_Units: 1.0876
+Total_Revenue_USD: 200,586,194.7625
+Total_Energy_Revenue_USD: 198,782,058.0367
+Total_Hydrogen_Revenue_USD: 597,142.9655
+Total_Ancillary_Revenue_USD: 1,206,993.7603
+Total_Hourly_Opex_USD: 7,980,135.3041
+Total_VOM_Cost_USD: 7,971,600.0000
+Total_Water_Cost_USD: 7,551.7241
+Total_Ramping_Cost_USD: 0.0000
+Total_Storage_Cycle_Cost_USD: 483.5800
+Total_Startup_Cost_USD: 500.0000
+Total_Annualized_Capex_USD: 5,385,884.9417
+Electrolyzer_Annualized_Capex_USD: 5,000,000.0000
+Battery_Annualized_Capex_USD: 385,884.9417
+Total_Profit_Calculated_USD: 187,220,174.5167
+Objective_Value_USD: -4,178,891.1814
+Total_H2_Produced_kg: 151,034.4828
+Total_H2_to_Market_Direct_kg: 150,862.0690
+Total_H2_from_Storage_kg: 48,185.5862
+Final_H2_Storage_Level_kg: 1,000.0000
+Electrolyzer_Capacity_Factor_Actual: 1.0000
+
+Objective vs Calculated Profit Diff: 191,399,065.6981
+WARNING: Significant difference between objective value and calculated profit!

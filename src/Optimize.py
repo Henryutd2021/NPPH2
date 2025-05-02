@@ -46,7 +46,7 @@ def main(argv: list[str] | None = None):
         sys.exit(1)
 
     # 2. model ---------------------------------------------------------------
-    model = create_model(data, args.iso, use_nonlinear_turbine_eff_setting=True)
+    model = create_model(data, args.iso)
 
 
     # 3. solve ---------------------------------------------------------------

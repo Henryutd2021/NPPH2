@@ -1,4 +1,7 @@
 # src/config.py
+# No changes needed in this file based on the request.
+# The existing flags already allow enabling/disabling components.
+# The logic changes will be implemented in model.py, constraints.py, and revenue_cost.py
 
 """Global configuration and feature flags for the standardized
 nuclear‑hydrogen optimization model.
@@ -8,19 +11,25 @@ from pathlib import Path
 # -----------------------------
 # BASIC CONFIGURATION
 # -----------------------------
-TARGET_ISO: str = "CAISO"          # 'CAISO' | 'ERCOT' | 'ISONE' | 'MISO' | 'NYISO' | 'PJM' | 'SPP'
+TARGET_ISO: str = "ERCOT"          # 'CAISO' | 'ERCOT' | 'ISONE' | 'MISO' | 'NYISO' | 'PJM' | 'SPP'
 HOURS_IN_YEAR: int = 8760        # Set to 24*7 for quick tests
 
 # -----------------------------
 # FEATURE FLAGS
 # -----------------------------
-ENABLE_H2_STORAGE: bool = True
-ENABLE_H2_CAP_FACTOR: bool = False      # usually disable when storage is enabled
-ENABLE_NONLINEAR_TURBINE_EFF: bool = True
-ENABLE_ELECTROLYZER_DEGRADATION_TRACKING: bool = True
-ENABLE_STARTUP_SHUTDOWN: bool = True    # Mixed‑integer formulation
-# --- Added ---
-ENABLE_LOW_TEMP_ELECTROLYZER: bool = False # Set to True to enable LTE mode
+# --- Core Technology Selection ---
+ENABLE_NUCLEAR_GENERATOR: bool = True    # Enable the nuclear power plant (Turbine)
+ENABLE_ELECTROLYZER: bool = True       # Master switch for any electrolyzer
+ENABLE_LOW_TEMP_ELECTROLYZER: bool = True # If ENABLE_ELECTROLYZER is True, set True for LTE, False for HTE
+ENABLE_BATTERY: bool = True          # Enable battery storage
+
+# --- Advanced Feature Flags ---
+ENABLE_H2_STORAGE: bool = True          # Enable separate hydrogen storage (requires ENABLE_ELECTROLYZER)
+ENABLE_H2_CAP_FACTOR: bool = False      # Enforce H2 production target (usually disable when storage is enabled)
+ENABLE_NONLINEAR_TURBINE_EFF: bool = True # Use piecewise linear turbine efficiency (requires ENABLE_NUCLEAR_GENERATOR)
+ENABLE_ELECTROLYZER_DEGRADATION_TRACKING: bool = True # Track electrolyzer degradation (requires ENABLE_ELECTROLYZER)
+ENABLE_STARTUP_SHUTDOWN: bool = True    # Use mixed-integer formulation for electrolyzer on/off (requires ENABLE_ELECTROLYZER)
+
 
 # -----------------------------
 # LOGGING
@@ -31,3 +40,28 @@ LOG_FILE = LOG_DIR / f"{TARGET_ISO}_optimization_standardized.log"
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 LOG_LEVEL = "INFO"  # Could be switched to DEBUG when needed
+
+# --- Sanity Checks ---
+if ENABLE_H2_STORAGE and not ENABLE_ELECTROLYZER:
+    print("Warning: ENABLE_H2_STORAGE=True but ENABLE_ELECTROLYZER=False. Disabling H2 storage.")
+    ENABLE_H2_STORAGE = False
+if ENABLE_LOW_TEMP_ELECTROLYZER and not ENABLE_ELECTROLYZER:
+    print("Warning: ENABLE_LOW_TEMP_ELECTROLYZER=True but ENABLE_ELECTROLYZER=False. Ignoring LTE setting.")
+    ENABLE_LOW_TEMP_ELECTROLYZER = False # Or handle as error
+if ENABLE_H2_CAP_FACTOR and not ENABLE_ELECTROLYZER:
+    print("Warning: ENABLE_H2_CAP_FACTOR=True but ENABLE_ELECTROLYZER=False. Disabling H2 cap factor.")
+    ENABLE_H2_CAP_FACTOR = False
+if ENABLE_ELECTROLYZER_DEGRADATION_TRACKING and not ENABLE_ELECTROLYZER:
+    print("Warning: ENABLE_ELECTROLYZER_DEGRADATION_TRACKING=True but ENABLE_ELECTROLYZER=False. Disabling degradation tracking.")
+    ENABLE_ELECTROLYZER_DEGRADATION_TRACKING = False
+if ENABLE_STARTUP_SHUTDOWN and not ENABLE_ELECTROLYZER:
+    print("Warning: ENABLE_STARTUP_SHUTDOWN=True but ENABLE_ELECTROLYZER=False. Disabling startup/shutdown logic.")
+    ENABLE_STARTUP_SHUTDOWN = False
+if ENABLE_NONLINEAR_TURBINE_EFF and not ENABLE_NUCLEAR_GENERATOR:
+     print("Warning: ENABLE_NONLINEAR_TURBINE_EFF=True but ENABLE_NUCLEAR_GENERATOR=False. Disabling nonlinear turbine.")
+     ENABLE_NONLINEAR_TURBINE_EFF = False
+
+# --- Check for Ancillary Service Capability ---
+# This flag derived from the config will be used elsewhere
+CAN_PROVIDE_ANCILLARY_SERVICES: bool = ENABLE_NUCLEAR_GENERATOR and (ENABLE_ELECTROLYZER or ENABLE_BATTERY)
+print(f"System configured to provide Ancillary Services: {CAN_PROVIDE_ANCILLARY_SERVICES}")

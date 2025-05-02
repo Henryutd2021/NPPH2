@@ -1,0 +1,57 @@
+Parameter,Value
+delT_minutes,60.0
+qSteam_Total_MWth,1000.0
+Turbine_Thermal_Elec_Efficiency_Const,0.38
+qSteam_Turbine_min_MWth,100.0
+qSteam_Turbine_max_MWth,1000.0
+pTurbine_min_MW,38.0
+pTurbine_max_MW,380.0
+Turbine_RampUp_Rate_Percent_per_Min,2.0
+Turbine_RampDown_Rate_Percent_per_Min,2.0
+pTurbine_LTE_setpoint_MW,380.0
+qSteam_Turbine_Breakpoints_MWth,"100.0, 550.0, 1000.0"
+pTurbine_Values_at_Breakpoints_MW,"38.0, 209.0, 380.0"
+Electrolyzer_Efficiency_Curve_Input_MW,"50.0, 100.0, 250.0, 500.0"
+Electrolyzer_Efficiency_Curve_Output_kgH2_per_hour,"1000.0, 2000.0, 5000.0, 10000.0"
+Electrolyzer_Min_Load_Percent,10.0
+Electrolyzer_Max_Load_Percent,100.0
+Electrolyzer_RampUp_Rate_Percent_per_Min,5.0
+Electrolyzer_RampDown_Rate_Percent_per_Min,5.0
+Electrolyzer_Max_Capacity_MW,500.0
+qSteam_Electrolyzer_ratio_MWth_per_MW,0.5
+Electrolyzer_Setpoint_Capacity_MW,500.0
+H2_storage_max_kg,100000.0
+H2_storage_min_kg,1000.0
+H2_storage_charge_eff,0.98
+H2_storage_discharge_eff,0.98
+H2_storage_charge_max_kg_per_hour,5000.0
+H2_storage_discharge_max_kg_per_hour,5000.0
+H2_storage_initial_level_kg,50000.0
+H2_Capacity_Factor_Min_Percent,0.0
+H2_value_USD_per_kg,3.0
+vom_turbine_USD_per_MWh,2.0
+vom_electrolyzer_USD_per_MWh,3.0
+cost_water_USD_per_kg_h2,0.05
+cost_electrolyzer_ramping_USD_per_MW_ramp,0.5
+cost_electrolyzer_capacity_USD_per_MW,2000000.0
+cost_startup_electrolyzer_USD_per_startup,500.0
+MinUpTimeElectrolyzer_hours,2
+MinDownTimeElectrolyzer_hours,1
+uElectrolyzer_initial_status_0_or_1,0
+DegradationStateInitial_Units,0.0
+DegradationFactorOperation_Units_per_Hour_at_MaxLoad,0.0001
+DegradationMaxThreshold_Units,8760.0
+BatteryCapacity_min_MWh,10.0
+BatteryCapacity_max_MWh,1000.0
+BatteryPowerRatio,0.25
+BatteryChargeEfficiency,0.92
+BatteryDischargeEfficiency,0.92
+BatteryMinSOC_percent,10.0
+BatteryMaxSOC_percent,90.0
+BatteryInitialSOC_percent,50.0
+BatteryRampRate_percent_per_min,100.0
+BatteryCapex_USD_per_MWh,250000.0
+BatteryCapex_USD_per_MW,150000.0
+BatteryFixedOM_USD_per_MWh_year,5000.0
+BatteryLifetime_years,15
+discount_rate,0.08

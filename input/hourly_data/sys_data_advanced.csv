@@ -1,7 +1,11 @@
 Parameter,Value
 delT_minutes,60.0
+AS_Duration,0.25
+plant_lifetime_years,30
+discount_rate,0.08
+pIES_min_MW,-1000.0
+pIES_max_MW,1000.0
 qSteam_Total_MWth,1000.0
-Turbine_Thermal_Elec_Efficiency_Const,0.38
 qSteam_Turbine_min_MWth,100.0
 qSteam_Turbine_max_MWth,1000.0
 pTurbine_min_MW,38.0
@@ -9,38 +13,49 @@ pTurbine_max_MW,380.0
 Turbine_RampUp_Rate_Percent_per_Min,2.0
 Turbine_RampDown_Rate_Percent_per_Min,2.0
 pTurbine_LTE_setpoint_MW,380.0
+Turbine_Thermal_Elec_Efficiency_Const,0.38
 qSteam_Turbine_Breakpoints_MWth,"100.0, 550.0, 1000.0"
-pTurbine_Outputs_at_Breakpoints_MW,"38.0, 215.0, 380.0"
-pElectrolyzer_min_MW,20.0
-pElectrolyzer_max_upper_bound_MW,500.0
-pElectrolyzer_max_lower_bound_MW,50.0
-Electrolyzer_RampUp_Rate_Percent_per_Min,15.0
-Electrolyzer_RampDown_Rate_Percent_per_Min,15.0
-qSteam_Electrolyzer_Ramp_Limit_MWth_per_Hour,200.0
-pElectrolyzer_Breakpoints_MW,"20.0, 260.0, 500.0"
-ke_H2_Values_MWh_per_kg,"55.0, 50.0, 48.0"
-kt_H2_Values_MWth_per_kg,"10.0, 8.0, 7.0"
-pIES_min_MW,-380.0
-pIES_max_MW,380.0
-H2_value_USD_per_kg,3.0
+pTurbine_Outputs_at_Breakpoints_MW,"38.0, 209.0, 380.0"
 vom_turbine_USD_per_MWh,2.0
+pElectrolyzer_min_MW,50.0
+pElectrolyzer_max_upper_bound_MW,500.0
+pElectrolyzer_max_lower_bound_MW,0.0
+Electrolyzer_RampUp_Rate_Percent_per_Min,10.0
+Electrolyzer_RampDown_Rate_Percent_per_Min,10.0
+pElectrolyzer_Breakpoints_MW,"50.0, 100.0, 250.0, 500.0"
+ke_H2_Values_MWh_per_kg,"0.05800, 0.05700, 0.05600, 0.05500"
+kt_H2_Values_MWth_per_kg,"0.00870, 0.00855, 0.00840, 0.00825"
+Ramp_qSteam_Electrolyzer_limit_MWth_per_Hour,500.0
 vom_electrolyzer_USD_per_MWh,3.0
 cost_water_USD_per_kg_h2,0.05
 cost_electrolyzer_ramping_USD_per_MW_ramp,0.5
-cost_electrolyzer_capacity_USD_per_MW,200000.0
+cost_electrolyzer_capacity_USD_per_MW_year,100000.0
 cost_startup_electrolyzer_USD_per_startup,500.0
 MinUpTimeElectrolyzer_hours,2
 MinDownTimeElectrolyzer_hours,1
 uElectrolyzer_initial_status_0_or_1,0
 DegradationStateInitial_Units,0.0
 DegradationFactorOperation_Units_per_Hour_at_MaxLoad,0.0001
-DegradationFactorStartup_Units_per_Startup,0.05
-H2_storage_capacity_max_kg,20000.0
+DegradationFactorStartup_Units_per_Startup,1.0
+H2_value_USD_per_kg,3.0
+h2_target_capacity_factor_fraction,0.0
+H2_storage_capacity_max_kg,100000.0
 H2_storage_capacity_min_kg,1000.0
-H2_storage_level_initial_kg,10000.0
-H2_storage_charge_rate_max_kg_per_hr,1000.0
-H2_storage_discharge_rate_max_kg_per_hr,1000.0
+H2_storage_level_initial_kg,50000.0
+H2_storage_charge_rate_max_kg_per_hr,5000.0
+H2_storage_discharge_rate_max_kg_per_hr,5000.0
 storage_charge_eff_fraction,0.98
 storage_discharge_eff_fraction,0.98
-vom_storage_cycle_USD_per_kg_cycled,0.02
-h2_target_capacity_factor_fraction,0.9
+vom_storage_cycle_USD_per_kg_cycled,0.01
+BatteryCapacity_min_MWh,10.0
+BatteryCapacity_max_MWh,1000.0
+BatteryPowerRatio_MW_per_MWh,0.25
+BatteryChargeEff,0.92
+BatteryDischargeEff,0.92
+BatterySOC_min_fraction,0.1
+BatterySOC_initial_fraction,0.5
+BatteryRequireCyclicSOC,True
+BatteryRampRate_fraction_per_hour,1.0
+BatteryCapex_USD_per_MWh_year,29207.386234004996
+BatteryCapex_USD_per_MW_year,17524.431740402997
+BatteryFixedOM_USD_per_MWh_year,5000.0
