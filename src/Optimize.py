@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 import pyomo.environ as pyo
 from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
 
-from config import (TARGET_ISO, ENABLE_NONLINEAR_TURBINE_EFF, LOG_FILE)
+from config import (TARGET_ISO, ENABLE_NONLINEAR_TURBINE_EFF, LOG_FILE, SIMULATE_AS_DISPATCH_EXECUTION)
 from logging_setup import logger
 from data_io import load_hourly_data
 from model import create_model
@@ -46,7 +46,7 @@ def main(argv: list[str] | None = None):
         sys.exit(1)
 
     # 2. model ---------------------------------------------------------------
-    model = create_model(data, args.iso)
+    model = create_model(data, args.iso, simulate_dispatch=SIMULATE_AS_DISPATCH_EXECUTION)
 
 
     # 3. solve ---------------------------------------------------------------

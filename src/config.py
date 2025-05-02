@@ -30,6 +30,10 @@ ENABLE_NONLINEAR_TURBINE_EFF: bool = True # Use piecewise linear turbine efficie
 ENABLE_ELECTROLYZER_DEGRADATION_TRACKING: bool = True # Track electrolyzer degradation (requires ENABLE_ELECTROLYZER)
 ENABLE_STARTUP_SHUTDOWN: bool = True    # Use mixed-integer formulation for electrolyzer on/off (requires ENABLE_ELECTROLYZER)
 
+# --- Simulation Mode ---
+# Set to True to simulate AS dispatch execution affecting physical operation.
+# Set to False to optimize bidding strategy based on capability (current default).
+SIMULATE_AS_DISPATCH_EXECUTION: bool = False
 
 # -----------------------------
 # LOGGING
@@ -42,6 +46,9 @@ LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 LOG_LEVEL = "INFO"  # Could be switched to DEBUG when needed
 
 # --- Sanity Checks ---
+# This flag derived from the config will be used elsewhere
+CAN_PROVIDE_ANCILLARY_SERVICES: bool = ENABLE_NUCLEAR_GENERATOR and (ENABLE_ELECTROLYZER or ENABLE_BATTERY)
+print(f"System configured to provide Ancillary Services: {CAN_PROVIDE_ANCILLARY_SERVICES}")
 if ENABLE_H2_STORAGE and not ENABLE_ELECTROLYZER:
     print("Warning: ENABLE_H2_STORAGE=True but ENABLE_ELECTROLYZER=False. Disabling H2 storage.")
     ENABLE_H2_STORAGE = False
@@ -60,8 +67,7 @@ if ENABLE_STARTUP_SHUTDOWN and not ENABLE_ELECTROLYZER:
 if ENABLE_NONLINEAR_TURBINE_EFF and not ENABLE_NUCLEAR_GENERATOR:
      print("Warning: ENABLE_NONLINEAR_TURBINE_EFF=True but ENABLE_NUCLEAR_GENERATOR=False. Disabling nonlinear turbine.")
      ENABLE_NONLINEAR_TURBINE_EFF = False
+if SIMULATE_AS_DISPATCH_EXECUTION and not CAN_PROVIDE_ANCILLARY_SERVICES:
+    print("Warning: SIMULATE_AS_DISPATCH_EXECUTION=True but CAN_PROVIDE_ANCILLARY_SERVICES=False. Dispatch simulation has no effect.")
+    SIMULATE_AS_DISPATCH_EXECUTION = False # Or handle as needed
 
-# --- Check for Ancillary Service Capability ---
-# This flag derived from the config will be used elsewhere
-CAN_PROVIDE_ANCILLARY_SERVICES: bool = ENABLE_NUCLEAR_GENERATOR and (ENABLE_ELECTROLYZER or ENABLE_BATTERY)
-print(f"System configured to provide Ancillary Services: {CAN_PROVIDE_ANCILLARY_SERVICES}")
