@@ -1,17 +1,30 @@
 --- Summary Results for ERCOT ---
-Optimal_Electrolyzer_Capacity_MW: 50.00
-Total_Electrolyzer_Startups: 0.00
-Final_DegradationState_Units: 0.00
-Total_Revenue_USD: 120,140,913.94
-Total_Hourly_Opex_USD: 6,657,600.00
-Electrolyzer_Capex_USD: 10,000,000.00
-Total_Profit_Calc_USD: 103,483,313.94
-Objective_Value_USD: 103,483,137.54
-Total_H2_Produced_kg: 0.00
-Total_H2_to_Market_kg: 0.00
-Total_H2_from_Storage_kg: 8,820.00
-Final_H2_Storage_Level_kg: 1,000.00
-Electrolyzer_Capacity_Factor_Actual: 0.00
+Simulation_Mode: Bidding Strategy
+Target_ISO: ERCOT
+Target_ISO: ERCOT
+Simulation_Mode: Bidding Strategy
+Optimal_Electrolyzer_Capacity_MW: 50.0000
+Total_Revenue_USD: 195,896,789.1872
+Total_Energy_Revenue_USD: 194,644,463.1788
+Total_Hydrogen_Revenue_USD: 1,251,428.5714
+Total_Hydrogen_Sales_Revenue_USD: 625,714.2857
+Total_Hydrogen_Subsidy_Revenue_USD: 625,714.2857
+Total_Ancillary_Revenue_USD: 897.4370
+Total_Hourly_Opex_USD: 10,925,671.4286
+Total_VOM_Cost_USD: 10,918,714.2857
+Total_Water_Cost_USD: 6,257.1429
+Total_Ramping_Cost_USD: 0.0000
+Total_Storage_Cycle_Cost_USD: 0.0000
+Total_Startup_Cost_USD: 700.0000
+Total_Annualized_Capex_USD: 12,731,526.1029
+Electrolyzer_Annualized_Capex_USD: 12,731,526.1029
+Battery_Annualized_Capex_USD: 0.0000
+Total_Profit_Calculated_USD: 172,239,591.6558
+Objective_Value_USD: -12,729,272.7844
+Total_H2_Produced_kg: 208,571.4286
+Electrolyzer_Capacity_Factor_Actual: 1.0000
+Total_Electrolyzer_Startups: 1
+Final_DegradationState_Units: 1.7628
 
-Objective vs Calculated Profit Diff: 176.40
+Objective vs Calculated Profit Diff: 184,968,864.4402
 WARNING: Significant difference between objective value and calculated profit!

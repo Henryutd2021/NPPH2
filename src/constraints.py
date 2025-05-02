@@ -73,8 +73,10 @@ def power_balance_rule(m, t):
         # pElectrolyzer's value depends on the simulation mode via define_actual_electrolyzer_power_rule when AS dispatch is simulated
         electrolyzer_power = m.pElectrolyzer[t] if ENABLE_ELECTROLYZER and hasattr(m, 'pElectrolyzer') else 0
         battery_charge = m.BatteryCharge[t] if ENABLE_BATTERY and hasattr(m, 'BatteryCharge') else 0
+        # Include auxiliary power if the variable exists (meaning consumption rate > 0)
+        auxiliary_power = m.pAuxiliary[t] if hasattr(m, 'pAuxiliary') else 0
 
-        return turbine_power + battery_discharge - electrolyzer_power - battery_charge == m.pIES[t]
+        return turbine_power + battery_discharge - electrolyzer_power - battery_charge - auxiliary_power == m.pIES[t] # ADDED auxiliary_power
     except Exception as e:
         logger.error(f"Error in power_balance rule @t={t}: {e}")
         raise
@@ -85,6 +87,22 @@ def constant_turbine_power_rule(m,t):
     try:
         return m.pTurbine[t] == m.pTurbine_LTE_setpoint
     except Exception as e: logger.error(f"Error in constant_turbine_power rule @t={t}: {e}"); raise
+
+def link_auxiliary_power_rule(m, t):
+    """Links auxiliary power consumption to hydrogen production rate."""
+    # Apply this constraint only if the auxiliary power variable exists
+    if not hasattr(m, 'pAuxiliary') or not ENABLE_ELECTROLYZER:
+        return pyo.Constraint.Skip
+    try:
+        # pAuxiliary (MW) = mHydrogenProduced (kg/hr) * aux_power_consumption (kWh/kg) / 1000 (kW/MW)
+        # Note: mHydrogenProduced is an hourly rate variable (kg/hr)
+        # aux_power_consumption_per_kg_h2 is in kWh/kg
+        # Resulting pAuxiliary should be in MW
+        # Conversion: (kg/hr) * (kWh/kg) -> kW. Divide by 1000 for MW.
+        return m.pAuxiliary[t] == m.mHydrogenProduced[t] * m.aux_power_consumption_per_kg_h2 / 1000.0
+    except Exception as e:
+        logger.error(f"Error in link_auxiliary_power rule @t={t}: {e}")
+        raise
 
 # ---------------------------------------------------------------------------
 # H2 STORAGE RULES

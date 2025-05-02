@@ -363,7 +363,7 @@ def calculate_hourly_as_revenue(m: pyo.ConcreteModel, t: int) -> float:
 
 
 # --- Main Results Extraction Function ---
-def extract_results(model: pyo.ConcreteModel, target_iso: str, output_dir: str = '../Results_Standardized'):
+def extract_results(model: pyo.ConcreteModel, target_iso: str, output_dir: str = '../output/Results_Standardized'):
     """
     Extracts comprehensive results from the solved Pyomo model, aligning with model.py,
     constraints.py, and revenue_cost.py logic, including conditional processing based on simulation mode.
@@ -454,6 +454,11 @@ def extract_results(model: pyo.ConcreteModel, target_iso: str, output_dir: str =
         hourly_data['pElectrolyzerSetpoint_MW'] = [0.0] * len(hours)
         hourly_data['mHydrogenProduced_kg_hr'] = [0.0] * len(hours)
         hourly_data['qSteam_Electrolyzer_MWth'] = [0.0] * len(hours)
+
+    if hasattr(model, 'pAuxiliary'):
+         hourly_data['pAuxiliary_MW'] = [get_var_value(model.pAuxiliary, t) for t in hours]
+    else:
+         hourly_data['pAuxiliary_MW'] = [0.0] * len(hours)
 
     if ENABLE_ELECTROLYZER and ENABLE_H2_STORAGE:
         hourly_data['H2_Storage_Level_kg'] = [get_var_value(getattr(model, 'H2_storage_level', None), t) for t in hours]
@@ -608,19 +613,25 @@ def extract_results(model: pyo.ConcreteModel, target_iso: str, output_dir: str =
         results_df['Revenue_Energy_USD'] = results_df['pIES_MW'] * results_df['EnergyPrice_LMP_USDperMWh'] * time_factor
     else: results_df['Revenue_Energy_USD'] = 0.0
 
-    # Hydrogen Revenue
+    # Hydrogen Revenue (Modified to potentially split components)
     h2_value_param = get_param(model, 'H2_value', default=0.0) if ENABLE_ELECTROLYZER else 0.0
-    if ENABLE_ELECTROLYZER and ENABLE_H2_STORAGE:
-        col1 = 'H2_to_Market_kg_hr'; col2 = 'H2_from_Storage_kg_hr'
-        if col1 in results_df and col2 in results_df:
-             results_df['Revenue_Hydrogen_USD'] = (results_df[col1] + results_df[col2]) * h2_value_param * time_factor
-        else: results_df['Revenue_Hydrogen_USD'] = 0.0
-    elif ENABLE_ELECTROLYZER:
-        col1 = 'mHydrogenProduced_kg_hr'
-        if col1 in results_df:
-             results_df['Revenue_Hydrogen_USD'] = results_df[col1] * h2_value_param * time_factor
-        else: results_df['Revenue_Hydrogen_USD'] = 0.0
-    else: results_df['Revenue_Hydrogen_USD'] = 0.0
+    h2_subsidy_param = get_param(model, 'hydrogen_subsidy_per_kg', default=0.0) if ENABLE_ELECTROLYZER else 0.0
+
+    results_df['Revenue_Hydrogen_Sales_USD'] = 0.0 # Initialize columns
+    results_df['Revenue_Hydrogen_Subsidy_USD'] = 0.0
+
+    if ENABLE_ELECTROLYZER and 'mHydrogenProduced_kg_hr' in results_df:
+        # Calculate subsidy revenue based on total production
+        results_df['Revenue_Hydrogen_Subsidy_USD'] = results_df['mHydrogenProduced_kg_hr'] * h2_subsidy_param * time_factor
+
+        # Calculate sales revenue based on delivery method
+        if ENABLE_H2_STORAGE and 'H2_to_Market_kg_hr' in results_df and 'H2_from_Storage_kg_hr' in results_df:
+             results_df['Revenue_Hydrogen_Sales_USD'] = (results_df['H2_to_Market_kg_hr'] + results_df['H2_from_Storage_kg_hr']) * h2_value_param * time_factor
+        elif not ENABLE_H2_STORAGE: # If no storage, sales revenue = production revenue (excluding subsidy)
+             results_df['Revenue_Hydrogen_Sales_USD'] = results_df['mHydrogenProduced_kg_hr'] * h2_value_param * time_factor
+
+    # Original Total Hydrogen Revenue calculation replaced by sum of components
+    results_df['Revenue_Hydrogen_USD'] = results_df['Revenue_Hydrogen_Sales_USD'] + results_df['Revenue_Hydrogen_Subsidy_USD']
 
     # Ancillary Service Revenue (Calls internal helper that uses the model 'm')
     results_df['Revenue_Ancillary_USD'] = [calculate_hourly_as_revenue(model, t) * time_factor for t in hours]
@@ -718,6 +729,10 @@ def extract_results(model: pyo.ConcreteModel, target_iso: str, output_dir: str =
     summary_results['Total_Revenue_USD'] = total_revenue
     summary_results['Total_Energy_Revenue_USD'] = results_df['Revenue_Energy_USD'].sum()
     summary_results['Total_Hydrogen_Revenue_USD'] = results_df['Revenue_Hydrogen_USD'].sum()
+    if 'Revenue_Hydrogen_Sales_USD' in results_df:
+        summary_results['Total_Hydrogen_Sales_Revenue_USD'] = results_df['Revenue_Hydrogen_Sales_USD'].sum()
+    if 'Revenue_Hydrogen_Subsidy_USD' in results_df:
+        summary_results['Total_Hydrogen_Subsidy_Revenue_USD'] = results_df['Revenue_Hydrogen_Subsidy_USD'].sum()
     summary_results['Total_Ancillary_Revenue_USD'] = results_df['Revenue_Ancillary_USD'].sum()
 
     summary_results['Total_Hourly_Opex_USD'] = total_hourly_opex

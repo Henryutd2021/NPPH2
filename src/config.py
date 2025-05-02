@@ -20,11 +20,11 @@ HOURS_IN_YEAR: int = 8760        # Set to 24*7 for quick tests
 # --- Core Technology Selection ---
 ENABLE_NUCLEAR_GENERATOR: bool = True    # Enable the nuclear power plant (Turbine)
 ENABLE_ELECTROLYZER: bool = True       # Master switch for any electrolyzer
-ENABLE_LOW_TEMP_ELECTROLYZER: bool = True # If ENABLE_ELECTROLYZER is True, set True for LTE, False for HTE
-ENABLE_BATTERY: bool = True          # Enable battery storage
+ENABLE_LOW_TEMP_ELECTROLYZER: bool = False # If ENABLE_ELECTROLYZER is True, set True for LTE, False for HTE
+ENABLE_BATTERY: bool = False          # Enable battery storage
 
 # --- Advanced Feature Flags ---
-ENABLE_H2_STORAGE: bool = True          # Enable separate hydrogen storage (requires ENABLE_ELECTROLYZER)
+ENABLE_H2_STORAGE: bool = False          # Enable separate hydrogen storage (requires ENABLE_ELECTROLYZER)
 ENABLE_H2_CAP_FACTOR: bool = False      # Enforce H2 production target (usually disable when storage is enabled)
 ENABLE_NONLINEAR_TURBINE_EFF: bool = True # Use piecewise linear turbine efficiency (requires ENABLE_NUCLEAR_GENERATOR)
 ENABLE_ELECTROLYZER_DEGRADATION_TRACKING: bool = True # Track electrolyzer degradation (requires ENABLE_ELECTROLYZER)

@@ -104,7 +104,9 @@ def HydrogenRevenue_rule(m):
     if not m.ENABLE_ELECTROLYZER: return 0.0
     try:
         h2_value = get_param(m, 'H2_value', default=0.0)
-        if h2_value <= 1e-6: return 0.0
+        h2_subsidy = get_param(m, 'hydrogen_subsidy_per_kg', default=0.0) # Get subsidy value
+        effective_h2_value = h2_value + h2_subsidy # Add subsidy to base value
+        if effective_h2_value <= 1e-6: return 0.0 # Skip if total value is zero
 
         time_factor = get_param(m, 'delT_minutes', default=60.0) / 60.0
         total_revenue = 0
@@ -113,14 +115,23 @@ def HydrogenRevenue_rule(m):
             if not hasattr(m, 'mHydrogenProduced'):
                  logger.error("Missing mHydrogenProduced for HydrogenRevenue rule (no storage).")
                  return 0.0
-            total_revenue = sum(h2_value * get_var_value(m.mHydrogenProduced, t) * time_factor
+            total_revenue = sum(effective_h2_value * get_var_value(m.mHydrogenProduced, t) * time_factor
                                for t in m.TimePeriods)
         else:
-             if not hasattr(m, 'H2_to_market') or not hasattr(m, 'H2_from_storage'):
-                 logger.error("Missing H2_to_market or H2_from_storage for HydrogenRevenue rule (with storage).")
+             if not hasattr(m, 'H2_to_market') or not hasattr(m, 'H2_from_storage') or not hasattr(m, 'mHydrogenProduced'): # Added check for mHydrogenProduced
+                 logger.error("Missing H2_to_market, H2_from_storage, or mHydrogenProduced for HydrogenRevenue rule (with storage).")
                  return 0.0
-             total_revenue = sum(h2_value * (get_var_value(m.H2_to_market, t) + get_var_value(m.H2_from_storage, t)) * time_factor
-                                for t in m.TimePeriods)
+             # --- Original Logic (Revenue only from sold/discharged H2) ---
+             # total_revenue = sum(h2_value * (get_var_value(m.H2_to_market, t) + get_var_value(m.H2_from_storage, t)) * time_factor
+             #                    for t in m.TimePeriods)
+
+             # --- Modified Logic (Apply subsidy to ALL produced hydrogen, value to sold/discharged) ---
+             revenue_from_sales = sum(h2_value * (get_var_value(m.H2_to_market, t) + get_var_value(m.H2_from_storage, t)) * time_factor
+                                       for t in m.TimePeriods)
+             revenue_from_subsidy = sum(h2_subsidy * get_var_value(m.mHydrogenProduced, t) * time_factor
+                                       for t in m.TimePeriods) # Subsidy based on total production
+             total_revenue = revenue_from_sales + revenue_from_subsidy
+             
         return total_revenue
     except AttributeError as e:
         logger.error(f"Missing variable/parameter for HydrogenRevenue rule: {e}.")
