@@ -1,0 +1,144 @@
+---
+description: Best practices and design principles for high-level architecture decisions, technical choices, and system modularization in this project.
+globs: 
+alwaysApply: false
+---
+---
+name: architecture-guidelines
+description: Best practices and design principles for high-level architecture decisions, technical choices, and system modularization in this project.
+appliesTo: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py", "**/*.md"]
+type: agent_requested
+---
+
+## 🏗️ High-Level Architecture Guidelines
+
+This rule provides architectural standards, patterns, and decision criteria used across the project. Cursor can reference this rule when making structural decisions, choosing frameworks, or proposing design patterns.
+
+### 🔲 Modular Architecture
+
+- The project should follow a **modular architecture**, where each domain or feature is isolated in its own module or directory.
+- Favor **feature-based folder structure** over type-based (e.g., `features/user`, `features/payment`, instead of `components/`, `services/`, etc.).
+- All modules should be **loosely coupled** and **highly cohesive**.
+
+### 🧱 Design Patterns
+
+- Prefer **composition over inheritance**.
+- Use **factory functions**, **dependency injection**, or **service containers** to manage complexity and testability.
+- When appropriate, follow patterns like:
+  - **Repository Pattern** for data access abstraction
+  - **Adapter Pattern** to wrap external libraries or APIs
+  - **Strategy Pattern** for interchangeable logic blocks (e.g., pricing strategies, authorization flows)
+
+### 🚦 Tech Stack Decision Principles
+
+When choosing libraries, packages, or frameworks:
+
+- Prioritize **long-term maintainability** and **ecosystem maturity**.
+- Avoid introducing niche dependencies unless they provide significant benefits.
+- For frontend: use **React with TypeScript** and Tailwind for UI.
+- For backend: use **Node.js with TypeScript** (or Python if necessary for ML/data pipelines).
+- For state management: prefer **React Query** or **Zustand** over Redux (unless global sync complexity arises).
+
+### 📁 Example Feature Folder Structure
+
+energy_system_optimization/
+├── src/                           # Source code directory
+│   ├── __init__.py
+│   ├── data_io.py                 # Data input/output utilities
+│   ├── model.py                   # Core optimization model
+│   ├── config.py                  # Configuration settings
+│   ├── logging_setup.py           # Logging configuration
+│   ├── utils/                     # Utility functions
+│   │   ├── __init__.py
+│   │   ├── data_processing.py
+│   │   ├── validation.py
+│   │   └── visualization.py
+│   ├── components/                # System components
+│   │   ├── __init__.py
+│   │   ├── nuclear.py
+│   │   ├── electrolyzer.py
+│   │   ├── battery.py
+│   │   └── h2_storage.py
+│   ├── markets/                   # Market participation
+│   │   ├── __init__.py
+│   │   ├── base_market.py
+│   │   ├── energy_market.py
+│   │   ├── ancillary_services.py
+│   │   └── iso_specific/         # ISO-specific implementations
+│   │       ├── __init__.py
+│   │       ├── caiso.py
+│   │       ├── ercot.py
+│   │       ├── pjm.py
+│   │       └── ...
+│   └── optimization/             # Optimization algorithms
+│       ├── __init__.py
+│       ├── solver.py
+│       ├── constraints.py
+│       └── objectives.py
+│
+├── input/                        # Input data directory
+│   ├── hourly_data/             # Hourly data files
+│   │   ├── caiso/
+│   │   ├── ercot/
+│   │   └── ...
+│   ├── system_data/             # System configuration data
+│   └── market_data/             # Market-specific data
+│
+├── output/                      # Output directory
+│   ├── results/                 # Optimization results
+│   ├── plots/                   # Generated plots
+│   └── reports/                 # Analysis reports
+│
+├── tests/                       # Test directory
+│   ├── __init__.py
+│   ├── test_data_io.py
+│   ├── test_model.py
+│   └── test_components/
+│
+├── docs/                        # Documentation
+│   ├── api/                     # API documentation
+│   ├── user_guide/             # User documentation
+│   └── examples/               # Example usage
+│
+├── scripts/                     # Utility scripts
+│   ├── setup.py                # Installation script
+│   ├── run_optimization.py     # Main execution script
+│   └── data_preparation.py     # Data preparation utilities
+│
+├── config/                      # Configuration files
+│   ├── logging_config.yaml
+│   ├── model_config.yaml
+│   └── market_config.yaml
+│
+├── logs/                        # Log files
+│   ├── optimization/
+│   ├── market_data/
+│   └── system_operations/
+│
+├── requirements.txt             # Python dependencies
+├── setup.py                     # Package setup file
+├── README.md                    # Project documentation
+├── LICENSE                      # License file
+└── .gitignore                  # Git ignore file
+
+
+### ⚠️ What to Avoid
+
+- Avoid deeply nested folders unless necessary.
+- Avoid global state pollution — isolate logic per feature.
+- Do not hardcode configuration values — always use `env` or centralized config.
+
+### 🧭 Guiding Principles
+
+- **Scalability**: Architecture should support growth in feature count and contributors.
+- **Maintainability**: Code should be understandable and modifiable by any team member.
+- **Separation of Concerns**: Keep UI, business logic, and data access well-separated.
+
+Cursor can reference this rule when asked to:
+- Propose folder structures
+- Choose between design patterns
+- Recommend tech stacks or libraries
+- Refactor for modularity or clean architecture
+
+---
+

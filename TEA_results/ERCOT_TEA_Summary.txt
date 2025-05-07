@@ -1,0 +1,46 @@
+Technical Economic Analysis Report
+================================
+
+1. Project Overview
+------------------
+Project Lifetime: 25 years
+Construction Period: 2 years
+Discount Rate: 8.0%
+Tax Rate: 21.0%
+
+2. Annual Performance
+--------------------
+Annual_Profit: $192,606,059.46
+Annual_Revenue: $200,586,194.77
+Annual_Cost: $7,980,135.58
+Energy_Revenue: $0.00
+AS_Revenue: $0.00
+H2_Revenue: $597,142.63
+VOM_Cost: $0.00
+Startup_Cost: $0.00
+Water_Cost: $7,552.00
+Ramping_Cost: $0.00
+H2_Production: $151,034.66
+Electrolyzer_CF: $100.00
+Turbine_CF: $100.00
+
+3. Financial Metrics
+-------------------
+NPV: $1,443,648,898.77
+IRR: nan%
+Payback_Period: $0.00
+LCOH: $-382.34/kg
+
+4. Component Costs
+-----------------
+Electrolyzer: $50,000,000.00
+H2_Storage: $10,000,000.00
+Grid_Integration: $5,000,000.00
+NPP_Modifications: $2,000,000.00
+
+5. O&M Costs
+------------
+Fixed_OM: $1,000,000.00/year
+Variable_OM: $0.00/year
+Water_Cost: $0.00/year
+
