@@ -1,30 +1,41 @@
 --- Summary Results for CAISO ---
-Simulation_Mode: Bidding Strategy
+Simulation_Mode: Dispatch Execution
 Target_ISO: CAISO
 Target_ISO: CAISO
-Simulation_Mode: Bidding Strategy
+Simulation_Mode: Dispatch Execution
 Optimal_Electrolyzer_Capacity_MW: 50.0000
-Total_Revenue_USD: 195,959,317.8588
-Total_Energy_Revenue_USD: 194,706,960.4584
-Total_Hydrogen_Revenue_USD: 1,251,428.5714
-Total_Hydrogen_Sales_Revenue_USD: 625,714.2857
-Total_Hydrogen_Subsidy_Revenue_USD: 625,714.2857
+Optimal_Battery_Capacity_MWh: 10.0000
+Optimal_Battery_Power_MW: 2.5000
+Total_Revenue_USD: 200,193,090.3576
+Total_Energy_Revenue_USD: 198,809,003.6339
+Total_Hydrogen_Revenue_USD: 1,383,157.8947
+Total_Hydrogen_Sales_Revenue_USD: 922,105.2632
+Total_Hydrogen_Subsidy_Revenue_USD: 461,052.6316
 Total_Ancillary_Revenue_USD: 928.8290
-Total_Hourly_Opex_USD: 10,925,671.4286
-Total_VOM_Cost_USD: 10,918,714.2857
-Total_Water_Cost_USD: 6,257.1429
+Total_Hourly_Opex_USD: 10,166,510.5263
+Total_VOM_Cost_USD: 10,161,600.0000
+Total_Water_Cost_USD: 4,610.5263
 Total_Ramping_Cost_USD: 0.0000
 Total_Storage_Cycle_Cost_USD: 0.0000
-Total_Startup_Cost_USD: 700.0000
-Total_Annualized_Capex_USD: 12,731,526.1029
-Electrolyzer_Annualized_Capex_USD: 12,731,526.1029
-Battery_Annualized_Capex_USD: 0.0000
-Total_Profit_Calculated_USD: 172,302,120.3274
-Objective_Value_USD: -12,728,826.2675
-Total_H2_Produced_kg: 208,571.4286
+Total_Startup_Cost_USD: 300.0000
+Total_Annualized_Capex_USD: 10,795,656.3344
+Electrolyzer_Annualized_Capex_USD: 10,185,220.8823
+Battery_Annualized_Capex_USD: 610,435.4521
+Total_Profit_Calculated_USD: 179,230,923.4969
+Objective_Value_USD: -10,792,956.4990
+Total_H2_Produced_kg: 153,684.2105
 Electrolyzer_Capacity_Factor_Actual: 1.0000
 Total_Electrolyzer_Startups: 1
-Final_DegradationState_Units: 1.7628
+Final_DegradationState_Units: 1.0876
+Total_Deployed_RegUp_MWh: 0.0000
+Total_Deployed_RegDown_MWh: 0.0000
+Total_Deployed_SR_MWh: 0.0000
+Total_Deployed_NSR_MWh: 0.0000
+Total_Deployed_ECRS_MWh: 0.0000
+Total_Deployed_ThirtyMin_MWh: 0.0000
+Total_Deployed_RampUp_MWh: 0.0000
+Total_Deployed_RampDown_MWh: 0.0000
+Total_Deployed_UncU_MWh: 0.0000
 
-Objective vs Calculated Profit Diff: 185,030,946.5949
+Objective vs Calculated Profit Diff: 190,023,879.9960
 WARNING: Significant difference between objective value and calculated profit!

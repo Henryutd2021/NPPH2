@@ -33,7 +33,7 @@ ENABLE_STARTUP_SHUTDOWN: bool = True    # Use mixed-integer formulation for elec
 # --- Simulation Mode ---
 # Set to True to simulate AS dispatch execution affecting physical operation.
 # Set to False to optimize bidding strategy based on capability (current default).
-SIMULATE_AS_DISPATCH_EXECUTION: bool = False
+SIMULATE_AS_DISPATCH_EXECUTION: bool = True
 
 # -----------------------------
 # LOGGING

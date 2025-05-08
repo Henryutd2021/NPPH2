@@ -1,17 +1,30 @@
 --- Summary Results for MISO ---
-Optimal_Electrolyzer_Capacity_MW: 50.00
-Total_Electrolyzer_Startups: 0.00
-Final_DegradationState_Units: 0.00
-Total_Revenue_USD: 120,140,881.61
-Total_Hourly_Opex_USD: 6,657,600.00
-Electrolyzer_Capex_USD: 30,000,000.00
-Total_Profit_Calc_USD: 83,483,281.61
-Objective_Value_USD: 83,483,105.21
-Total_H2_Produced_kg: 0.00
-Total_H2_to_Market_kg: 0.00
-Total_H2_from_Storage_kg: 8,820.00
-Final_H2_Storage_Level_kg: 1,000.00
-Electrolyzer_Capacity_Factor_Actual: 0.00
+Simulation_Mode: Bidding Strategy
+Target_ISO: MISO
+Target_ISO: MISO
+Simulation_Mode: Bidding Strategy
+Optimal_Electrolyzer_Capacity_MW: 50.0000
+Total_Revenue_USD: 196,050,965.5245
+Total_Energy_Revenue_USD: 194,799,097.2421
+Total_Hydrogen_Revenue_USD: 1,251,428.5714
+Total_Hydrogen_Sales_Revenue_USD: 625,714.2857
+Total_Hydrogen_Subsidy_Revenue_USD: 625,714.2857
+Total_Ancillary_Revenue_USD: 439.7110
+Total_Hourly_Opex_USD: 10,925,671.4286
+Total_VOM_Cost_USD: 10,918,714.2857
+Total_Water_Cost_USD: 6,257.1429
+Total_Ramping_Cost_USD: 0.0000
+Total_Storage_Cycle_Cost_USD: 0.0000
+Total_Startup_Cost_USD: 700.0000
+Total_Annualized_Capex_USD: 12,731,526.1029
+Electrolyzer_Annualized_Capex_USD: 12,731,526.1029
+Battery_Annualized_Capex_USD: 0.0000
+Total_Profit_Calculated_USD: 172,393,767.9931
+Objective_Value_USD: -12,728,835.3499
+Total_H2_Produced_kg: 208,571.4286
+Electrolyzer_Capacity_Factor_Actual: 1.0000
+Total_Electrolyzer_Startups: 1
+Final_DegradationState_Units: 1.7628
 
-Objective vs Calculated Profit Diff: 176.40
+Objective vs Calculated Profit Diff: 185,122,603.3430
 WARNING: Significant difference between objective value and calculated profit!
