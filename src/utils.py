@@ -10,43 +10,52 @@ def get_param(model, param_name_base, time_index=None, default=0.0):
     ISO specifics, and potential NaN values.
     """
     target_iso_local = getattr(model, 'TARGET_ISO', 'UNKNOWN')
-    param_name_iso = f"{param_name_base}_{target_iso_local}"
-    param_to_get = None
+    # Construct potential parameter names
+    param_name_iso = f"{param_name_base}_{target_iso_local}" # e.g., p_RegU_ERCOT
+    param_name_iso_prefix = f"{target_iso_local}_{param_name_base}" # e.g., ERCOT_p_RegU (Less common)
 
-    # Prioritize ISO-specific parameter name
+    param_to_get = None
+    param_actual_name = "Not Found"
+
+    # Prioritize ISO-specific parameter name (most common pattern)
     if hasattr(model, param_name_iso):
         param_to_get = getattr(model, param_name_iso)
+        param_actual_name = param_name_iso
     # Fallback to base parameter name
     elif hasattr(model, param_name_base):
         param_to_get = getattr(model, param_name_base)
+        param_actual_name = param_name_base
+    # Fallback to ISO prefix (less common)
+    elif hasattr(model, param_name_iso_prefix):
+        param_to_get = getattr(model, param_name_iso_prefix)
+        param_actual_name = param_name_iso_prefix
     else:
-        # Parameter not found with either name
         # logger.debug(f"Parameter '{param_name_base}' (or ISO variant) not found on model. Returning default.")
         return default
 
     try:
-        if param_to_get.is_indexed():
+        val = None # Initialize val
+        if param_to_get is None: # Should not happen if hasattr passed, but safety check
+             val = None
+        elif param_to_get.is_indexed():
             # Check index validity before accessing
             if time_index is not None and hasattr(param_to_get,'index_set') and time_index in param_to_get.index_set():
                 val = pyo.value(param_to_get[time_index], exception=False)
             else:
-                # logger.debug(f"Invalid time index '{time_index}' for indexed parameter '{param_name_base}'.")
+                # logger.debug(f"Invalid time index '{time_index}' for indexed parameter '{param_actual_name}'.")
                 val = None # Index is invalid or None
         else: # Scalar parameter
             val = pyo.value(param_to_get, exception=False)
 
-        # Check for None or NaN (common in pandas-loaded data)
-        # Use both isnan and isna for broader compatibility
-        if val is None or \
-           (isinstance(val, float) and np.isnan(val)) or \
-           pd.isna(val):
-              # logger.debug(f"Parameter '{param_name_base}' value is None or NaN. Returning default.")
+        # Check for None or NaN
+        if val is None or (isinstance(val, float) and np.isnan(val)) or pd.isna(val):
+              # logger.debug(f"Parameter '{param_actual_name}' value is None or NaN. Returning default.")
               return default
         else:
               return val
 
     except Exception as e:
-        logger.error(f"Unexpected error accessing parameter '{param_name_base}' (attr name: {getattr(param_to_get, 'name', 'N/A')}) with index '{time_index}': {e}")
+        logger.error(f"Unexpected error accessing parameter '{param_actual_name}' with index '{time_index}': {e}")
         return default
 
 def get_var_value(model_component, time_index=None, default=0.0):
@@ -66,7 +75,7 @@ def get_var_value(model_component, time_index=None, default=0.0):
              else:
                  # logger.debug(f"Invalid time index '{time_index}' for indexed variable '{getattr(model_component, 'name', 'N/A')}'.")
                  val = None # Index invalid or None
-         else: # Not indexed
+         else: # Not indexed (e.g., pElectrolyzer_max)
              val = pyo.value(model_component, exception=False) # Allow returning None
 
          # Check for None or NaN
@@ -79,9 +88,50 @@ def get_var_value(model_component, time_index=None, default=0.0):
          logger.error(f"Unexpected error getting variable value for {comp_name}: {e}")
          return default
 
-# --- ADDED MISSING FUNCTION ---
+# --- NEW/MODIFIED HELPERS for Symbolic AS Summation ---
+
+def get_symbolic_as_bid_sum(m, t, service_list, component_suffix):
+    """
+    Returns symbolic sum expression for given AS BID services and component.
+    Looks for variables named like: {service}_{component_suffix}
+    """
+    terms = []
+    for service in service_list:
+        var_name = f"{service}_{component_suffix}" # This is for BID variables
+        if hasattr(m, var_name):
+            var_comp = getattr(m, var_name)
+            if var_comp.is_indexed() and t in var_comp.index_set():
+                terms.append(var_comp[t])
+            elif not var_comp.is_indexed():
+                logger.warning(f"AS bid variable {var_name} is not indexed in get_symbolic_as_bid_sum.")
+        # else:
+            # logger.debug(f"AS bid variable {var_name} not found for sum.")
+    return sum(terms) if terms else 0.0
+
+def get_symbolic_as_deployed_sum(m, t, service_list, component_suffix):
+    """
+    Returns symbolic sum expression for given DEPLOYED services and component.
+    Looks for variables named like: {service}_{component_suffix}_Deployed
+    """
+    terms = []
+    for service in service_list:
+        var_name = f"{service}_{component_suffix}_Deployed" # Key change: added _Deployed
+        if hasattr(m, var_name):
+            var_comp = getattr(m, var_name)
+            if var_comp.is_indexed() and t in var_comp.index_set():
+                terms.append(var_comp[t])
+            elif not var_comp.is_indexed():
+                logger.warning(f"Deployed AS variable {var_name} is not indexed in get_symbolic_as_deployed_sum.")
+        # else:
+            # logger.debug(f"Deployed AS variable {var_name} not found for sum.")
+    return sum(terms) if terms else 0.0
+
+# --- Helper for Result Processing ---
 def get_total_deployed_as(m, t, service_name):
-    """Helper to sum deployed AS from all relevant components for a given service."""
+    """
+    Helper to sum deployed AS from all relevant components for a given service
+    AFTER optimization (using numerical values).
+    """
     total_deployed = 0.0
     # Access flags via model object 'm'
     enable_electrolyzer = getattr(m,'ENABLE_ELECTROLYZER',False)
@@ -99,6 +149,6 @@ def get_total_deployed_as(m, t, service_name):
         deployed_var_name = f"{service_name}_{comp_name}_Deployed"
         if hasattr(m, deployed_var_name):
             deployed_var = getattr(m, deployed_var_name)
-            # Use get_var_value from this util module
+            # Use get_var_value from this util module to get numerical value post-solve
             total_deployed += get_var_value(deployed_var, t, default=0.0)
     return total_deployed

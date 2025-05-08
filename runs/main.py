@@ -1,6 +1,8 @@
+# src/main.py
 """
 Main entry point for the nuclear-hydrogen optimization framework.
-This script integrates the core optimization functionality with enhanced features.
+This script integrates the core optimization functionality with enhanced features
+and includes debugging logic for infeasible/unbounded models.
 
 Run:
     python main.py --iso PJM --solver gurobi --hours 8760
@@ -12,6 +14,7 @@ import sys
 import timeit
 from pathlib import Path
 from argparse import ArgumentParser
+import traceback # Import traceback for detailed error logging
 
 import pyomo.environ as pyo
 from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
@@ -20,8 +23,10 @@ from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
 src_path = Path(__file__).parent.parent / "src"
 sys.path.append(str(src_path))
 
+# --- MODIFICATION: Added HOURS_IN_YEAR to the import ---
 from config import (
     TARGET_ISO,
+    HOURS_IN_YEAR, # <-- Added this import
     ENABLE_NONLINEAR_TURBINE_EFF,
     LOG_FILE,
     SIMULATE_AS_DISPATCH_EXECUTION,
@@ -33,7 +38,7 @@ from config import (
     ENABLE_ELECTROLYZER_DEGRADATION_TRACKING,
     ENABLE_STARTUP_SHUTDOWN
 )
-from logging_setup import logger
+from logging_setup import logger # Make sure logger is initialized early
 from data_io import load_hourly_data
 from model import create_model
 from result_processing import extract_results
@@ -47,21 +52,28 @@ def parse_cli() -> ArgumentParser:
     Parse command line arguments
     """
     p = ArgumentParser(description="Nuclear-Hydrogen Flexibility Optimization Model")
-    p.add_argument("--iso", default=TARGET_ISO, 
+    p.add_argument("--iso", default=TARGET_ISO,
                   help="Target ISO (default: %(default)s)")
-    p.add_argument("--solver", default="gurobi", 
+    p.add_argument("--solver", default="gurobi",
                   help="Solver name registered with Pyomo")
-    p.add_argument("--hours", type=int, default=8760,
-                  help="Number of hours to simulate (default: 8760)")
+    # --- MODIFICATION: Set default hours from config ---
+    p.add_argument("--hours", type=int, default=HOURS_IN_YEAR, # Use imported HOURS_IN_YEAR as default
+                  help="Number of hours to simulate (default: from config)")
+    # --- Add option to enable IIS/Debugging ---
+    p.add_argument("--debug-infeasibility", action="store_true",
+                   help="Enable IIS computation if model is infeasible (requires compatible solver like Gurobi/CPLEX)")
     return p
 
-def print_configuration():
+def print_configuration(args):
     """
     Print current configuration settings
     """
     logger.info("Current Configuration:")
     logger.info("----------------------")
-    logger.info(f"Target ISO: {TARGET_ISO}")
+    logger.info(f"Target ISO: {args.iso}") # Use args.iso
+    logger.info(f"Solver: {args.solver}")
+    logger.info(f"Simulation Hours: {args.hours}") # Use args.hours
+    logger.info(f"Debug Infeasibility: {args.debug_infeasibility}")
     logger.info(f"Nuclear Generator: {ENABLE_NUCLEAR_GENERATOR}")
     logger.info(f"Electrolyzer: {ENABLE_ELECTROLYZER}")
     logger.info(f"Battery Storage: {ENABLE_BATTERY}")
@@ -71,6 +83,8 @@ def print_configuration():
     logger.info(f"Startup/Shutdown: {ENABLE_STARTUP_SHUTDOWN}")
     logger.info(f"Nonlinear Turbine: {ENABLE_NONLINEAR_TURBINE_EFF}")
     logger.info(f"AS Dispatch Simulation: {SIMULATE_AS_DISPATCH_EXECUTION}")
+    logger.info("----------------------")
+
 
 # ---------------------------------------------------------------------------
 # MAIN
@@ -80,57 +94,259 @@ def main(argv: list[str] | None = None):
     """
     Main execution function
     """
+    # --- ADDED: Basic print to confirm script start ---
+    print("--- main.py script started ---")
+    logger.info("--- main.py script started ---")
+
     args = parse_cli().parse_args(argv)
-    
+
     # Start timing
     t0 = timeit.default_timer()
     logger.info("=== Starting optimization run for %s ===", args.iso)
-    
-    # Print configuration
-    print_configuration()
-    
-    # 1. Load data
-    logger.info("Loading hourly data...")
-    data = load_hourly_data(args.iso)
-    if data is None:
-        logger.critical("Data loading failed – terminating.")
-        sys.exit(1)
-    
-    # 2. Create model
-    logger.info("Creating optimization model...")
-    model = create_model(data, args.iso, simulate_dispatch=SIMULATE_AS_DISPATCH_EXECUTION)
-    
-    # 3. Solve model
-    logger.info("Solving optimization model...")
-    solver = SolverFactory(args.solver)
-    results = solver.solve(model, tee=True)
-    
-    # 4. Process results
-    logger.info("Processing results...")
-    results_df = extract_results(model, target_iso=args.iso)
-    
-    # Check solver status
-    if results.solver.status != SolverStatus.ok:
-        logger.error("Solver failed: %s", results.solver.status)
-        sys.exit(2)
-    
-    if results.solver.termination_condition not in {TerminationCondition.optimal, TerminationCondition.feasible}:
-        logger.warning("Solver termination: %s", results.solver.termination_condition)
-    
-    # Calculate and display results
-    profit = pyo.value(model.TotalProfit_Objective)
+    print(f"=== Starting optimization run for {args.iso} ===") # Also print to console
+
+    # Print configuration using parsed args
+    print_configuration(args) # This logs the config
+
+    model = None # Initialize model to None
+    data = None  # Initialize data to None
+    solver = None # Initialize solver to None
+    results = None # Initialize results to None
+
+    try:
+        # 1. Load data
+        logger.info("Step 1: Loading hourly data...")
+        print("Step 1: Loading hourly data...")
+        # --- MODIFICATION: Use imported HOURS_IN_YEAR for comparison ---
+        if args.hours != HOURS_IN_YEAR:
+            logger.warning(f"Simulating for {args.hours} hours, but config HOURS_IN_YEAR is {HOURS_IN_YEAR}. Ensure data loading and model use the correct number of hours.")
+            # NOTE: data_io.py and potentially model.py might need adjustment
+            # if args.hours should override config HOURS_IN_YEAR for data slicing / TimePeriods definition.
+            # For now, we just warn. The model will likely use HOURS_IN_YEAR from config.
+
+        data = load_hourly_data(args.iso) # Pass base_dir if needed
+        if data is None:
+            logger.critical("Data loading failed – terminating.")
+            print("ERROR: Data loading failed.")
+            sys.exit(1)
+        logger.info("Step 1: Data loading complete.")
+        print("Step 1: Data loading complete.")
+
+        # 2. Create model
+        logger.info("Step 2: Creating optimization model...")
+        print("Step 2: Creating optimization model...")
+        # Pass simulate_dispatch flag correctly
+        model = create_model(data, args.iso, simulate_dispatch=SIMULATE_AS_DISPATCH_EXECUTION)
+        if model is None: # Check if model creation returned None (could indicate internal error)
+             logger.critical("Model creation failed (returned None) - terminating.")
+             print("ERROR: Model creation failed.")
+             sys.exit(2)
+        logger.info("Step 2: Model creation complete.")
+        print("Step 2: Model creation complete.")
+
+        # 3. Solve model
+        logger.info(f"Step 3: Setting up solver: {args.solver}...")
+        print(f"Step 3: Setting up solver: {args.solver}...")
+        solver = SolverFactory(args.solver)
+        logger.info("Step 3: Solver factory setup complete.")
+        print("Step 3: Solver factory setup complete.")
+
+
+        # --- Add Solver Options for Debugging (Example for Gurobi) ---
+        solver_options = {} # Initialize as empty dict
+        if args.solver == 'gurobi':
+            if args.debug_infeasibility:
+                 logger.info("Gurobi IIS computation is implicitly enabled on infeasibility.")
+                 # solver_options['ResultFile'] = f"{args.iso}_infeasible_model.ilp" # Optional: Write IIS directly if solver supports
+                 # solver_options['InfUnbdInfo'] = 1 # Optional: Get more info for infeasible/unbounded
+
+        elif args.solver == 'cplex':
+            if args.debug_infeasibility:
+                solver_options['iisfind'] = 1
+                logger.info("CPLEX IIS computation enabled.")
+
+        # --- Solve ---
+        logger.info("Step 3b: Calling solver.solve()...")
+        print("Step 3b: Calling solver.solve()...")
+        # --- MODIFICATION: Always pass the solver_options dictionary ---
+        results = solver.solve(model, tee=True, options=solver_options)
+        logger.info("Step 3b: solver.solve() call finished.")
+        print("Step 3b: solver.solve() call finished.")
+
+    # --- MODIFICATION: Catch exceptions during setup/solve ---
+    except Exception as e:
+        logger.critical(f"An exception occurred during model setup or solver call: {e}", exc_info=True)
+        print(f"ERROR during model setup or solver call: {e}")
+        # Print traceback for more details
+        print("\n--- Traceback ---")
+        traceback.print_exc()
+        print("-----------------\n")
+        sys.exit(3) # Exit if setup/solve crashes
+
+    # --- Check if results object is valid ---
+    if results is None:
+         logger.critical("Solver did not return a results object. Terminating.")
+         print("ERROR: Solver did not return a results object.")
+         sys.exit(3)
+
+    # 4. Process results and Check Solver Status
+    logger.info("Step 4: Processing results and checking solver status...")
+    print("Step 4: Processing results and checking solver status...")
+    solver_status = results.solver.status
+    term_cond = results.solver.termination_condition
+    logger.info(f"Solver Status: {solver_status}")
+    logger.info(f"Termination Condition: {term_cond}")
+    print(f"Solver Status: {solver_status}")
+    print(f"Termination Condition: {term_cond}")
+
+
+    results_df = None
+    summary_results = {}
+    profit = None
+
+    # --- MODIFICATION: Wrap result extraction in try...except ---
+    try:
+        if solver_status == SolverStatus.ok and term_cond in {TerminationCondition.optimal, TerminationCondition.feasible}:
+            logger.info("Solver found an optimal or feasible solution.")
+            print("Solver found an optimal or feasible solution.")
+            # Extract results only if a feasible/optimal solution was found
+            results_df, summary_results = extract_results(model, target_iso=args.iso)
+            profit = pyo.value(model.TotalProfit_Objective)
+            logger.info("Total profit = $%.2f", profit)
+
+        elif term_cond == TerminationCondition.infeasible:
+            logger.error("Model determined to be INFEASIBLE.")
+            print("ERROR: Model determined to be INFEASIBLE.")
+            if args.debug_infeasibility:
+                logger.info("Attempting to identify Irreducible Inconsistent Subsystem (IIS)...")
+                print("Attempting to write infeasible model file for IIS analysis...")
+                try:
+                    log_dir = Path("../logs")
+                    log_dir.mkdir(parents=True, exist_ok=True)
+                    infeasible_lp_file = log_dir / f"{args.iso}_infeasible_model.lp"
+                    # --- MODIFICATION: Add try-except around model.write ---
+                    try:
+                        model.write(str(infeasible_lp_file), io_options={'symbolic_solver_labels': True})
+                        logger.info(f"Wrote infeasible model to {infeasible_lp_file}")
+                        print(f"Wrote infeasible model to {infeasible_lp_file}")
+                        logger.info(f"Try running IIS analysis directly with your solver:")
+                        print(f"Try running IIS analysis directly with your solver:")
+                        if args.solver == 'gurobi':
+                            logger.info(f"  gurobi_cl ResultFile={args.iso}_iis.ilp {infeasible_lp_file}")
+                            print(f"  gurobi_cl ResultFile={args.iso}_iis.ilp {infeasible_lp_file}")
+                        elif args.solver == 'cplex':
+                            logger.info(f"  Run CPLEX interactive, read {infeasible_lp_file}, then use 'tools iis'")
+                            print(f"  Run CPLEX interactive, read {infeasible_lp_file}, then use 'tools iis'")
+                    except Exception as write_e:
+                         logger.error(f"Could not write infeasible model file: {write_e}", exc_info=True)
+                         print(f"ERROR: Could not write infeasible model file: {write_e}")
+
+                except Exception as path_e: # Catch potential Path issues
+                    logger.error(f"Error setting up path for infeasible model file: {path_e}", exc_info=True)
+                    print(f"ERROR: Error setting up path for infeasible model file: {path_e}")
+            else:
+                logger.warning("Run with --debug-infeasibility to enable IIS computation attempt (requires compatible solver).")
+                print("INFO: Run with --debug-infeasibility to enable IIS computation attempt.")
+            # --- MODIFICATION: Ensure exit even if file write fails ---
+            sys.exit(4) # Exit code for infeasible
+
+        elif term_cond == TerminationCondition.unbounded:
+            logger.error("Model determined to be UNBOUNDED.")
+            print("ERROR: Model determined to be UNBOUNDED.")
+            logger.warning("Diagnosing unbounded models often requires checking objective function terms and variable bounds.")
+            try:
+                log_dir = Path("../logs")
+                log_dir.mkdir(parents=True, exist_ok=True)
+                unbounded_lp_file = log_dir / f"{args.iso}_unbounded_model.lp"
+                # --- MODIFICATION: Add try-except around model.write ---
+                try:
+                    model.write(str(unbounded_lp_file), io_options={'symbolic_solver_labels': True})
+                    logger.info(f"Wrote potentially unbounded model to {unbounded_lp_file}")
+                    print(f"Wrote potentially unbounded model to {unbounded_lp_file}")
+                except Exception as write_e:
+                    logger.error(f"Could not write unbounded model file: {write_e}", exc_info=True)
+                    print(f"ERROR: Could not write unbounded model file: {write_e}")
+            except Exception as path_e:
+                logger.error(f"Error setting up path for unbounded model file: {path_e}", exc_info=True)
+                print(f"ERROR: Error setting up path for unbounded model file: {path_e}")
+            # --- MODIFICATION: Ensure exit even if file write fails ---
+            sys.exit(5) # Exit code for unbounded
+
+        elif solver_status == SolverStatus.warning and term_cond == TerminationCondition.maxTimeLimit:
+             logger.warning("Solver reached maximum time limit.")
+             print("WARNING: Solver reached maximum time limit.")
+             # Try to extract results if available, but they might be suboptimal
+             if hasattr(model, 'TotalProfit_Objective') and model.TotalProfit_Objective.value is not None:
+                 profit = pyo.value(model.TotalProfit_Objective)
+                 logger.warning(f"Suboptimal profit found = $%.2f", profit)
+                 results_df, summary_results = extract_results(model, target_iso=args.iso) # Attempt extraction
+             else:
+                 logger.warning("No objective value available after reaching time limit.")
+
+        elif solver_status == SolverStatus.error:
+             logger.error(f"Solver reported an ERROR. Termination condition: {term_cond}")
+             print(f"ERROR: Solver reported an ERROR. Termination condition: {term_cond}")
+             if hasattr(results, 'problem') and hasattr(results.problem, 'message'):
+                  logger.error(f"Problem message: {results.problem.message}")
+                  print(f"Problem message: {results.problem.message}")
+             sys.exit(6) # Exit code for solver error
+
+        else: # Other statuses (aborted, unknown, etc.)
+            logger.error(f"Solver finished with unexpected status: {solver_status}, termination condition: {term_cond}")
+            print(f"ERROR: Solver finished with unexpected status: {solver_status}, termination condition: {term_cond}")
+            sys.exit(7) # Exit code for other issues
+
+    # --- MODIFICATION: Catch exceptions during result processing ---
+    except Exception as e:
+        logger.error(f"An exception occurred during result processing or status checking: {e}", exc_info=True)
+        print(f"ERROR during result processing or status checking: {e}")
+        print("\n--- Traceback ---")
+        traceback.print_exc()
+        print("-----------------\n")
+        sys.exit(8) # Different exit code for result processing errors
+
+
+    # Calculate runtime and log final messages only if exited normally or with suboptimal solution
     runtime = timeit.default_timer() - t0
-    
-    logger.info("Optimization completed successfully")
-    logger.info("Total profit = $%.2f", profit)
+    logger.info("Optimization process finished.")
+    if profit is not None:
+        logger.info("Final profit = $%.2f", profit)
+    else:
+        logger.info("No final profit value available (model might have been infeasible, unbounded, or errored).")
     logger.info("Runtime = %.2f seconds", runtime)
     logger.info("Log saved to %s", LOG_FILE)
-    
-    print("\nResults Summary:")
+
+    print("\nRun Summary:")
     print("---------------")
-    print(f"Total profit = ${profit:,.2f}")
+    print(f"Solver Status: {solver_status}")
+    print(f"Termination Condition: {term_cond}")
+    if profit is not None:
+        print(f"Total profit = ${profit:,.2f}")
+    else:
+        print("Total profit: N/A")
     print(f"Runtime = {runtime:.2f} seconds")
     print(f"Detailed logs: {LOG_FILE}")
+    if term_cond == TerminationCondition.infeasible and args.debug_infeasibility:
+        infeasible_lp_file = Path(f"../logs/{args.iso}_infeasible_model.lp")
+        print(f"Infeasible model saved to {infeasible_lp_file}")
+        print(f"Try running IIS analysis using your solver's command line tools.")
+    elif term_cond == TerminationCondition.unbounded:
+         unbounded_lp_file = Path(f"../logs/{args.iso}_unbounded_model.lp")
+         print(f"Potentially unbounded model saved to {unbounded_lp_file}")
+
 
 if __name__ == "__main__":
-    main()
+    # --- MODIFICATION: Wrap main call in try...except for top-level errors ---
+    try:
+        main()
+        print("--- main.py script finished normally ---")
+        logger.info("--- main.py script finished normally ---")
+    except SystemExit as e:
+        print(f"--- main.py script exited with code {e.code} ---")
+        logger.warning(f"--- main.py script exited with code {e.code} ---")
+    except Exception as e:
+        print(f"--- main.py script encountered an unhandled top-level exception: {e} ---")
+        logger.critical(f"--- main.py script encountered an unhandled top-level exception: {e} ---", exc_info=True)
+        print("\n--- Traceback ---")
+        traceback.print_exc()
+        print("-----------------\n")
