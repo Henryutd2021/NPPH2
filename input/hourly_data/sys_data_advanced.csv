@@ -27,9 +27,9 @@ cost_water_USD_per_kg_h2,0.03
 uElectrolyzer_initial_status_0_or_1,0
 DegradationStateInitial_Units,0.0
 h2_target_capacity_factor_fraction,0.0
-hydrogen_subsidy_per_kg,3.0
+hydrogen_subsidy_value_usd_per_kg,0.0
 aux_power_consumption_per_kg_h2,3.5
-H2_value_USD_per_kg,3.0
+H2_value_USD_per_kg,4.0
 cost_electrolyzer_ramping_USD_per_MW_ramp,0.5
 Ramp_qSteam_Electrolyzer_limit_MWth_per_Hour,500.0
 pElectrolyzer_min_MW_LTE,50.0
@@ -63,9 +63,13 @@ H2_storage_capacity_min_kg,1000.0
 H2_storage_level_initial_kg,50000.0
 H2_storage_charge_rate_max_kg_per_hr,5000.0
 H2_storage_discharge_rate_max_kg_per_hr,5000.0
+hydrogen_subsidy_duration_years,10
 storage_charge_eff_fraction,0.98
 storage_discharge_eff_fraction,0.98
 vom_storage_cycle_USD_per_kg_cycled,0.01
+user_specified_electrolyzer_capacity_MW,
+user_specified_battery_power_MW,
+user_specified_battery_energy_MWh,
 BatteryCapacity_min_MWh,10.0
 BatteryCapacity_max_MWh,1000.0
 BatteryPowerRatio_MW_per_MWh,0.25

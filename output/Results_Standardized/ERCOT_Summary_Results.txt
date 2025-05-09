@@ -4,11 +4,11 @@ Target_ISO: ERCOT
 Optimal_Electrolyzer_Capacity_MW: 50.0000
 Optimal_Battery_Capacity_MWh: 1,000.0000
 Optimal_Battery_Power_MW: 250.0000
-Total_Revenue_USD: 253,832,673.5222
+Total_Revenue_USD: 253,463,550.6651
 Total_Energy_Revenue_USD: 155,397,863.4629
-Total_Hydrogen_Revenue_USD: 1,395,488.5714
-Total_Hydrogen_Sales_Revenue_USD: 769,774.2857
-Total_Hydrogen_Subsidy_Revenue_USD: 625,714.2857
+Total_Hydrogen_Revenue_USD: 1,026,365.7143
+Total_Hydrogen_Sales_Revenue_USD: 1,026,365.7143
+Total_Hydrogen_Subsidy_Revenue_USD: 0.0000
 Total_Ancillary_Revenue_USD: 97,039,321.4879
 Total_Hourly_Opex_USD: 10,925,451.6286
 Total_VOM_Cost_USD: 10,918,714.2857
@@ -37,7 +37,7 @@ Total_Deployed_RampDown_MWh: 0.0000
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 169,133,172.8242
-Total_Profit_Calculated_USD: 169,132,150.5810
+Objective_Value_USD: 168,764,049.9671
+Total_Profit_Calculated_USD: 168,763,027.7238
 Objective vs Calculated Profit Diff: -1,022.2432
 WARNING: Significant difference between objective value and calculated profit!

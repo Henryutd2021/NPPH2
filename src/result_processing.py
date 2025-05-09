@@ -352,26 +352,38 @@ def extract_results(model: pyo.ConcreteModel, target_iso: str, output_dir: str =
 
 
     if enable_electrolyzer:
-        if hasattr(model, 'pElectrolyzer_max') and isinstance(model.pElectrolyzer_max, pyo.Var):
-            elec_capacity_val = get_var_value(model.pElectrolyzer_max, default=0.0) # Use util
-            summary_results['Optimal_Electrolyzer_Capacity_MW'] = elec_capacity_val
-        else:
-            elec_capacity_val = get_param(model, 'pElectrolyzer_max_upper_bound', default=0.0) # Use util
+        elec_cap_component = getattr(model, 'pElectrolyzer_max', None)
+        if isinstance(elec_cap_component, pyo.Param):
+            elec_capacity_val = pyo.value(elec_cap_component) # Already a float
             summary_results['Fixed_Electrolyzer_Capacity_MW'] = elec_capacity_val
+        elif isinstance(elec_cap_component, pyo.Var):
+            elec_capacity_val = get_var_value(elec_cap_component, default=0.0)
+            summary_results['Optimal_Electrolyzer_Capacity_MW'] = elec_capacity_val
+        else: # Not found or other type
+            elec_capacity_val = get_param(model, 'pElectrolyzer_max_upper_bound', default=0.0) # Fallback if var was expected but not found
+            summary_results['Assumed_Electrolyzer_Capacity_MW'] = elec_capacity_val # Or handle as error
     hourly_data['Electrolyzer_Capacity_MW'] = [elec_capacity_val] * len(hours)
 
     if enable_battery:
-        if hasattr(model, 'BatteryCapacity_MWh') and isinstance(model.BatteryCapacity_MWh, pyo.Var):
-            batt_capacity_val = get_var_value(model.BatteryCapacity_MWh, default=0.0) # Use util
-            batt_power_val = get_var_value(model.BatteryPower_MW, default=0.0) # Use util
-            summary_results['Optimal_Battery_Capacity_MWh'] = batt_capacity_val
-            summary_results['Optimal_Battery_Power_MW'] = batt_power_val
-        else:
-            batt_capacity_val = get_param(model, 'BatteryCapacity_max', default=0.0) # Use util
-            power_ratio = get_param(model, 'BatteryPowerRatio', default=0.0) # Use util
-            batt_power_val = batt_capacity_val * power_ratio
+        batt_cap_component = getattr(model, 'BatteryCapacity_MWh', None)
+        batt_pow_component = getattr(model, 'BatteryPower_MW', None)
+
+        if isinstance(batt_cap_component, pyo.Param):
+            batt_capacity_val = pyo.value(batt_cap_component)
+            batt_power_val = pyo.value(batt_pow_component) # Should also be Param if capacity is Param
             summary_results['Fixed_Battery_Capacity_MWh'] = batt_capacity_val
             summary_results['Fixed_Battery_Power_MW'] = batt_power_val
+        elif isinstance(batt_cap_component, pyo.Var):
+            batt_capacity_val = get_var_value(batt_cap_component, default=0.0)
+            batt_power_val = get_var_value(batt_pow_component, default=0.0) # Will be optimized or linked
+            summary_results['Optimal_Battery_Capacity_MWh'] = batt_capacity_val
+            summary_results['Optimal_Battery_Power_MW'] = batt_power_val
+        else: # Not found or other type
+            batt_capacity_val = get_param(model, 'BatteryCapacity_max', default=0.0)
+            power_ratio = get_param(model, 'BatteryPowerRatio', default=0.0)
+            batt_power_val = batt_capacity_val * power_ratio
+            summary_results['Assumed_Battery_Capacity_MWh'] = batt_capacity_val
+            summary_results['Assumed_Battery_Power_MW'] = batt_power_val
     hourly_data['Battery_Capacity_MWh'] = [batt_capacity_val] * len(hours)
     hourly_data['Battery_Power_MW'] = [batt_power_val] * len(hours)
 

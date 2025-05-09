@@ -4,22 +4,25 @@ Target_ISO: CAISO
 Optimal_Electrolyzer_Capacity_MW: 50.0000
 Optimal_Battery_Capacity_MWh: 1,000.0000
 Optimal_Battery_Power_MW: 250.0000
-Total_Revenue_USD: 270,773,783.2601
+Total_Revenue_USD: 270,917,843.2601
 Total_Energy_Revenue_USD: 154,555,099.0097
-Total_Hydrogen_Revenue_USD: 1,251,428.5714
-Total_Hydrogen_Sales_Revenue_USD: 625,714.2857
+Total_Hydrogen_Revenue_USD: 1,395,488.5714
+Total_Hydrogen_Sales_Revenue_USD: 769,774.2857
 Total_Hydrogen_Subsidy_Revenue_USD: 625,714.2857
 Total_Ancillary_Revenue_USD: 114,967,255.6790
-Total_Hourly_Opex_USD: 10,924,971.4286
+Total_Hourly_Opex_USD: 10,925,451.6286
 Total_VOM_Cost_USD: 10,918,714.2857
 Total_Water_Cost_USD: 6,257.1429
 Total_Ramping_Cost_USD: 0.0000
-Total_Storage_Cycle_Cost_USD: 0.0000
+Total_Storage_Cycle_Cost_USD: 480.2000
 Total_Startup_Cost_USD: 0.0000
 Total_Annualized_Capex_USD: 73,775,071.3127
 Electrolyzer_Annualized_Capex_USD: 12,731,526.1029
 Battery_Annualized_Capex_USD: 61,043,545.2098
 Total_H2_Produced_kg: 208,571.4286
+Total_H2_to_Market_Direct_kg: 208,571.4286
+Total_H2_from_Storage_kg: 48,020.0000
+Final_H2_Storage_Level_kg: 1,000.0000
 Electrolyzer_Capacity_Factor_Actual: 1.0000
 Total_Electrolyzer_Startups: 0
 Final_DegradationState_Units: 0.0000
@@ -34,7 +37,7 @@ Total_Deployed_RampDown_MWh: 0.0000
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 186,074,995.2691
-Total_Profit_Calculated_USD: 186,073,740.5188
+Objective_Value_USD: 186,218,575.0691
+Total_Profit_Calculated_USD: 186,217,320.3188
 Objective vs Calculated Profit Diff: -1,254.7502
 WARNING: Significant difference between objective value and calculated profit!

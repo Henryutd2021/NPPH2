@@ -571,8 +571,16 @@ def battery_cyclic_soc_upper_rule(m):
 def battery_power_capacity_link_rule(m):
     enable_battery = getattr(m, 'ENABLE_BATTERY', False)
     if not enable_battery: return pyo.Constraint.Skip
-    try: return m.BatteryPower_MW == m.BatteryCapacity_MWh * m.BatteryPowerRatio # Links two Vars via a Param
-    except Exception as e: logger.error(f"Error in battery_power_capacity_link rule: {e}"); raise
+    # If BatteryCapacity_MWh is a Param, it means power is also a Param (due to new logic in model.py)
+    # So, this linking constraint is not needed / would be an equality of two params.
+    if isinstance(getattr(m, 'BatteryCapacity_MWh', None), pyo.Param):
+        return pyo.Constraint.Skip
+    try: 
+        # This rule applies only when BatteryPower_MW and BatteryCapacity_MWh are Vars
+        return m.BatteryPower_MW == m.BatteryCapacity_MWh * m.BatteryPowerRatio 
+    except Exception as e: 
+        logger.error(f"Error in battery_power_capacity_link rule: {e}")
+        raise
 
 def battery_min_cap_rule(m):
      enable_battery = getattr(m, 'ENABLE_BATTERY', False)
