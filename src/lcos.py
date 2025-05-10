@@ -1,21 +1,29 @@
 import math
 
+
 def calculate_lcos(
     # --- Parameters without default values ---
-    capex_per_kwh,              # Initial system capital cost ($ per kWh of energy capacity)
+    # Initial system capital cost ($ per kWh of energy capacity)
+    capex_per_kwh,
     capacity_mwh,               # Total energy capacity of the BESS (MWh)
     power_mw,                   # Rated power capacity of the BESS (MW)
-    lifetime_years,             # Expected operational lifetime of the system (years)
+    # Expected operational lifetime of the system (years)
+    lifetime_years,
     cycles_per_year,            # Equivalent full charge/discharge cycles per year
     dod_percent,                # Depth of Discharge per cycle (%)
     rte_percent,                # Round-Trip Efficiency (AC-AC, %)
-    fom_rate_per_kw_yr,         # Fixed O&M cost ($ per kW of power capacity per year)
-    avg_charging_price_per_mwh, # Average cost of electricity used for charging ($/MWh)
-    discount_rate_percent,      # Annual discount rate for present value calculations (%)
+    # Fixed O&M cost ($ per kW of power capacity per year)
+    fom_rate_per_kw_yr,
+    # Average cost of electricity used for charging ($/MWh)
+    avg_charging_price_per_mwh,
+    # Annual discount rate for present value calculations (%)
+    discount_rate_percent,
 
     # --- Parameters with default values ---
-    apply_itc_percent=0,        # Investment Tax Credit percentage (e.g., 30 for 30% ITC)
-    other_vom_per_mwh_discharged=0 # Other Variable O&M costs ($ per MWh discharged, excluding charging)
+    # Investment Tax Credit percentage (e.g., 30 for 30% ITC)
+    apply_itc_percent=0,
+    # Other Variable O&M costs ($ per MWh discharged, excluding charging)
+    other_vom_per_mwh_discharged=0
 ):
     """
     Calculates the Levelized Cost of Storage (LCOS) for a Battery Energy Storage System (BESS).
@@ -58,12 +66,13 @@ def calculate_lcos(
         return None
 
     # --- Derived Calculations & Initializations ---
-    total_initial_capex = capex_per_kwh * capacity_mwh * 1000 # Total CAPEX in $
-    effective_capex = total_initial_capex * (1 - apply_itc_percent / 100) # CAPEX after ITC
+    total_initial_capex = capex_per_kwh * capacity_mwh * 1000  # Total CAPEX in $
+    effective_capex = total_initial_capex * \
+        (1 - apply_itc_percent / 100)  # CAPEX after ITC
 
     discount_rate = discount_rate_percent / 100
 
-    total_pv_costs = effective_capex # Start with year 0 cost
+    total_pv_costs = effective_capex  # Start with year 0 cost
     total_pv_energy_discharged = 0
 
     # --- Annual Calculations (Years 1 to Lifetime) ---
@@ -76,13 +85,15 @@ def calculate_lcos(
     annual_energy_discharged_mwh = energy_per_cycle_mwh * cycles_per_year
 
     # Annual Energy Charged (MWh/year) - Accounting for RTE losses
-    annual_energy_charged_mwh = annual_energy_discharged_mwh / (rte_percent / 100) if rte_percent > 0 else 0
+    annual_energy_charged_mwh = annual_energy_discharged_mwh / \
+        (rte_percent / 100) if rte_percent > 0 else 0
 
     for year in range(1, lifetime_years + 1):
         # Calculate annual costs for the current year
         charging_cost_annual = annual_energy_charged_mwh * avg_charging_price_per_mwh
         other_vom_cost_annual = annual_energy_discharged_mwh * other_vom_per_mwh_discharged
-        total_annual_op_cost = fom_cost_annual + charging_cost_annual + other_vom_cost_annual
+        total_annual_op_cost = fom_cost_annual + \
+            charging_cost_annual + other_vom_cost_annual
 
         # Calculate Present Value (PV) of costs and energy for the current year
         pv_factor = (1 + discount_rate) ** year
@@ -101,6 +112,7 @@ def calculate_lcos(
     lcos = total_pv_costs / total_pv_energy_discharged
     return lcos
 
+
 # --- Example Usage ---
 if __name__ == "__main__":
     # Example based on a hypothetical Utility-Scale BESS in the US (drawing from document data)
@@ -109,27 +121,32 @@ if __name__ == "__main__":
     # System Specs
     example_power_mw = 100       # MW (e.g., Lazard example size)
     example_duration_hr = 4      # Hours (Common duration)
-    example_capacity_mwh = example_power_mw * example_duration_hr # MWh
+    example_capacity_mwh = example_power_mw * example_duration_hr  # MWh
 
     # Cost & Financial Inputs (Representative values based on document)
-    example_capex_per_kwh = 236  # $/kWh (Avg US Turnkey Cost 2024, BNEF via doc)
+    # $/kWh (Avg US Turnkey Cost 2024, BNEF via doc)
+    example_capex_per_kwh = 236
     example_itc_percent = 30     # % (Standard US ITC rate mentioned in doc)
     example_lifetime_years = 15  # Years (NREL ATB assumption)
     # Fixed O&M: NREL uses 2.5% of CAPEX ($/kW) per year.
     # For $236/kWh & 4hr duration -> $944/kW CAPEX. 2.5% of $944/kW = $23.6/kW-yr. Let's use 25 for simplicity.
     example_fom_per_kw_yr = 25
-    example_avg_charging_price = 50 # $/MWh (Hypothetical average wholesale charging cost)
-    example_discount_rate = 8    # % (Hypothetical, common range for project finance)
+    # $/MWh (Hypothetical average wholesale charging cost)
+    example_avg_charging_price = 50
+    # % (Hypothetical, common range for project finance)
+    example_discount_rate = 8
 
     # Operational Inputs
-    example_cycles_per_year = 300 # Equivalent Full Cycles (Assumption for wholesale arbitrage/capacity)
+    # Equivalent Full Cycles (Assumption for wholesale arbitrage/capacity)
+    example_cycles_per_year = 300
     example_dod_percent = 90     # % (Common operational limit)
     example_rte_percent = 85     # % (Typical AC-AC RTE)
     example_other_vom = 1        # $/MWh (Small value for other variable costs)
 
     print(f"--- Calculating LCOS for Example BESS ---")
     print(f"Parameters:")
-    print(f"  Power: {example_power_mw} MW, Capacity: {example_capacity_mwh} MWh ({example_duration_hr} hr)")
+    print(
+        f"  Power: {example_power_mw} MW, Capacity: {example_capacity_mwh} MWh ({example_duration_hr} hr)")
     print(f"  CAPEX: ${example_capex_per_kwh}/kWh")
     print(f"  ITC: {example_itc_percent}%")
     print(f"  Lifetime: {example_lifetime_years} years")

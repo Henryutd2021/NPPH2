@@ -10,6 +10,7 @@ from pathlib import Path
 
 from src import config
 
+
 class TestConfig(unittest.TestCase):
 
     def test_default_values(self):
@@ -23,7 +24,8 @@ class TestConfig(unittest.TestCase):
     def test_can_provide_ancillary_services_logic(self):
         # Test the derived CAN_PROVIDE_ANCILLARY_SERVICES flag
         # Default case from config.py
-        self.assertTrue(config.CAN_PROVIDE_ANCILLARY_SERVICES, "Default config should allow AS")
+        self.assertTrue(config.CAN_PROVIDE_ANCILLARY_SERVICES,
+                        "Default config should allow AS")
 
         # Test scenarios (requires temporarily modifying config values or a more advanced setup)
         # This shows the principle; a better way might involve reloading the module or using a mock
@@ -40,24 +42,27 @@ class TestConfig(unittest.TestCase):
             # For simplicity, we assume a way to re-trigger the logic if it's not top-level
             # Or, if it's a simple top-level assignment, we can directly calculate expected
             expected_as_capable_scenario1 = config.ENABLE_NUCLEAR_GENERATOR and \
-                                           (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
-            self.assertFalse(expected_as_capable_scenario1, "AS should be False if Nuclear is OFF")
+                (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
+            self.assertFalse(expected_as_capable_scenario1,
+                             "AS should be False if Nuclear is OFF")
 
             # Scenario 2: Nuclear ON, Electrolyzer OFF, Battery OFF
             config.ENABLE_NUCLEAR_GENERATOR = True
             config.ENABLE_ELECTROLYZER = False
             config.ENABLE_BATTERY = False
             expected_as_capable_scenario2 = config.ENABLE_NUCLEAR_GENERATOR and \
-                                           (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
-            self.assertFalse(expected_as_capable_scenario2, "AS should be False if Electrolyzer and Battery are OFF")
+                (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
+            self.assertFalse(expected_as_capable_scenario2,
+                             "AS should be False if Electrolyzer and Battery are OFF")
 
             # Scenario 3: Nuclear ON, Electrolyzer ON, Battery OFF
             config.ENABLE_NUCLEAR_GENERATOR = True
             config.ENABLE_ELECTROLYZER = True
             config.ENABLE_BATTERY = False
             expected_as_capable_scenario3 = config.ENABLE_NUCLEAR_GENERATOR and \
-                                           (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
-            self.assertTrue(expected_as_capable_scenario3, "AS should be True with Nuclear and Electrolyzer ON")
+                (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
+            self.assertTrue(expected_as_capable_scenario3,
+                            "AS should be True with Nuclear and Electrolyzer ON")
 
         finally:
             # Restore original values to avoid side effects on other tests
@@ -66,8 +71,7 @@ class TestConfig(unittest.TestCase):
             config.ENABLE_BATTERY = original_battery
             # Re-evaluate CAN_PROVIDE_ANCILLARY_SERVICES based on restored values if it was modified directly
             config.CAN_PROVIDE_ANCILLARY_SERVICES = config.ENABLE_NUCLEAR_GENERATOR and \
-                                                     (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
-
+                (config.ENABLE_ELECTROLYZER or config.ENABLE_BATTERY)
 
     def test_h2_storage_dependencies(self):
         # Example for testing warnings and flag adjustments
@@ -82,13 +86,14 @@ class TestConfig(unittest.TestCase):
             # We can manually simulate that re-evaluation for the test's scope.
             current_h2_storage = config.ENABLE_H2_STORAGE and config.ENABLE_ELECTROLYZER
             if config.ENABLE_H2_STORAGE and not config.ENABLE_ELECTROLYZER:
-                 current_h2_storage = False # Simulating the correction in config.py
+                current_h2_storage = False  # Simulating the correction in config.py
             self.assertFalse(current_h2_storage)
 
         finally:
             config.ENABLE_H2_STORAGE = original_h2_storage
             config.ENABLE_ELECTROLYZER = original_electrolyzer
             # Re-evaluate dependent flags if necessary
+
 
 if __name__ == '__main__':
     unittest.main()
