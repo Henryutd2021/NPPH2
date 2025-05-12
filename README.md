@@ -79,7 +79,7 @@ For the complete list of dependencies, see `requirements.txt`.
 - `temp_sensitivity_runs/`: Temporary sensitivity analysis results
 - `data/`: Data utilities and sources
   - `data_gen.py`: Generates synthetic datasets required by the optimization framework
-  - `data_ana.ipynb`: Notebook to clean and analyze real-world data
+  - `data_ana.ipynb`: Notebook to fetch, clean and analyze real-world data
   - `Raw/`: Raw downloaded data files
   - `ISOs/`: ISO-specific data subsets
 

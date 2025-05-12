@@ -33,6 +33,7 @@ Thumbs.db
 # ========== Project-specific ==========
 # Ignore raw data and large files
 data/Raw/*
+data/data.ipynb
 !data/Raw/.gitkeep
 temp_sensitivity_runs/
 src/__pycache__
