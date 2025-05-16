@@ -1,0 +1,115 @@
+Technical Economic Analysis Report - SPP
+=================================
+
+1. Project Configuration
+-------------------------
+  Target ISO: SPP
+  Project Lifetime: 30 years
+  Construction Period: 2 years
+  Discount Rate: 8.00%
+  Corporate Tax Rate: 21.0%
+
+2. Capital Expenditure (CAPEX) Breakdown
+------------------------------------------
+  Electrolyzer System                     : $1,000,000,000 (77.3%)
+  Battery System Energy                   : $236,000,000 (18.3%)
+  Battery System Power                    : $50,000,000 (3.9%)
+  Grid Integration                        : $5,000,000 (0.4%)
+  NPP Modifications                       : $2,000,000 (0.2%)
+
+  Total CAPEX: $1,293,000,000
+
+3. Optimization Results - System Capacities
+---------------------------------------------
+  Electrolyzer Capacity                   : 500.00 MW
+  Hydrogen Storage Capacity               : 0.00 kg
+  Battery Energy Capacity                 : 1,000.00 MWh
+  Battery Power Capacity                  : 250.00 MW
+  Turbine Capacity                        : 373.21 MW
+
+  Reference Capacities from Configuration (before learning rate scaling):
+    Electrolyzer System           : 50 MW
+    H2 Storage System             : 10,000 kg
+    Battery System Energy         : 100 MWh
+    Battery System Power          : 25 MW
+
+4. Representative Annual Performance (from Optimization)
+----------------------------------------------------------
+  As Revenue                                   : 584,140,801.77
+  Annual Electrolyzer Mwh                      : 2,475,441.99
+  Annual Opex Cost From Opt                    : 33,078,326.10
+  Annual Profit                                : 789,848,814.03
+  Annual Revenue                               : 822,927,140.14
+  Avg Electricity Price Usd Per Mwh            : 68.69
+  Battery Cf Percent                           : 0.00
+  Battery Soc Percent                          : 42.25
+  Degradationstate Units Avg                   : 0.00
+  Degradationstate Units End                   : 0.00
+  Electrolyzer Cf Percent                      : 56.52
+  Energy Revenue                               : 51,014,041.46
+  H2 Production Kg Annual                      : 62,590,765.64
+  H2 Sales Revenue                             : 187,772,296.92
+  H2 Storage Cycle Cost                        : 0.00
+  H2 Storage Soc Percent                       : 0.00
+  H2 Subsidy Revenue                           : 0.00
+  H2 Total Revenue                             : 187,772,296.92
+  Ramping Cost                                 : 502,117.96
+  Startup Cost                                 : 0.00
+  Turbine Cf Percent                           : 90.91
+  Vom Battery Cost                             : 0.00
+  Vom Electrolyzer Cost                        : 24,754,419.91
+  Vom Turbine Cost                             : 5,944,065.29
+  Water Cost                                   : 1,877,722.97
+  Weighted Avg Electricity Price Usd Per Mwh   : 62.20
+  Annual Fixed Om Costs                        : [np.float64(28220000.0), np.float64(28784400.0), np.float64(29360088.0), np.float64(29947289.76), np.float64(30546235.5552), np.float64(31157160.266303997), np.float64(31780303.47163008), np.float64(32415909.541062683), np.float64(33064227.73188394), np.float64(33725512.28652162), np.float64(34400022.53225205), np.float64(35088022.982897095), np.float64(35789783.44255503), np.float64(36505579.11140614), np.float64(37235690.69363426), np.float64(37980404.507506944), np.float64(38740012.597657084), np.float64(39514812.84961023), np.float64(40305109.10660243), np.float64(41111211.28873448), np.float64(41933435.51450917), np.float64(42772104.22479936), np.float64(43627546.30929535), np.float64(44500097.235481255), np.float64(45390099.180190876), np.float64(46297901.163794704), np.float64(47223859.18707059), np.float64(48168336.37081201)]
+  Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(171600000.0), 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(300000000.0), 0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(300000000.0), 0, 0, 0, 0, 0, 0, 0, 0]
+  Electrolyzer Capex                           : 1,000,000,000.00
+
+5. Lifecycle Financial Metrics (Total System)
+----------------------------------------------
+  Irr (%)                                      : 39.86
+  Lcoh (Usd) (Usd/Kg)                          : 1.93
+  Npv (Usd)                                    : 4,667,830,714.47
+  Payback Period (Years)                       : 2.15
+
+6. Incremental Financial Metrics (H2/Battery System vs. Baseline)
+--------------------------------------------------------------------
+  Annual Electricity Opportunity Cost Usd (USD): 170,050,361.53
+  Total Incremental Capex Learned Usd (USD): 1,286,000,000.00
+  Incremental Irr (%)                         : 31.14
+  Incremental Lcoh (Usd) (Usd/Kg)             : 1.92
+  Incremental Npv (Usd)                       : 3,335,872,104.63
+  Incremental Payback Period (Years)          : 2.84
+
+7. Cost Assumptions (Base Year)
+--------------------------------
+  CAPEX Components:
+    Battery_System_Energy         : $23,600,000 (Ref Cap: 100, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Battery_System_Power          : $5,000,000 (Ref Cap: 25, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Electrolyzer_System           : $100,000,000 (Ref Cap: 50, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    Grid_Integration              : $5,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-1: 1.0})
+    H2_Storage_System             : $10,000,000 (Ref Cap: 10000, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    NPP_Modifications             : $2,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-2: 1.0})
+  O&M Components (Annual Base):
+    Fixed_OM_Battery              : $0.00/MW/yr + $2,360.00/MWh/yr (Inflation: 2.0%)
+    Fixed_OM_General              : $0 (Inflation: 2.0%)
+  Major Replacements:
+    Battery_Augmentation_Replacement: Cost: 60.00% of Initial CAPEX (Years: [10])
+    Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
+    H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
+
+8. Visualization Reference
+--------------------------
+  Plots have been generated in: /home/honglin/NPPH2/TEA_results/Plots_SPP
+  Key visualizations include:
+    - Cash flow profile (annual and cumulative)
+    - Incremental cash flow profile
+    - CAPEX breakdown (pie chart and bar chart)
+    - Project cost structure (CAPEX vs. OPEX & Replacements)
+    - Annual revenue breakdown
+    - Annual operational cost breakdown
+    - Key financial metrics
+    - Capacity factors
+
+Report generated: 2025-05-16 20:39:01

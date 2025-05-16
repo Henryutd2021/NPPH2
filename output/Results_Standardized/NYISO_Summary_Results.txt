@@ -1,39 +1,39 @@
 --- Summary Results for NYISO ---
 Simulation_Mode: Dispatch Execution
 Target_ISO: NYISO
-Optimal_Electrolyzer_Capacity_MW: 500.0000
+Optimal_Electrolyzer_Capacity_MW: 50.0000
 Optimal_Battery_Capacity_MWh: 10.0000
 Optimal_Battery_Power_MW: 2.5000
-Total_Revenue_USD: 671,846,278.1367
-Total_Energy_Revenue_USD: -104,071,080.0907
-Total_Hydrogen_Revenue_USD: 656,864,576.3471
-Total_Hydrogen_Sales_Revenue_USD: 328,432,288.1735
-Total_Hydrogen_Subsidy_Revenue_USD: 328,432,288.1735
-Total_Ancillary_Revenue_USD: 119,052,781.8803
-Total_Hourly_Opex_USD: 51,505,609.7446
-Total_VOM_Cost_USD: 48,126,533.9235
-Total_Water_Cost_USD: 3,284,322.8817
-Total_Ramping_Cost_USD: 94,752.9394
+Total_Revenue_USD: 261,508,581.1401
+Total_Energy_Revenue_USD: 194,481,377.3864
+Total_Hydrogen_Revenue_USD: 31,285,714.2857
+Total_Hydrogen_Sales_Revenue_USD: 31,285,714.2857
+Total_Hydrogen_Subsidy_Revenue_USD: 0.0000
+Total_Ancillary_Revenue_USD: 35,741,489.4680
+Total_Hourly_Opex_USD: 11,231,571.4286
+Total_VOM_Cost_USD: 10,918,714.2857
+Total_Water_Cost_USD: 312,857.1429
+Total_Ramping_Cost_USD: 0.0000
 Total_Storage_Cycle_Cost_USD: 0.0000
 Total_Startup_Cost_USD: 0.0000
-Total_Annualized_Capex_USD: 127,890,296.4810
-Electrolyzer_Annualized_Capex_USD: 127,315,261.0289
+Total_Annualized_Capex_USD: 13,306,561.5550
+Electrolyzer_Annualized_Capex_USD: 12,731,526.1029
 Battery_Annualized_Capex_USD: 575,035.4521
-Total_H2_Produced_kg: 109,477,429.3912
-Electrolyzer_Capacity_Factor_Actual: 0.9753
+Total_H2_Produced_kg: 10,428,571.4286
+Electrolyzer_Capacity_Factor_Actual: 1.0000
 Total_Electrolyzer_Startups: 0
 Final_DegradationState_Units: 0.0000
 Total_Deployed_RegUp_MWh: 0.0000
 Total_Deployed_RegDown_MWh: 0.0000
-Total_Deployed_SR_MWh: 26,485.4076
-Total_Deployed_NSR_MWh: 33,643.7980
+Total_Deployed_SR_MWh: 938.2416
+Total_Deployed_NSR_MWh: 1,115.2669
 Total_Deployed_ECRS_MWh: 0.0000
-Total_Deployed_ThirtyMin_MWh: 33,995.7576
+Total_Deployed_ThirtyMin_MWh: 1,108.7858
 Total_Deployed_RampUp_MWh: 0.0000
 Total_Deployed_RampDown_MWh: 0.0000
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 492,450,371.9112
-Total_Profit_Calculated_USD: 492,450,371.9111
-Objective vs Calculated Profit Diff: -0.0001
+Objective_Value_USD: 236,970,448.1565
+Total_Profit_Calculated_USD: 236,970,448.1565
+Objective vs Calculated Profit Diff: -0.0000
