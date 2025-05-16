@@ -12,7 +12,7 @@ from pathlib import Path
 # BASIC CONFIGURATION
 # -----------------------------
 # 'CAISO' | 'ERCOT' | 'ISONE' | 'MISO' | 'NYISO' | 'PJM' | 'SPP'
-TARGET_ISO: str = "NYISO"
+TARGET_ISO: str = "MISO"
 HOURS_IN_YEAR: int = 8760        # Set to 24*7 for quick tests
 
 # -----------------------------
@@ -28,7 +28,7 @@ ENABLE_BATTERY: bool = True               # Enable battery storage
 
 # --- Advanced Feature Flags ---
 # Enable separate hydrogen storage (requires ENABLE_ELECTROLYZER)
-ENABLE_H2_STORAGE: bool = True
+ENABLE_H2_STORAGE: bool = False
 # Enforce H2 production target (usually disable when storage is enabled)
 ENABLE_H2_CAP_FACTOR: bool = False
 # Use piecewise linear turbine efficiency (requires ENABLE_NUCLEAR_GENERATOR)

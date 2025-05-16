@@ -11,49 +11,49 @@ Technical Economic Analysis Report - NYISO
 
 2. Representative Annual Performance (from Optimization)
 ----------------------------------------------------------
-  As Revenue                                   : 35,741,489.47
-  Annual Electrolyzer Mwh                      : 438,000.00
-  Annual Opex Cost From Opt                    : 10,925,452.00
-  Annual Profit                                : 221,044,394.24
-  Annual Revenue                               : 231,969,845.87
+  As Revenue                                   : 119,052,781.88
+  Annual Electrolyzer Mwh                      : 4,271,697.66
+  Annual Opex Cost From Opt                    : 51,505,609.46
+  Annual Profit                                : 620,340,668.39
+  Annual Revenue                               : 671,846,278.14
   Avg Electricity Price Usd Per Mwh            : 68.78
   Battery Cf Percent                           : 0.00
   Battery Capacity Mwh                         : 10.00
   Battery Power Mw                             : 2.50
-  Electrolyzer Cf Percent                      : 100.00
-  Electrolyzer Capacity Mw                     : 50.00
-  Energy Revenue                               : 194,832,867.82
-  H2 Production Kg Annual                      : 208,571.22
-  H2 Sales Revenue                             : 769,774.54
+  Electrolyzer Cf Percent                      : 97.53
+  Electrolyzer Capacity Mw                     : 500.00
+  Energy Revenue                               : -104,071,080.09
+  H2 Production Kg Annual                      : 109,477,429.23
+  H2 Sales Revenue                             : 328,432,288.49
   H2 Storage Capacity Kg                       : 0.00
-  H2 Storage Cycle Cost                        : 480.20
-  H2 Subsidy Revenue                           : 625,714.54
-  H2 Total Revenue                             : 1,395,489.07
-  Ramping Cost                                 : 0.00
+  H2 Storage Cycle Cost                        : 0.00
+  H2 Subsidy Revenue                           : 328,432,288.49
+  H2 Total Revenue                             : 656,864,576.97
+  Ramping Cost                                 : 94,752.94
   Startup Cost                                 : 0.00
   Turbine Cf Percent                           : 0.00
   Turbine Capacity Mw                          : 0.00
   Vom Battery Cost                             : 0.00
-  Vom Electrolyzer Cost                        : 4,380,000.00
-  Vom Turbine Cost                             : 6,538,714.54
-  Water Cost                                   : 6,257.27
-  Weighted Avg Electricity Price Usd Per Mwh   : 68.78
+  Vom Electrolyzer Cost                        : 42,716,976.62
+  Vom Turbine Cost                             : 5,409,557.68
+  Water Cost                                   : 3,284,323.01
+  Weighted Avg Electricity Price Usd Per Mwh   : 67.30
 
 3. Lifecycle Financial Metrics (Total System)
 ----------------------------------------------
-  Irr (%)                                      : 145.00
-  Lcoh (Usd) (Usd/Kg)                          : 35.96
-  Npv (Usd)                                    : 1,684,753,101.06
-  Payback Period (Years)                       : 0.46
+  Irr (%)                                      : 391.99
+  Lcoh (Usd) (Usd/Kg)                          : 0.05
+  Npv (Usd)                                    : 3,891,711,008.55
+  Payback Period (Years)                       : 0.12
 
 4. Incremental Financial Metrics (H2/Battery System vs. Baseline)
 --------------------------------------------------------------------
-  Annual Electricity Opportunity Cost Usd (USD): 30,127,751.89
-  Total Incremental Capex Learned Usd (USD): 73,715,406.71
-  Incremental Irr (%)                         : -31.27
-  Incremental Lcoh (Usd) (Usd/Kg)             : 40.39
-  Incremental Npv (Usd)                       : -77,643,599.35
-  Incremental Payback Period (Years)          : nan
+  Annual Electricity Opportunity Cost Usd (USD): 293,827,961.96
+  Total Incremental Capex Learned Usd (USD): 52,856,426.83
+  Incremental Irr (%)                         : 337.01
+  Incremental Lcoh (Usd) (Usd/Kg)             : 0.04
+  Incremental Npv (Usd)                       : 2,408,139,681.34
+  Incremental Payback Period (Years)          : 0.15
 
 5. Cost Assumptions (Base Year)
 --------------------------------
@@ -72,4 +72,4 @@ Technical Economic Analysis Report - NYISO
     Electrolyzer_Stack            : Cost: $15,000,000 (Years: [10, 20])
     H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
 
-Report generated: 2025-05-16 10:09:29
+Report generated: 2025-05-16 15:02:49

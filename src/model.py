@@ -769,13 +769,14 @@ def create_model(data_inputs, target_iso: str, simulate_dispatch: bool) -> pyo.C
             def electrolyzer_setpoint_capacity_limit_rule(m, t): return m.pElectrolyzerSetpoint[t] <= m.pElectrolyzer_max
             model.electrolyzer_setpoint_capacity_limit_constr = pyo.Constraint(model.TimePeriods, rule=electrolyzer_setpoint_capacity_limit_rule)
             model.electrolyzer_setpoint_min_power_constr = pyo.Constraint(model.TimePeriods, rule=electrolyzer_setpoint_min_power_rule)
+            model.mH2_rate_at_pElec_bp = {bp: bp * value for bp, value in model.ke_H2_inv_values.items()}
 
             if hasattr(model, 'ke_H2_inv_values'): # This is a dict precomputed on the model
                 build_piecewise_constraints(model, component_prefix='HydrogenProduction',
                                             input_var_name='pElectrolyzer', # Actual power produces H2
                                             output_var_name='mHydrogenProduced',
                                             breakpoint_set_name='pElectrolyzer_efficiency_breakpoints',
-                                            value_param_name=model.ke_H2_inv_values) # Pass the dict
+                                            value_param_name='mH2_rate_at_pElec_bp') # Pass the dict
             else:
                 logger.error("Cannot build HydrogenProduction piecewise: ke_H2_inv_values dict missing.")
 

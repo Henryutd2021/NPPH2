@@ -27,7 +27,7 @@ cost_water_USD_per_kg_h2,0.03
 uElectrolyzer_initial_status_0_or_1,0
 DegradationStateInitial_Units,0.0
 h2_target_capacity_factor_fraction,0.0
-hydrogen_subsidy_value_usd_per_kg,3.0
+hydrogen_subsidy_value_usd_per_kg,0
 hydrogen_subsidy_duration_years,10
 aux_power_consumption_per_kg_h2,0.0005
 H2_value_USD_per_kg,3.0
