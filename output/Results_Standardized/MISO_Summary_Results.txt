@@ -2,39 +2,41 @@
 Simulation_Mode: Dispatch Execution
 Target_ISO: MISO
 Optimal_Electrolyzer_Capacity_MW: 50.0000
-Optimal_Battery_Capacity_MWh: 1,000.0000
-Optimal_Battery_Power_MW: 250.0000
-Total_Revenue_USD: 273,068,837.1551
-Total_Energy_Revenue_USD: 154,791,013.7967
-Total_Hydrogen_Revenue_USD: 1,251,428.5714
-Total_Hydrogen_Sales_Revenue_USD: 625,714.2857
+Optimal_Battery_Capacity_MWh: 10.0000
+Optimal_Battery_Power_MW: 2.5000
+Total_Revenue_USD: 192,959,778.5582
+Total_Energy_Revenue_USD: 144,811,698.3048
+Total_Hydrogen_Revenue_USD: 1,395,488.5714
+Total_Hydrogen_Sales_Revenue_USD: 769,774.2857
 Total_Hydrogen_Subsidy_Revenue_USD: 625,714.2857
-Total_Ancillary_Revenue_USD: 117,026,394.7870
-Total_Hourly_Opex_USD: 10,924,971.4286
+Total_Ancillary_Revenue_USD: 46,752,591.6820
+Total_Hourly_Opex_USD: 10,925,451.6286
 Total_VOM_Cost_USD: 10,918,714.2857
 Total_Water_Cost_USD: 6,257.1429
 Total_Ramping_Cost_USD: 0.0000
-Total_Storage_Cycle_Cost_USD: 0.0000
+Total_Storage_Cycle_Cost_USD: 480.2000
 Total_Startup_Cost_USD: 0.0000
-Total_Annualized_Capex_USD: 73,775,071.3127
+Total_Annualized_Capex_USD: 13,341,961.5550
 Electrolyzer_Annualized_Capex_USD: 12,731,526.1029
-Battery_Annualized_Capex_USD: 61,043,545.2098
+Battery_Annualized_Capex_USD: 610,435.4521
 Total_H2_Produced_kg: 208,571.4286
+Total_H2_to_Market_Direct_kg: 208,571.4286
+Total_H2_from_Storage_kg: 48,020.0000
+Final_H2_Storage_Level_kg: 1,000.0000
 Electrolyzer_Capacity_Factor_Actual: 1.0000
 Total_Electrolyzer_Startups: 0
 Final_DegradationState_Units: 0.0000
 Total_Deployed_RegUp_MWh: 0.0000
 Total_Deployed_RegDown_MWh: 0.0000
-Total_Deployed_SR_MWh: 0.0000
-Total_Deployed_NSR_MWh: 0.0000
+Total_Deployed_SR_MWh: 933.4298
+Total_Deployed_NSR_MWh: 1,056.0130
 Total_Deployed_ECRS_MWh: 0.0000
-Total_Deployed_ThirtyMin_MWh: 0.0000
+Total_Deployed_ThirtyMin_MWh: 1,017.4567
 Total_Deployed_RampUp_MWh: 0.0000
 Total_Deployed_RampDown_MWh: 0.0000
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 188,370,461.9545
-Total_Profit_Calculated_USD: 188,368,794.4138
-Objective vs Calculated Profit Diff: -1,667.5407
-WARNING: Significant difference between objective value and calculated profit!
+Objective_Value_USD: 168,692,365.3746
+Total_Profit_Calculated_USD: 168,692,365.3746
+Objective vs Calculated Profit Diff: -0.0000

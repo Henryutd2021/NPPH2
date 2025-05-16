@@ -12,7 +12,7 @@ from pathlib import Path
 # BASIC CONFIGURATION
 # -----------------------------
 # 'CAISO' | 'ERCOT' | 'ISONE' | 'MISO' | 'NYISO' | 'PJM' | 'SPP'
-TARGET_ISO: str = "ERCOT"
+TARGET_ISO: str = "NYISO"
 HOURS_IN_YEAR: int = 8760        # Set to 24*7 for quick tests
 
 # -----------------------------

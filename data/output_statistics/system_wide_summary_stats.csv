@@ -1,0 +1,113 @@
+Metric,Value
+Avg Hourly Unit Award Freq - Reg (0h),0.016553806273386287
+Avg Hourly Unit Award Freq - Reg (12h),0.0187394309092142
+Avg Hourly Unit Award Freq - Spin (0h),0.02909199161436439
+Avg Hourly Unit Award Freq - Spin (12h),0.0324983413072412
+Avg Unit Award Duration (Mean) - Reg,0.9566592008085321
+Avg Unit Award Duration (Mean) - STR,1.9594391183166224
+Avg Unit Award Duration (Mean) - Spin,7.817298490830347
+Avg Unit Award Duration (Mean) - Supp,63.08186232852209
+Avg Unit Fill Rate (Mean) - Reg,0.10338365817554536
+Avg Unit Fill Rate (Mean) - STR,286.3939364831411
+Avg Unit Fill Rate (Mean) - Supp,67.60523390826803
+Avg Unit Hit Rate - Reg,0.01882874835129914
+Avg Unit Hit Rate - STR,0.26677140121676624
+Avg Unit Hit Rate - Spin,0.04314703700341067
+Avg Unit Hit Rate - Supp,0.02476532624006031
+Avg Unit P(Spin | Reg),0.06616231785674513
+Avg Unit P(Supp | Reg),0.0
+Contribution to Reg Awarded MWH - Large_Reg_Cap,0.07145278764144643
+Contribution to Reg Awarded MWH - Medium_Reg_Cap,0.017928695627028552
+Contribution to Reg Awarded MWH - NoRegOffer_Or_Zero,0.0
+Contribution to Reg Awarded MWH - Small_Reg_Cap,0.0035295541455165275
+Contribution to Reg Awarded MWH - XLarge_Reg_Cap,0.9070889625860085
+Share Offered Self-Scheduled - Regulation,0.0024098166601482104
+Share Offered Self-Scheduled - Supplemental,0.039525840989670984
+Total Awarded Economic MWH - Regulation,3725805.8022787785
+Total Awarded Economic MWH - Spinning,6584017.600000001
+Total Awarded Economic MWH - Supplemental,9317761.131942932
+Total Awarded MWH - Regulation,3734806.0
+Total Awarded MWH - STR,35553285.384773985
+Total Awarded MWH - Spinning,8031147.000000001
+Total Awarded MWH - Supplemental,9701209.600000001
+Total Awarded Self-Scheduled MWH - Regulation,9000.197721221497
+Total Awarded Self-Scheduled MWH - Spinning,1447129.4
+Total Awarded Self-Scheduled MWH - Supplemental,383448.4680570697
+Total Offered Economic MWH - Regulation,1046970862.3
+Total Offered Economic MWH - STR,34617894.89383075
+Total Offered Economic MWH - Supplemental,60198760.769999996
+Total Offered Self-Scheduled MWH - Regulation,2529102.5
+Total Offered Self-Scheduled MWH - Spinning,3975482.0
+Total Offered Self-Scheduled MWH - Supplemental,2477325.0
+Unit Mean Reg Award Duration (Hours) - Count,1348.0
+Unit Mean Reg Award Duration (Hours) - Max,138.0952380952381
+Unit Mean Reg Award Duration (Hours) - Mean,0.9566592008085321
+Unit Mean Reg Award Duration (Hours) - Median,0.0
+Unit Mean Reg Award Duration (Hours) - Min,0.0
+Unit Mean Reg Award Duration (Hours) - Q1,0.0
+Unit Mean Reg Award Duration (Hours) - Q3,0.0
+Unit Mean Reg Award Duration (Hours) - StdDev,4.290700598083449
+Unit Mean Reg Offer Price ($/MW) - Count,858.0
+Unit Mean Reg Offer Price ($/MW) - Max,500.0
+Unit Mean Reg Offer Price ($/MW) - Mean,8.646576272690393
+Unit Mean Reg Offer Price ($/MW) - Median,3.0
+Unit Mean Reg Offer Price ($/MW) - Min,0.0
+Unit Mean Reg Offer Price ($/MW) - Q1,0.0
+Unit Mean Reg Offer Price ($/MW) - Q3,9.0
+Unit Mean Reg Offer Price ($/MW) - StdDev,23.63589318864954
+Unit Mean Regulation MCP When Awarded ($/MW) - Count,324.0
+Unit Mean Regulation MCP When Awarded ($/MW) - Max,48.88
+Unit Mean Regulation MCP When Awarded ($/MW) - Mean,21.024613948382
+Unit Mean Regulation MCP When Awarded ($/MW) - Median,19.127285353535353
+Unit Mean Regulation MCP When Awarded ($/MW) - Min,9.31
+Unit Mean Regulation MCP When Awarded ($/MW) - Q1,16.14275197619616
+Unit Mean Regulation MCP When Awarded ($/MW) - Q3,24.54937969924812
+Unit Mean Regulation MCP When Awarded ($/MW) - StdDev,7.041035045726522
+Unit Mean STR MCP When Awarded ($/MW) - Count,549.0
+Unit Mean STR MCP When Awarded ($/MW) - Max,35.666666633333335
+Unit Mean STR MCP When Awarded ($/MW) - Mean,1.7180524328205926
+Unit Mean STR MCP When Awarded ($/MW) - Median,0.5561682242990654
+Unit Mean STR MCP When Awarded ($/MW) - Min,0.0
+Unit Mean STR MCP When Awarded ($/MW) - Q1,0.241685279071066
+Unit Mean STR MCP When Awarded ($/MW) - Q3,1.123093523705036
+Unit Mean STR MCP When Awarded ($/MW) - StdDev,3.77492087948568
+Unit Mean Spin Offer Price ($/MW) - Count,893.0
+Unit Mean Spin Offer Price ($/MW) - Max,100.0
+Unit Mean Spin Offer Price ($/MW) - Mean,5.579265703521518
+Unit Mean Spin Offer Price ($/MW) - Median,1.0
+Unit Mean Spin Offer Price ($/MW) - Min,0.0
+Unit Mean Spin Offer Price ($/MW) - Q1,0.0
+Unit Mean Spin Offer Price ($/MW) - Q3,4.0
+Unit Mean Spin Offer Price ($/MW) - StdDev,14.504226767199222
+Unit Mean Spinning MCP When Awarded ($/MW) - Count,354.0
+Unit Mean Spinning MCP When Awarded ($/MW) - Max,43.2
+Unit Mean Spinning MCP When Awarded ($/MW) - Mean,7.809196216397621
+Unit Mean Spinning MCP When Awarded ($/MW) - Median,5.897409687346351
+Unit Mean Spinning MCP When Awarded ($/MW) - Min,1.1016319444444445
+Unit Mean Spinning MCP When Awarded ($/MW) - Q1,3.7978737836599166
+Unit Mean Spinning MCP When Awarded ($/MW) - Q3,10.174117647058825
+Unit Mean Spinning MCP When Awarded ($/MW) - StdDev,5.659956651171173
+Unit Mean Supplemental MCP When Awarded ($/MW) - Count,125.0
+Unit Mean Supplemental MCP When Awarded ($/MW) - Max,10.954782608695652
+Unit Mean Supplemental MCP When Awarded ($/MW) - Mean,1.4783389469250863
+Unit Mean Supplemental MCP When Awarded ($/MW) - Median,0.5319993156934306
+Unit Mean Supplemental MCP When Awarded ($/MW) - Min,0.19319794344473
+Unit Mean Supplemental MCP When Awarded ($/MW) - Q1,0.3484223419892209
+Unit Mean Supplemental MCP When Awarded ($/MW) - Q3,1.0135686274509803
+Unit Mean Supplemental MCP When Awarded ($/MW) - StdDev,2.2619409918657953
+Unit Reg Fill Rate (Mean) - Count,316.0
+Unit Reg Fill Rate (Mean) - Max,0.9994192799070848
+Unit Reg Fill Rate (Mean) - Mean,0.10338365817554536
+Unit Reg Fill Rate (Mean) - Median,0.0819554814970884
+Unit Reg Fill Rate (Mean) - Min,0.0020153276364869
+Unit Reg Fill Rate (Mean) - Q1,0.043501600952744496
+Unit Reg Fill Rate (Mean) - Q3,0.13717011168535423
+Unit Reg Fill Rate (Mean) - StdDev,0.09080780977867267
+Unit Reg Hit Rate - Count,1349.0
+Unit Reg Hit Rate - Max,0.7617707747139374
+Unit Reg Hit Rate - Mean,0.01882874835129914
+Unit Reg Hit Rate - Median,0.0
+Unit Reg Hit Rate - Min,0.0
+Unit Reg Hit Rate - Q1,0.0
+Unit Reg Hit Rate - Q3,0.0
+Unit Reg Hit Rate - StdDev,0.07315570180105778
