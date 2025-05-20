@@ -1,5 +1,7 @@
 """Centralised logging initialisation used by all modules."""
+
 import logging
+
 from config import LOG_FILE, LOG_FORMAT, LOG_LEVEL
 
 logging.basicConfig(

@@ -1,13 +1,15 @@
-import numpy as np
 import logging
 import math  # Needed for CRF calculation
+
+import numpy as np
 
 # Set up a simple logger for this function
 cost_logger = logging.getLogger(__name__)
 if not cost_logger.hasHandlers():
     handler = logging.StreamHandler()
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     handler.setFormatter(formatter)
     cost_logger.addHandler(handler)
     cost_logger.setLevel(logging.INFO)
@@ -25,29 +27,31 @@ def calculate_crf(discount_rate, lifetime_years):
         return 1.0 / lifetime_years if lifetime_years > 0 else 0
     # Standard CRF formula
     try:
-        factor = (1 + discount_rate)**lifetime_years
+        factor = (1 + discount_rate) ** lifetime_years
         return (discount_rate * factor) / (factor - 1)
     except OverflowError:
         cost_logger.warning(
-            f"Overflow calculating CRF with rate={discount_rate}, life={lifetime_years}. Approximating as discount_rate.")
+            f"Overflow calculating CRF with rate={discount_rate}, life={lifetime_years}. Approximating as discount_rate."
+        )
         # For very long lifetimes, CRF approaches the discount rate
         return discount_rate
     except ValueError:
         cost_logger.error(
-            f"Math domain error calculating CRF with rate={discount_rate}, life={lifetime_years}. Check inputs.")
+            f"Math domain error calculating CRF with rate={discount_rate}, life={lifetime_years}. Check inputs."
+        )
         return 0  # Or raise an error
+
 
 # --- Main Costing Function ---
 
 
 def calculate_hydrogen_system_lcoh(
     # --- System Parameters ---
-    electrolyzer_technology: str,         # e.g., "PEM", "AWE", "SOEC", "AEM"
-    system_capacity_mw: float,            # DC input capacity of the electrolyzer system
+    electrolyzer_technology: str,  # e.g., "PEM", "AWE", "SOEC", "AEM"
+    system_capacity_mw: float,  # DC input capacity of the electrolyzer system
     # Annual average utilization rate (0.0 to 1.0)
     capacity_factor: float,
-    plant_lifetime_years: int = 30,       # Economic lifetime of the overall plant
-
+    plant_lifetime_years: int = 30,  # Economic lifetime of the overall plant
     # --- CAPEX Parameters ($/kW DC for Electrolyzer) ---
     # Optional: Provide specific value to override defaults
     installed_electrolyzer_capex_per_kw: float = None,
@@ -59,7 +63,6 @@ def calculate_hydrogen_system_lcoh(
     default_soec_capex: float = 4000.0,
     # $/kW (Estimate based on sources) [CostAnalysis.md, Ref 19, 27]
     default_aem_capex: float = 1900.0,
-
     # --- Compression & Storage Parameters ---
     include_compression_storage: bool = True,  # Flag to include these costs
     # Required H2 pressure after compression
@@ -74,7 +77,6 @@ def calculate_hydrogen_system_lcoh(
     default_compressor_capex_fraction_of_electrolyzer: float = 0.3,
     # $/kg storage capacity (Default based on Type I tanks) [Untitled.md, Ref 59]
     storage_capex_usd_per_kg: float = 1000.0,
-
     # --- OPEX Parameters ---
     # Electrolyzer Electricity Efficiency
     # kWh DC / kg H2. Optional: Provide specific value
@@ -86,33 +88,28 @@ def calculate_hydrogen_system_lcoh(
     default_soec_efficiency: float = 40.0,
     # kWh/kg (Estimate) [CostAnalysis.md, Ref 4]
     default_aem_efficiency: float = 57.0,
-
     # Compressor Electricity Consumption
     # Practical range 2.2-6.4 kWh/kg depending on pressure/efficiency [Untitled.md, Ref 56]
     # kWh/kg compressed (Default estimate for moderate pressure)
     compressor_consumption_kwh_per_kg: float = 3.0,
-
     # Electricity Pricing (Idaho Falls Example)
     # $/kWh (Energy Charge) [Untitled.md, Ref 9]
     electricity_price_usd_per_kwh: float = 0.0435,
     # $/kW/month (Demand Charge) [Untitled.md, Ref 9]
     demand_charge_usd_per_kw_month: float = 8.25,
-    include_demand_charge: bool = True,       # Whether to include demand charge
-
+    include_demand_charge: bool = True,  # Whether to include demand charge
     # Water
     # L/kg H2 [Untitled.md, Section 5.2]
     water_consumption_liter_per_kg: float = 15.0,
     # $/m³ (Placeholder - NEED ACTUAL IF RATE) [Untitled.md, Section 5.2]
     water_cost_usd_per_m3: float = 1.0,
-
     # Fixed O&M (Includes Electrolyzer + BOP + Comp/Storage routine maint.)
     # $/kW-year (based on electrolyzer kW). Optional.
     fixed_om_usd_per_kw_year: float = None,
     # % of TOTAL initial CAPEX/year [Untitled.md, Section 5.3]
     fixed_om_percent_total_capex_per_year: float = 0.02,
-
     # Stack Replacement
-    stack_lifetime_hours: int = None,         # Operating hours. Optional.
+    stack_lifetime_hours: int = None,  # Operating hours. Optional.
     default_pem_stack_life_hrs: int = 40000,  # Hours [Untitled.md, Ref 1]
     default_awe_stack_life_hrs: int = 80000,  # Hours [CostAnalysis.md, Ref 10]
     # Hours [CostAnalysis.md, Ref 10]
@@ -124,9 +121,8 @@ def calculate_hydrogen_system_lcoh(
     # --- Financial Parameters ---
     # Fractional discount rate [Untitled.md, Table 6.2]
     discount_rate: float = 0.08,
-
     # --- Analysis Options ---
-    verbose: bool = True                      # Print detailed breakdown
+    verbose: bool = True,  # Print detailed breakdown
 ):
     """
     Calculates the Levelized Cost of Hydrogen (LCOH) for a complete electrolysis system,
@@ -151,13 +147,13 @@ def calculate_hydrogen_system_lcoh(
                     'water_cost', 'fixed_om', 'stack_replacement'
     """
     cost_logger.info(
-        f"Calculating LCOH for {system_capacity_mw} MW {electrolyzer_technology} system...")
+        f"Calculating LCOH for {system_capacity_mw} MW {electrolyzer_technology} system..."
+    )
 
     # --- Input Validation and Parameter Selection ---
     technology = electrolyzer_technology.upper()
     if technology not in ["PEM", "AWE", "SOEC", "AEM"]:
-        cost_logger.error(
-            f"Invalid electrolyzer technology: {electrolyzer_technology}")
+        cost_logger.error(f"Invalid electrolyzer technology: {electrolyzer_technology}")
         return None
 
     system_capacity_kw = system_capacity_mw * 1000.0
@@ -175,7 +171,8 @@ def calculate_hydrogen_system_lcoh(
             _installed_electrolyzer_capex_per_kw = default_aem_capex
     total_electrolyzer_cost = _installed_electrolyzer_capex_per_kw * system_capacity_kw
     cost_logger.info(
-        f"Using Installed Electrolyzer CAPEX: ${_installed_electrolyzer_capex_per_kw:.2f}/kW (Total: ${total_electrolyzer_cost:,.2f})")
+        f"Using Installed Electrolyzer CAPEX: ${_installed_electrolyzer_capex_per_kw:.2f}/kW (Total: ${total_electrolyzer_cost:,.2f})"
+    )
 
     # Select Efficiency
     _system_efficiency_kwh_per_kg = system_efficiency_kwh_per_kg
@@ -192,7 +189,8 @@ def calculate_hydrogen_system_lcoh(
         cost_logger.error("System efficiency must be positive.")
         return None
     cost_logger.info(
-        f"Using System Efficiency: {_system_efficiency_kwh_per_kg:.2f} kWh/kg H2")
+        f"Using System Efficiency: {_system_efficiency_kwh_per_kg:.2f} kWh/kg H2"
+    )
 
     # Select Stack Lifetime
     _stack_lifetime_hours = stack_lifetime_hours
@@ -212,7 +210,8 @@ def calculate_hydrogen_system_lcoh(
 
     if not (0 < capacity_factor <= 1.0):
         cost_logger.error(
-            "Capacity factor must be between 0 (exclusive) and 1.0 (inclusive).")
+            "Capacity factor must be between 0 (exclusive) and 1.0 (inclusive)."
+        )
         return None
 
     # --- Calculate Intermediate Values ---
@@ -221,13 +220,14 @@ def calculate_hydrogen_system_lcoh(
 
     # Annual Hydrogen Production (kg/year)
     annual_h2_production_kg = (
-        system_capacity_kw / _system_efficiency_kwh_per_kg) * annual_operating_hours
+        system_capacity_kw / _system_efficiency_kwh_per_kg
+    ) * annual_operating_hours
     if annual_h2_production_kg <= 0:
-        cost_logger.error(
-            "Calculated annual hydrogen production is zero or negative.")
+        cost_logger.error("Calculated annual hydrogen production is zero or negative.")
         return None
     cost_logger.info(
-        f"Estimated Annual H2 Production: {annual_h2_production_kg:,.2f} kg/year")
+        f"Estimated Annual H2 Production: {annual_h2_production_kg:,.2f} kg/year"
+    )
     daily_h2_production_kg = annual_h2_production_kg / 365.0
 
     # --- Calculate CAPEX Components ---
@@ -242,17 +242,21 @@ def calculate_hydrogen_system_lcoh(
     annualized_compressor_capex = 0
     if include_compression_storage:
         if compressor_capex_usd_per_kw_electrolyzer is not None:
-            total_compressor_cost = compressor_capex_usd_per_kw_electrolyzer * system_capacity_kw
+            total_compressor_cost = (
+                compressor_capex_usd_per_kw_electrolyzer * system_capacity_kw
+            )
         else:
             # Estimate based on fraction of electrolyzer cost
-            total_compressor_cost = total_electrolyzer_cost * \
-                default_compressor_capex_fraction_of_electrolyzer
+            total_compressor_cost = (
+                total_electrolyzer_cost
+                * default_compressor_capex_fraction_of_electrolyzer
+            )
             cost_logger.warning(
-                f"Compressor CAPEX not specified, estimating as {default_compressor_capex_fraction_of_electrolyzer*100:.0f}% of electrolyzer CAPEX.")
+                f"Compressor CAPEX not specified, estimating as {default_compressor_capex_fraction_of_electrolyzer*100:.0f}% of electrolyzer CAPEX."
+            )
         if crf > 0:
             annualized_compressor_capex = total_compressor_cost * crf
-        cost_logger.info(
-            f"Estimated Compressor CAPEX: ${total_compressor_cost:,.2f}")
+        cost_logger.info(f"Estimated Compressor CAPEX: ${total_compressor_cost:,.2f}")
 
     # Storage CAPEX
     total_storage_cost = 0
@@ -262,38 +266,51 @@ def calculate_hydrogen_system_lcoh(
         if crf > 0:
             annualized_storage_capex = total_storage_cost * crf
         cost_logger.info(
-            f"Estimated Storage CAPEX ({required_storage_kg} kg): ${total_storage_cost:,.2f}")
+            f"Estimated Storage CAPEX ({required_storage_kg} kg): ${total_storage_cost:,.2f}"
+        )
 
     # Total Initial CAPEX (for Fixed O&M calculation)
-    total_initial_system_capex = total_electrolyzer_cost + \
-        total_compressor_cost + total_storage_cost
+    total_initial_system_capex = (
+        total_electrolyzer_cost + total_compressor_cost + total_storage_cost
+    )
     cost_logger.info(
-        f"Total Initial System CAPEX Estimate: ${total_initial_system_capex:,.2f}")
-    annualized_total_capex = annualized_electrolyzer_capex + \
-        annualized_compressor_capex + annualized_storage_capex
+        f"Total Initial System CAPEX Estimate: ${total_initial_system_capex:,.2f}"
+    )
+    annualized_total_capex = (
+        annualized_electrolyzer_capex
+        + annualized_compressor_capex
+        + annualized_storage_capex
+    )
     cost_logger.info(
-        f"Total Annualized CAPEX Recovery: ${annualized_total_capex:,.2f}/year")
+        f"Total Annualized CAPEX Recovery: ${annualized_total_capex:,.2f}/year"
+    )
 
     # --- Calculate Annual OPEX Components ---
     # Electricity Cost - Electrolysis Energy
     annual_kwh_electrolysis = annual_h2_production_kg * _system_efficiency_kwh_per_kg
-    annual_electricity_cost_electrolysis = annual_kwh_electrolysis * \
-        electricity_price_usd_per_kwh
+    annual_electricity_cost_electrolysis = (
+        annual_kwh_electrolysis * electricity_price_usd_per_kwh
+    )
 
     # Electricity Cost - Compression Energy
     annual_kwh_compression = 0.0
     annual_electricity_cost_compression = 0.0
     if include_compression_storage:
-        annual_kwh_compression = annual_h2_production_kg * \
-            compressor_consumption_kwh_per_kg
-        annual_electricity_cost_compression = annual_kwh_compression * \
-            electricity_price_usd_per_kwh
+        annual_kwh_compression = (
+            annual_h2_production_kg * compressor_consumption_kwh_per_kg
+        )
+        annual_electricity_cost_compression = (
+            annual_kwh_compression * electricity_price_usd_per_kwh
+        )
         cost_logger.info(
-            f"Using Compressor Efficiency: {compressor_consumption_kwh_per_kg:.2f} kWh/kg H2")
+            f"Using Compressor Efficiency: {compressor_consumption_kwh_per_kg:.2f} kWh/kg H2"
+        )
         cost_logger.info(
-            f"Annual Compressor Electricity Consumption: {annual_kwh_compression:,.2f} kWh")
+            f"Annual Compressor Electricity Consumption: {annual_kwh_compression:,.2f} kWh"
+        )
         cost_logger.info(
-            f"Annual Compressor Electricity Cost: ${annual_electricity_cost_compression:,.2f}/year")
+            f"Annual Compressor Electricity Cost: ${annual_electricity_cost_compression:,.2f}/year"
+        )
 
     # Electricity Cost - Demand Charge (Simplified - applied to total peak kW)
     # Assume peak electrolyzer + peak compressor power demand occurs simultaneously
@@ -310,17 +327,22 @@ def calculate_hydrogen_system_lcoh(
         monthly_demand_charge = peak_demand_kw * demand_charge_usd_per_kw_month
         annual_electricity_cost_demand = monthly_demand_charge * 12
         cost_logger.info(
-            f"Annual Electricity Cost (Demand Charge based on {peak_demand_kw:.0f} kW peak): ${annual_electricity_cost_demand:,.2f}/year")
+            f"Annual Electricity Cost (Demand Charge based on {peak_demand_kw:.0f} kW peak): ${annual_electricity_cost_demand:,.2f}/year"
+        )
 
-    total_annual_electricity_cost = (annual_electricity_cost_electrolysis +
-                                     annual_electricity_cost_compression +
-                                     annual_electricity_cost_demand)
+    total_annual_electricity_cost = (
+        annual_electricity_cost_electrolysis
+        + annual_electricity_cost_compression
+        + annual_electricity_cost_demand
+    )
     cost_logger.info(
-        f"Total Annual Electricity Cost: ${total_annual_electricity_cost:,.2f}/year")
+        f"Total Annual Electricity Cost: ${total_annual_electricity_cost:,.2f}/year"
+    )
 
     # Water Cost
-    annual_water_consumption_liter = annual_h2_production_kg * \
-        water_consumption_liter_per_kg
+    annual_water_consumption_liter = (
+        annual_h2_production_kg * water_consumption_liter_per_kg
+    )
     annual_water_consumption_m3 = annual_water_consumption_liter / 1000.0
     annual_water_cost = annual_water_consumption_m3 * water_cost_usd_per_m3
     cost_logger.info(f"Annual Water Cost: ${annual_water_cost:,.2f}/year")
@@ -328,73 +350,129 @@ def calculate_hydrogen_system_lcoh(
     # Fixed O&M Cost (Covers routine maint for all systems)
     if fixed_om_usd_per_kw_year is None:
         # Base percentage on TOTAL initial system CAPEX
-        annual_fixed_om_cost = total_initial_system_capex * \
-            fixed_om_percent_total_capex_per_year
+        annual_fixed_om_cost = (
+            total_initial_system_capex * fixed_om_percent_total_capex_per_year
+        )
         cost_logger.info(
-            f"Using Fixed O&M: {fixed_om_percent_total_capex_per_year*100:.1f}% of Total CAPEX/year")
+            f"Using Fixed O&M: {fixed_om_percent_total_capex_per_year*100:.1f}% of Total CAPEX/year"
+        )
     else:
         # Base fixed $/kW rate only on ELECTROLYZER capacity for consistency
         annual_fixed_om_cost = system_capacity_kw * fixed_om_usd_per_kw_year
         cost_logger.info(
-            f"Using Fixed O&M: ${fixed_om_usd_per_kw_year:.2f}/kW-year (based on electrolyzer capacity)")
+            f"Using Fixed O&M: ${fixed_om_usd_per_kw_year:.2f}/kW-year (based on electrolyzer capacity)"
+        )
     cost_logger.info(
-        f"Annual Fixed O&M Cost (Excl. Stack): ${annual_fixed_om_cost:,.2f}/year")
+        f"Annual Fixed O&M Cost (Excl. Stack): ${annual_fixed_om_cost:,.2f}/year"
+    )
 
     # Stack Replacement Cost (Annualized)
-    effective_stack_lifetime_years = _stack_lifetime_hours / \
-        annual_operating_hours if annual_operating_hours > 0 else float('inf')
+    effective_stack_lifetime_years = (
+        _stack_lifetime_hours / annual_operating_hours
+        if annual_operating_hours > 0
+        else float("inf")
+    )
     # Replacement cost based on ELECTROLYZER cost component
-    single_replacement_cost = total_electrolyzer_cost * \
-        stack_replacement_cost_percent_electrolyzer_capex
+    single_replacement_cost = (
+        total_electrolyzer_cost * stack_replacement_cost_percent_electrolyzer_capex
+    )
     cost_logger.info(
-        f"Single Stack Replacement Cost Estimate: ${single_replacement_cost:,.2f} (based on {stack_replacement_cost_percent_electrolyzer_capex*100:.0f}% of Electrolyzer CAPEX)")
+        f"Single Stack Replacement Cost Estimate: ${single_replacement_cost:,.2f} (based on {stack_replacement_cost_percent_electrolyzer_capex*100:.0f}% of Electrolyzer CAPEX)"
+    )
 
     annualized_stack_replacement_cost = 0.0
-    if effective_stack_lifetime_years > 0 and effective_stack_lifetime_years < plant_lifetime_years:
+    if (
+        effective_stack_lifetime_years > 0
+        and effective_stack_lifetime_years < plant_lifetime_years
+    ):
         # Simple annualization (ignores discounting)
-        annualized_stack_replacement_cost = single_replacement_cost / \
-            effective_stack_lifetime_years
+        annualized_stack_replacement_cost = (
+            single_replacement_cost / effective_stack_lifetime_years
+        )
     cost_logger.info(
-        f"Effective Stack Lifetime: {effective_stack_lifetime_years:.2f} years")
+        f"Effective Stack Lifetime: {effective_stack_lifetime_years:.2f} years"
+    )
     cost_logger.info(
-        f"Annualized Stack Replacement Cost: ${annualized_stack_replacement_cost:,.2f}/year")
+        f"Annualized Stack Replacement Cost: ${annualized_stack_replacement_cost:,.2f}/year"
+    )
 
     # Total Annual OPEX
-    total_annual_opex = (total_annual_electricity_cost +
-                         annual_water_cost +
-                         annual_fixed_om_cost +
-                         annualized_stack_replacement_cost)
+    total_annual_opex = (
+        total_annual_electricity_cost
+        + annual_water_cost
+        + annual_fixed_om_cost
+        + annualized_stack_replacement_cost
+    )
     cost_logger.info(f"Total Annual OPEX: ${total_annual_opex:,.2f}/year")
 
     # --- Calculate LCOH ($/kg H2) ---
     total_annual_cost = annualized_total_capex + total_annual_opex
-    lcoh_usd_per_kg = total_annual_cost / \
-        annual_h2_production_kg if annual_h2_production_kg > 0 else float(
-            'inf')
+    lcoh_usd_per_kg = (
+        total_annual_cost / annual_h2_production_kg
+        if annual_h2_production_kg > 0
+        else float("inf")
+    )
     cost_logger.info(f"Total Annualized Cost: ${total_annual_cost:,.2f}/year")
     cost_logger.info(f"Calculated LCOH: ${lcoh_usd_per_kg:.3f}/kg H2")
 
     # --- Prepare Output ---
     lcoh_components = {
         "lcoh": lcoh_usd_per_kg,
-        "electrolyzer_capex_recovery": annualized_electrolyzer_capex / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "compressor_capex_recovery": annualized_compressor_capex / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "storage_capex_recovery": annualized_storage_capex / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "electricity_electrolysis": annual_electricity_cost_electrolysis / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "electricity_compression": annual_electricity_cost_compression / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "electricity_demand": annual_electricity_cost_demand / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "water_cost": annual_water_cost / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "fixed_om": annual_fixed_om_cost / annual_h2_production_kg if annual_h2_production_kg > 0 else 0,
-        "stack_replacement": annualized_stack_replacement_cost / annual_h2_production_kg if annual_h2_production_kg > 0 else 0
+        "electrolyzer_capex_recovery": (
+            annualized_electrolyzer_capex / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "compressor_capex_recovery": (
+            annualized_compressor_capex / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "storage_capex_recovery": (
+            annualized_storage_capex / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "electricity_electrolysis": (
+            annual_electricity_cost_electrolysis / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "electricity_compression": (
+            annual_electricity_cost_compression / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "electricity_demand": (
+            annual_electricity_cost_demand / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "water_cost": (
+            annual_water_cost / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "fixed_om": (
+            annual_fixed_om_cost / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
+        "stack_replacement": (
+            annualized_stack_replacement_cost / annual_h2_production_kg
+            if annual_h2_production_kg > 0
+            else 0
+        ),
     }
 
     if verbose:
         print("\n--- LCOH Breakdown ($/kg H2) ---")
         total_check = 0
         for component, value in lcoh_components.items():
-            if component != 'lcoh':
-                percentage = (value / lcoh_usd_per_kg) * \
-                    100 if lcoh_usd_per_kg > 0 else 0
+            if component != "lcoh":
+                percentage = (
+                    (value / lcoh_usd_per_kg) * 100 if lcoh_usd_per_kg > 0 else 0
+                )
                 print(f"  {component:<30}: ${value:.3f} ({percentage:.1f}%)")
                 total_check += value
         # Sanity check
@@ -407,7 +485,9 @@ def calculate_hydrogen_system_lcoh(
 
 # --- Example Usage ---
 if __name__ == "__main__":
-    print("Example LCOH Calculation for 100 MW PEM System in Idaho Falls (Including Compression & Storage):")
+    print(
+        "Example LCOH Calculation for 100 MW PEM System in Idaho Falls (Including Compression & Storage):"
+    )
 
     # Define storage requirement for this example
     storage_capacity_kg = 5000  # Example: Store ~half a day's production at high CF
@@ -436,12 +516,13 @@ if __name__ == "__main__":
         stack_replacement_cost_percent_electrolyzer_capex=0.30,
         # --- Financial ---
         discount_rate=0.08,
-        verbose=True
+        verbose=True,
     )
 
     if lcoh_results_pem_full:
         print(
-            f"\nOverall LCOH (PEM Full System Example): ${lcoh_results_pem_full['lcoh']:.2f}/kg H2")
+            f"\nOverall LCOH (PEM Full System Example): ${lcoh_results_pem_full['lcoh']:.2f}/kg H2"
+        )
 
     print("\nExample LCOH for same system WITHOUT Compression/Storage Costs:")
     lcoh_results_pem_elec_only = calculate_hydrogen_system_lcoh(
@@ -463,8 +544,9 @@ if __name__ == "__main__":
         stack_lifetime_hours=40000,
         stack_replacement_cost_percent_electrolyzer_capex=0.30,
         discount_rate=0.08,
-        verbose=True
+        verbose=True,
     )
     if lcoh_results_pem_elec_only:
         print(
-            f"\nOverall LCOH (PEM Electrolyzer Only Example): ${lcoh_results_pem_elec_only['lcoh']:.2f}/kg H2")
+            f"\nOverall LCOH (PEM Electrolyzer Only Example): ${lcoh_results_pem_elec_only['lcoh']:.2f}/kg H2"
+        )
