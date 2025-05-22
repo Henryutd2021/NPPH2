@@ -173,6 +173,10 @@ def main(argv: list[str] | None = None):
         # --- Add Solver Options for Debugging (Example for Gurobi) ---
         solver_options = {}  # Initialize as empty dict
         if args.solver == "gurobi":
+            solver_options["MIPGap"] = 0.0005  # 0.05% gap
+            # solver_options["Heuristics"] = 0.8
+            # solver_options["Threads"] = 64
+            # solver_options["Cuts"] = 2
             if args.debug_infeasibility:
                 logger.info(
                     "Gurobi IIS computation is implicitly enabled on infeasibility."

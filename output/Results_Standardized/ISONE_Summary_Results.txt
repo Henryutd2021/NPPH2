@@ -4,14 +4,14 @@ Target_ISO: ISONE
 Optimal_Electrolyzer_Capacity_MW: 50.0000
 Optimal_Battery_Capacity_MWh: 10.0000
 Optimal_Battery_Power_MW: 2.5000
-Total_Revenue_USD: 227,384,205.0170
-Total_Energy_Revenue_USD: 194,566,339.0470
+Total_Revenue_USD: 130,699,203.6579
+Total_Energy_Revenue_USD: 99,164,536.0252
 Total_Hydrogen_Revenue_USD: 31,285,714.2857
 Total_Hydrogen_Sales_Revenue_USD: 31,285,714.2857
 Total_Hydrogen_Subsidy_Revenue_USD: 0.0000
-Total_Ancillary_Revenue_USD: 1,532,151.6844
-Total_Hourly_Opex_USD: 11,231,571.4286
-Total_VOM_Cost_USD: 10,918,714.2857
+Total_Ancillary_Revenue_USD: 248,953.3469
+Total_Hourly_Opex_USD: 10,551,209.6210
+Total_VOM_Cost_USD: 10,238,352.4781
 Total_Water_Cost_USD: 312,857.1429
 Total_Ramping_Cost_USD: 0.0000
 Total_Storage_Cycle_Cost_USD: 0.0000
@@ -25,15 +25,15 @@ Total_Electrolyzer_Startups: 0
 Final_DegradationState_Units: 0.0000
 Total_Deployed_RegUp_MWh: 0.0000
 Total_Deployed_RegDown_MWh: 0.0000
-Total_Deployed_SR_MWh: 1,124.8678
-Total_Deployed_NSR_MWh: 1,099.2119
+Total_Deployed_SR_MWh: 199.7313
+Total_Deployed_NSR_MWh: 22.3882
 Total_Deployed_ECRS_MWh: 0.0000
-Total_Deployed_ThirtyMin_MWh: 1,120.2140
+Total_Deployed_ThirtyMin_MWh: 0.0000
 Total_Deployed_RampUp_MWh: 0.0000
 Total_Deployed_RampDown_MWh: 0.0000
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 202,846,072.0335
-Total_Profit_Calculated_USD: 202,846,072.0335
+Objective_Value_USD: 106,841,432.4819
+Total_Profit_Calculated_USD: 106,841,432.4819
 Objective vs Calculated Profit Diff: -0.0000

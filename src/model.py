@@ -84,6 +84,7 @@ from constraints import (
     link_Total_SR_rule,
     link_Total_UncU_rule,
     power_balance_rule,
+    restrict_grid_purchase_rule,
     steam_balance_rule,
 )
 from logging_setup import logger
@@ -113,7 +114,8 @@ def get_sys_param(param_name, default=None, required=False):
     try:
         if param_name not in df_system.index:
             if required:
-                raise ValueError(f"Missing essential system parameter: {param_name}")
+                raise ValueError(
+                    f"Missing essential system parameter: {param_name}")
             return default
         val = df_system.loc[param_name, "Value"]
         if pd.isna(val):
@@ -193,7 +195,8 @@ def build_piecewise_constraints(
     value_param_name: str,
 ) -> None:
     """Attach SOS2 piece-wise linear constraints in-place to `model`."""
-    logger.info("Building piece-wise constraints for %s using SOS2", component_prefix)
+    logger.info("Building piece-wise constraints for %s using SOS2",
+                component_prefix)
 
     if not hasattr(model, input_var_name):
         logger.error(
@@ -233,7 +236,8 @@ def build_piecewise_constraints(
         return
 
     if not (
-        isinstance(value_data_source, pyo.Param) or isinstance(value_data_source, dict)
+        isinstance(value_data_source, pyo.Param) or isinstance(
+            value_data_source, dict)
     ):
         logger.error(
             f"Value source for '{component_prefix}' is not a Pyomo Param or dict."
@@ -425,10 +429,12 @@ def create_model(
             try:
                 user_batt_power_mw = float(user_batt_power_mw_str)
                 if user_batt_power_mw < 0:
-                    logger.warning("User specified battery power negative. Optimizing.")
+                    logger.warning(
+                        "User specified battery power negative. Optimizing.")
                     user_batt_power_mw = None
             except ValueError:
-                logger.warning(f"Invalid user_specified_battery_power_MW. Optimizing.")
+                logger.warning(
+                    f"Invalid user_specified_battery_power_MW. Optimizing.")
 
         user_batt_energy_mwh = None
         if user_batt_energy_mwh_str is not None:
@@ -477,11 +483,13 @@ def create_model(
             )
             model.qSteam_Turbine_min = pyo.Param(
                 within=pyo.NonNegativeReals,
-                initialize=get_sys_param("qSteam_Turbine_min_MWth", required=True),
+                initialize=get_sys_param(
+                    "qSteam_Turbine_min_MWth", required=True),
             )
             model.qSteam_Turbine_max = pyo.Param(
                 within=pyo.NonNegativeReals,
-                initialize=get_sys_param("qSteam_Turbine_max_MWth", required=True),
+                initialize=get_sys_param(
+                    "qSteam_Turbine_max_MWth", required=True),
             )
             model.pTurbine_min = pyo.Param(
                 within=pyo.NonNegativeReals,
@@ -491,7 +499,8 @@ def create_model(
             model.pTurbine_max = pyo.Param(
                 within=pyo.NonNegativeReals, initialize=p_turb_max_val
             )
-            ramp_up_pct_min = get_sys_param("Turbine_RampUp_Rate_Percent_per_Min", 1.0)
+            ramp_up_pct_min = get_sys_param(
+                "Turbine_RampUp_Rate_Percent_per_Min", 1.0)
             ramp_down_pct_min = get_sys_param(
                 "Turbine_RampDown_Rate_Percent_per_Min", 1.0
             )
@@ -509,7 +518,8 @@ def create_model(
             )
             model.convertTtE_const = pyo.Param(
                 within=pyo.NonNegativeReals,
-                initialize=get_sys_param("Turbine_Thermal_Elec_Efficiency_Const", 0.4),
+                initialize=get_sys_param(
+                    "Turbine_Thermal_Elec_Efficiency_Const", 0.4),
             )
             model.nonlinear_turbine_enabled_in_model = False
             if ENABLE_NONLINEAR_TURBINE_EFF:
@@ -523,15 +533,18 @@ def create_model(
                     if not isinstance(q_bps_str, str) or not isinstance(
                         p_vals_str, str
                     ):
-                        raise TypeError("Turbine breakpoint/output data not string.")
+                        raise TypeError(
+                            "Turbine breakpoint/output data not string.")
                     q_breakpoints = sorted(
-                        [float(x.strip()) for x in q_bps_str.split(",") if x.strip()]
+                        [float(x.strip())
+                         for x in q_bps_str.split(",") if x.strip()]
                     )
                     p_values = [
                         float(x.strip()) for x in p_vals_str.split(",") if x.strip()
                     ]
                     if not q_breakpoints:
-                        raise ValueError("Turbine steam breakpoints list is empty.")
+                        raise ValueError(
+                            "Turbine steam breakpoints list is empty.")
                     if len(q_breakpoints) != len(p_values):
                         raise ValueError(
                             "Turbine steam breakpoints and power output lists have different lengths."
@@ -603,14 +616,17 @@ def create_model(
 
         if model.ENABLE_ELECTROLYZER:
             elec_type_suffix = "LTE" if model.LTE_MODE else "HTE"
-            logger.info(f"Loading parameters for {elec_type_suffix} electrolyzer...")
+            logger.info(
+                f"Loading parameters for {elec_type_suffix} electrolyzer...")
             model.hydrogen_subsidy_per_kg = pyo.Param(
                 within=pyo.NonNegativeReals,
-                initialize=get_sys_param("hydrogen_subsidy_value_usd_per_kg", 0.0),
+                initialize=get_sys_param(
+                    "hydrogen_subsidy_value_usd_per_kg", 0.0),
             )
             model.aux_power_consumption_per_kg_h2 = pyo.Param(
                 within=pyo.NonNegativeReals,
-                initialize=get_sys_param("aux_power_consumption_per_kg_h2", 0.0),
+                initialize=get_sys_param(
+                    "aux_power_consumption_per_kg_h2", 0.0),
             )
 
             if user_elec_cap_mw is None:  # Optimizing capacity
@@ -622,7 +638,8 @@ def create_model(
                 )
                 model.pElectrolyzer_max_lower_bound = pyo.Param(
                     within=pyo.NonNegativeReals,
-                    initialize=get_sys_param("pElectrolyzer_max_lower_bound_MW", 0.0),
+                    initialize=get_sys_param(
+                        "pElectrolyzer_max_lower_bound_MW", 0.0),
                 )
 
             p_elec_min_val = get_sys_param(
@@ -635,7 +652,8 @@ def create_model(
 
             ramp_up_elec_pct_min = get_sys_param(
                 f"Electrolyzer_RampUp_Rate_Percent_per_Min_{elec_type_suffix}",
-                default=get_sys_param("Electrolyzer_RampUp_Rate_Percent_per_Min", 10.0),
+                default=get_sys_param(
+                    "Electrolyzer_RampUp_Rate_Percent_per_Min", 10.0),
             )
             ramp_down_elec_pct_min = get_sys_param(
                 f"Electrolyzer_RampDown_Rate_Percent_per_Min_{elec_type_suffix}",
@@ -689,7 +707,8 @@ def create_model(
                 )
                 ke_vals_str = get_sys_param(
                     f"ke_H2_Values_MWh_per_kg_{elec_type_suffix}",
-                    default=get_sys_param("ke_H2_Values_MWh_per_kg", required=True),
+                    default=get_sys_param(
+                        "ke_H2_Values_MWh_per_kg", required=True),
                 )
                 if not isinstance(p_elec_bps_str, str) or not isinstance(
                     ke_vals_str, str
@@ -698,7 +717,8 @@ def create_model(
                         f"Elec breakpoint/ke data not string for {elec_type_suffix}."
                     )
                 p_elec_breakpoints = sorted(
-                    [float(x.strip()) for x in p_elec_bps_str.split(",") if x.strip()]
+                    [float(x.strip())
+                     for x in p_elec_bps_str.split(",") if x.strip()]
                 )
                 ke_values = [
                     float(x.strip()) for x in ke_vals_str.split(",") if x.strip()
@@ -775,14 +795,16 @@ def create_model(
                     within=pyo.PositiveIntegers,
                     initialize=get_sys_param(
                         f"MinUpTimeElectrolyzer_hours_{elec_type_suffix}",
-                        default=get_sys_param("MinUpTimeElectrolyzer_hours", 1),
+                        default=get_sys_param(
+                            "MinUpTimeElectrolyzer_hours", 1),
                     ),
                 )
                 model.MinDownTimeElectrolyzer = pyo.Param(
                     within=pyo.PositiveIntegers,
                     initialize=get_sys_param(
                         f"MinDownTimeElectrolyzer_hours_{elec_type_suffix}",
-                        default=get_sys_param("MinDownTimeElectrolyzer_hours", 1),
+                        default=get_sys_param(
+                            "MinDownTimeElectrolyzer_hours", 1),
                     ),
                 )
                 init_status_raw = get_sys_param(
@@ -796,7 +818,8 @@ def create_model(
             if ENABLE_ELECTROLYZER_DEGRADATION_TRACKING:
                 model.DegradationStateInitial = pyo.Param(
                     within=pyo.NonNegativeReals,
-                    initialize=get_sys_param("DegradationStateInitial_Units", 0.0),
+                    initialize=get_sys_param(
+                        "DegradationStateInitial_Units", 0.0),
                 )
                 model.DegradationFactorOperation = pyo.Param(
                     within=pyo.NonNegativeReals,
@@ -821,7 +844,8 @@ def create_model(
             if ENABLE_H2_CAP_FACTOR:
                 model.h2_target_capacity_factor = pyo.Param(
                     within=pyo.PercentFraction,
-                    initialize=get_sys_param("h2_target_capacity_factor_fraction", 0.0),
+                    initialize=get_sys_param(
+                        "h2_target_capacity_factor_fraction", 0.0),
                 )
 
             model.H2_value = pyo.Param(
@@ -865,15 +889,18 @@ def create_model(
                 )
                 model.storage_charge_eff = pyo.Param(
                     within=pyo.PercentFraction,
-                    initialize=get_sys_param("storage_charge_eff_fraction", 1.0),
+                    initialize=get_sys_param(
+                        "storage_charge_eff_fraction", 1.0),
                 )
                 model.storage_discharge_eff = pyo.Param(
                     within=pyo.PercentFraction,
-                    initialize=get_sys_param("storage_discharge_eff_fraction", 1.0),
+                    initialize=get_sys_param(
+                        "storage_discharge_eff_fraction", 1.0),
                 )
                 model.vom_storage_cycle = pyo.Param(
                     within=pyo.NonNegativeReals,
-                    initialize=get_sys_param("vom_storage_cycle_USD_per_kg_cycled", 0),
+                    initialize=get_sys_param(
+                        "vom_storage_cycle_USD_per_kg_cycled", 0),
                 )
 
         if model.ENABLE_BATTERY:
@@ -881,7 +908,8 @@ def create_model(
             if not battery_capacity_fixed:  # Optimizing capacity
                 model.BatteryCapacity_max_param = pyo.Param(
                     within=pyo.NonNegativeReals,
-                    initialize=get_sys_param("BatteryCapacity_max_MWh", required=True),
+                    initialize=get_sys_param(
+                        "BatteryCapacity_max_MWh", required=True),
                 )
                 model.BatteryCapacity_min_param = pyo.Param(
                     within=pyo.NonNegativeReals,
@@ -910,16 +938,19 @@ def create_model(
                 within=pyo.PercentFraction,
                 initialize=get_sys_param("BatterySOC_initial_fraction", 0.50),
             )
-            batt_cyclic_val_str = get_sys_param("BatteryRequireCyclicSOC", "True")
+            batt_cyclic_val_str = get_sys_param(
+                "BatteryRequireCyclicSOC", "True")
             batt_cyclic_val = (
-                True if str(batt_cyclic_val_str).strip().lower() == "true" else False
+                True if str(batt_cyclic_val_str).strip(
+                ).lower() == "true" else False
             )
             model.BatteryRequireCyclicSOC = pyo.Param(
                 within=pyo.Boolean, initialize=batt_cyclic_val
             )
             model.BatteryRampRate = pyo.Param(
                 within=pyo.PercentFraction,
-                initialize=get_sys_param("BatteryRampRate_fraction_per_hour", 1.0),
+                initialize=get_sys_param(
+                    "BatteryRampRate_fraction_per_hour", 1.0),
             )
             model.BatteryCapex_USD_per_MWh_year = pyo.Param(
                 within=pyo.NonNegativeReals,
@@ -931,12 +962,14 @@ def create_model(
             )
             model.BatteryFixedOM_USD_per_MWh_year = pyo.Param(
                 within=pyo.NonNegativeReals,
-                initialize=get_sys_param("BatteryFixedOM_USD_per_MWh_year", 0.0),
+                initialize=get_sys_param(
+                    "BatteryFixedOM_USD_per_MWh_year", 0.0),
             )
             vom_batt_val = get_sys_param("vom_battery_per_mwh_cycled", None)
             model.vom_battery_per_mwh_cycled = pyo.Param(
                 within=pyo.NonNegativeReals,
-                initialize=(float(vom_batt_val) if vom_batt_val is not None else 0.0),
+                initialize=(float(vom_batt_val)
+                            if vom_batt_val is not None else 0.0),
             )
 
         p_ies_min_default_val = (
@@ -987,7 +1020,8 @@ def create_model(
             """Helper to safely get data from optional hourly dataframes for model params."""
             if df is None:
                 if required_param:
-                    raise ValueError(f"Required data file for {col_name} not loaded.")
+                    raise ValueError(
+                        f"Required data file for {col_name} not loaded.")
                 return default
             filename = getattr(df, "attrs", {}).get("filename", "DataFrame")
             if col_name in df.columns:
@@ -1017,7 +1051,8 @@ def create_model(
                 # For required prices (p_*), this would be an issue if df_ANSprice was mandatory and column missing.
                 # logger.debug(f"Column '{col_name}' not in {filename}. Returning default {default}.")
                 if required_param:  # Should not happen if file structure is correct
-                    raise ValueError(f"Required column '{col_name}' not in {filename}.")
+                    raise ValueError(
+                        f"Required column '{col_name}' not in {filename}.")
                 return default
 
         iso_service_map = {  # Standardized map
@@ -1031,7 +1066,8 @@ def create_model(
         }
 
         if target_iso not in iso_service_map:
-            raise ValueError(f"AS definitions missing for TARGET_ISO: {target_iso}")
+            raise ValueError(
+                f"AS definitions missing for TARGET_ISO: {target_iso}")
         logger.info(
             f"Loading AS parameters for {target_iso} using standardized naming..."
         )
@@ -1163,7 +1199,8 @@ def create_model(
                         ),
                     )
         else:
-            logger.info("Ancillary services disabled. Skipping AS parameter loading.")
+            logger.info(
+                "Ancillary services disabled. Skipping AS parameter loading.")
 
     except Exception as e:
         logger.error(f"Error during parameter loading: {e}", exc_info=True)
@@ -1177,6 +1214,25 @@ def create_model(
             model.TimePeriods,
             within=pyo.Reals,
             bounds=(p_ies_min_val, p_ies_max_val),
+        )
+
+        model.pGridPurchase = pyo.Var(
+            model.TimePeriods,
+            within=pyo.NonNegativeReals,
+            initialize=0.0
+        )
+
+        model.pGridSale = pyo.Var(
+            model.TimePeriods,
+            within=pyo.NonNegativeReals,
+            initialize=0.0
+        )
+
+        def grid_interaction_decomposition_rule(m, t):
+            return m.pIES[t] == m.pGridSale[t] - m.pGridPurchase[t]
+
+        model.grid_interaction_decomposition_constr = pyo.Constraint(
+            model.TimePeriods, rule=grid_interaction_decomposition_rule
         )
 
         if model.ENABLE_NUCLEAR_GENERATOR:
@@ -1220,7 +1276,8 @@ def create_model(
                             pyo.value(model.pElectrolyzer_max_lower_bound),
                             pyo.value(model.pElectrolyzer_max_upper_bound),
                         ),
-                        initialize=pyo.value(model.pElectrolyzer_max_upper_bound),
+                        initialize=pyo.value(
+                            model.pElectrolyzer_max_upper_bound),
                     )  # Initialize to upper bound
                     logger.info(
                         f"Optimizing electrolyzer capacity between {pyo.value(model.pElectrolyzer_max_lower_bound)} and {pyo.value(model.pElectrolyzer_max_upper_bound)} MW"
@@ -1275,7 +1332,8 @@ def create_model(
                 )
 
             if ENABLE_STARTUP_SHUTDOWN:
-                model.uElectrolyzer = pyo.Var(model.TimePeriods, within=pyo.Binary)
+                model.uElectrolyzer = pyo.Var(
+                    model.TimePeriods, within=pyo.Binary)
                 model.vElectrolyzerStartup = pyo.Var(
                     model.TimePeriods, within=pyo.Binary
                 )
@@ -1309,9 +1367,12 @@ def create_model(
                 )
 
             if model.ENABLE_H2_STORAGE:
-                h2_storage_min_val_loc = pyo.value(model.H2_storage_capacity_min)
-                h2_storage_max_val_loc = pyo.value(model.H2_storage_capacity_max)
-                h2_charge_max_val_loc = pyo.value(model.H2_storage_charge_rate_max)
+                h2_storage_min_val_loc = pyo.value(
+                    model.H2_storage_capacity_min)
+                h2_storage_max_val_loc = pyo.value(
+                    model.H2_storage_capacity_max)
+                h2_charge_max_val_loc = pyo.value(
+                    model.H2_storage_charge_rate_max)
                 h2_discharge_max_val_loc = pyo.value(
                     model.H2_storage_discharge_rate_max
                 )
@@ -1384,15 +1445,18 @@ def create_model(
                     "Failed to define battery power/capacity components."
                 )
 
-            model.BatterySOC = pyo.Var(model.TimePeriods, within=pyo.NonNegativeReals)
+            model.BatterySOC = pyo.Var(
+                model.TimePeriods, within=pyo.NonNegativeReals)
             model.BatteryCharge = pyo.Var(
                 model.TimePeriods, within=pyo.NonNegativeReals
             )
             model.BatteryDischarge = pyo.Var(
                 model.TimePeriods, within=pyo.NonNegativeReals
             )
-            model.BatteryBinaryCharge = pyo.Var(model.TimePeriods, within=pyo.Binary)
-            model.BatteryBinaryDischarge = pyo.Var(model.TimePeriods, within=pyo.Binary)
+            model.BatteryBinaryCharge = pyo.Var(
+                model.TimePeriods, within=pyo.Binary)
+            model.BatteryBinaryDischarge = pyo.Var(
+                model.TimePeriods, within=pyo.Binary)
 
         as_service_list_internal = [
             "RegUp",
@@ -1475,7 +1539,8 @@ def create_model(
             for comp_name in components_providing_as_deployment:
                 model.component_as_deployed_vars[comp_name] = []
                 for s_internal in as_service_list_internal:
-                    bid_var_name = f"{s_internal}_{comp_name}"  # Check if corresponding bid var exists
+                    # Check if corresponding bid var exists
+                    bid_var_name = f"{s_internal}_{comp_name}"
                     if hasattr(model, bid_var_name) and isinstance(
                         getattr(model, bid_var_name), pyo.Var
                     ):
@@ -1581,6 +1646,11 @@ def create_model(
         model.power_balance_constr = pyo.Constraint(
             model.TimePeriods, rule=power_balance_rule
         )
+
+        model.restrict_grid_purchase_constr = pyo.Constraint(
+            model.TimePeriods, rule=restrict_grid_purchase_rule
+        )
+
         if hasattr(model, "pAuxiliary"):  # Only add if pAuxiliary var exists
             model.link_auxiliary_power_constr = pyo.Constraint(
                 model.TimePeriods, rule=link_auxiliary_power_rule
@@ -1781,7 +1851,8 @@ def create_model(
                     model.TimePeriods, rule=electrolyzer_degradation_rule
                 )
             if ENABLE_H2_CAP_FACTOR:
-                model.h2_prod_req_constr = pyo.Constraint(rule=h2_CapacityFactor_rule)
+                model.h2_prod_req_constr = pyo.Constraint(
+                    rule=h2_CapacityFactor_rule)
 
             if hasattr(
                 model, "pElectrolyzerRampPos"
@@ -1878,7 +1949,8 @@ def create_model(
                 model.battery_power_capacity_link_constr = pyo.Constraint(
                     rule=battery_power_capacity_link_rule
                 )
-                model.battery_min_cap_constr = pyo.Constraint(rule=battery_min_cap_rule)
+                model.battery_min_cap_constr = pyo.Constraint(
+                    rule=battery_min_cap_rule)
 
             if model.CAN_PROVIDE_ANCILLARY_SERVICES:
                 model.Battery_AS_Pmax_constr = pyo.Constraint(
@@ -1953,7 +2025,8 @@ def create_model(
             model.SIMULATE_AS_DISPATCH_EXECUTION
             and model.CAN_PROVIDE_ANCILLARY_SERVICES
         ):
-            logger.info("Adding generic link_deployed_to_bid_rule constraints...")
+            logger.info(
+                "Adding generic link_deployed_to_bid_rule constraints...")
             components_with_deployed_vars = (
                 []
             )  # Determine which components have deployed vars
@@ -2047,7 +2120,8 @@ def create_model(
                     total_hours_sim / hours_in_year_val if hours_in_year_val > 0 else 0
                 )
             except Exception as e:
-                logger.error(f"Error getting fixed values in AnnualizedCapex_rule: {e}")
+                logger.error(
+                    f"Error getting fixed values in AnnualizedCapex_rule: {e}")
                 return 0.0  # Should not happen if params are loaded
 
             if (

@@ -1,10 +1,10 @@
 Parameter,Value
 delT_minutes,60.0
 AS_Duration,0.25
-plant_lifetime_years,30
+plant_lifetime_years,
 discount_rate,0.08
 pIES_min_MW,-1000.0
-pIES_max_MW,1000.0
+pIES_max_MW,3000.0
 qSteam_Total_MWth,1000.0
 qSteam_Turbine_min_MWth,100.0
 qSteam_Turbine_max_MWth,1000.0
@@ -17,7 +17,7 @@ Turbine_Thermal_Elec_Efficiency_Const,0.38
 qSteam_Turbine_Breakpoints_MWth,"100.0, 550.0, 1000.0"
 pTurbine_Outputs_at_Breakpoints_MW,"38.0, 209.0, 380.0"
 vom_turbine_USD_per_MWh,2.0
-pElectrolyzer_max_upper_bound_MW,500.0
+pElectrolyzer_max_upper_bound_MW,200.0
 pElectrolyzer_max_lower_bound_MW,0.0
 pElectrolyzer_min_MW,50.0
 pElectrolyzer_Breakpoints_MW,"50.0, 100.0, 250.0, 500.0"

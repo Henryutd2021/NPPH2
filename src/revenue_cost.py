@@ -23,20 +23,30 @@ def energy_revenue_rule(m):
     """Calculate net energy market revenue expression."""
     try:
         if (
-            not hasattr(m, "pIES")
+            not hasattr(m, "pGridSale")
+            or not hasattr(m, "pGridPurchase")
             or not hasattr(m, "energy_price")
             or not hasattr(m, "delT_minutes")
         ):
             logger.error(
-                "Missing pIES, energy_price, or delT_minutes for EnergyRevenue_rule."
+                "Missing pGridSale, pGridPurchase, energy_price, or delT_minutes for EnergyRevenue_rule."
             )
             return 0.0
         time_factor = pyo.value(m.delT_minutes) / 60.0
         if time_factor <= 0:
-            raise ValueError("delT_minutes must result in a positive time_factor.")
-        total_revenue_expr = sum(
-            m.pIES[t] * m.energy_price[t] * time_factor for t in m.TimePeriods
+            raise ValueError(
+                "delT_minutes must result in a positive time_factor.")
+
+        sales_revenue_expr = sum(
+            m.pGridSale[t] * m.energy_price[t] * time_factor for t in m.TimePeriods
         )
+
+        purchase_cost_expr = sum(
+            m.pGridPurchase[t] * m.energy_price[t] * time_factor for t in m.TimePeriods
+        )
+
+        total_revenue_expr = sales_revenue_expr - purchase_cost_expr
+
         return total_revenue_expr
     except Exception as e:
         logger.critical(
@@ -57,11 +67,13 @@ def hydrogen_revenue_rule(m):
         h2_subsidy = m.hydrogen_subsidy_per_kg
         time_factor = pyo.value(m.delT_minutes) / 60.0
         if time_factor <= 0:
-            raise ValueError("delT_minutes must result in a positive time_factor.")
+            raise ValueError(
+                "delT_minutes must result in a positive time_factor.")
         total_revenue_expr = 0.0
         if not enable_h2_storage:
             if not hasattr(m, "mHydrogenProduced"):
-                logger.error("Missing mHydrogenProduced for H2 Revenue (no storage).")
+                logger.error(
+                    "Missing mHydrogenProduced for H2 Revenue (no storage).")
                 return 0.0
             total_revenue_expr = sum(
                 (h2_value + h2_subsidy) * m.mHydrogenProduced[t] * time_factor
@@ -76,7 +88,8 @@ def hydrogen_revenue_rule(m):
                 logger.error("Missing vars for H2 Revenue (with storage).")
                 return 0.0
             revenue_from_sales_expr = sum(
-                h2_value * (m.H2_to_market[t] + m.H2_from_storage[t]) * time_factor
+                h2_value * (m.H2_to_market[t] +
+                            m.H2_from_storage[t]) * time_factor
                 for t in m.TimePeriods
             )
             revenue_from_subsidy_expr = sum(
@@ -135,7 +148,8 @@ def _calculate_standard_regulation_revenue(
         bid = bid_var[t]
         mcp_cap = get_param(m, f"p_{iso_service_name}", t, default=0.0)
         adder = get_param(m, f"loc_{iso_service_name}", t, default=0.0)
-        win_rate = get_param(m, f"winning_rate_{iso_service_name}", t, default=1.0)
+        win_rate = get_param(
+            m, f"winning_rate_{iso_service_name}", t, default=1.0)
 
         cap_payment = bid * win_rate * mcp_cap
         energy_perf_payment = 0.0
@@ -149,7 +163,8 @@ def _calculate_standard_regulation_revenue(
             # Standardized calculation for all ISOs.
             # Assumes model.py loads parameters like 'mileage_factor_RegUp_PJM', 'performance_factor_RegUp_PJM' etc.
             # The get_param function will try to fetch f'{param_base_name}_{TARGET_ISO}' first.
-            mileage = get_param(m, f"mileage_factor_{iso_service_name}", t, default=1.0)
+            mileage = get_param(
+                m, f"mileage_factor_{iso_service_name}", t, default=1.0)
             perf = get_param(
                 m, f"performance_factor_{iso_service_name}", t, default=1.0
             )
@@ -188,7 +203,8 @@ def _symbolic_hourly_spp_revenue_expr(m, t):
             bid = bid_var[t]
             mcp = get_param(m, f"p_{service_iso}", t, default=0.0)
             adder = get_param(m, f"loc_{service_iso}", t, default=0.0)
-            win_rate = get_param(m, f"winning_rate_{service_iso}", t, default=1.0)
+            win_rate = get_param(
+                m, f"winning_rate_{service_iso}", t, default=1.0)
 
             cap_payment = bid * win_rate * mcp
             energy_payment = 0.0
@@ -234,7 +250,8 @@ def _symbolic_hourly_caiso_revenue_expr(m, t):
             bid = bid_var[t]
             mcp = get_param(m, f"p_{service_iso}", t, default=0.0)
             adder = get_param(m, f"loc_{service_iso}", t, default=0.0)
-            win_rate = get_param(m, f"winning_rate_{service_iso}", t, default=1.0)
+            win_rate = get_param(
+                m, f"winning_rate_{service_iso}", t, default=1.0)
 
             cap_payment = bid * win_rate * mcp
             energy_payment = 0.0
@@ -275,7 +292,8 @@ def _symbolic_hourly_ercot_revenue_expr(m, t):
             bid = bid_var[t]
             mcp = get_param(m, f"p_{service_iso}", t, default=0.0)
             adder = get_param(m, f"loc_{service_iso}", t, default=0.0)
-            win_rate = get_param(m, f"winning_rate_{service_iso}", t, default=1.0)
+            win_rate = get_param(
+                m, f"winning_rate_{service_iso}", t, default=1.0)
 
             cap_payment = bid * win_rate * mcp
             energy_payment = 0.0
@@ -316,7 +334,8 @@ def _symbolic_hourly_pjm_revenue_expr(m, t):
             bid = bid_var[t]
             mcp = get_param(m, f"p_{service_iso}", t, default=0.0)
             adder = get_param(m, f"loc_{service_iso}", t, default=0.0)
-            win_rate = get_param(m, f"winning_rate_{service_iso}", t, default=1.0)
+            win_rate = get_param(
+                m, f"winning_rate_{service_iso}", t, default=1.0)
 
             cap_payment = bid * win_rate * mcp
             energy_payment = 0.0
@@ -357,7 +376,8 @@ def _symbolic_hourly_nyiso_revenue_expr(m, t):
             bid = bid_var[t]
             mcp = get_param(m, f"p_{service_iso}", t, default=0.0)
             adder = get_param(m, f"loc_{service_iso}", t, default=0.0)
-            win_rate = get_param(m, f"winning_rate_{service_iso}", t, default=1.0)
+            win_rate = get_param(
+                m, f"winning_rate_{service_iso}", t, default=1.0)
 
             cap_payment = bid * win_rate * mcp
             energy_payment = 0.0
@@ -389,7 +409,8 @@ def _symbolic_hourly_isone_revenue_expr(m, t):
             bid = bid_var[t]
             mcp = get_param(m, f"p_{service_iso}", t, default=0.0)
             adder = get_param(m, f"loc_{service_iso}", t, default=0.0)
-            win_rate = get_param(m, f"winning_rate_{service_iso}", t, default=1.0)
+            win_rate = get_param(
+                m, f"winning_rate_{service_iso}", t, default=1.0)
 
             cap_payment = bid * win_rate * mcp
             energy_payment = 0.0
@@ -436,7 +457,8 @@ def _symbolic_hourly_miso_revenue_expr(m, t):
             bid = bid_var[t]
             mcp = get_param(m, f"p_{service_iso}", t, default=0.0)
             adder = get_param(m, f"loc_{service_iso}", t, default=0.0)
-            win_rate = get_param(m, f"winning_rate_{service_iso}", t, default=1.0)
+            win_rate = get_param(
+                m, f"winning_rate_{service_iso}", t, default=1.0)
 
             cap_payment = bid * win_rate * mcp
             energy_payment = 0.0
@@ -463,7 +485,8 @@ def ancillary_revenue_rule_factory(iso_hourly_revenue_func):
         try:
             time_factor = pyo.value(m.delT_minutes) / 60.0
             if time_factor <= 0:
-                raise ValueError("delT_minutes must result in a positive time_factor.")
+                raise ValueError(
+                    "delT_minutes must result in a positive time_factor.")
             return sum(
                 iso_hourly_revenue_func(m, t) * time_factor for t in m.TimePeriods
             )
@@ -512,7 +535,8 @@ def opex_cost_rule(m):
     try:
         time_factor = pyo.value(m.delT_minutes) / 60.0
         if time_factor <= 0:
-            raise ValueError("delT_minutes must result in a positive time_factor.")
+            raise ValueError(
+                "delT_minutes must result in a positive time_factor.")
 
         cost_vom_turbine_expr = 0.0
         if enable_npp and hasattr(m, "vom_turbine") and hasattr(m, "pTurbine"):
@@ -614,7 +638,8 @@ def opex_cost_rule(m):
         )
         raise
     except Exception as e:
-        logger.critical(f"CRITICAL Error defining OpexCost rule: {e}", exc_info=True)
+        logger.critical(
+            f"CRITICAL Error defining OpexCost rule: {e}", exc_info=True)
         raise
 
 

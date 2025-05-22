@@ -1,0 +1,115 @@
+Technical Economic Analysis Report - MISO
+==================================
+
+1. Project Configuration
+-------------------------
+  Target ISO: MISO
+  Project Lifetime: 10 years
+  Construction Period: 2 years
+  Discount Rate: 8.00%
+  Corporate Tax Rate: 21.0%
+
+2. Capital Expenditure (CAPEX) Breakdown
+------------------------------------------
+  Electrolyzer System                     : $400,000,000 (97.6%)
+  Grid Integration                        : $5,000,000 (1.2%)
+  Battery System Energy                   : $2,360,000 (0.6%)
+  NPP Modifications                       : $2,000,000 (0.5%)
+  Battery System Power                    : $500,000 (0.1%)
+
+  Total CAPEX: $409,860,000
+
+3. Optimization Results - System Capacities
+---------------------------------------------
+  Electrolyzer Capacity                   : 200.00 MW
+  Hydrogen Storage Capacity               : 0.00 kg
+  Battery Energy Capacity                 : 10.00 MWh
+  Battery Power Capacity                  : 2.50 MW
+  Turbine Capacity                        : 342.44 MW
+
+  Reference Capacities from Configuration (before learning rate scaling):
+    Electrolyzer System           : 50 MW
+    H2 Storage System             : 10,000 kg
+    Battery System Energy         : 100 MWh
+    Battery System Power          : 25 MW
+
+4. Representative Annual Performance (from Optimization)
+----------------------------------------------------------
+  As Revenue                                   : 142,679,277.51
+  Annual Electrolyzer Mwh                      : 1,517,253.67
+  Annual Opex Cost From Opt                    : 22,100,401.39
+  Annual Profit                                : 272,890,478.83
+  Annual Revenue                               : 294,990,880.23
+  Avg Electricity Price Usd Per Mwh            : 27.06
+  Battery Cf Percent                           : 0.00
+  Battery Soc Percent                          : 46.99
+  Degradationstate Units Avg                   : 0.00
+  Degradationstate Units End                   : 0.00
+  Electrolyzer Cf Percent                      : 86.60
+  Energy Revenue                               : 39,324,299.56
+  H2 Production Kg Annual                      : 37,662,434.40
+  H2 Sales Revenue                             : 112,987,303.16
+  H2 Storage Cycle Cost                        : 0.00
+  H2 Storage Soc Percent                       : 0.00
+  H2 Subsidy Revenue                           : 0.00
+  H2 Total Revenue                             : 112,987,303.16
+  Ramping Cost                                 : 83,273.91
+  Startup Cost                                 : 0.00
+  Turbine Cf Percent                           : 95.25
+  Vom Battery Cost                             : 0.00
+  Vom Electrolyzer Cost                        : 15,172,536.65
+  Vom Turbine Cost                             : 5,714,717.79
+  Water Cost                                   : 1,129,873.02
+  Weighted Avg Electricity Price Usd Per Mwh   : 25.01
+  Annual Fixed Om Costs                        : [8220800.0, 8385216.0, 8552920.32, 8723978.726400001, 8898458.300928, 9076427.46694656, 9257956.016285492, 9443115.1366112]
+  Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0]
+  Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0]
+  Electrolyzer Capex                           : 400,000,000.00
+
+5. Lifecycle Financial Metrics (Total System)
+----------------------------------------------
+  Irr (%)                                      : 39.68
+  Lcoh (Usd) (Usd/Kg)                          : 1.97
+  Npv (Usd)                                    : 715,867,905.93
+  Payback Period (Years)                       : 1.96
+
+6. Incremental Financial Metrics (H2/Battery System vs. Baseline)
+--------------------------------------------------------------------
+  Annual Electricity Opportunity Cost Usd (USD): 41,053,548.43
+  Total Incremental Capex Learned Usd (USD): 402,860,000.00
+  Incremental Irr (%)                         : 29.63
+  Incremental Lcoh (Usd) (Usd/Kg)             : 1.94
+  Incremental Npv (Usd)                       : 445,321,625.42
+  Incremental Payback Period (Years)          : 2.57
+
+7. Cost Assumptions (Base Year)
+--------------------------------
+  CAPEX Components:
+    Battery_System_Energy         : $23,600,000 (Ref Cap: 100, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Battery_System_Power          : $5,000,000 (Ref Cap: 25, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Electrolyzer_System           : $100,000,000 (Ref Cap: 50, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    Grid_Integration              : $5,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-1: 1.0})
+    H2_Storage_System             : $10,000,000 (Ref Cap: 10000, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    NPP_Modifications             : $2,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-2: 1.0})
+  O&M Components (Annual Base):
+    Fixed_OM_Battery              : $0.00/MW/yr + $2,360.00/MWh/yr (Inflation: 2.0%)
+    Fixed_OM_General              : $0 (Inflation: 2.0%)
+  Major Replacements:
+    Battery_Augmentation_Replacement: Cost: 60.00% of Initial CAPEX (Years: [10])
+    Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
+    H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
+
+8. Visualization Reference
+--------------------------
+  Plots have been generated in: /home/honglin/NPPH2/TEA_results/cs1_tea/Donald C Cook_1_MISO_10/Plots_MISO
+  Key visualizations include:
+    - Cash flow profile (annual and cumulative)
+    - Incremental cash flow profile
+    - CAPEX breakdown (pie chart and bar chart)
+    - Project cost structure (CAPEX vs. OPEX & Replacements)
+    - Annual revenue breakdown
+    - Annual operational cost breakdown
+    - Key financial metrics
+    - Capacity factors
+
+Report generated: 2025-05-22 09:37:23

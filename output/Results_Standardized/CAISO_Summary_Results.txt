@@ -1,39 +1,39 @@
 --- Summary Results for CAISO ---
 Simulation_Mode: Dispatch Execution
 Target_ISO: CAISO
-Optimal_Electrolyzer_Capacity_MW: 500.0000
+Optimal_Electrolyzer_Capacity_MW: 200.0000
 Optimal_Battery_Capacity_MWh: 1,000.0000
 Optimal_Battery_Power_MW: 250.0000
-Total_Revenue_USD: 826,243,760.5127
-Total_Energy_Revenue_USD: 50,393,698.8456
-Total_Hydrogen_Revenue_USD: 188,364,555.2038
-Total_Hydrogen_Sales_Revenue_USD: 188,364,555.2038
+Total_Revenue_USD: 353,122,266.3960
+Total_Energy_Revenue_USD: 52,646,395.4860
+Total_Hydrogen_Revenue_USD: 112,485,203.9024
+Total_Hydrogen_Sales_Revenue_USD: 112,485,203.9024
 Total_Hydrogen_Subsidy_Revenue_USD: 0.0000
-Total_Ancillary_Revenue_USD: 587,485,506.4633
-Total_Hourly_Opex_USD: 33,152,368.5326
-Total_VOM_Cost_USD: 30,772,192.2716
-Total_Water_Cost_USD: 1,883,645.5520
-Total_Ramping_Cost_USD: 496,530.7090
+Total_Ancillary_Revenue_USD: 187,990,667.0076
+Total_Hourly_Opex_USD: 21,899,075.6935
+Total_VOM_Cost_USD: 20,699,916.6195
+Total_Water_Cost_USD: 1,124,852.0390
+Total_Ramping_Cost_USD: 74,307.0350
 Total_Storage_Cycle_Cost_USD: 0.0000
 Total_Startup_Cost_USD: 0.0000
-Total_Annualized_Capex_USD: 184,818,806.2387
-Electrolyzer_Annualized_Capex_USD: 127,315,261.0289
+Total_Annualized_Capex_USD: 108,429,649.6214
+Electrolyzer_Annualized_Capex_USD: 50,926,104.4116
 Battery_Annualized_Capex_USD: 57,503,545.2098
-Total_H2_Produced_kg: 62,788,185.0679
-Electrolyzer_Capacity_Factor_Actual: 0.5669
+Total_H2_Produced_kg: 37,495,067.9675
+Electrolyzer_Capacity_Factor_Actual: 0.8622
 Total_Electrolyzer_Startups: 0
 Final_DegradationState_Units: 0.0000
-Total_Deployed_RegUp_MWh: 2,662,805.2642
-Total_Deployed_RegDown_MWh: 4,223,088.9461
-Total_Deployed_SR_MWh: 1,111.4634
-Total_Deployed_NSR_MWh: 1,262.3652
+Total_Deployed_RegUp_MWh: 1,680,970.2239
+Total_Deployed_RegDown_MWh: 3,423,005.8151
+Total_Deployed_SR_MWh: 0.0000
+Total_Deployed_NSR_MWh: 0.0000
 Total_Deployed_ECRS_MWh: 0.0000
 Total_Deployed_ThirtyMin_MWh: 0.0000
-Total_Deployed_RampUp_MWh: 1,167.4514
-Total_Deployed_RampDown_MWh: 2,684.6662
+Total_Deployed_RampUp_MWh: 0.0000
+Total_Deployed_RampDown_MWh: 1,267.1196
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 608,272,585.7414
-Total_Profit_Calculated_USD: 608,272,585.7414
+Objective_Value_USD: 222,793,541.0811
+Total_Profit_Calculated_USD: 222,793,541.0811
 Objective vs Calculated Profit Diff: 0.0000

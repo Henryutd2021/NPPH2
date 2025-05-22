@@ -242,7 +242,8 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path) -> dict:
             )
 
     except Exception as e:
-        logger.error(f"Error loading TEA system data from {sys_data_file_path}: {e}")
+        logger.error(
+            f"Error loading TEA system data from {sys_data_file_path}: {e}")
         logger.debug(f"Error in load_tea_sys_params: {e}", exc_info=True)
 
     global PROJECT_LIFETIME_YEARS, DISCOUNT_RATE, CONSTRUCTION_YEARS, TAX_RATE, OM_COMPONENTS
@@ -317,13 +318,15 @@ def load_hourly_results(filepath: Path) -> pd.DataFrame | None:
         ]
 
         # Check if there is electrolyzer degradation data
-        degradation_cols = [col for col in df.columns if "degradation" in col.lower()]
+        degradation_cols = [
+            col for col in df.columns if "degradation" in col.lower()]
         if degradation_cols:
             logger.debug(f"Found degradation columns: {degradation_cols}")
         else:
             logger.debug("No degradation columns found in results file.")
 
-        missing_base_cols = [col for col in base_required_cols if col not in df.columns]
+        missing_base_cols = [
+            col for col in base_required_cols if col not in df.columns]
         if missing_base_cols:
             logger.error(
                 f"Missing essential base columns in results file: {missing_base_cols}"
@@ -354,9 +357,11 @@ def load_hourly_results(filepath: Path) -> pd.DataFrame | None:
         # Check for electrolyzer capacity specifically
         if "Electrolyzer_Capacity_MW" in df.columns:
             unique_vals = df["Electrolyzer_Capacity_MW"].unique()
-            logger.debug(f"Electrolyzer_Capacity_MW unique values: {unique_vals}")
+            logger.debug(
+                f"Electrolyzer_Capacity_MW unique values: {unique_vals}")
         else:
-            logger.warning("Electrolyzer_Capacity_MW not found in results file!")
+            logger.warning(
+                "Electrolyzer_Capacity_MW not found in results file!")
 
             # Try to find alternative column names that might contain electrolyzer capacity
             potential_electrolyzer_cols = [
@@ -375,7 +380,8 @@ def load_hourly_results(filepath: Path) -> pd.DataFrame | None:
                     f"Using {potential_electrolyzer_cols[0]} as fallback for Electrolyzer_Capacity_MW"
                 )
             else:
-                logger.warning("No alternative electrolyzer capacity columns found!")
+                logger.warning(
+                    "No alternative electrolyzer capacity columns found!")
 
         for cap_col_key in capacity_cols_needed_for_capex:
             if cap_col_key not in df.columns:
@@ -386,10 +392,12 @@ def load_hourly_results(filepath: Path) -> pd.DataFrame | None:
                 )
                 df[cap_col_key] = 0.0
 
-        all_required_cols = base_required_cols + list(capacity_cols_needed_for_capex)
+        all_required_cols = base_required_cols + \
+            list(capacity_cols_needed_for_capex)
         all_required_cols = sorted(list(set(all_required_cols)))
 
-        missing_final_cols = [col for col in all_required_cols if col not in df.columns]
+        missing_final_cols = [
+            col for col in all_required_cols if col not in df.columns]
         if missing_final_cols:
             logger.error(
                 f"Still missing columns after attempting to add defaults: {missing_final_cols}"
@@ -463,7 +471,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         )
 
         # Extract degradation information
-        degradation_cols = [col for col in df.columns if "degradation" in col.lower()]
+        degradation_cols = [
+            col for col in df.columns if "degradation" in col.lower()]
         if degradation_cols:
             for col in degradation_cols:
                 # Add degradation information to metrics
@@ -561,7 +570,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             )
             if user_spec_h2_storage is not None and not pd.isna(user_spec_h2_storage):
                 try:
-                    metrics["H2_Storage_Capacity_kg"] = float(user_spec_h2_storage)
+                    metrics["H2_Storage_Capacity_kg"] = float(
+                        user_spec_h2_storage)
                     logger.debug(
                         f"Using user-specified H2 storage capacity: {metrics['H2_Storage_Capacity_kg']} kg"
                     )
@@ -625,7 +635,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             )
         else:
             metrics["Battery_SOC_percent"] = 0
-            logger.debug("Battery SOC set to 0 (capacity is zero or SOC data missing)")
+            logger.debug(
+                "Battery SOC set to 0 (capacity is zero or SOC data missing)")
 
         # Calculate H2 Storage SOC (similar approach as battery)
         h2_storage_soc_col = None
@@ -683,7 +694,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
 
         # Try to get Turbine_Capacity_MW from results file first
         metrics["Turbine_Capacity_MW"] = (
-            df.get("Turbine_Capacity_MW", pd.Series(0.0, dtype="float64")).iloc[0]
+            df.get("Turbine_Capacity_MW", pd.Series(
+                0.0, dtype="float64")).iloc[0]
             if "Turbine_Capacity_MW" in df and not df["Turbine_Capacity_MW"].empty
             else 0
         )
@@ -695,7 +707,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                 and tea_sys_params["pTurbine_max_MW"] is not None
             ):
                 try:
-                    user_spec_turbine_cap = float(tea_sys_params["pTurbine_max_MW"])
+                    user_spec_turbine_cap = float(
+                        tea_sys_params["pTurbine_max_MW"])
                     if user_spec_turbine_cap > 0:
                         metrics["Turbine_Capacity_MW"] = user_spec_turbine_cap
                         logger.debug(
@@ -750,7 +763,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                 )
         else:
             metrics["Turbine_CF_percent"] = 0
-            logger.debug("Turbine CF set to 0 (pTurbine_MW column not found in data)")
+            logger.debug(
+                "Turbine CF set to 0 (pTurbine_MW column not found in data)")
         metrics["Annual_Electrolyzer_MWh"] = (
             df["pElectrolyzer_MW"].sum() * annualization_factor
             if "pElectrolyzer_MW" in df
@@ -770,7 +784,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             )
         else:
             metrics["Electrolyzer_CF_percent"] = 0
-            logger.debug("Electrolyzer CF set to 0 (capacity or power data missing)")
+            logger.debug(
+                "Electrolyzer CF set to 0 (capacity or power data missing)")
 
         if "EnergyPrice_LMP_USDperMWh" in df.columns:
             metrics["Avg_Electricity_Price_USD_per_MWh"] = df[
@@ -832,7 +847,8 @@ def calculate_cash_flows(
     capex_breakdown = {}
 
     for component_name, comp_data in capex_details.items():
-        base_cost_for_ref_size = comp_data.get("total_base_cost_for_ref_size", 0)
+        base_cost_for_ref_size = comp_data.get(
+            "total_base_cost_for_ref_size", 0)
         ref_capacity = comp_data.get("reference_total_capacity_mw", 0)
         lr_decimal = comp_data.get("learning_rate_decimal", 0)
         capacity_key = comp_data.get("applies_to_component_capacity_key")
@@ -847,8 +863,10 @@ def calculate_cash_flows(
         logger.debug(f"Processing CAPEX for '{component_name}':")
         logger.debug(f"   Linked to capacity key: {capacity_key}")
         logger.debug(f"   Reference capacity: {ref_capacity}")
-        logger.debug(f"   Actual optimized capacity: {actual_optimized_capacity}")
-        logger.debug(f"   Base cost for reference size: ${base_cost_for_ref_size:,.2f}")
+        logger.debug(
+            f"   Actual optimized capacity: {actual_optimized_capacity}")
+        logger.debug(
+            f"   Base cost for reference size: ${base_cost_for_ref_size:,.2f}")
         logger.debug(f"   Learning rate: {lr_decimal*100:.1f}%")
 
         adjusted_total_component_cost = 0.0
@@ -865,9 +883,11 @@ def calculate_cash_flows(
             and capacity_key
         ):
             progress_ratio = 1 - lr_decimal
-            b = math.log(progress_ratio) / math.log(2) if 0 < progress_ratio < 1 else 0
+            b = math.log(progress_ratio) / \
+                math.log(2) if 0 < progress_ratio < 1 else 0
             scale_factor = actual_optimized_capacity / ref_capacity
-            adjusted_total_component_cost = base_cost_for_ref_size * (scale_factor**b)
+            adjusted_total_component_cost = base_cost_for_ref_size * \
+                (scale_factor**b)
             logger.debug(
                 f"   Applying learning rate. Scale factor: {scale_factor:.3f}, LR exponent b: {b:.4f}"
             )
@@ -903,7 +923,8 @@ def calculate_cash_flows(
                 logger.info(
                     f"Component '{component_name}' has 0 optimized capacity. Its CAPEX is 0."
                 )
-                logger.debug(f"   Component has 0 optimized capacity. CAPEX is 0.")
+                logger.debug(
+                    f"   Component has 0 optimized capacity. CAPEX is 0.")
 
         # Store CAPEX component cost in breakdown dictionary
         friendly_component_name = component_name.replace("_", " ")
@@ -969,7 +990,8 @@ def calculate_cash_flows(
 
         # Fixed O&M - based on 2% of total CAPEX (instead of a fixed amount)
         if (
-            om_details.get("Fixed_OM_General", {}).get("base_cost_percent_of_capex", 0)
+            om_details.get("Fixed_OM_General", {}).get(
+                "base_cost_percent_of_capex", 0)
             > 0
         ):
             fixed_om_percent = om_details.get("Fixed_OM_General", {}).get(
@@ -1016,7 +1038,8 @@ def calculate_cash_flows(
             )
 
             batt_power_mw = optimized_capacities.get("Battery_Power_MW", 0)
-            batt_capacity_mwh = optimized_capacities.get("Battery_Capacity_MWh", 0)
+            batt_capacity_mwh = optimized_capacities.get(
+                "Battery_Capacity_MWh", 0)
 
             battery_fixed_om_cost_this_year = (
                 batt_power_mw * batt_fixed_om_per_mw
@@ -1144,11 +1167,14 @@ def calculate_financial_metrics(
 
         # 4. Calculate LCOH
         if pv_total_h2_production > 0:
-            metrics_results["LCOH_USD_per_kg"] = pv_total_costs / pv_total_h2_production
+            metrics_results["LCOH_USD_per_kg"] = pv_total_costs / \
+                pv_total_h2_production
             logger.debug(f"LCOH Calculation:")
             logger.debug(f"   PV Total Costs: ${pv_total_costs:,.2f}")
-            logger.debug(f"   PV Total H2 Production: {pv_total_h2_production:,.2f} kg")
-            logger.debug(f"   LCOH = ${metrics_results['LCOH_USD_per_kg']:.2f}/kg")
+            logger.debug(
+                f"   PV Total H2 Production: {pv_total_h2_production:,.2f} kg")
+            logger.debug(
+                f"   LCOH = ${metrics_results['LCOH_USD_per_kg']:.2f}/kg")
         else:
             metrics_results["LCOH_USD_per_kg"] = np.nan
     else:
@@ -1290,8 +1316,10 @@ def calculate_incremental_metrics(
             batt_inflation_inc = om_components_incremental.get(
                 "Fixed_OM_Battery", {}
             ).get("inflation_rate", 0)
-            batt_power_inc = optimized_capacities_inc.get("Battery_Power_MW", 0)
-            batt_capacity_inc = optimized_capacities_inc.get("Battery_Capacity_MWh", 0)
+            batt_power_inc = optimized_capacities_inc.get(
+                "Battery_Power_MW", 0)
+            batt_capacity_inc = optimized_capacities_inc.get(
+                "Battery_Capacity_MWh", 0)
             costs_inc += (
                 batt_power_inc * batt_fixed_om_per_mw_inc
                 + batt_capacity_inc * batt_fixed_om_per_mwh_inc
@@ -1343,7 +1371,8 @@ def calculate_incremental_metrics(
                 + 1
             )
         else:
-            inc_metrics["Payback_Period_Years"] = first_pos - construction_period + 1
+            inc_metrics["Payback_Period_Years"] = first_pos - \
+                construction_period + 1
     else:
         inc_metrics["Payback_Period_Years"] = np.nan
 
@@ -1356,7 +1385,8 @@ def calculate_incremental_metrics(
             if cf < 0
         )
         pv_h2_prod_inc = sum(
-            h2_prod_annual / ((1 + discount_rt) ** (op_idx + construction_period))
+            h2_prod_annual / ((1 + discount_rt) **
+                              (op_idx + construction_period))
             for op_idx in range(project_lifetime - construction_period)
         )
         inc_metrics["LCOH_USD_per_kg"] = (
@@ -1382,13 +1412,23 @@ def plot_results(
     incremental_metrics_data: dict | None = None,
 ):
     os.makedirs(plot_dir, exist_ok=True)
-    plt.style.use("seaborn-v0_8-darkgrid")
+
+    try:
+        plt.style.use("seaborn")
+    except:
+        try:
+            plt.style.use("ggplot")
+        except:
+            plt.style.use("default")
+
     plt.rcParams.update(
         {
             "figure.figsize": (10, 6),
             "font.size": 10,
             "axes.labelsize": 11,
             "axes.titlesize": 13,
+            "axes.grid": True,  
+            "grid.alpha": 0.3   
         }
     )
     years_axis = np.arange(1, len(cash_flows_data) + 1)
@@ -1507,12 +1547,14 @@ def plot_results(
             fig_capex_pie, ax_capex_pie = plt.subplots()
             ax_capex_pie.pie(
                 capex_filtered.values(),
-                labels=[f"{k}\n(${v:,.0f})" for k, v in capex_filtered.items()],
+                labels=[f"{k}\n(${v:,.0f})" for k,
+                        v in capex_filtered.items()],
                 autopct="%1.1f%%",
                 startangle=90,
                 colors=sns.color_palette("crest", len(capex_filtered)),
             )
-            ax_capex_pie.set_title("CAPEX Breakdown by Component", fontweight="bold")
+            ax_capex_pie.set_title(
+                "CAPEX Breakdown by Component", fontweight="bold")
             ax_capex_pie.axis("equal")
             plt.tight_layout()
             plt.savefig(plot_dir / "capex_breakdown_pie.png", dpi=300)
@@ -1651,7 +1693,8 @@ def plot_results(
         ) * annual_metrics_data.get("Battery_Capacity_MWh", 0)
         opex_sources["Fixed OM (Battery)"] = batt_om_mw_cost + batt_om_mwh_cost
 
-    opex_plot = {k.replace("_Cost", ""): v for k, v in opex_sources.items() if v > 1e-3}
+    opex_plot = {k.replace("_Cost", ""): v for k,
+                 v in opex_sources.items() if v > 1e-3}
     if opex_plot:
         fig_opex, ax_opex = plt.subplots()
         ax_opex.pie(
@@ -1687,23 +1730,62 @@ def plot_results(
         if not pd.isna(v)
     }
     if fin_valid:
-        fig_fin, ax_fin = plt.subplots(figsize=(8, 5))
-        bars = ax_fin.barh(
-            list(fin_valid.keys()),
-            list(fin_valid.values()),
-            color=sns.color_palette("mako", len(fin_valid)),
-        )
-        ax_fin.set_xlabel("Value")
-        ax_fin.set_title("Key Financial Metrics", fontweight="bold")
-        for i, (k, v) in enumerate(fin_valid.items()):
-            ax_fin.text(
-                v + 0.01 * abs(v) if v != 0 else 0.01,
-                i,
-                f"{v:.2f}",
-                va="center",
-                ha="left" if v >= 0 else "right",
+        npv_key = "NPV (USD)" if "NPV (USD)" in fin_valid else None
+        npv_value = fin_valid.get("NPV (USD)", None)
+
+        other_metrics = {k: v for k,
+                         v in fin_valid.items() if k != "NPV (USD)"}
+
+        fig_fin = plt.figure(figsize=(12, 8))
+
+        if npv_key and npv_value is not None:
+            ax_npv = plt.subplot(2, 1, 1)  
+            npv_bar = ax_npv.barh(
+                [npv_key],
+                [npv_value],
+                color=sns.color_palette("mako", 1)[0]
             )
+            ax_npv.set_xlabel("Value (USD)")
+            ax_npv.set_title("Net Present Value (NPV)", fontweight="bold")
+
+            ax_npv.text(
+                npv_value + 0.01 * abs(npv_value) if npv_value != 0 else 0.01,
+                0,
+                f"${npv_value:,.2f}",  
+                va="center",
+                ha="left" if npv_value >= 0 else "right",
+            )
+
+        if other_metrics:
+            ax_other = plt.subplot(2, 1, 2)  
+            other_bars = ax_other.barh(
+                list(other_metrics.keys()),
+                list(other_metrics.values()),
+                color=sns.color_palette("mako", len(other_metrics))
+            )
+            ax_other.set_xlabel("Value")
+            ax_other.set_title("Other Financial Metrics", fontweight="bold")
+
+            for i, (k, v) in enumerate(other_metrics.items()):
+                if "IRR" in k:
+                    label_text = f"{v:.2f}%"
+                elif "LCOH" in k:
+                    label_text = f"${v:.2f}/kg"
+                elif "Payback" in k:
+                    label_text = f"{v:.2f} years"
+                else:
+                    label_text = f"{v:.2f}"
+
+                ax_other.text(
+                    v + 0.01 * abs(v) if v != 0 else 0.01,
+                    i,
+                    label_text,
+                    va="center",
+                    ha="left" if v >= 0 else "right",
+                )
+
         plt.tight_layout()
+        plt.subplots_adjust(hspace=0.3)  
         plt.savefig(plot_dir / "financial_metrics_summary.png", dpi=300)
         plt.close(fig_fin)
 
@@ -1820,8 +1902,10 @@ def generate_report(
                 capex_breakdown.items(), key=lambda x: x[1], reverse=True
             ):
                 if cost > 0:
-                    percentage = (cost / total_capex * 100) if total_capex > 0 else 0
-                    f.write(f"  {component:<40}: ${cost:,.0f} ({percentage:.1f}%)\n")
+                    percentage = (cost / total_capex *
+                                  100) if total_capex > 0 else 0
+                    f.write(
+                        f"  {component:<40}: ${cost:,.0f} ({percentage:.1f}%)\n")
 
             f.write(f"\n  Total CAPEX: ${total_capex:,.0f}\n\n")
         else:
@@ -1986,7 +2070,8 @@ def generate_report(
             )
 
         section_num += 1
-        f.write(f"\n{section_num}. Visualization Reference\n" + "-" * 26 + "\n")
+        f.write(f"\n{section_num}. Visualization Reference\n" +
+                "-" * 26 + "\n")
         plot_dir = output_file_path.parent / f"Plots_{target_iso_rpt}"
         f.write(f"  Plots have been generated in: {plot_dir}\n")
         f.write("  Key visualizations include:\n")
@@ -2065,7 +2150,8 @@ def main():
         f"Output paths configured. Report: {tea_output_file}, Plots: {plot_output_dir}"
     )
 
-    tea_sys_params = load_tea_sys_params(current_target_iso, BASE_INPUT_DIR_DEFAULT)
+    tea_sys_params = load_tea_sys_params(
+        current_target_iso, BASE_INPUT_DIR_DEFAULT)
 
     def get_float_param(params_dict, key, default_value, logger_instance):
         val = params_dict.get(key)
@@ -2136,14 +2222,16 @@ def main():
 
     opt_results_dir = SCRIPT_DIR_PATH.parent / "output" / "Results_Standardized"
     results_file_path = (
-        opt_results_dir / f"{current_target_iso}_Hourly_Results_Comprehensive.csv"
+        opt_results_dir /
+        f"{current_target_iso}_Hourly_Results_Comprehensive.csv"
     )
     logger.info(f"Loading results from: {results_file_path}")
     if not results_file_path.exists():
         logger.error(
             f"Optimization results file not found: {results_file_path}. Exiting TEA."
         )
-        print(f"Error: Optimization results file not found at {results_file_path}")
+        print(
+            f"Error: Optimization results file not found at {results_file_path}")
         return False
 
     hourly_res_df = load_hourly_results(results_file_path)
@@ -2152,7 +2240,8 @@ def main():
         return False
     logger.info("Hourly results loaded successfully.")
 
-    annual_metrics_results = calculate_annual_metrics(hourly_res_df, tea_sys_params)
+    annual_metrics_results = calculate_annual_metrics(
+        hourly_res_df, tea_sys_params)
     if annual_metrics_results is None:
         logger.error("Failed to calculate annual metrics. Exiting TEA.")
         return False
@@ -2188,7 +2277,8 @@ def main():
     financial_metrics_results = calculate_financial_metrics(
         cash_flows_input=cash_flows_results,
         discount_rt=DISCOUNT_RATE,
-        annual_h2_prod_kg=annual_metrics_results.get("H2_Production_kg_annual", 0),
+        annual_h2_prod_kg=annual_metrics_results.get(
+            "H2_Production_kg_annual", 0),
         project_lt=PROJECT_LIFETIME_YEARS,
         construction_p=CONSTRUCTION_YEARS,
     )

@@ -11,17 +11,17 @@ Technical Economic Analysis Report - ERCOT
 
 2. Capital Expenditure (CAPEX) Breakdown
 ------------------------------------------
-  Electrolyzer System                     : $1,000,000,000 (77.3%)
-  Battery System Energy                   : $236,000,000 (18.3%)
-  Battery System Power                    : $50,000,000 (3.9%)
-  Grid Integration                        : $5,000,000 (0.4%)
-  NPP Modifications                       : $2,000,000 (0.2%)
+  Electrolyzer System                     : $400,000,000 (57.7%)
+  Battery System Energy                   : $236,000,000 (34.1%)
+  Battery System Power                    : $50,000,000 (7.2%)
+  Grid Integration                        : $5,000,000 (0.7%)
+  NPP Modifications                       : $2,000,000 (0.3%)
 
-  Total CAPEX: $1,293,000,000
+  Total CAPEX: $693,000,000
 
 3. Optimization Results - System Capacities
 ---------------------------------------------
-  Electrolyzer Capacity                   : 500.00 MW
+  Electrolyzer Capacity                   : 200.00 MW
   Hydrogen Storage Capacity               : 0.00 kg
   Battery Energy Capacity                 : 1,000.00 MWh
   Battery Power Capacity                  : 250.00 MW
@@ -35,52 +35,52 @@ Technical Economic Analysis Report - ERCOT
 
 4. Representative Annual Performance (from Optimization)
 ----------------------------------------------------------
-  As Revenue                                   : 581,941,902.31
-  Annual Electrolyzer Mwh                      : 2,488,316.46
-  Annual Opex Cost From Opt                    : 33,204,270.28
-  Annual Profit                                : 787,055,428.22
-  Annual Revenue                               : 820,259,698.52
-  Avg Electricity Price Usd Per Mwh            : 68.54
+  As Revenue                                   : 166,526,147.84
+  Annual Electrolyzer Mwh                      : 1,548,994.50
+  Annual Opex Cost From Opt                    : 22,939,369.62
+  Annual Profit                                : 313,768,776.36
+  Annual Revenue                               : 336,708,145.89
+  Avg Electricity Price Usd Per Mwh            : 26.22
   Battery Cf Percent                           : 0.00
-  Battery Soc Percent                          : 48.31
+  Battery Soc Percent                          : 54.50
   Degradationstate Units Avg                   : 0.00
   Degradationstate Units End                   : 0.00
-  Electrolyzer Cf Percent                      : 56.81
-  Energy Revenue                               : 49,559,519.19
-  H2 Production Kg Annual                      : 62,919,425.68
-  H2 Sales Revenue                             : 188,758,277.03
+  Electrolyzer Cf Percent                      : 88.41
+  Energy Revenue                               : 54,768,490.36
+  H2 Production Kg Annual                      : 38,471,169.24
+  H2 Sales Revenue                             : 115,413,507.70
   H2 Storage Cycle Cost                        : 0.00
   H2 Storage Soc Percent                       : 0.00
   H2 Subsidy Revenue                           : 0.00
-  H2 Total Revenue                             : 188,758,277.03
-  Ramping Cost                                 : 493,204.43
+  H2 Total Revenue                             : 115,413,507.70
+  Ramping Cost                                 : 76,260.80
   Startup Cost                                 : 0.00
-  Turbine Cf Percent                           : 90.85
+  Turbine Cf Percent                           : 95.11
   Vom Battery Cost                             : 0.00
-  Vom Electrolyzer Cost                        : 24,883,164.55
-  Vom Turbine Cost                             : 5,940,318.56
-  Water Cost                                   : 1,887,582.78
-  Weighted Avg Electricity Price Usd Per Mwh   : 62.25
-  Annual Fixed Om Costs                        : [np.float64(28220000.0), np.float64(28784400.0), np.float64(29360088.0), np.float64(29947289.76), np.float64(30546235.5552), np.float64(31157160.266303997), np.float64(31780303.47163008), np.float64(32415909.541062683), np.float64(33064227.73188394), np.float64(33725512.28652162), np.float64(34400022.53225205), np.float64(35088022.982897095), np.float64(35789783.44255503), np.float64(36505579.11140614), np.float64(37235690.69363426), np.float64(37980404.507506944), np.float64(38740012.597657084), np.float64(39514812.84961023), np.float64(40305109.10660243), np.float64(41111211.28873448), np.float64(41933435.51450917), np.float64(42772104.22479936), np.float64(43627546.30929535), np.float64(44500097.235481255), np.float64(45390099.180190876), np.float64(46297901.163794704), np.float64(47223859.18707059), np.float64(48168336.37081201)]
+  Vom Electrolyzer Cost                        : 15,489,944.99
+  Vom Turbine Cost                             : 6,219,028.66
+  Water Cost                                   : 1,154,135.00
+  Weighted Avg Electricity Price Usd Per Mwh   : 21.44
+  Annual Fixed Om Costs                        : [np.float64(16220000.0), np.float64(16544400.0), np.float64(16875288.0), np.float64(17212793.76), np.float64(17557049.6352), np.float64(17908190.627904), np.float64(18266354.440462083), np.float64(18631681.52927132), np.float64(19004315.15985675), np.float64(19384401.463053886), np.float64(19772089.492314965), np.float64(20167531.282161266), np.float64(20570881.907804485), np.float64(20982299.545960583), np.float64(21401945.536879793), np.float64(21829984.447617386), np.float64(22266584.136569735), np.float64(22711915.81930113), np.float64(23166154.135687154), np.float64(23629477.2184009), np.float64(24102066.762768917), np.float64(24584108.098024294), np.float64(25075790.25998478), np.float64(25577306.06518448), np.float64(26088852.18648817), np.float64(26610629.23021793), np.float64(27142841.81482229), np.float64(27685698.651118737)]
   Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(171600000.0), 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(300000000.0), 0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(300000000.0), 0, 0, 0, 0, 0, 0, 0, 0]
-  Electrolyzer Capex                           : 1,000,000,000.00
+  Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(120000000.0), 0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(120000000.0), 0, 0, 0, 0, 0, 0, 0, 0]
+  Electrolyzer Capex                           : 400,000,000.00
 
 5. Lifecycle Financial Metrics (Total System)
 ----------------------------------------------
-  Irr (%)                                      : 39.73
-  Lcoh (Usd) (Usd/Kg)                          : 1.92
-  Npv (Usd)                                    : 4,645,249,935.43
-  Payback Period (Years)                       : 2.16
+  Irr (%)                                      : 30.35
+  Lcoh (Usd) (Usd/Kg)                          : 1.67
+  Npv (Usd)                                    : 1,603,148,119.60
+  Payback Period (Years)                       : 2.95
 
 6. Incremental Financial Metrics (H2/Battery System vs. Baseline)
 --------------------------------------------------------------------
-  Annual Electricity Opportunity Cost Usd (USD): 170,537,693.35
-  Total Incremental Capex Learned Usd (USD): 1,286,000,000.00
-  Incremental Irr (%)                         : 31.05
-  Incremental Lcoh (Usd) (Usd/Kg)             : 1.91
-  Incremental Npv (Usd)                       : 3,321,079,476.37
-  Incremental Payback Period (Years)          : 2.85
+  Annual Electricity Opportunity Cost Usd (USD): 40,611,693.61
+  Total Incremental Capex Learned Usd (USD): 686,000,000.00
+  Incremental Irr (%)                         : 23.34
+  Incremental Lcoh (Usd) (Usd/Kg)             : 1.65
+  Incremental Npv (Usd)                       : 1,083,392,186.97
+  Incremental Payback Period (Years)          : 3.91
 
 7. Cost Assumptions (Base Year)
 --------------------------------
@@ -112,4 +112,4 @@ Technical Economic Analysis Report - ERCOT
     - Key financial metrics
     - Capacity factors
 
-Report generated: 2025-05-16 19:29:29
+Report generated: 2025-05-21 17:51:37

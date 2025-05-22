@@ -1,39 +1,39 @@
 --- Summary Results for ERCOT ---
 Simulation_Mode: Dispatch Execution
 Target_ISO: ERCOT
-Optimal_Electrolyzer_Capacity_MW: 500.0000
-Optimal_Battery_Capacity_MWh: 10.0000
-Optimal_Battery_Power_MW: 2.5000
-Total_Revenue_USD: 343,952,863.6292
-Total_Energy_Revenue_USD: -15,694,189.5968
-Total_Hydrogen_Revenue_USD: 319,485,607.5345
-Total_Hydrogen_Sales_Revenue_USD: 319,485,607.5345
+Optimal_Electrolyzer_Capacity_MW: 200.0000
+Optimal_Battery_Capacity_MWh: 1,000.0000
+Optimal_Battery_Power_MW: 250.0000
+Total_Revenue_USD: 331,033,001.2890
+Total_Energy_Revenue_USD: 48,031,995.8577
+Total_Hydrogen_Revenue_USD: 115,461,584.1596
+Total_Hydrogen_Sales_Revenue_USD: 115,461,584.1596
 Total_Hydrogen_Subsidy_Revenue_USD: 0.0000
-Total_Ancillary_Revenue_USD: 40,161,445.6916
-Total_Hourly_Opex_USD: 50,302,152.2592
-Total_VOM_Cost_USD: 47,017,883.0935
-Total_Water_Cost_USD: 3,194,856.0753
-Total_Ramping_Cost_USD: 89,413.0903
+Total_Ancillary_Revenue_USD: 167,539,421.2717
+Total_Hourly_Opex_USD: 22,479,433.5719
+Total_VOM_Cost_USD: 21,248,584.3383
+Total_Water_Cost_USD: 1,154,615.8416
+Total_Ramping_Cost_USD: 76,233.3920
 Total_Storage_Cycle_Cost_USD: 0.0000
 Total_Startup_Cost_USD: 0.0000
-Total_Annualized_Capex_USD: 127,890,296.4810
-Electrolyzer_Annualized_Capex_USD: 127,315,261.0289
-Battery_Annualized_Capex_USD: 575,035.4521
-Total_H2_Produced_kg: 106,495,202.5115
-Electrolyzer_Capacity_Factor_Actual: 0.9492
+Total_Annualized_Capex_USD: 108,429,649.6214
+Electrolyzer_Annualized_Capex_USD: 50,926,104.4116
+Battery_Annualized_Capex_USD: 57,503,545.2098
+Total_H2_Produced_kg: 38,487,194.7199
+Electrolyzer_Capacity_Factor_Actual: 0.8845
 Total_Electrolyzer_Startups: 0
 Final_DegradationState_Units: 0.0000
-Total_Deployed_RegUp_MWh: 399,644.5213
-Total_Deployed_RegDown_MWh: 114,061.4473
-Total_Deployed_SR_MWh: 11.5962
-Total_Deployed_NSR_MWh: 0.9540
-Total_Deployed_ECRS_MWh: 4,483.7128
+Total_Deployed_RegUp_MWh: 1,608,494.1905
+Total_Deployed_RegDown_MWh: 3,647,229.9151
+Total_Deployed_SR_MWh: 0.0000
+Total_Deployed_NSR_MWh: 0.0000
+Total_Deployed_ECRS_MWh: 247.2544
 Total_Deployed_ThirtyMin_MWh: 0.0000
 Total_Deployed_RampUp_MWh: 0.0000
 Total_Deployed_RampDown_MWh: 0.0000
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 165,760,414.8890
-Total_Profit_Calculated_USD: 165,760,414.8890
+Objective_Value_USD: 200,123,918.0957
+Total_Profit_Calculated_USD: 200,123,918.0957
 Objective vs Calculated Profit Diff: -0.0000

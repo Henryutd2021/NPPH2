@@ -40,7 +40,8 @@ def steam_balance_rule(m, t):
     if not getattr(m, "ENABLE_NUCLEAR_GENERATOR", False):
         return pyo.Constraint.Skip
     try:
-        turbine_steam = m.qSteam_Turbine[t] if hasattr(m, "qSteam_Turbine") else 0
+        turbine_steam = m.qSteam_Turbine[t] if hasattr(
+            m, "qSteam_Turbine") else 0
         hte_steam = 0
         if (
             getattr(m, "ENABLE_ELECTROLYZER", False)
@@ -111,7 +112,8 @@ def constant_turbine_power_rule(m, t):
             )
             return pyo.Constraint.Skip
     except Exception as e:
-        logger.error(f"Error in constant_turbine_power rule @t={t}: {e}", exc_info=True)
+        logger.error(
+            f"Error in constant_turbine_power rule @t={t}: {e}", exc_info=True)
         raise
 
 
@@ -135,7 +137,8 @@ def link_auxiliary_power_rule(m, t):
             )
             return pyo.Constraint.Skip
     except Exception as e:
-        logger.error(f"Error in link_auxiliary_power rule @t={t}: {e}", exc_info=True)
+        logger.error(
+            f"Error in link_auxiliary_power rule @t={t}: {e}", exc_info=True)
         raise
 
 
@@ -353,7 +356,8 @@ def h2_CapacityFactor_rule(m):
     ):
         return pyo.Constraint.Skip
     try:
-        total_hours_sim = len(m.TimePeriods) * (pyo.value(m.delT_minutes) / 60.0)
+        total_hours_sim = len(m.TimePeriods) * \
+            (pyo.value(m.delT_minutes) / 60.0)
         if (
             not hasattr(m, "pElectrolyzer_max")
             or pyo.value(m.pElectrolyzer_max) <= 1e-6
@@ -429,7 +433,8 @@ def electrolyzer_on_off_logic_rule(m, t):
         raise
 
 
-def electrolyzer_min_power_when_on_rule(m, t):  # Applies to actual physical power
+# Applies to actual physical power
+def electrolyzer_min_power_when_on_rule(m, t):
     if not getattr(m, "ENABLE_STARTUP_SHUTDOWN", False) or not getattr(
         m, "ENABLE_ELECTROLYZER", False
     ):
@@ -453,7 +458,8 @@ def electrolyzer_max_power_rule(m, t):  # Applies to actual physical power
         raise
 
 
-def electrolyzer_min_power_sds_disabled_rule(m, t):  # Applies to actual physical power
+# Applies to actual physical power
+def electrolyzer_min_power_sds_disabled_rule(m, t):
     if getattr(m, "ENABLE_STARTUP_SHUTDOWN", False) or not getattr(
         m, "ENABLE_ELECTROLYZER", False
     ):
@@ -465,7 +471,8 @@ def electrolyzer_min_power_sds_disabled_rule(m, t):  # Applies to actual physica
             else pyo.Constraint.Skip
         )
     except Exception as e:
-        logger.error(f"Min Power (SDS Disabled) Error @t={t}: {e}", exc_info=True)
+        logger.error(
+            f"Min Power (SDS Disabled) Error @t={t}: {e}", exc_info=True)
         raise
 
 
@@ -524,7 +531,8 @@ def electrolyzer_min_downtime_rule(m, t):
 
 
 # --- ELECTROLYZER DEGRADATION RULE ---
-def electrolyzer_degradation_rule(m, t):  # Based on actual power m.pElectrolyzer
+# Based on actual power m.pElectrolyzer
+def electrolyzer_degradation_rule(m, t):
     if not getattr(m, "ENABLE_ELECTROLYZER_DEGRADATION_TRACKING", False) or not getattr(
         m, "ENABLE_ELECTROLYZER", False
     ):
@@ -549,7 +557,8 @@ def electrolyzer_degradation_rule(m, t):  # Based on actual power m.pElectrolyze
         if getattr(m, "ENABLE_STARTUP_SHUTDOWN", False) and hasattr(
             m, "vElectrolyzerStartup"
         ):
-            degradation_increase_su = m.vElectrolyzerStartup[t] * startup_factor
+            degradation_increase_su = m.vElectrolyzerStartup[t] * \
+                startup_factor
         total_degradation_increase = degradation_increase_op + degradation_increase_su
         if t == m.TimePeriods.first():
             return (
@@ -578,7 +587,8 @@ def battery_soc_balance_rule(m, t):
         charge_eff = pyo.value(m.BatteryChargeEff)
         discharge_eff = pyo.value(m.BatteryDischargeEff)
         discharge_term = (
-            m.BatteryDischarge[t] / discharge_eff if discharge_eff > 1e-9 else 0
+            m.BatteryDischarge[t] /
+            discharge_eff if discharge_eff > 1e-9 else 0
         )
         charge_term = m.BatteryCharge[t] * charge_eff
         if t == m.TimePeriods.first():
@@ -612,7 +622,8 @@ def battery_discharge_limit_rule(m, t):
     try:
         return m.BatteryDischarge[t] <= m.BatteryPower_MW * m.BatteryBinaryDischarge[t]
     except Exception as e:
-        logger.error(f"Battery Discharge Limit Error @t={t}: {e}", exc_info=True)
+        logger.error(
+            f"Battery Discharge Limit Error @t={t}: {e}", exc_info=True)
         raise
 
 
@@ -622,7 +633,8 @@ def battery_binary_exclusivity_rule(m, t):
     try:
         return m.BatteryBinaryCharge[t] + m.BatteryBinaryDischarge[t] <= 1
     except Exception as e:
-        logger.error(f"Battery Binary Exclusivity Error @t={t}: {e}", exc_info=True)
+        logger.error(
+            f"Battery Binary Exclusivity Error @t={t}: {e}", exc_info=True)
         raise
 
 
@@ -684,7 +696,8 @@ def battery_discharge_ramp_up_rule(m, t):
         ramp_limit_mw = m.BatteryRampRate * m.BatteryCapacity_MWh * time_factor
         return m.BatteryDischarge[t] - m.BatteryDischarge[t - 1] <= ramp_limit_mw
     except Exception as e:
-        logger.error(f"Battery Discharge RampUp Error @t={t}: {e}", exc_info=True)
+        logger.error(
+            f"Battery Discharge RampUp Error @t={t}: {e}", exc_info=True)
         raise
 
 
@@ -698,7 +711,8 @@ def battery_discharge_ramp_down_rule(m, t):
         ramp_limit_mw = m.BatteryRampRate * m.BatteryCapacity_MWh * time_factor
         return m.BatteryDischarge[t - 1] - m.BatteryDischarge[t] <= ramp_limit_mw
     except Exception as e:
-        logger.error(f"Battery Discharge RampDown Error @t={t}: {e}", exc_info=True)
+        logger.error(
+            f"Battery Discharge RampDown Error @t={t}: {e}", exc_info=True)
         raise
 
 
@@ -883,7 +897,8 @@ def Electrolyzer_AS_Pmax_rule(
         return pyo.Constraint.Skip
     try:
         down_services = ["RegDown", "RampDown"]
-        down_bids = get_symbolic_as_bid_sum(m, t, down_services, "Electrolyzer")
+        down_bids = get_symbolic_as_bid_sum(
+            m, t, down_services, "Electrolyzer")
         max_power_limit = m.pElectrolyzer_max
         if getattr(m, "ENABLE_STARTUP_SHUTDOWN", False) and hasattr(m, "uElectrolyzer"):
             max_power_limit = m.uElectrolyzer[t] * m.pElectrolyzer_max
@@ -934,7 +949,8 @@ def Electrolyzer_AS_RU_rule(
         return pyo.Constraint.Skip
     try:
         down_services = ["RegDown", "RampDown"]
-        down_bids = get_symbolic_as_bid_sum(m, t, down_services, "Electrolyzer")
+        down_bids = get_symbolic_as_bid_sum(
+            m, t, down_services, "Electrolyzer")
         time_factor = pyo.value(m.delT_minutes) / 60.0
         ramp_limit = (
             m.RU_Electrolyzer_percent_hourly * m.pElectrolyzer_max * time_factor
@@ -1050,7 +1066,8 @@ def Battery_AS_SOC_Up_rule(m, t):  # Energy for Up-reserve
         discharge_eff = pyo.value(m.BatteryDischargeEff)
         as_duration = pyo.value(m.AS_Duration)
         energy_needed = up_bids * (
-            as_duration / discharge_eff if discharge_eff > 1e-9 else float("inf")
+            as_duration /
+            discharge_eff if discharge_eff > 1e-9 else float("inf")
         )
         min_soc = m.BatterySOC_min_fraction * m.BatteryCapacity_MWh
         return m.BatterySOC[t] - energy_needed >= min_soc
@@ -1150,15 +1167,18 @@ def link_total_as_rule(m, t, service_name):
             getattr(m, "ENABLE_ELECTROLYZER", False)
             or getattr(m, "ENABLE_BATTERY", False)
         ):
-            turbine_bid = get_symbolic_as_bid_sum(m, t, [service_name], "Turbine")
+            turbine_bid = get_symbolic_as_bid_sum(
+                m, t, [service_name], "Turbine")
 
         electro_bid = 0.0
         if getattr(m, "ENABLE_ELECTROLYZER", False):
-            electro_bid = get_symbolic_as_bid_sum(m, t, [service_name], "Electrolyzer")
+            electro_bid = get_symbolic_as_bid_sum(
+                m, t, [service_name], "Electrolyzer")
 
         battery_bid = 0.0
         if getattr(m, "ENABLE_BATTERY", False):
-            battery_bid = get_symbolic_as_bid_sum(m, t, [service_name], "Battery")
+            battery_bid = get_symbolic_as_bid_sum(
+                m, t, [service_name], "Battery")
 
         return total_var[t] == turbine_bid + electro_bid + battery_bid
     except AttributeError as e:
@@ -1427,3 +1447,38 @@ def define_actual_electrolyzer_power_rule(m, t):
             exc_info=True,
         )
         raise
+
+
+def restrict_grid_purchase_rule(m, t):
+    """
+    Restricts grid power purchase to only when down-regulation services are deployed.
+    - Grid purchase is limited to the amount of deployed down-regulation services
+    - Uses pGridPurchase variable which represents the actual amount of power purchased from the grid
+    """
+    if not getattr(m, "SIMULATE_AS_DISPATCH_EXECUTION", False) or not getattr(
+        m, "CAN_PROVIDE_ANCILLARY_SERVICES", False
+    ):
+        # No grid purchase allowed if not in dispatch mode
+        return m.pGridPurchase[t] == 0
+
+    # Down services that can be deployed
+    down_services = ["RampDown"]  #  "RegDown", "ECRS"
+
+    # Calculate total down services deployed across all components
+    total_down_deployed = 0.0
+    components_with_deployed_vars = []
+
+    if getattr(m, "ENABLE_ELECTROLYZER", False):
+        components_with_deployed_vars.append("Electrolyzer")
+    if getattr(m, "ENABLE_BATTERY", False):
+        components_with_deployed_vars.append("Battery")
+
+    # Sum all deployed down services
+    for comp_name in components_with_deployed_vars:
+        for service in down_services:
+            deployed_var_name = f"{service}_{comp_name}_Deployed"
+            if hasattr(m, deployed_var_name) and t in getattr(m, deployed_var_name):
+                total_down_deployed += getattr(m, deployed_var_name)[t]
+
+    # Grid purchase is directly limited to the amount of down services deployed
+    return m.pGridPurchase[t] <= total_down_deployed
