@@ -225,7 +225,7 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
         print(f"{'='*50}")
 
     # Load hourly data for this ISO
-    hourly_data = load_hourly_data(iso_region)
+    hourly_data = load_hourly_data(iso_region, base_dir="../input/hourly_data")
     if hourly_data is None:
         print(f"Error: Failed to load hourly data for ISO: {iso_region}")
         return None
@@ -239,6 +239,100 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
     # Adjust system parameters based on remaining life
     adjusted_df_system = adjust_system_params_for_remaining_life(
         df_system, remaining_years, thermal_efficiency=plant_params.get('thermal_efficiency'))
+
+    # **MODIFICATION: Set plant-specific parameters in the system DataFrame**
+    # This ensures the model uses plant-specific values from the beginning
+
+    # Set thermal capacity (total steam available)
+    adjusted_df_system.loc['qSteam_Total_MWth',
+                           'Value'] = plant_params["thermal_capacity_mwt"]
+
+    # Set maximum turbine power capacity
+    adjusted_df_system.loc['pTurbine_max_MW',
+                           'Value'] = plant_params["nameplate_capacity_mw"]
+
+    # Set thermal efficiency
+    adjusted_df_system.loc['Turbine_Thermal_Elec_Efficiency_Const',
+                           'Value'] = plant_params["thermal_efficiency"]
+
+    # Calculate and set turbine steam limits based on thermal capacity and efficiency
+    thermal_efficiency = plant_params["thermal_efficiency"]
+    thermal_capacity_mwt = plant_params["thermal_capacity_mwt"]
+    nameplate_capacity_mw = plant_params["nameplate_capacity_mw"]
+
+    # Set maximum steam to turbine equal to total thermal capacity
+    # This allows turbine to use all available steam if needed
+    adjusted_df_system.loc['qSteam_Turbine_max_MWth',
+                           'Value'] = thermal_capacity_mwt
+
+    # Set minimum turbine power based on 100 MWt steam consumption
+    # This provides a reasonable minimum load while maintaining flexibility
+    min_steam_100mwt = 100.0  # MWt
+    min_power_from_100mwt = min_steam_100mwt * thermal_efficiency
+    adjusted_df_system.loc['pTurbine_min_MW', 'Value'] = min_power_from_100mwt
+
+    # Set minimum steam to turbine
+    adjusted_df_system.loc['qSteam_Turbine_min_MWth',
+                           'Value'] = min_steam_100mwt
+
+    # Update pTurbine_Outputs_at_Breakpoints_MW to cover the full range
+    # Create breakpoints that span from minimum to maximum operation
+    if 'qSteam_Turbine_Breakpoints_MWth' in adjusted_df_system.index:
+        # Get existing breakpoints and ensure they cover the full range
+        q_breakpoints_str = str(
+            adjusted_df_system.loc['qSteam_Turbine_Breakpoints_MWth', 'Value'])
+        try:
+            q_breakpoints = [float(x.strip())
+                             for x in q_breakpoints_str.split(',') if x.strip()]
+
+            # Ensure we have breakpoints that cover the full operational range
+            # Add minimum and maximum if not already present
+            min_steam = min_steam_100mwt
+            max_steam = thermal_capacity_mwt
+
+            # Create a comprehensive set of breakpoints
+            if len(q_breakpoints) < 3:  # If not enough breakpoints, create new ones
+                q_breakpoints = [min_steam,
+                                 thermal_capacity_mwt * 0.5, max_steam]
+            else:
+                # Ensure existing breakpoints cover the range
+                q_breakpoints[0] = min(q_breakpoints[0], min_steam)
+                q_breakpoints[-1] = max(q_breakpoints[-1], max_steam)
+
+            # Sort breakpoints
+            q_breakpoints = sorted(set(q_breakpoints))
+
+            # Calculate corresponding power outputs
+            p_outputs = [q * thermal_efficiency for q in q_breakpoints]
+
+            # Update the parameters
+            q_breakpoints_str = ', '.join(f'{q:.2f}' for q in q_breakpoints)
+            p_outputs_str = ', '.join(f'{p:.4f}' for p in p_outputs)
+
+            adjusted_df_system.loc['qSteam_Turbine_Breakpoints_MWth',
+                                   'Value'] = q_breakpoints_str
+            adjusted_df_system.loc['pTurbine_Outputs_at_Breakpoints_MW',
+                                   'Value'] = p_outputs_str
+
+            if verbose:
+                print(f"Updated turbine breakpoints:")
+                print(f"  qSteam breakpoints: {q_breakpoints_str}")
+                print(f"  pTurbine outputs: {p_outputs_str}")
+
+        except Exception as e:
+            if verbose:
+                print(f"Warning: Could not update turbine breakpoints: {e}")
+
+    if verbose:
+        print(f"Plant-specific parameters set:")
+        print(f"  Thermal Capacity: {thermal_capacity_mwt} MWt")
+        print(f"  Nameplate Capacity: {nameplate_capacity_mw} MW")
+        print(f"  Thermal Efficiency: {thermal_efficiency:.4f}")
+        print(
+            f"  Max Steam to Turbine: {thermal_capacity_mwt} MWt (= total thermal capacity)")
+        print(
+            f"  Min Power (from 100 MWt steam): {min_power_from_100mwt:.2f} MW")
+        print(f"  Min Steam to Turbine: {min_steam_100mwt} MWt")
 
     # Update the hourly data with the adjusted system parameters
     hourly_data['df_system'] = adjusted_df_system
@@ -259,22 +353,8 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
             f"Error: Failed to create optimization model for plant: {plant_id}")
         return None
 
-    # Override model parameters with plant-specific data
-    if hasattr(model, 'pTurbine_max_MW'):
-        model.pTurbine_max_MW = plant_params["nameplate_capacity_mw"]
-    elif hasattr(model, 'pNuclear_max_MW'):
-        model.pNuclear_max_MW = plant_params["nameplate_capacity_mw"]
-
-    if hasattr(model, 'Turbine_Thermal_Elec_Efficiency_Const'):
-        model.Turbine_Thermal_Elec_Efficiency_Const = plant_params["thermal_efficiency"]
-    elif hasattr(model, 'Nuclear_Thermal_Elec_Efficiency_Const'):
-        model.Nuclear_Thermal_Elec_Efficiency_Const = plant_params["thermal_efficiency"]
-
-    min_load = plant_params["min_load_mw"]
-    if hasattr(model, 'pTurbine_min_MW') and min_load > 0:
-        model.pTurbine_min_MW = min_load
-    elif hasattr(model, 'pNuclear_min_MW') and min_load > 0:
-        model.pNuclear_min_MW = min_load
+    # **REMOVED: Old parameter override code that didn't work correctly**
+    # The model now uses the correct plant-specific parameters from the system DataFrame
 
     # Create solver
     solver_name = None
@@ -305,6 +385,22 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
     plant_name = plant_params["plant_name"]
     generator_id = int(plant_params["generator_id"])
     file_prefix = f"{plant_name}_{generator_id}_{iso_region}_{int(remaining_years)}"
+
+    # **VERIFICATION: Print actual model parameter values for debugging**
+    if verbose:
+        print("\nVerifying model parameter values:")
+        try:
+            import pyomo.environ as pyo
+            print(
+                f"  Model qSteam_Total: {pyo.value(model.qSteam_Total):.2f} MWt")
+            print(
+                f"  Model pTurbine_max: {pyo.value(model.pTurbine_max):.2f} MW")
+            print(
+                f"  Model pTurbine_min: {pyo.value(model.pTurbine_min):.2f} MW")
+            print(
+                f"  Model convertTtE_const: {pyo.value(model.convertTtE_const):.4f}")
+        except Exception as e:
+            print(f"  Warning: Could not verify model parameters: {e}")
 
     # Solve model
     if verbose:

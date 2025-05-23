@@ -14,8 +14,8 @@ Turbine_RampUp_Rate_Percent_per_Min,2.0
 Turbine_RampDown_Rate_Percent_per_Min,2.0
 pTurbine_LTE_setpoint_MW,380.0
 Turbine_Thermal_Elec_Efficiency_Const,0.38
-qSteam_Turbine_Breakpoints_MWth,"100.0, 550.0, 1000.0"
-pTurbine_Outputs_at_Breakpoints_MW,"38.0, 209.0, 380.0"
+qSteam_Turbine_Breakpoints_MWth,"100.0, 550.0, 1000.0, 10000.0"
+pTurbine_Outputs_at_Breakpoints_MW,"38.0, 209.0, 380.0, 3800.0"
 vom_turbine_USD_per_MWh,2.0
 pElectrolyzer_max_upper_bound_MW,200.0
 pElectrolyzer_max_lower_bound_MW,0.0

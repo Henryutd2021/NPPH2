@@ -803,6 +803,132 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         else:
             metrics["Avg_Electricity_Price_USD_per_MWh"] = 40.0
             metrics["Weighted_Avg_Electricity_Price_USD_per_MWh"] = 40.0
+
+        # **ENHANCEMENT: Extract plant-specific thermal parameters**
+        # Try to get thermal capacity from results dataframe first (added by cs1_tea.py)
+        if "Thermal_Capacity_MWt" in df.columns and not df["Thermal_Capacity_MWt"].empty:
+            metrics["thermal_capacity_mwt"] = df["Thermal_Capacity_MWt"].iloc[0]
+            logger.debug(
+                f"Thermal capacity from results: {metrics['thermal_capacity_mwt']} MWt")
+        elif "thermal_capacity_mwt" in tea_sys_params and tea_sys_params["thermal_capacity_mwt"] is not None:
+            try:
+                metrics["thermal_capacity_mwt"] = float(
+                    tea_sys_params["thermal_capacity_mwt"])
+                logger.debug(
+                    f"Thermal capacity from sys_params: {metrics['thermal_capacity_mwt']} MWt")
+            except (ValueError, TypeError):
+                logger.warning(
+                    f"Invalid thermal capacity value in sys_params: {tea_sys_params['thermal_capacity_mwt']}")
+                metrics["thermal_capacity_mwt"] = 0
+        else:
+            metrics["thermal_capacity_mwt"] = 0
+
+        # Try to get thermal efficiency from results dataframe first (added by cs1_tea.py)
+        if "Thermal_Efficiency" in df.columns and not df["Thermal_Efficiency"].empty:
+            metrics["thermal_efficiency"] = df["Thermal_Efficiency"].iloc[0]
+            logger.debug(
+                f"Thermal efficiency from results: {metrics['thermal_efficiency']:.4f}")
+        elif "thermal_efficiency" in tea_sys_params and tea_sys_params["thermal_efficiency"] is not None:
+            try:
+                metrics["thermal_efficiency"] = float(
+                    tea_sys_params["thermal_efficiency"])
+                logger.debug(
+                    f"Thermal efficiency from sys_params: {metrics['thermal_efficiency']:.4f}")
+            except (ValueError, TypeError):
+                logger.warning(
+                    f"Invalid thermal efficiency value in sys_params: {tea_sys_params['thermal_efficiency']}")
+                metrics["thermal_efficiency"] = 0
+        else:
+            metrics["thermal_efficiency"] = 0
+
+        # **NEW: Add Ancillary Services related statistics**
+        # Calculate AS revenue statistics
+        if "Revenue_Ancillary_USD" in df.columns:
+            as_revenue_hourly = df["Revenue_Ancillary_USD"]
+            metrics["AS_Revenue_Total"] = as_revenue_hourly.sum()
+            metrics["AS_Revenue_Average_Hourly"] = as_revenue_hourly.mean()
+            metrics["AS_Revenue_Maximum_Hourly"] = as_revenue_hourly.max()
+            metrics["AS_Revenue_Hours_Positive"] = (
+                as_revenue_hourly > 0).sum()
+            metrics["AS_Revenue_Utilization_Rate"] = (
+                metrics["AS_Revenue_Hours_Positive"] /
+                len(as_revenue_hourly) * 100
+                if len(as_revenue_hourly) > 0 else 0
+            )
+
+            # Calculate AS revenue per MW of capacity
+            if metrics["Electrolyzer_Capacity_MW"] > 0:
+                metrics["AS_Revenue_per_MW_Electrolyzer"] = (
+                    metrics["AS_Revenue_Total"] /
+                    metrics["Electrolyzer_Capacity_MW"]
+                )
+            if metrics["Battery_Power_MW"] > 0:
+                metrics["AS_Revenue_per_MW_Battery"] = (
+                    metrics["AS_Revenue_Total"] / metrics["Battery_Power_MW"]
+                )
+
+            logger.debug(f"AS Revenue statistics calculated:")
+            logger.debug(
+                f"  Total AS Revenue: ${metrics['AS_Revenue_Total']:,.2f}")
+            logger.debug(
+                f"  AS Utilization Rate: {metrics['AS_Revenue_Utilization_Rate']:.1f}%")
+
+        # Look for bid data columns and calculate AS bid statistics
+        as_bid_columns = [
+            col for col in df.columns if "_Bid_MW" in col and "Total_" in col]
+        if as_bid_columns:
+            metrics["AS_Total_Bid_Services"] = len(as_bid_columns)
+
+            # Calculate total bid capacity across all services
+            total_bid_capacity = 0
+            for bid_col in as_bid_columns:
+                service_max_bid = df[bid_col].max()
+                total_bid_capacity += service_max_bid
+
+                # Individual service statistics
+                service_name = bid_col.replace(
+                    "Total_", "").replace("_Bid_MW", "")
+                metrics[f"AS_Max_Bid_{service_name}_MW"] = service_max_bid
+                metrics[f"AS_Avg_Bid_{service_name}_MW"] = df[bid_col].mean()
+
+            metrics["AS_Total_Max_Bid_Capacity_MW"] = total_bid_capacity
+
+            # AS capacity utilization relative to system capacity
+            if metrics["Electrolyzer_Capacity_MW"] > 0:
+                metrics["AS_Bid_Utilization_vs_Electrolyzer"] = (
+                    total_bid_capacity /
+                    metrics["Electrolyzer_Capacity_MW"] * 100
+                )
+
+        # Look for deployed data columns (if in dispatch simulation mode)
+        as_deployed_columns = [
+            col for col in df.columns if "_Deployed_MW" in col]
+        if as_deployed_columns:
+            total_deployed_energy = 0
+            for deployed_col in as_deployed_columns:
+                service_deployed_total = df[deployed_col].sum(
+                ) * annualization_factor
+                total_deployed_energy += service_deployed_total
+
+                # Individual service deployment statistics
+                service_name = deployed_col.replace("_Deployed_MW", "")
+                metrics[f"AS_Total_Deployed_{service_name}_MWh"] = service_deployed_total
+                metrics[f"AS_Avg_Deployed_{service_name}_MW"] = df[deployed_col].mean(
+                )
+
+            metrics["AS_Total_Deployed_Energy_MWh"] = total_deployed_energy
+
+            # Deployment efficiency (deployed vs bid)
+            for deployed_col in as_deployed_columns:
+                service_base = deployed_col.replace("_Deployed_MW", "")
+                corresponding_bid_col = f"Total_{service_base}_Bid_MW"
+                if corresponding_bid_col in df.columns:
+                    avg_deployed = df[deployed_col].mean()
+                    avg_bid = df[corresponding_bid_col].mean()
+                    if avg_bid > 0:
+                        deployment_efficiency = (avg_deployed / avg_bid) * 100
+                        metrics[f"AS_Deployment_Efficiency_{service_base}_percent"] = deployment_efficiency
+
     except KeyError as e:
         logger.error(
             f"Missing column in hourly results for annual metrics calculation: {e}"
@@ -1427,8 +1553,8 @@ def plot_results(
             "font.size": 10,
             "axes.labelsize": 11,
             "axes.titlesize": 13,
-            "axes.grid": True,  
-            "grid.alpha": 0.3   
+            "axes.grid": True,
+            "grid.alpha": 0.3
         }
     )
     years_axis = np.arange(1, len(cash_flows_data) + 1)
@@ -1739,7 +1865,7 @@ def plot_results(
         fig_fin = plt.figure(figsize=(12, 8))
 
         if npv_key and npv_value is not None:
-            ax_npv = plt.subplot(2, 1, 1)  
+            ax_npv = plt.subplot(2, 1, 1)
             npv_bar = ax_npv.barh(
                 [npv_key],
                 [npv_value],
@@ -1751,13 +1877,13 @@ def plot_results(
             ax_npv.text(
                 npv_value + 0.01 * abs(npv_value) if npv_value != 0 else 0.01,
                 0,
-                f"${npv_value:,.2f}",  
+                f"${npv_value:,.2f}",
                 va="center",
                 ha="left" if npv_value >= 0 else "right",
             )
 
         if other_metrics:
-            ax_other = plt.subplot(2, 1, 2)  
+            ax_other = plt.subplot(2, 1, 2)
             other_bars = ax_other.barh(
                 list(other_metrics.keys()),
                 list(other_metrics.values()),
@@ -1785,7 +1911,7 @@ def plot_results(
                 )
 
         plt.tight_layout()
-        plt.subplots_adjust(hspace=0.3)  
+        plt.subplots_adjust(hspace=0.3)
         plt.savefig(plot_dir / "financial_metrics_summary.png", dpi=300)
         plt.close(fig_fin)
 
@@ -1875,19 +2001,59 @@ def generate_report(
     incremental_metrics_rpt: dict | None = None,
 ):
     logger.info(f"Generating TEA report: {output_file_path}")
+
+    # **ENHANCEMENT: Use plant-specific title if available**
+    current_module = sys.modules[__name__]
+    if hasattr(current_module, 'PLANT_REPORT_TITLE'):
+        report_title = getattr(current_module, 'PLANT_REPORT_TITLE')
+        subtitle_info = f"ISO Region: {target_iso_rpt}"
+        logger.info(f"Using plant-specific report title: {report_title}")
+    else:
+        report_title = target_iso_rpt
+        subtitle_info = f"Target ISO: {target_iso_rpt}"
+        logger.info(f"Using default ISO report title: {report_title}")
+
     with open(output_file_path, "w", encoding="utf-8") as f:
         f.write(
-            f"Technical Economic Analysis Report - {target_iso_rpt}\n"
-            + "=" * (30 + len(target_iso_rpt))
+            f"Technical Economic Analysis Report - {report_title}\n"
+            + "=" * (30 + len(report_title))
             + "\n\n"
         )
         f.write("1. Project Configuration\n" + "-" * 25 + "\n")
         f.write(
-            f"  Target ISO: {target_iso_rpt}\n  Project Lifetime: {project_lt_rpt} years\n  Construction Period: {construction_p_rpt} years\n"
+            f"  {subtitle_info}\n  Project Lifetime: {project_lt_rpt} years\n  Construction Period: {construction_p_rpt} years\n"
         )
         f.write(
-            f"  Discount Rate: {discount_rt_rpt*100:.2f}%\n  Corporate Tax Rate: {tax_rt_rpt*100:.1f}%\n\n"
+            f"  Discount Rate: {discount_rt_rpt*100:.2f}%\n  Corporate Tax Rate: {tax_rt_rpt*100:.1f}%\n"
         )
+
+        # **ENHANCEMENT: Add plant-specific technical parameters**
+        if annual_metrics_rpt:
+            # Add Turbine Capacity (moved from System Capacities section)
+            turbine_capacity = annual_metrics_rpt.get("Turbine_Capacity_MW", 0)
+            if turbine_capacity > 0:
+                f.write(f"  Turbine Capacity: {turbine_capacity:,.2f} MW\n")
+
+            # Add Thermal Capacity if available
+            thermal_capacity = annual_metrics_rpt.get(
+                "thermal_capacity_mwt", 0)
+            if thermal_capacity == 0:
+                thermal_capacity = annual_metrics_rpt.get(
+                    "Thermal_Capacity_MWt", 0)
+            if thermal_capacity > 0:
+                f.write(f"  Thermal Capacity: {thermal_capacity:,.2f} MWt\n")
+
+            # Add Thermal Efficiency if available
+            thermal_efficiency = annual_metrics_rpt.get(
+                "thermal_efficiency", 0)
+            if thermal_efficiency == 0:
+                thermal_efficiency = annual_metrics_rpt.get(
+                    "Thermal_Efficiency", 0)
+            if thermal_efficiency > 0:
+                f.write(
+                    f"  Thermal Efficiency: {thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)\n")
+
+        f.write("\n")
 
         # Add CAPEX breakdown section
         f.write("2. Capital Expenditure (CAPEX) Breakdown\n" + "-" * 42 + "\n")
@@ -1926,49 +2092,40 @@ def generate_report(
                     "Battery_Capacity_MWh", 0
                 ),
                 "Battery Power Capacity": annual_metrics_rpt.get("Battery_Power_MW", 0),
-                "Turbine Capacity": annual_metrics_rpt.get("Turbine_Capacity_MW", 0),
             }
             capacity_units = {
                 "Electrolyzer Capacity": "MW",
                 "Hydrogen Storage Capacity": "kg",
                 "Battery Energy Capacity": "MWh",
                 "Battery Power Capacity": "MW",
-                "Turbine Capacity": "MW",
             }
 
             for name, value in capacity_metrics.items():
                 unit = capacity_units.get(name, "")
                 f.write(f"  {name:<40}: {value:,.2f} {unit}\n")
 
-            # Add corresponding reference values for comparison
-            f.write(
-                "\n  Reference Capacities from Configuration (before learning rate scaling):\n"
-            )
-            ref_capacities = {
-                "Electrolyzer_System": ("Electrolyzer_Capacity_MW", "MW"),
-                "H2_Storage_System": ("H2_Storage_Capacity_kg", "kg"),
-                "Battery_System_Energy": ("Battery_Capacity_MWh", "MWh"),
-                "Battery_System_Power": ("Battery_Power_MW", "MW"),
-            }
-
-            for comp_name, (capacity_key, unit) in ref_capacities.items():
-                if comp_name in capex_data:
-                    ref_cap = capex_data[comp_name].get(
-                        "reference_total_capacity_mw", 0
-                    )
-                    f.write(
-                        f"    {comp_name.replace('_', ' '):<30}: {ref_cap:,.0f} {unit}\n"
-                    )
-
+            # **REMOVED: Reference capacities section as requested**
             f.write("\n")
 
+        # 4. Representative Annual Performance (from Optimization)
         f.write(
             "4. Representative Annual Performance (from Optimization)\n"
             + "-" * 58
             + "\n"
         )
         if annual_metrics_rpt:
-            # Skip these as they're reported separately
+            # Only show AS results for services provided by this ISO
+            iso_service_map = {
+                "SPP": ["RegU", "RegD", "Spin", "Sup", "RamU", "RamD", "UncU"],
+                "CAISO": ["RegU", "RegD", "Spin", "NSpin", "RMU", "RMD"],
+                "ERCOT": ["RegU", "RegD", "Spin", "NSpin", "ECRS"],
+                "PJM": ["RegUp", "RegDown", "Syn", "Rse", "TMR"],
+                "NYISO": ["RegUp", "RegDown", "Spin10", "NSpin10", "Res30"],
+                "ISONE": ["Spin10", "NSpin10", "OR30"],
+                "MISO": ["RegUp", "RegDown", "Spin", "Sup", "STR", "RamU", "RamD"],
+            }
+            iso = target_iso_rpt
+            as_services = iso_service_map.get(iso, [])
             metrics_to_skip = [
                 "capex_breakdown",
                 "total_capex",
@@ -1977,9 +2134,25 @@ def generate_report(
                 "Battery_Capacity_MWh",
                 "Battery_Power_MW",
                 "Turbine_Capacity_MW",
+                # Skip AS revenue here as it will be shown in the AS section
+                "AS_Revenue",
+                "Revenue_Ancillary_USD",
             ]
             for k, v in sorted(annual_metrics_rpt.items()):
-                if k not in metrics_to_skip:
+                # Only show AS-related metrics for this ISO's services
+                if any(
+                    k.startswith(f"AS_Max_Bid_{s}") or k.startswith(f"AS_Avg_Bid_{s}") or
+                    k.startswith(f"AS_Total_Deployed_{s}") or k.startswith(f"AS_Avg_Deployed_{s}") or
+                    k.startswith(f"AS_Deployment_Efficiency_{s}")
+                    for s in as_services
+                ):
+                    f.write(
+                        f"  {k.replace('_',' ').title():<45}: {v:,.2f}\n"
+                        if isinstance(v, (int, float)) and not pd.isna(v)
+                        else f"  {k.replace('_',' ').title():<45}: {v}\n"
+                    )
+                # Show non-AS metrics as usual
+                elif not any(x in k for x in ["AS_Max_Bid_", "AS_Avg_Bid_", "AS_Total_Deployed_", "AS_Avg_Deployed_", "AS_Deployment_Efficiency_"]) and k not in metrics_to_skip:
                     f.write(
                         f"  {k.replace('_',' ').title():<45}: {v:,.2f}\n"
                         if isinstance(v, (int, float)) and not pd.isna(v)
@@ -1988,8 +2161,167 @@ def generate_report(
         else:
             f.write("  No annual metrics data available.\n")
 
-        f.write("\n5. Lifecycle Financial Metrics (Total System)\n" + "-" * 46 + "\n")
+        # 5. Ancillary Services Performance
+        f.write("\n5. Ancillary Services Performance\n" + "-" * 35 + "\n")
+        if annual_metrics_rpt:
+            # Total AS revenue - use the new calculated metrics
+            as_revenue = annual_metrics_rpt.get("AS_Revenue_Total", 0)
+            if as_revenue == 0:
+                as_revenue = annual_metrics_rpt.get("AS_Revenue", 0)
+            if as_revenue == 0:
+                as_revenue = annual_metrics_rpt.get("Revenue_Ancillary_USD", 0)
+
+            f.write(
+                f"  Total Ancillary Services Revenue: ${as_revenue:,.2f}\n")
+
+            # AS revenue statistics
+            as_avg_hourly = annual_metrics_rpt.get(
+                "AS_Revenue_Average_Hourly", 0)
+            as_max_hourly = annual_metrics_rpt.get(
+                "AS_Revenue_Maximum_Hourly", 0)
+            as_utilization = annual_metrics_rpt.get(
+                "AS_Revenue_Utilization_Rate", 0)
+
+            if as_avg_hourly > 0 or as_max_hourly > 0:
+                f.write(
+                    f"  Average Hourly AS Revenue: ${as_avg_hourly:,.2f}\n")
+                f.write(
+                    f"  Maximum Hourly AS Revenue: ${as_max_hourly:,.2f}\n")
+                f.write(
+                    f"  AS Revenue Utilization Rate: {as_utilization:.1f}%\n")
+
+            # Revenue per MW statistics
+            as_rev_per_mw_elec = annual_metrics_rpt.get(
+                "AS_Revenue_per_MW_Electrolyzer", 0)
+            as_rev_per_mw_batt = annual_metrics_rpt.get(
+                "AS_Revenue_per_MW_Battery", 0)
+            if as_rev_per_mw_elec > 0:
+                f.write(
+                    f"  AS Revenue per MW Electrolyzer: ${as_rev_per_mw_elec:,.2f}/MW\n")
+            if as_rev_per_mw_batt > 0:
+                f.write(
+                    f"  AS Revenue per MW Battery Power: ${as_rev_per_mw_batt:,.2f}/MW\n")
+
+            # Revenue breakdown by AS type if available
+            as_revenue_types = {
+                "Energy Revenue": annual_metrics_rpt.get("Energy_Revenue", 0),
+                "H2 Sales Revenue": annual_metrics_rpt.get("H2_Sales_Revenue", 0),
+                "H2 Subsidy Revenue": annual_metrics_rpt.get("H2_Subsidy_Revenue", 0),
+                "Ancillary Services Revenue": as_revenue,
+            }
+
+            total_revenue = annual_metrics_rpt.get("Annual_Revenue", 0)
+            if total_revenue > 0:
+                f.write(f"\n  Revenue Mix:\n")
+                for rev_type, rev_amount in as_revenue_types.items():
+                    if rev_amount > 0:
+                        percentage = (rev_amount / total_revenue) * 100
+                        f.write(
+                            f"    {rev_type:<35}: ${rev_amount:,.2f} ({percentage:.1f}%)\n")
+
+            # AS revenue as percentage of total revenue
+            if total_revenue > 0 and as_revenue > 0:
+                as_percentage = (as_revenue / total_revenue) * 100
+                f.write(
+                    f"\n  AS Revenue as % of Total Revenue: {as_percentage:.2f}%\n")
+
+            # AS Bidding Statistics
+            as_total_services = annual_metrics_rpt.get(
+                "AS_Total_Bid_Services", 0)
+            as_total_bid_capacity = annual_metrics_rpt.get(
+                "AS_Total_Max_Bid_Capacity_MW", 0)
+            as_bid_utilization = annual_metrics_rpt.get(
+                "AS_Bid_Utilization_vs_Electrolyzer", 0)
+
+            if as_total_services > 0 or as_total_bid_capacity > 0:
+                f.write(f"\n  AS Bidding Performance:\n")
+                if as_total_services > 0:
+                    f.write(
+                        f"    Number of AS Services Bid: {as_total_services}\n")
+                if as_total_bid_capacity > 0:
+                    f.write(
+                        f"    Total Maximum Bid Capacity: {as_total_bid_capacity:,.2f} MW\n")
+                if as_bid_utilization > 0:
+                    f.write(
+                        f"    Bid Capacity vs Electrolyzer: {as_bid_utilization:.1f}%\n")
+
+            # Individual AS service breakdown
+            as_service_metrics = {}
+            for key, value in annual_metrics_rpt.items():
+                if key.startswith("AS_Max_Bid_") and key.endswith("_MW"):
+                    service_name = key.replace(
+                        "AS_Max_Bid_", "").replace("_MW", "")
+                    avg_key = f"AS_Avg_Bid_{service_name}_MW"
+                    avg_value = annual_metrics_rpt.get(avg_key, 0)
+                    if value > 0 or avg_value > 0:
+                        as_service_metrics[service_name] = {
+                            "max_bid": value,
+                            "avg_bid": avg_value
+                        }
+
+            if as_service_metrics:
+                f.write(f"\n  AS Service Breakdown:\n")
+                for service, data in sorted(as_service_metrics.items()):
+                    f.write(
+                        f"    {service:<15}: Max {data['max_bid']:>6.1f} MW, Avg {data['avg_bid']:>6.1f} MW\n")
+
+            # Deployment statistics (if available)
+            as_total_deployed = annual_metrics_rpt.get(
+                "AS_Total_Deployed_Energy_MWh", 0)
+            if as_total_deployed > 0:
+                f.write(f"\n  AS Deployment Performance:\n")
+                f.write(
+                    f"    Total Deployed Energy: {as_total_deployed:,.2f} MWh\n")
+
+                # Individual deployment metrics
+                deployment_metrics = {}
+                for key, value in annual_metrics_rpt.items():
+                    if key.startswith("AS_Total_Deployed_") and key.endswith("_MWh"):
+                        service_name = key.replace(
+                            "AS_Total_Deployed_", "").replace("_MWh", "")
+                        avg_key = f"AS_Avg_Deployed_{service_name}_MW"
+                        eff_key = f"AS_Deployment_Efficiency_{service_name}_percent"
+                        avg_value = annual_metrics_rpt.get(avg_key, 0)
+                        eff_value = annual_metrics_rpt.get(eff_key, 0)
+                        if value > 0:
+                            deployment_metrics[service_name] = {
+                                "total_mwh": value,
+                                "avg_mw": avg_value,
+                                "efficiency": eff_value
+                            }
+
+                if deployment_metrics:
+                    f.write(f"    Service-Specific Deployment:\n")
+                    for service, data in sorted(deployment_metrics.items()):
+                        eff_str = f", Efficiency {data['efficiency']:.1f}%" if data['efficiency'] > 0 else ""
+                        f.write(
+                            f"      {service:<15}: {data['total_mwh']:>8.1f} MWh (Avg {data['avg_mw']:>6.1f} MW{eff_str})\n")
+
+            # System utilization metrics
+            capacity_factors = {
+                "Electrolyzer CF": annual_metrics_rpt.get("Electrolyzer_CF_percent", 0),
+                "Turbine CF": annual_metrics_rpt.get("Turbine_CF_percent", 0),
+                "Battery SOC": annual_metrics_rpt.get("Battery_SOC_percent", 0),
+            }
+
+            non_zero_cfs = {k: v for k, v in capacity_factors.items() if v > 0}
+            if non_zero_cfs:
+                f.write(f"\n  System Utilization (affects AS capability):\n")
+                for cf_name, cf_value in non_zero_cfs.items():
+                    f.write(f"    {cf_name:<35}: {cf_value:.2f}%\n")
+        else:
+            f.write("  No ancillary services data available.\n")
+
+        # 6. Lifecycle Financial Metrics (Total System)
+        f.write("\n6. Lifecycle Financial Metrics (Total System)\n" + "-" * 46 + "\n")
         if financial_metrics_rpt:
+            # Add ROI calculation
+            npv = financial_metrics_rpt.get("NPV_USD")
+            total_capex = annual_metrics_rpt.get(
+                "total_capex") if annual_metrics_rpt else None
+            roi = None
+            if npv is not None and total_capex and total_capex > 0:
+                roi = npv / total_capex
             for k, v in sorted(financial_metrics_rpt.items()):
                 lbl = (
                     k.replace("_USD", " (USD)")
@@ -2004,12 +2336,15 @@ def generate_report(
                     if isinstance(v, (int, float)) and not pd.isna(v)
                     else f"  {lbl:<45}: {v}\n"
                 )
+            if roi is not None:
+                f.write(
+                    f"  Return On Investment (ROI)                   : {roi:.4f}\n")
         else:
             f.write("  No financial metrics data available.\n")
 
         if incremental_metrics_rpt:
             f.write(
-                "\n6. Incremental Financial Metrics (H2/Battery System vs. Baseline)\n"
+                "\n7. Incremental Financial Metrics (H2/Battery System vs. Baseline)\n"
                 + "-" * 68
                 + "\n"
             )
@@ -2021,6 +2356,15 @@ def generate_report(
                     f.write(
                         f"  {k_inc.replace('_',' ').title()} (USD): {incremental_metrics_rpt[k_inc]:,.2f}\n"
                     )
+
+            # Add ROI calculation for incremental
+            inc_npv = incremental_metrics_rpt.get("NPV_USD")
+            inc_total_capex = incremental_metrics_rpt.get(
+                "Total_Incremental_CAPEX_Learned_USD")
+            inc_roi = None
+            if inc_npv is not None and inc_total_capex and inc_total_capex > 0:
+                inc_roi = inc_npv / inc_total_capex
+
             for k, v in sorted(incremental_metrics_rpt.items()):
                 if k in [
                     "pure_incremental_cash_flows",
@@ -2043,7 +2387,13 @@ def generate_report(
                     else f"  Incremental {lbl:<32}: {v}\n"
                 )
 
-        section_num = 6 if not incremental_metrics_rpt else 7
+            if inc_roi is not None:
+                f.write(
+                    f"  Incremental Return On Investment (ROI)       : {inc_roi:.4f}\n")
+
+        # 移除LCOH Analysis & Comparison部分 (原第8部分)
+
+        section_num = 7 if not incremental_metrics_rpt else 8
         f.write(
             f"\n{section_num}. Cost Assumptions (Base Year)\n"
             + "-" * 32
@@ -2068,22 +2418,6 @@ def generate_report(
             f.write(
                 f"    {comp:<30}: Cost: {'{:.2f}% of Initial CAPEX'.format(det.get('cost_percent_initial_capex',0)*100) if 'cost_percent_initial_capex' in det else '${:,.0f}'.format(det.get('cost',0))} (Years: {det.get('years',[])})\n"
             )
-
-        section_num += 1
-        f.write(f"\n{section_num}. Visualization Reference\n" +
-                "-" * 26 + "\n")
-        plot_dir = output_file_path.parent / f"Plots_{target_iso_rpt}"
-        f.write(f"  Plots have been generated in: {plot_dir}\n")
-        f.write("  Key visualizations include:\n")
-        f.write("    - Cash flow profile (annual and cumulative)\n")
-        if incremental_metrics_rpt:
-            f.write("    - Incremental cash flow profile\n")
-        f.write("    - CAPEX breakdown (pie chart and bar chart)\n")
-        f.write("    - Project cost structure (CAPEX vs. OPEX & Replacements)\n")
-        f.write("    - Annual revenue breakdown\n")
-        f.write("    - Annual operational cost breakdown\n")
-        f.write("    - Key financial metrics\n")
-        f.write("    - Capacity factors\n")
 
         f.write(
             "\nReport generated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n"
@@ -2288,7 +2622,8 @@ def main():
     if run_incremental:
         logger.info("Starting incremental analysis.")
         # Incremental components now explicitly include Battery if ENABLE_BATTERY is true
-        incremental_capex_keys = ["Electrolyzer", "H2_Storage"]
+        # Added NPP for nuclear plant modifications
+        incremental_capex_keys = ["Electrolyzer", "H2_Storage", "NPP"]
         if ENABLE_BATTERY:
             incremental_capex_keys.append("Battery")
         incremental_capex = {

@@ -4,27 +4,27 @@ Target_ISO: PJM
 Optimal_Electrolyzer_Capacity_MW: 200.0000
 Optimal_Battery_Capacity_MWh: 1,000.0000
 Optimal_Battery_Power_MW: 250.0000
-Total_Revenue_USD: 475,885,080.6999
-Total_Energy_Revenue_USD: 39,626,230.8827
-Total_Hydrogen_Revenue_USD: 111,294,823.2099
-Total_Hydrogen_Sales_Revenue_USD: 111,294,823.2099
+Total_Revenue_USD: 1,125,650,698.5590
+Total_Energy_Revenue_USD: 298,384,638.2661
+Total_Hydrogen_Revenue_USD: 111,284,837.5370
+Total_Hydrogen_Sales_Revenue_USD: 111,284,837.5370
 Total_Hydrogen_Subsidy_Revenue_USD: 0.0000
-Total_Ancillary_Revenue_USD: 324,964,026.6073
-Total_Hourly_Opex_USD: 21,406,956.5306
-Total_VOM_Cost_USD: 20,205,432.1435
-Total_Water_Cost_USD: 1,112,948.2321
+Total_Ancillary_Revenue_USD: 715,981,222.7559
+Total_Hourly_Opex_USD: 37,973,468.3097
+Total_VOM_Cost_USD: 36,772,043.7793
+Total_Water_Cost_USD: 1,112,848.3754
 Total_Ramping_Cost_USD: 88,576.1550
 Total_Storage_Cycle_Cost_USD: 0.0000
 Total_Startup_Cost_USD: 0.0000
 Total_Annualized_Capex_USD: 108,429,649.6214
 Electrolyzer_Annualized_Capex_USD: 50,926,104.4116
 Battery_Annualized_Capex_USD: 57,503,545.2098
-Total_H2_Produced_kg: 37,098,274.4033
-Electrolyzer_Capacity_Factor_Actual: 0.8533
+Total_H2_Produced_kg: 37,094,945.8457
+Electrolyzer_Capacity_Factor_Actual: 0.8532
 Total_Electrolyzer_Startups: 0
 Final_DegradationState_Units: 0.0000
-Total_Deployed_RegUp_MWh: 1,331,666.2151
-Total_Deployed_RegDown_MWh: 4,179,279.0768
+Total_Deployed_RegUp_MWh: 1,312,389.7882
+Total_Deployed_RegDown_MWh: 10,835,214.7256
 Total_Deployed_SR_MWh: 0.0000
 Total_Deployed_NSR_MWh: 0.0000
 Total_Deployed_ECRS_MWh: 0.0000
@@ -34,6 +34,6 @@ Total_Deployed_RampDown_MWh: 0.0000
 Total_Deployed_UncU_MWh: 0.0000
 
 --- Profitability ---
-Objective_Value_USD: 346,048,474.5479
-Total_Profit_Calculated_USD: 346,048,474.5479
-Objective vs Calculated Profit Diff: 0.0000
+Objective_Value_USD: 979,247,580.6280
+Total_Profit_Calculated_USD: 979,247,580.6280
+Objective vs Calculated Profit Diff: -0.0000

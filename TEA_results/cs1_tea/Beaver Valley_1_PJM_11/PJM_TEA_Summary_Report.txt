@@ -1,13 +1,16 @@
-Technical Economic Analysis Report - PJM
-=================================
+Technical Economic Analysis Report - Beaver Valley Unit 1
+==================================================
 
 1. Project Configuration
 -------------------------
-  Target ISO: PJM
+  ISO Region: PJM
   Project Lifetime: 11 years
   Construction Period: 2 years
   Discount Rate: 8.00%
   Corporate Tax Rate: 21.0%
+  Turbine Capacity: 923.40 MW
+  Thermal Capacity: 2,900.00 MWt
+  Thermal Efficiency: 0.3184 (31.84%)
 
 2. Capital Expenditure (CAPEX) Breakdown
 ------------------------------------------
@@ -25,64 +28,129 @@ Technical Economic Analysis Report - PJM
   Hydrogen Storage Capacity               : 0.00 kg
   Battery Energy Capacity                 : 1,000.00 MWh
   Battery Power Capacity                  : 250.00 MW
-  Turbine Capacity                        : 312.72 MW
-
-  Reference Capacities from Configuration (before learning rate scaling):
-    Electrolyzer System           : 50 MW
-    H2 Storage System             : 10,000 kg
-    Battery System Energy         : 100 MWh
-    Battery System Power          : 25 MW
 
 4. Representative Annual Performance (from Optimization)
 ----------------------------------------------------------
-  As Revenue                                   : 324,958,094.63
-  Annual Electrolyzer Mwh                      : 1,494,909.93
-  Annual Opex Cost From Opt                    : 21,374,832.11
-  Annual Profit                                : 454,011,688.91
-  Annual Revenue                               : 475,386,521.02
+  As Avg Bid Regdown Mw                        : 1,213.82
+  As Avg Bid Regup Mw                          : 76.18
+  As Avg Deployed Regdown Battery Mw           : 173.61
+  As Avg Deployed Regdown Electrolyzer Mw      : 117.90
+  As Avg Deployed Regdown Turbine Mw           : 739.99
+  As Avg Deployed Regup Battery Mw             : 38.46
+  As Avg Deployed Regup Electrolyzer Mw        : 8.62
+  As Avg Deployed Regup Turbine Mw             : 17.29
+  As Bid Utilization Vs Electrolyzer           : 992.13
+  As Max Bid Regdown Mw                        : 1,273.24
+  As Max Bid Regup Mw                          : 411.03
+  As Revenue Average Hourly                    : 64,597.46
+  As Revenue Hours Positive                    : 8760
+  As Revenue Maximum Hourly                    : 3,074,934.38
+  As Revenue Total                             : 565,873,715.09
+  As Revenue Utilization Rate                  : 100.00
+  As Revenue Per Mw Battery                    : 2,263,494.86
+  As Revenue Per Mw Electrolyzer               : 2,829,368.58
+  As Total Bid Services                        : 9.00
+  As Total Deployed Regdown Battery Mwh        : 1,520,844.51
+  As Total Deployed Regdown Electrolyzer Mwh   : 1,032,799.36
+  As Total Deployed Regdown Turbine Mwh        : 6,482,309.02
+  As Total Deployed Regup Battery Mwh          : 336,876.03
+  As Total Deployed Regup Electrolyzer Mwh     : 75,536.24
+  As Total Deployed Regup Turbine Mwh          : 151,497.21
+  As Total Max Bid Capacity Mw                 : 1,984.27
+  Annual Electrolyzer Mwh                      : 1,494,861.94
+  Annual Opex Cost From Opt                    : 31,973,703.01
+  Annual Profit                                : 849,863,460.30
+  Annual Revenue                               : 881,837,163.31
   Avg Electricity Price Usd Per Mwh            : 31.23
   Battery Cf Percent                           : 0.00
-  Battery Soc Percent                          : 42.08
+  Battery Soc Percent                          : 36.61
   Degradationstate Units Avg                   : 0.00
   Degradationstate Units End                   : 0.00
-  Electrolyzer Cf Percent                      : 85.33
-  Energy Revenue                               : 39,136,877.11
-  H2 Production Kg Annual                      : 37,097,183.10
-  H2 Sales Revenue                             : 111,291,549.28
+  Electrolyzer Cf Percent                      : 85.32
+  Energy Revenue                               : 204,675,579.86
+  H2 Production Kg Annual                      : 37,095,956.13
+  H2 Sales Revenue                             : 111,287,868.37
   H2 Storage Cycle Cost                        : 0.00
   H2 Storage Soc Percent                       : 0.00
   H2 Subsidy Revenue                           : 0.00
-  H2 Total Revenue                             : 111,291,549.28
-  Ramping Cost                                 : 88,575.17
+  H2 Total Revenue                             : 111,287,868.37
+  Ramping Cost                                 : 88,592.87
   Startup Cost                                 : 0.00
-  Turbine Cf Percent                           : 95.35
+  Turbine Cf Percent                           : 97.81
   Vom Battery Cost                             : 0.00
-  Vom Electrolyzer Cost                        : 14,949,099.30
-  Vom Turbine Cost                             : 5,224,242.16
-  Water Cost                                   : 1,112,915.49
+  Vom Electrolyzer Cost                        : 14,948,619.40
+  Vom Turbine Cost                             : 15,823,612.07
+  Water Cost                                   : 1,112,878.68
   Weighted Avg Electricity Price Usd Per Mwh   : 28.52
-  Annual Fixed Om Costs                        : [16220000.0, 16544400.0, 16875288.0, 17212793.76, 17557049.6352, 17908190.627904, 18266354.440462083, 18631681.52927132, 19004315.15985675]
+  Annual Fixed Om Costs                        : [np.float64(16220000.0), np.float64(16544400.0), np.float64(16875288.0), np.float64(17212793.76), np.float64(17557049.6352), np.float64(17908190.627904), np.float64(18266354.440462083), np.float64(18631681.52927132), np.float64(19004315.15985675)]
   Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0]
   Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0]
   Electrolyzer Capex                           : 400,000,000.00
+  Thermal Capacity Mwt                         : 2,900.00
+  Thermal Efficiency                           : 0.32
 
-5. Lifecycle Financial Metrics (Total System)
+5. Ancillary Services Performance
+-----------------------------------
+  Total Ancillary Services Revenue: $565,873,715.09
+  Average Hourly AS Revenue: $64,597.46
+  Maximum Hourly AS Revenue: $3,074,934.38
+  AS Revenue Utilization Rate: 100.0%
+  AS Revenue per MW Electrolyzer: $2,829,368.58/MW
+  AS Revenue per MW Battery Power: $2,263,494.86/MW
+
+  Revenue Mix:
+    Energy Revenue                     : $204,675,579.86 (23.2%)
+    H2 Sales Revenue                   : $111,287,868.37 (12.6%)
+    Ancillary Services Revenue         : $565,873,715.09 (64.2%)
+
+  AS Revenue as % of Total Revenue: 64.17%
+
+  AS Bidding Performance:
+    Number of AS Services Bid: 9
+    Total Maximum Bid Capacity: 1,984.27 MW
+    Bid Capacity vs Electrolyzer: 992.1%
+
+  AS Service Breakdown:
+    NSR            : Max  150.0 MW, Avg    0.1 MW
+    RegDown        : Max 1273.2 MW, Avg 1213.8 MW
+    RegUp          : Max  411.0 MW, Avg   76.2 MW
+    SR             : Max  150.0 MW, Avg    0.9 MW
+
+  AS Deployment Performance:
+    Total Deployed Energy: 9,599,862.37 MWh
+    Service-Specific Deployment:
+      Energy         : 9599862.4 MWh (Avg    0.0 MW)
+      RegDown_Battery: 1520844.5 MWh (Avg  173.6 MW)
+      RegDown_Electrolyzer: 1032799.4 MWh (Avg  117.9 MW)
+      RegDown_Turbine: 6482309.0 MWh (Avg  740.0 MW)
+      RegUp_Battery  : 336876.0 MWh (Avg   38.5 MW)
+      RegUp_Electrolyzer:  75536.2 MWh (Avg    8.6 MW)
+      RegUp_Turbine  : 151497.2 MWh (Avg   17.3 MW)
+
+  System Utilization (affects AS capability):
+    Electrolyzer CF                    : 85.32%
+    Turbine CF                         : 97.81%
+    Battery SOC                        : 36.61%
+
+6. Lifecycle Financial Metrics (Total System)
 ----------------------------------------------
-  Irr (%)                                      : 42.51
+  Irr (%)                                      : 77.10
   Lcoh (Usd) (Usd/Kg)                          : 3.06
-  Npv (Usd)                                    : 1,338,445,083.06
-  Payback Period (Years)                       : 2.00
+  Npv (Usd)                                    : 3,147,282,953.14
+  Payback Period (Years)                       : 1.05
+  Return On Investment (ROI)                   : 4.5415
 
-6. Incremental Financial Metrics (H2/Battery System vs. Baseline)
+7. Incremental Financial Metrics (H2/Battery System vs. Baseline)
 --------------------------------------------------------------------
-  Annual Electricity Opportunity Cost Usd (USD): 46,691,172.45
-  Total Incremental Capex Learned Usd (USD): 686,000,000.00
-  Incremental Irr (%)                         : 36.25
-  Incremental Lcoh (Usd) (Usd/Kg)             : 3.03
-  Incremental Npv (Usd)                       : 1,044,710,222.07
-  Incremental Payback Period (Years)          : 2.34
+  Annual Electricity Opportunity Cost Usd (USD): 46,689,673.56
+  Total Incremental Capex Learned Usd (USD): 688,000,000.00
+  Incremental Irr (%)                         : 58.97
+  Incremental Lcoh (Usd) (Usd/Kg)             : 3.04
+  Incremental Npv (Usd)                       : 2,143,562,321.26
+  Incremental Payback Period (Years)          : 1.42
+  Incremental Return On Investment (ROI)       : 3.1156
 
-7. Cost Assumptions (Base Year)
+8. Cost Assumptions (Base Year)
 --------------------------------
   CAPEX Components:
     Battery_System_Energy         : $23,600,000 (Ref Cap: 100, LR: 0.0%, Pay Sched: {-1: 1.0})
@@ -99,17 +167,4 @@ Technical Economic Analysis Report - PJM
     Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
     H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
 
-8. Visualization Reference
---------------------------
-  Plots have been generated in: /home/honglin/NPPH2/TEA_results/cs1_tea/Beaver Valley_1_PJM_11/Plots_PJM
-  Key visualizations include:
-    - Cash flow profile (annual and cumulative)
-    - Incremental cash flow profile
-    - CAPEX breakdown (pie chart and bar chart)
-    - Project cost structure (CAPEX vs. OPEX & Replacements)
-    - Annual revenue breakdown
-    - Annual operational cost breakdown
-    - Key financial metrics
-    - Capacity factors
-
-Report generated: 2025-05-22 09:37:28
+Report generated: 2025-05-23 10:17:09

@@ -1,13 +1,16 @@
-Technical Economic Analysis Report - ISONE
-===================================
+Technical Economic Analysis Report - Millstone Unit 2
+==============================================
 
 1. Project Configuration
 -------------------------
-  Target ISO: ISONE
+  ISO Region: ISONE
   Project Lifetime: 10 years
   Construction Period: 2 years
   Discount Rate: 8.00%
   Corporate Tax Rate: 21.0%
+  Turbine Capacity: 909.90 MW
+  Thermal Capacity: 2,700.00 MWt
+  Thermal Efficiency: 0.3370 (33.70%)
 
 2. Capital Expenditure (CAPEX) Breakdown
 ------------------------------------------
@@ -25,28 +28,30 @@ Technical Economic Analysis Report - ISONE
   Hydrogen Storage Capacity               : 0.00 kg
   Battery Energy Capacity                 : 10.00 MWh
   Battery Power Capacity                  : 2.50 MW
-  Turbine Capacity                        : 330.98 MW
-
-  Reference Capacities from Configuration (before learning rate scaling):
-    Electrolyzer System           : 50 MW
-    H2 Storage System             : 10,000 kg
-    Battery System Energy         : 100 MWh
-    Battery System Power          : 25 MW
 
 4. Representative Annual Performance (from Optimization)
 ----------------------------------------------------------
-  As Revenue                                   : 267,264.60
+  As Bid Utilization Vs Electrolyzer           : 46.11
+  As Revenue Average Hourly                    : 4.06
+  As Revenue Hours Positive                    : 2226
+  As Revenue Maximum Hourly                    : 3,612.21
+  As Revenue Total                             : 35,591.34
+  As Revenue Utilization Rate                  : 25.41
+  As Revenue Per Mw Battery                    : 14,236.54
+  As Revenue Per Mw Electrolyzer               : 711.83
+  As Total Bid Services                        : 9.00
+  As Total Max Bid Capacity Mw                 : 23.05
   Annual Electrolyzer Mwh                      : 438,000.00
-  Annual Opex Cost From Opt                    : 10,491,664.54
-  Annual Profit                                : 119,039,717.80
-  Annual Revenue                               : 129,531,382.09
+  Annual Opex Cost From Opt                    : 20,528,872.54
+  Annual Profit                                : 308,710,319.47
+  Annual Revenue                               : 329,239,191.75
   Avg Electricity Price Usd Per Mwh            : 39.84
   Battery Cf Percent                           : 0.00
-  Battery Soc Percent                          : 51.78
+  Battery Soc Percent                          : 51.79
   Degradationstate Units Avg                   : 0.00
   Degradationstate Units End                   : 0.00
   Electrolyzer Cf Percent                      : 100.00
-  Energy Revenue                               : 97,978,403.19
+  Energy Revenue                               : 297,917,886.12
   H2 Production Kg Annual                      : 10,428,571.51
   H2 Sales Revenue                             : 31,285,714.54
   H2 Storage Cycle Cost                        : 0.00
@@ -55,34 +60,78 @@ Technical Economic Analysis Report - ISONE
   H2 Total Revenue                             : 31,285,714.54
   Ramping Cost                                 : 0.00
   Startup Cost                                 : 0.00
-  Turbine Cf Percent                           : 100.00
+  Turbine Cf Percent                           : 99.34
   Vom Battery Cost                             : 0.00
   Vom Electrolyzer Cost                        : 4,380,000.00
-  Vom Turbine Cost                             : 5,798,807.27
+  Vom Turbine Cost                             : 15,836,015.27
   Water Cost                                   : 312,857.27
   Weighted Avg Electricity Price Usd Per Mwh   : 39.84
-  Annual Fixed Om Costs                        : [2220800.0, 2265216.0, 2310520.32, 2356730.7264000005, 2403865.340928, 2451942.64774656, 2500981.5007014913, 2551001.130715521]
+  Annual Fixed Om Costs                        : [np.float64(2220800.0), np.float64(2265216.0), np.float64(2310520.32), np.float64(2356730.7264000005), np.float64(2403865.340928), np.float64(2451942.64774656), np.float64(2500981.5007014913), np.float64(2551001.130715521)]
   Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0]
   Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0]
   Electrolyzer Capex                           : 100,000,000.00
+  Thermal Capacity Mwt                         : 2,700.00
+  Thermal Efficiency                           : 0.34
 
-5. Lifecycle Financial Metrics (Total System)
+5. Ancillary Services Performance
+-----------------------------------
+  Total Ancillary Services Revenue: $35,591.34
+  Average Hourly AS Revenue: $4.06
+  Maximum Hourly AS Revenue: $3,612.21
+  AS Revenue Utilization Rate: 25.4%
+  AS Revenue per MW Electrolyzer: $711.83/MW
+  AS Revenue per MW Battery Power: $14,236.54/MW
+
+  Revenue Mix:
+    Energy Revenue                     : $297,917,886.12 (90.5%)
+    H2 Sales Revenue                   : $31,285,714.54 (9.5%)
+    Ancillary Services Revenue         : $35,591.34 (0.0%)
+
+  AS Revenue as % of Total Revenue: 0.01%
+
+  AS Bidding Performance:
+    Number of AS Services Bid: 9
+    Total Maximum Bid Capacity: 23.05 MW
+    Bid Capacity vs Electrolyzer: 46.1%
+
+  AS Service Breakdown:
+    NSR            : Max    8.5 MW, Avg    0.0 MW
+    SR             : Max    8.5 MW, Avg    1.7 MW
+    ThirtyMin      : Max    6.0 MW, Avg    0.0 MW
+
+  AS Deployment Performance:
+    Total Deployed Energy: 37.30 MWh
+    Service-Specific Deployment:
+      Energy         :     37.3 MWh (Avg    0.0 MW)
+      NSR_Battery    :      1.0 MWh (Avg    0.0 MW)
+      NSR_Turbine    :      2.8 MWh (Avg    0.0 MW)
+      SR_Battery     :      8.2 MWh (Avg    0.0 MW)
+      SR_Turbine     :     25.3 MWh (Avg    0.0 MW)
+
+  System Utilization (affects AS capability):
+    Electrolyzer CF                    : 100.00%
+    Turbine CF                         : 99.34%
+    Battery SOC                        : 51.79%
+
+6. Lifecycle Financial Metrics (Total System)
 ----------------------------------------------
-  Irr (%)                                      : 63.32
+  Irr (%)                                      : 134.50
   Lcoh (Usd) (Usd/Kg)                          : 1.90
-  Npv (Usd)                                    : 384,880,451.53
-  Payback Period (Years)                       : 1.19
+  Npv (Usd)                                    : 1,182,172,199.81
+  Payback Period (Years)                       : 0.45
+  Return On Investment (ROI)                   : 10.7607
 
-6. Incremental Financial Metrics (H2/Battery System vs. Baseline)
+7. Incremental Financial Metrics (H2/Battery System vs. Baseline)
 --------------------------------------------------------------------
   Annual Electricity Opportunity Cost Usd (USD): 17,449,769.20
-  Total Incremental Capex Learned Usd (USD): 102,860,000.00
-  Incremental Irr (%)                         : -9.96
-  Incremental Lcoh (Usd) (Usd/Kg)             : 1.78
-  Incremental Npv (Usd)                       : -59,493,051.24
+  Total Incremental Capex Learned Usd (USD): 104,860,000.00
+  Incremental Irr (%)                         : -10.66
+  Incremental Lcoh (Usd) (Usd/Kg)             : 1.82
+  Incremental Npv (Usd)                       : -62,466,903.70
   Incremental Payback Period (Years)          : nan
+  Incremental Return On Investment (ROI)       : -0.5957
 
-7. Cost Assumptions (Base Year)
+8. Cost Assumptions (Base Year)
 --------------------------------
   CAPEX Components:
     Battery_System_Energy         : $23,600,000 (Ref Cap: 100, LR: 0.0%, Pay Sched: {-1: 1.0})
@@ -99,17 +148,4 @@ Technical Economic Analysis Report - ISONE
     Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
     H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
 
-8. Visualization Reference
---------------------------
-  Plots have been generated in: /home/honglin/NPPH2/TEA_results/cs1_tea/Millstone_2_ISONE_10/Plots_ISONE
-  Key visualizations include:
-    - Cash flow profile (annual and cumulative)
-    - Incremental cash flow profile
-    - CAPEX breakdown (pie chart and bar chart)
-    - Project cost structure (CAPEX vs. OPEX & Replacements)
-    - Annual revenue breakdown
-    - Annual operational cost breakdown
-    - Key financial metrics
-    - Capacity factors
-
-Report generated: 2025-05-22 09:37:47
+Report generated: 2025-05-23 10:17:37

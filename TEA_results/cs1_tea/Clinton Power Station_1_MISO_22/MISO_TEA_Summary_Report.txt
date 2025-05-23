@@ -1,13 +1,16 @@
-Technical Economic Analysis Report - MISO
-==================================
+Technical Economic Analysis Report - Clinton Power Station Unit 1
+==========================================================
 
 1. Project Configuration
 -------------------------
-  Target ISO: MISO
+  ISO Region: MISO
   Project Lifetime: 22 years
   Construction Period: 2 years
   Discount Rate: 8.00%
   Corporate Tax Rate: 21.0%
+  Turbine Capacity: 1,138.30 MW
+  Thermal Capacity: 3,473.00 MWt
+  Thermal Efficiency: 0.3278 (32.78%)
 
 2. Capital Expenditure (CAPEX) Breakdown
 ------------------------------------------
@@ -25,64 +28,129 @@ Technical Economic Analysis Report - MISO
   Hydrogen Storage Capacity               : 0.00 kg
   Battery Energy Capacity                 : 1,000.00 MWh
   Battery Power Capacity                  : 250.00 MW
-  Turbine Capacity                        : 321.90 MW
-
-  Reference Capacities from Configuration (before learning rate scaling):
-    Electrolyzer System           : 50 MW
-    H2 Storage System             : 10,000 kg
-    Battery System Energy         : 100 MWh
-    Battery System Power          : 25 MW
 
 4. Representative Annual Performance (from Optimization)
 ----------------------------------------------------------
-  As Revenue                                   : 213,142,653.96
-  Annual Electrolyzer Mwh                      : 1,517,884.41
-  Annual Opex Cost From Opt                    : 21,763,989.55
-  Annual Profit                                : 340,172,443.82
-  Annual Revenue                               : 361,936,433.37
+  As Avg Bid Regdown Mw                        : 1,313.69
+  As Avg Bid Regup Mw                          : 189.82
+  As Avg Deployed Regdown Battery Mw           : 73.57
+  As Avg Deployed Regdown Electrolyzer Mw      : 121.23
+  As Avg Deployed Regdown Turbine Mw           : 921.59
+  As Avg Deployed Regup Battery Mw             : 138.18
+  As Avg Deployed Regup Electrolyzer Mw        : 5.48
+  As Avg Deployed Regup Turbine Mw             : 18.10
+  As Bid Utilization Vs Electrolyzer           : 1,099.02
+  As Max Bid Regdown Mw                        : 1,486.66
+  As Max Bid Regup Mw                          : 411.37
+  As Revenue Average Hourly                    : 49,494.33
+  As Revenue Hours Positive                    : 8760
+  As Revenue Maximum Hourly                    : 932,747.99
+  As Revenue Total                             : 433,570,353.31
+  As Revenue Utilization Rate                  : 100.00
+  As Revenue Per Mw Battery                    : 1,734,281.41
+  As Revenue Per Mw Electrolyzer               : 2,167,851.77
+  As Total Bid Services                        : 9.00
+  As Total Deployed Regdown Battery Mwh        : 644,445.83
+  As Total Deployed Regdown Electrolyzer Mwh   : 1,062,005.54
+  As Total Deployed Regdown Turbine Mwh        : 8,073,114.05
+  As Total Deployed Regup Battery Mwh          : 1,210,418.42
+  As Total Deployed Regup Electrolyzer Mwh     : 48,004.74
+  As Total Deployed Regup Turbine Mwh          : 158,514.45
+  As Total Max Bid Capacity Mw                 : 2,198.04
+  Annual Electrolyzer Mwh                      : 1,517,792.22
+  Annual Opex Cost From Opt                    : 35,963,782.39
+  Annual Profit                                : 738,598,973.15
+  Annual Revenue                               : 774,562,755.54
   Avg Electricity Price Usd Per Mwh            : 27.06
   Battery Cf Percent                           : 0.00
-  Battery Soc Percent                          : 48.33
+  Battery Soc Percent                          : 47.22
   Degradationstate Units Avg                   : 0.00
   Degradationstate Units End                   : 0.00
-  Electrolyzer Cf Percent                      : 86.64
-  Energy Revenue                               : 35,758,504.81
-  H2 Production Kg Annual                      : 37,678,424.88
-  H2 Sales Revenue                             : 113,035,274.60
+  Electrolyzer Cf Percent                      : 86.63
+  Energy Revenue                               : 227,964,193.18
+  H2 Production Kg Annual                      : 37,676,069.69
+  H2 Sales Revenue                             : 113,028,209.05
   H2 Storage Cycle Cost                        : 0.00
   H2 Storage Soc Percent                       : 0.00
   H2 Subsidy Revenue                           : 0.00
-  H2 Total Revenue                             : 113,035,274.60
-  Ramping Cost                                 : 82,971.22
+  H2 Total Revenue                             : 113,028,209.05
+  Ramping Cost                                 : 83,019.89
   Startup Cost                                 : 0.00
-  Turbine Cf Percent                           : 95.25
+  Turbine Cf Percent                           : 98.14
   Vom Battery Cost                             : 0.00
-  Vom Electrolyzer Cost                        : 15,178,844.10
-  Vom Turbine Cost                             : 5,371,821.49
-  Water Cost                                   : 1,130,352.74
+  Vom Electrolyzer Cost                        : 15,177,922.15
+  Vom Turbine Cost                             : 19,572,558.26
+  Water Cost                                   : 1,130,282.08
   Weighted Avg Electricity Price Usd Per Mwh   : 25.02
-  Annual Fixed Om Costs                        : [16220000.0, 16544400.0, 16875288.0, 17212793.76, 17557049.6352, 17908190.627904, 18266354.440462083, 18631681.52927132, 19004315.15985675, 19384401.463053886, 19772089.492314965, 20167531.282161266, 20570881.907804485, 20982299.545960583, 21401945.536879793, 21829984.447617386, 22266584.136569735, 22711915.81930113, 23166154.135687154, 23629477.2184009]
-  Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, 171600000.0, 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0]
-  Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, 120000000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 120000000.0]
+  Annual Fixed Om Costs                        : [np.float64(16220000.0), np.float64(16544400.0), np.float64(16875288.0), np.float64(17212793.76), np.float64(17557049.6352), np.float64(17908190.627904), np.float64(18266354.440462083), np.float64(18631681.52927132), np.float64(19004315.15985675), np.float64(19384401.463053886), np.float64(19772089.492314965), np.float64(20167531.282161266), np.float64(20570881.907804485), np.float64(20982299.545960583), np.float64(21401945.536879793), np.float64(21829984.447617386), np.float64(22266584.136569735), np.float64(22711915.81930113), np.float64(23166154.135687154), np.float64(23629477.2184009)]
+  Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(171600000.0), 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0]
+  Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(120000000.0), 0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(120000000.0)]
   Electrolyzer Capex                           : 400,000,000.00
+  Thermal Capacity Mwt                         : 3,473.00
+  Thermal Efficiency                           : 0.33
 
-5. Lifecycle Financial Metrics (Total System)
+5. Ancillary Services Performance
+-----------------------------------
+  Total Ancillary Services Revenue: $433,570,353.31
+  Average Hourly AS Revenue: $49,494.33
+  Maximum Hourly AS Revenue: $932,747.99
+  AS Revenue Utilization Rate: 100.0%
+  AS Revenue per MW Electrolyzer: $2,167,851.77/MW
+  AS Revenue per MW Battery Power: $1,734,281.41/MW
+
+  Revenue Mix:
+    Energy Revenue                     : $227,964,193.18 (29.4%)
+    H2 Sales Revenue                   : $113,028,209.05 (14.6%)
+    Ancillary Services Revenue         : $433,570,353.31 (56.0%)
+
+  AS Revenue as % of Total Revenue: 55.98%
+
+  AS Bidding Performance:
+    Number of AS Services Bid: 9
+    Total Maximum Bid Capacity: 2,198.04 MW
+    Bid Capacity vs Electrolyzer: 1099.0%
+
+  AS Service Breakdown:
+    NSR            : Max  150.0 MW, Avg    0.0 MW
+    RegDown        : Max 1486.7 MW, Avg 1313.7 MW
+    RegUp          : Max  411.4 MW, Avg  189.8 MW
+    SR             : Max  150.0 MW, Avg    1.1 MW
+
+  AS Deployment Performance:
+    Total Deployed Energy: 11,196,503.03 MWh
+    Service-Specific Deployment:
+      Energy         : 11196503.0 MWh (Avg    0.0 MW)
+      RegDown_Battery: 644445.8 MWh (Avg   73.6 MW)
+      RegDown_Electrolyzer: 1062005.5 MWh (Avg  121.2 MW)
+      RegDown_Turbine: 8073114.0 MWh (Avg  921.6 MW)
+      RegUp_Battery  : 1210418.4 MWh (Avg  138.2 MW)
+      RegUp_Electrolyzer:  48004.7 MWh (Avg    5.5 MW)
+      RegUp_Turbine  : 158514.4 MWh (Avg   18.1 MW)
+
+  System Utilization (affects AS capability):
+    Electrolyzer CF                    : 86.63%
+    Turbine CF                         : 98.14%
+    Battery SOC                        : 47.22%
+
+6. Lifecycle Financial Metrics (Total System)
 ----------------------------------------------
-  Irr (%)                                      : 32.88
+  Irr (%)                                      : 68.49
   Lcoh (Usd) (Usd/Kg)                          : 1.92
-  Npv (Usd)                                    : 1,532,932,105.10
-  Payback Period (Years)                       : 2.71
+  Npv (Usd)                                    : 4,394,348,968.76
+  Payback Period (Years)                       : 1.21
+  Return On Investment (ROI)                   : 6.3411
 
-6. Incremental Financial Metrics (H2/Battery System vs. Baseline)
+7. Incremental Financial Metrics (H2/Battery System vs. Baseline)
 --------------------------------------------------------------------
-  Annual Electricity Opportunity Cost Usd (USD): 41,070,615.01
-  Total Incremental Capex Learned Usd (USD): 686,000,000.00
-  Incremental Irr (%)                         : 27.71
+  Annual Electricity Opportunity Cost Usd (USD): 41,068,120.41
+  Total Incremental Capex Learned Usd (USD): 688,000,000.00
+  Incremental Irr (%)                         : 48.71
   Incremental Lcoh (Usd) (Usd/Kg)             : 1.90
-  Incremental Npv (Usd)                       : 1,200,963,504.82
-  Incremental Payback Period (Years)          : 3.26
+  Incremental Npv (Usd)                       : 2,782,003,566.87
+  Incremental Payback Period (Years)          : 1.79
+  Incremental Return On Investment (ROI)       : 4.0436
 
-7. Cost Assumptions (Base Year)
+8. Cost Assumptions (Base Year)
 --------------------------------
   CAPEX Components:
     Battery_System_Energy         : $23,600,000 (Ref Cap: 100, LR: 0.0%, Pay Sched: {-1: 1.0})
@@ -99,17 +167,4 @@ Technical Economic Analysis Report - MISO
     Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
     H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
 
-8. Visualization Reference
---------------------------
-  Plots have been generated in: /home/honglin/NPPH2/TEA_results/cs1_tea/Clinton Power Station_1_MISO_22/Plots_MISO
-  Key visualizations include:
-    - Cash flow profile (annual and cumulative)
-    - Incremental cash flow profile
-    - CAPEX breakdown (pie chart and bar chart)
-    - Project cost structure (CAPEX vs. OPEX & Replacements)
-    - Annual revenue breakdown
-    - Annual operational cost breakdown
-    - Key financial metrics
-    - Capacity factors
-
-Report generated: 2025-05-22 09:37:31
+Report generated: 2025-05-23 10:17:14
