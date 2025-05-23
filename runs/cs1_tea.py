@@ -3,6 +3,15 @@ import re
 import sys
 from pathlib import Path
 import shutil
+import threading
+import time
+
+# Import tqdm for progress bar
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
 
 # Path to tea.py
 TEA_SCRIPT_PATH = Path(__file__).parent / 'tea.py'
@@ -23,6 +32,63 @@ try:
 except ImportError:
     print('Error: tea.py not found or import failed.')
     sys.exit(1)
+
+
+class TEAProgressIndicator:
+    """
+    A simple progress indicator for TEA analysis process.
+    """
+
+    def __init__(self, description="Running TEA analysis"):
+        self.description = description
+        self.running = False
+        self.thread = None
+        self.start_time = None
+
+    def _animate(self):
+        """Internal method to run the animation in a separate thread."""
+        if TQDM_AVAILABLE:
+            # Use tqdm for a nice progress bar
+            with tqdm(desc=self.description, unit="", bar_format="{desc}: {elapsed} | {rate_fmt}") as pbar:
+                while self.running:
+                    pbar.update(0)  # Keep the bar alive
+                    time.sleep(0.1)
+        else:
+            # Fallback to simple spinner
+            spinners = ['|', '/', '-', '\\']
+            i = 0
+            while self.running:
+                elapsed = time.time() - self.start_time if self.start_time else 0
+                print(
+                    f"\r{self.description}... {spinners[i % len(spinners)]} ({elapsed:.1f}s)", end="", flush=True)
+                i += 1
+                time.sleep(0.5)
+            print()  # New line when done
+
+    def start(self):
+        """Start the progress indicator."""
+        if not self.running:
+            self.running = True
+            self.start_time = time.time()
+            self.thread = threading.Thread(target=self._animate, daemon=True)
+            self.thread.start()
+
+    def stop(self):
+        """Stop the progress indicator."""
+        if self.running:
+            self.running = False
+            if self.thread:
+                self.thread.join(timeout=1.0)
+
+            # Show final completion message
+            if self.start_time:
+                elapsed = time.time() - self.start_time
+
+                # Only show completion message if tqdm is not available
+                # (tqdm will show its own completion message)
+                if not TQDM_AVAILABLE:
+                    print(
+                        f"\r{self.description} completed in {elapsed:.1f}s" + " " * 20)
 
 
 def run_tea_for_file(csv_path, plant_name, generator_id, iso_region, remaining_years):
@@ -72,14 +138,6 @@ def run_tea_for_file(csv_path, plant_name, generator_id, iso_region, remaining_y
                     "qSteam_Total_MWth": thermal_capacity_mwt
                 }
 
-                print(
-                    f"Extracted plant-specific parameters for {plant_name} Unit {generator_id}:")
-                print(f"  Thermal Capacity: {thermal_capacity_mwt:.2f} MWt")
-                print(f"  Nameplate Capacity: {nameplate_capacity_mw:.2f} MW")
-                print(f"  Thermal Efficiency: {thermal_efficiency:.4f}")
-            else:
-                print(
-                    f"Warning: Could not find plant data for {plant_name} Unit {generator_id}")
         except Exception as e:
             print(f"Error extracting plant-specific parameters: {e}")
 
@@ -100,9 +158,6 @@ def run_tea_for_file(csv_path, plant_name, generator_id, iso_region, remaining_y
     # Set project lifetime to remaining_years
     tea.PROJECT_LIFETIME_YEARS = remaining_years_int
 
-    print(
-        f"Setting project lifetime to {remaining_years_int} years for TEA calculation")
-
     # Copy the csv to the location and filename expected by tea.py
     # tea.py defaults to reading output/Results_Standardized/{iso}_Hourly_Results_Comprehensive.csv
     # We copy the current csv to that location
@@ -119,22 +174,15 @@ def run_tea_for_file(csv_path, plant_name, generator_id, iso_region, remaining_y
             # Add plant-specific capacity columns if they don't exist
             if "Turbine_Capacity_MW" not in results_df.columns:
                 results_df["Turbine_Capacity_MW"] = plant_specific_params["nameplate_capacity_mw"]
-                print(
-                    f"  Added Turbine_Capacity_MW = {plant_specific_params['nameplate_capacity_mw']:.2f} MW")
 
             if "Thermal_Capacity_MWt" not in results_df.columns:
                 results_df["Thermal_Capacity_MWt"] = plant_specific_params["thermal_capacity_mwt"]
-                print(
-                    f"  Added Thermal_Capacity_MWt = {plant_specific_params['thermal_capacity_mwt']:.2f} MWt")
 
             if "Thermal_Efficiency" not in results_df.columns:
                 results_df["Thermal_Efficiency"] = plant_specific_params["thermal_efficiency"]
-                print(
-                    f"  Added Thermal_Efficiency = {plant_specific_params['thermal_efficiency']:.4f}")
 
             # Save the enhanced results file
             results_df.to_csv(std_csv, index=False)
-            print(f"  Enhanced results file saved with plant-specific parameters")
 
         except Exception as e:
             print(
@@ -146,7 +194,6 @@ def run_tea_for_file(csv_path, plant_name, generator_id, iso_region, remaining_y
 
     plot_dir_final = output_dir / f"Plots_{iso_region}"
     os.makedirs(plot_dir_final, exist_ok=True)
-    print(f"Created final plot directory at {plot_dir_final}")
 
     # **ENHANCEMENT: Monkey patch tea.py to use plant-specific parameters**
     if plant_specific_params:
@@ -160,10 +207,6 @@ def run_tea_for_file(csv_path, plant_name, generator_id, iso_region, remaining_y
             # Add plant-specific parameters
             params.update(plant_specific_params)
 
-            print(f"Enhanced TEA system parameters with plant-specific values:")
-            for key, value in plant_specific_params.items():
-                print(f"  {key}: {value}")
-
             return params
 
         # Temporarily replace the function
@@ -172,84 +215,72 @@ def run_tea_for_file(csv_path, plant_name, generator_id, iso_region, remaining_y
         # **NEW: Set plant-specific report title**
         plant_report_title = f"{plant_name} Unit {generator_id}"
         tea.PLANT_REPORT_TITLE = plant_report_title
-        print(f"Set plant report title: {plant_report_title}")
 
     # Call the main function of tea.py
-    print(f"Running TEA for {csv_path.name} ...")
+    print(f"Running TEA for {plant_name} Unit {generator_id}...")
+
+    # Create and start progress indicator
+    progress = TEAProgressIndicator(
+        f"TEA analysis: {plant_name} Unit {generator_id}")
+    progress.start()
+
     try:
         tea.main()
-        print(f"TEA main function completed successfully for {csv_path.name}")
+        success = True
+    except Exception as e:
+        print(f"TEA failed for {csv_path.name}: {e}")
+        import traceback
+        traceback.print_exc()
+        success = False
+    finally:
+        # Always stop the progress indicator
+        progress.stop()
+
+    if success:
+        print(f"TEA completed successfully")
 
         tea_report_src = tea.BASE_OUTPUT_DIR_DEFAULT / \
             f"{iso_region}_TEA_Summary_Report.txt"
         tea_report_dst = output_dir / f"{iso_region}_TEA_Summary_Report.txt"
 
         if tea_report_src.exists():
-            print(
-                f"Report file exists at {tea_report_src}, moving to {tea_report_dst}")
             if tea_report_src != tea_report_dst:
                 if tea_report_dst.exists():
                     os.remove(tea_report_dst)
                 shutil.copy2(tea_report_src, tea_report_dst)
-                print(f"Report file copied successfully")
-        else:
-            print(f"Warning: Report file not found at {tea_report_src}")
 
         plot_dir_src = tea.BASE_OUTPUT_DIR_DEFAULT / f"Plots_{iso_region}"
 
         if plot_dir_src.exists():
-            print(f"Plot directory exists at {plot_dir_src}")
-
             plot_files = list(plot_dir_src.glob('*'))
-            print(
-                f"Found {len(plot_files)} files in plot directory: {[f.name for f in plot_files]}")
 
             for src_file in plot_files:
                 dst_file = plot_dir_final / src_file.name
-                print(f"Copying {src_file} to {dst_file}")
                 # **FIX: Avoid copying to the same file**
                 if src_file != dst_file:
                     shutil.copy2(src_file, dst_file)
-                else:
-                    print(f"  Skipping copy (source and destination are the same)")
 
-            print(f"All plot files copied successfully")
-
-            copied_files = list(plot_dir_final.glob('*'))
-            print(
-                f"Final plot directory now contains {len(copied_files)} files: {[f.name for f in copied_files]}")
         else:
-            print(
-                f"Warning: Plot directory not found at {plot_dir_src}, no plots to copy")
             os.makedirs(plot_dir_final, exist_ok=True)
 
-    except Exception as e:
-        print(f"TEA failed for {csv_path.name}: {e}")
-        import traceback
-        traceback.print_exc()
-    finally:
-        # Restore global variables in tea.py
-        if old_base_output is not None:
-            tea.BASE_OUTPUT_DIR_DEFAULT = old_base_output
-        if old_script_dir is not None:
-            tea.SCRIPT_DIR_PATH = old_script_dir
-        if old_target_iso is not None:
-            tea.TARGET_ISO = old_target_iso
-        if old_project_lifetime is not None:
-            # Restore original project lifetime
-            tea.PROJECT_LIFETIME_YEARS = old_project_lifetime
+    # Restore global variables in tea.py
+    if old_base_output is not None:
+        tea.BASE_OUTPUT_DIR_DEFAULT = old_base_output
+    if old_script_dir is not None:
+        tea.SCRIPT_DIR_PATH = old_script_dir
+    if old_target_iso is not None:
+        tea.TARGET_ISO = old_target_iso
+    if old_project_lifetime is not None:
+        # Restore original project lifetime
+        tea.PROJECT_LIFETIME_YEARS = old_project_lifetime
 
-        # **ENHANCEMENT: Restore original load_tea_sys_params function**
-        if plant_specific_params and 'original_load_tea_sys_params' in locals():
-            tea.load_tea_sys_params = original_load_tea_sys_params
-            print(f"Restored original load_tea_sys_params function")
+    # **ENHANCEMENT: Restore original load_tea_sys_params function**
+    if plant_specific_params and 'original_load_tea_sys_params' in locals():
+        tea.load_tea_sys_params = original_load_tea_sys_params
 
-        # **NEW: Restore original report title if set**
-        if plant_specific_params and hasattr(tea, 'PLANT_REPORT_TITLE'):
-            delattr(tea, 'PLANT_REPORT_TITLE')
-            print(f"Restored original report title")
-
-        print(f"Finished processing {csv_path.name}, all variables restored")
+    # **NEW: Restore original report title if set**
+    if plant_specific_params and hasattr(tea, 'PLANT_REPORT_TITLE'):
+        delattr(tea, 'PLANT_REPORT_TITLE')
 
 
 def main():

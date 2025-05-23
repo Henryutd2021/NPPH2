@@ -37,6 +37,8 @@ data/data.ipynb
 !data/Raw/.gitkeep
 temp_sensitivity_runs/
 src/__pycache__
+TEA_results/*
+output/*
 
 # Ignore model checkpoints or intermediate files
 checkpoints/

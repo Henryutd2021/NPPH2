@@ -14,84 +14,84 @@ Technical Economic Analysis Report - Arkansas Nuclear One Unit 2
 
 2. Capital Expenditure (CAPEX) Breakdown
 ------------------------------------------
-  Electrolyzer System                     : $400,000,000 (57.7%)
-  Battery System Energy                   : $236,000,000 (34.1%)
-  Battery System Power                    : $50,000,000 (7.2%)
-  Grid Integration                        : $5,000,000 (0.7%)
-  NPP Modifications                       : $2,000,000 (0.3%)
+  Electrolyzer System                     : $400,000,000 (97.6%)
+  Grid Integration                        : $5,000,000 (1.2%)
+  Battery System Energy                   : $2,360,000 (0.6%)
+  NPP Modifications                       : $2,000,000 (0.5%)
+  Battery System Power                    : $500,000 (0.1%)
 
-  Total CAPEX: $693,000,000
+  Total CAPEX: $409,860,000
 
 3. Optimization Results - System Capacities
 ---------------------------------------------
   Electrolyzer Capacity                   : 200.00 MW
   Hydrogen Storage Capacity               : 0.00 kg
-  Battery Energy Capacity                 : 1,000.00 MWh
-  Battery Power Capacity                  : 250.00 MW
+  Battery Energy Capacity                 : 10.00 MWh
+  Battery Power Capacity                  : 2.50 MW
 
 4. Representative Annual Performance (from Optimization)
 ----------------------------------------------------------
-  As Avg Bid Regdown Mw                        : 1,022.44
-  As Avg Bid Regup Mw                          : 256.89
-  As Avg Bid Uncu Mw                           : 0.05
-  As Avg Deployed Regdown Battery Mw           : 20.34
-  As Avg Deployed Regdown Electrolyzer Mw      : 92.97
-  As Avg Deployed Regdown Turbine Mw           : 757.94
-  As Avg Deployed Regup Battery Mw             : 187.38
-  As Avg Deployed Regup Electrolyzer Mw        : 14.40
-  As Avg Deployed Regup Turbine Mw             : 16.97
-  As Avg Deployed Uncu Battery Mw              : 0.00
+  As Avg Bid Regdown Mw                        : 49.50
+  As Avg Bid Regup Mw                          : 49.50
+  As Avg Bid Uncu Mw                           : 0.21
+  As Avg Deployed Regdown Battery Mw           : 0.00
+  As Avg Deployed Regdown Electrolyzer Mw      : 25.61
+  As Avg Deployed Regdown Turbine Mw           : 16.74
+  As Avg Deployed Regup Battery Mw             : 0.00
+  As Avg Deployed Regup Electrolyzer Mw        : 25.61
+  As Avg Deployed Regup Turbine Mw             : 16.74
+  As Avg Deployed Uncu Battery Mw              : 0.04
   As Avg Deployed Uncu Electrolyzer Mw         : 0.00
   As Avg Deployed Uncu Turbine Mw              : 0.00
-  As Bid Utilization Vs Electrolyzer           : 1,152.07
-  As Max Bid Regdown Mw                        : 1,293.38
-  As Max Bid Regup Mw                          : 410.75
-  As Max Bid Uncu Mw                           : 150.00
-  As Revenue Average Hourly                    : 34,453.73
+  As Bid Utilization Vs Electrolyzer           : 835.68
+  As Max Bid Regdown Mw                        : 89.36
+  As Max Bid Regup Mw                          : 89.36
+  As Max Bid Uncu Mw                           : 152.50
+  As Revenue Average Hourly                    : 3,955.20
   As Revenue Hours Positive                    : 8760
-  As Revenue Maximum Hourly                    : 1,388,493.62
-  As Revenue Total                             : 301,814,658.75
+  As Revenue Maximum Hourly                    : 190,964.95
+  As Revenue Total                             : 34,647,594.38
   As Revenue Utilization Rate                  : 100.00
-  As Revenue Per Mw Battery                    : 1,207,258.63
-  As Revenue Per Mw Electrolyzer               : 1,509,073.29
+  As Revenue Per Mw Battery                    : 13,859,037.75
+  As Revenue Per Mw Electrolyzer               : 173,237.97
   As Total Bid Services                        : 9.00
-  As Total Deployed Regdown Battery Mwh        : 178,182.55
-  As Total Deployed Regdown Electrolyzer Mwh   : 814,431.21
-  As Total Deployed Regdown Turbine Mwh        : 6,639,586.73
-  As Total Deployed Regup Battery Mwh          : 1,641,440.12
-  As Total Deployed Regup Electrolyzer Mwh     : 126,135.45
-  As Total Deployed Regup Turbine Mwh          : 148,627.66
-  As Total Deployed Uncu Battery Mwh           : 0.00
+  As Total Deployed Regdown Battery Mwh        : 0.00
+  As Total Deployed Regdown Electrolyzer Mwh   : 224,301.47
+  As Total Deployed Regdown Turbine Mwh        : 146,665.49
+  As Total Deployed Regup Battery Mwh          : 0.00
+  As Total Deployed Regup Electrolyzer Mwh     : 224,301.47
+  As Total Deployed Regup Turbine Mwh          : 146,665.49
+  As Total Deployed Uncu Battery Mwh           : 383.09
   As Total Deployed Uncu Electrolyzer Mwh      : 0.00
   As Total Deployed Uncu Turbine Mwh           : 0.00
-  As Total Max Bid Capacity Mw                 : 2,304.13
-  Annual Electrolyzer Mwh                      : 1,502,483.45
-  Annual Opex Cost From Opt                    : 32,395,080.73
-  Annual Profit                                : 562,836,298.20
-  Annual Revenue                               : 595,231,378.91
+  As Total Max Bid Capacity Mw                 : 1,671.35
+  Annual Electrolyzer Mwh                      : 1,491,225.00
+  Annual Opex Cost From Opt                    : 32,240,463.30
+  Annual Profit                                : 288,663,449.82
+  Annual Revenue                               : 320,903,912.88
   Avg Electricity Price Usd Per Mwh            : 25.68
   Battery Cf Percent                           : 0.00
-  Battery Soc Percent                          : 57.62
+  Battery Soc Percent                          : 58.36
   Degradationstate Units Avg                   : 0.00
   Degradationstate Units End                   : 0.00
-  Electrolyzer Cf Percent                      : 85.76
-  Energy Revenue                               : 181,534,427.99
-  H2 Production Kg Annual                      : 37,294,097.40
-  H2 Sales Revenue                             : 111,882,292.19
+  Electrolyzer Cf Percent                      : 85.12
+  Energy Revenue                               : 175,266,608.14
+  H2 Production Kg Annual                      : 36,996,570.17
+  H2 Sales Revenue                             : 110,989,710.50
   H2 Storage Cycle Cost                        : 0.00
   H2 Storage Soc Percent                       : 0.00
   H2 Subsidy Revenue                           : 0.00
-  H2 Total Revenue                             : 111,882,292.19
-  Ramping Cost                                 : 87,299.98
+  H2 Total Revenue                             : 110,989,710.50
+  Ramping Cost                                 : 51,412.50
   Startup Cost                                 : 0.00
-  Turbine Cf Percent                           : 97.89
+  Turbine Cf Percent                           : 97.91
   Vom Battery Cost                             : 0.00
-  Vom Electrolyzer Cost                        : 15,024,834.45
-  Vom Turbine Cost                             : 16,164,123.30
-  Water Cost                                   : 1,118,822.86
-  Weighted Avg Electricity Price Usd Per Mwh   : 20.64
-  Annual Fixed Om Costs                        : [np.float64(16220000.0), np.float64(16544400.0), np.float64(16875288.0), np.float64(17212793.76), np.float64(17557049.6352), np.float64(17908190.627904), np.float64(18266354.440462083), np.float64(18631681.52927132), np.float64(19004315.15985675), np.float64(19384401.463053886), np.float64(19772089.492314965), np.float64(20167531.282161266), np.float64(20570881.907804485)]
-  Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(171600000.0), 0, 0, 0]
+  Vom Electrolyzer Cost                        : 14,912,250.00
+  Vom Turbine Cost                             : 16,166,903.09
+  Water Cost                                   : 1,109,896.84
+  Weighted Avg Electricity Price Usd Per Mwh   : 21.95
+  Annual Fixed Om Costs                        : [np.float64(8220800.0), np.float64(8385216.0), np.float64(8552920.32), np.float64(8723978.726400001), np.float64(8898458.300928), np.float64(9076427.46694656), np.float64(9257956.016285492), np.float64(9443115.1366112), np.float64(9631977.439343426), np.float64(9824616.988130294), np.float64(10021109.327892901), np.float64(10221531.514450759), np.float64(10425962.144739773)]
+  Annual Other Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(1716000.0), 0, 0, 0]
   Annual Stack Replacement Costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(120000000.0), 0, 0, 0]
   Electrolyzer Capex                           : 400,000,000.00
   Thermal Capacity Mwt                         : 3,026.00
@@ -99,66 +99,68 @@ Technical Economic Analysis Report - Arkansas Nuclear One Unit 2
 
 5. Ancillary Services Performance
 -----------------------------------
-  Total Ancillary Services Revenue: $301,814,658.75
-  Average Hourly AS Revenue: $34,453.73
-  Maximum Hourly AS Revenue: $1,388,493.62
+  Total Ancillary Services Revenue: $34,647,594.38
+  Average Hourly AS Revenue: $3,955.20
+  Maximum Hourly AS Revenue: $190,964.95
   AS Revenue Utilization Rate: 100.0%
-  AS Revenue per MW Electrolyzer: $1,509,073.29/MW
-  AS Revenue per MW Battery Power: $1,207,258.63/MW
+  AS Revenue per MW Electrolyzer: $173,237.97/MW
+  AS Revenue per MW Battery Power: $13,859,037.75/MW
 
   Revenue Mix:
-    Energy Revenue                     : $181,534,427.99 (30.5%)
-    H2 Sales Revenue                   : $111,882,292.19 (18.8%)
-    Ancillary Services Revenue         : $301,814,658.75 (50.7%)
+    Energy Revenue                     : $175,266,608.14 (54.6%)
+    H2 Sales Revenue                   : $110,989,710.50 (34.6%)
+    Ancillary Services Revenue         : $34,647,594.38 (10.8%)
 
-  AS Revenue as % of Total Revenue: 50.71%
+  AS Revenue as % of Total Revenue: 10.80%
 
   AS Bidding Performance:
     Number of AS Services Bid: 9
-    Total Maximum Bid Capacity: 2,304.13 MW
-    Bid Capacity vs Electrolyzer: 1152.1%
+    Total Maximum Bid Capacity: 1,671.35 MW
+    Bid Capacity vs Electrolyzer: 835.7%
 
   AS Service Breakdown:
-    NSR            : Max  150.0 MW, Avg    0.6 MW
-    RampUp         : Max  150.0 MW, Avg    1.5 MW
-    RegDown        : Max 1293.4 MW, Avg 1022.4 MW
-    RegUp          : Max  410.8 MW, Avg  256.9 MW
-    SR             : Max  150.0 MW, Avg   22.9 MW
-    UncU           : Max  150.0 MW, Avg    0.1 MW
+    NSR            : Max  152.5 MW, Avg    1.8 MW
+    RampDown       : Max  882.6 MW, Avg    0.1 MW
+    RampUp         : Max  152.5 MW, Avg    8.8 MW
+    RegDown        : Max   89.4 MW, Avg   49.5 MW
+    RegUp          : Max   89.4 MW, Avg   49.5 MW
+    SR             : Max  152.5 MW, Avg   78.8 MW
+    UncU           : Max  152.5 MW, Avg    0.2 MW
 
   AS Deployment Performance:
-    Total Deployed Energy: 9,548,403.70 MWh
+    Total Deployed Energy: 742,325.09 MWh
     Service-Specific Deployment:
-      Energy         : 9548403.7 MWh (Avg    0.0 MW)
-      RegDown_Battery: 178182.5 MWh (Avg   20.3 MW)
-      RegDown_Electrolyzer: 814431.2 MWh (Avg   93.0 MW)
-      RegDown_Turbine: 6639586.7 MWh (Avg  757.9 MW)
-      RegUp_Battery  : 1641440.1 MWh (Avg  187.4 MW)
-      RegUp_Electrolyzer: 126135.5 MWh (Avg   14.4 MW)
-      RegUp_Turbine  : 148627.7 MWh (Avg   17.0 MW)
+      Energy         : 742325.1 MWh (Avg    0.0 MW)
+      NSR_Battery    :      0.4 MWh (Avg    0.0 MW)
+      RegDown_Electrolyzer: 224301.5 MWh (Avg   25.6 MW)
+      RegDown_Turbine: 146665.5 MWh (Avg   16.7 MW)
+      RegUp_Electrolyzer: 224301.5 MWh (Avg   25.6 MW)
+      RegUp_Turbine  : 146665.5 MWh (Avg   16.7 MW)
+      SR_Battery     :      7.7 MWh (Avg    0.0 MW)
+      UncU_Battery   :    383.1 MWh (Avg    0.0 MW)
 
   System Utilization (affects AS capability):
-    Electrolyzer CF                    : 85.76%
-    Turbine CF                         : 97.89%
-    Battery SOC                        : 57.62%
+    Electrolyzer CF                    : 85.12%
+    Turbine CF                         : 97.91%
+    Battery SOC                        : 58.36%
 
 6. Lifecycle Financial Metrics (Total System)
 ----------------------------------------------
-  Irr (%)                                      : 53.44
-  Lcoh (Usd) (Usd/Kg)                          : 2.41
-  Npv (Usd)                                    : 2,394,904,275.99
-  Payback Period (Years)                       : 1.61
-  Return On Investment (ROI)                   : 3.4559
+  Irr (%)                                      : 43.78
+  Lcoh (Usd) (Usd/Kg)                          : 1.46
+  Npv (Usd)                                    : 1,180,644,241.55
+  Payback Period (Years)                       : 1.85
+  Return On Investment (ROI)                   : 2.8806
 
 7. Incremental Financial Metrics (H2/Battery System vs. Baseline)
 --------------------------------------------------------------------
-  Annual Electricity Opportunity Cost Usd (USD): 38,580,952.02
-  Total Incremental Capex Learned Usd (USD): 688,000,000.00
-  Incremental Irr (%)                         : 36.04
-  Incremental Lcoh (Usd) (Usd/Kg)             : 2.39
-  Incremental Npv (Usd)                       : 1,349,654,290.26
-  Incremental Payback Period (Years)          : 2.44
-  Incremental Return On Investment (ROI)       : 1.9617
+  Annual Electricity Opportunity Cost Usd (USD): 38,291,856.30
+  Total Incremental Capex Learned Usd (USD): 404,860,000.00
+  Incremental Irr (%)                         : 13.43
+  Incremental Lcoh (Usd) (Usd/Kg)             : 1.44
+  Incremental Npv (Usd)                       : 137,119,694.08
+  Incremental Payback Period (Years)          : 5.62
+  Incremental Return On Investment (ROI)       : 0.3387
 
 8. Cost Assumptions (Base Year)
 --------------------------------
@@ -177,4 +179,4 @@ Technical Economic Analysis Report - Arkansas Nuclear One Unit 2
     Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
     H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
 
-Report generated: 2025-05-23 10:17:18
+Report generated: 2025-05-23 11:47:16

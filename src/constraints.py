@@ -1194,6 +1194,67 @@ def link_total_as_rule(m, t, service_name):
         raise
 
 
+def battery_regulation_balance_rule(m, t):
+    """Ensures RegUp and RegDown bids are equal for Battery at each time period."""
+    if not getattr(m, "CAN_PROVIDE_ANCILLARY_SERVICES", False) or not getattr(m, "ENABLE_BATTERY", False):
+        return pyo.Constraint.Skip
+
+    try:
+        if (hasattr(m, "RegUp_Battery") and hasattr(m, "RegDown_Battery") and
+            isinstance(getattr(m, "RegUp_Battery"), pyo.Var) and
+            isinstance(getattr(m, "RegDown_Battery"), pyo.Var) and
+                t in m.RegUp_Battery.index_set() and t in m.RegDown_Battery.index_set()):
+            return m.RegUp_Battery[t] == m.RegDown_Battery[t]
+        else:
+            return pyo.Constraint.Skip
+    except Exception as e:
+        logger.error(
+            f"Error in battery_regulation_balance_rule @t={t}: {e}", exc_info=True)
+        raise
+
+
+def electrolyzer_regulation_balance_rule(m, t):
+    """Ensures RegUp and RegDown bids are equal for Electrolyzer at each time period."""
+    if not getattr(m, "CAN_PROVIDE_ANCILLARY_SERVICES", False) or not getattr(m, "ENABLE_ELECTROLYZER", False):
+        return pyo.Constraint.Skip
+
+    try:
+        if (hasattr(m, "RegUp_Electrolyzer") and hasattr(m, "RegDown_Electrolyzer") and
+            isinstance(getattr(m, "RegUp_Electrolyzer"), pyo.Var) and
+            isinstance(getattr(m, "RegDown_Electrolyzer"), pyo.Var) and
+                t in m.RegUp_Electrolyzer.index_set() and t in m.RegDown_Electrolyzer.index_set()):
+            return m.RegUp_Electrolyzer[t] == m.RegDown_Electrolyzer[t]
+        else:
+            return pyo.Constraint.Skip
+    except Exception as e:
+        logger.error(
+            f"Error in electrolyzer_regulation_balance_rule @t={t}: {e}", exc_info=True)
+        raise
+
+
+def turbine_regulation_balance_rule(m, t):
+    """Ensures RegUp and RegDown bids are equal for Turbine at each time period."""
+    if not getattr(m, "CAN_PROVIDE_ANCILLARY_SERVICES", False) or not getattr(m, "ENABLE_NUCLEAR_GENERATOR", False):
+        return pyo.Constraint.Skip
+
+    # Only apply if turbine can provide AS (when other components are also enabled)
+    if not (getattr(m, "ENABLE_ELECTROLYZER", False) or getattr(m, "ENABLE_BATTERY", False)):
+        return pyo.Constraint.Skip
+
+    try:
+        if (hasattr(m, "RegUp_Turbine") and hasattr(m, "RegDown_Turbine") and
+            isinstance(getattr(m, "RegUp_Turbine"), pyo.Var) and
+            isinstance(getattr(m, "RegDown_Turbine"), pyo.Var) and
+                t in m.RegUp_Turbine.index_set() and t in m.RegDown_Turbine.index_set()):
+            return m.RegUp_Turbine[t] == m.RegDown_Turbine[t]
+        else:
+            return pyo.Constraint.Skip
+    except Exception as e:
+        logger.error(
+            f"Error in turbine_regulation_balance_rule @t={t}: {e}", exc_info=True)
+        raise
+
+
 def link_Total_RegUp_rule(m, t):
     return link_total_as_rule(m, t, "RegUp")
 
@@ -1462,7 +1523,7 @@ def restrict_grid_purchase_rule(m, t):
         return m.pGridPurchase[t] == 0
 
     # Down services that can be deployed
-    down_services = ["RampDown"]  #  "RegDown", "ECRS"
+    down_services = ["RampDown"]  # "RegDown", "ECRS"
 
     # Calculate total down services deployed across all components
     total_down_deployed = 0.0

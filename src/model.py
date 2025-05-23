@@ -50,6 +50,7 @@ from constraints import (
     battery_power_capacity_link_rule,
     battery_ramp_down_rule,
     battery_ramp_up_rule,
+    battery_regulation_balance_rule,
     battery_soc_balance_rule,
     battery_soc_max_rule,
     battery_soc_min_rule,
@@ -62,6 +63,7 @@ from constraints import (
     electrolyzer_min_power_when_on_rule,
     electrolyzer_min_uptime_rule,
     electrolyzer_on_off_logic_rule,
+    electrolyzer_regulation_balance_rule,
     electrolyzer_setpoint_min_power_rule,
     electrolyzer_startup_shutdown_exclusivity_rule,
     h2_CapacityFactor_rule,
@@ -86,6 +88,7 @@ from constraints import (
     power_balance_rule,
     restrict_grid_purchase_rule,
     steam_balance_rule,
+    turbine_regulation_balance_rule,
 )
 from logging_setup import logger
 from revenue_cost import (
@@ -2018,6 +2021,20 @@ def create_model(
             if hasattr(model, "Total_UncU") and isinstance(model.Total_UncU, pyo.Var):
                 model.link_Total_UncU_constr = pyo.Constraint(
                     model.TimePeriods, rule=link_Total_UncU_rule
+                )
+
+            # Regulation Balance Constraints (RegUp == RegDown for each component)
+            if model.ENABLE_BATTERY:
+                model.battery_regulation_balance_constr = pyo.Constraint(
+                    model.TimePeriods, rule=battery_regulation_balance_rule
+                )
+            if model.ENABLE_ELECTROLYZER:
+                model.electrolyzer_regulation_balance_constr = pyo.Constraint(
+                    model.TimePeriods, rule=electrolyzer_regulation_balance_rule
+                )
+            if model.ENABLE_NUCLEAR_GENERATOR and (model.ENABLE_ELECTROLYZER or model.ENABLE_BATTERY):
+                model.turbine_regulation_balance_constr = pyo.Constraint(
+                    model.TimePeriods, rule=turbine_regulation_balance_rule
                 )
 
         # Link Deployed AS to Bids (Dynamically) - If in Dispatch Simulation Mode

@@ -179,4 +179,4 @@ Technical Economic Analysis Report - Comanche Peak Unit 1
     Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
     H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
 
-Report generated: 2025-05-23 10:18:19
+Report generated: 2025-05-23 11:48:17

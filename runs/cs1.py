@@ -14,8 +14,17 @@ import os
 import sys
 import pandas as pd
 import warnings
+import threading
+import time
 from pathlib import Path
 warnings.filterwarnings("ignore")
+
+# Import tqdm for progress bar
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
 
 # Add src directory to Python path for importing optimization framework modules
 src_path = os.path.abspath(os.path.join(
@@ -39,6 +48,259 @@ except ImportError as e:
     print(f"Error: Optimization framework modules not available: {e}")
     optimization_framework_available = False
     sys.exit(1)  # Exit if framework is not available
+
+
+class SolverProgressIndicator:
+    """
+    A progress indicator for optimization solving process that shows real progress
+    based on MIP gap information from the solver output.
+    """
+
+    def __init__(self, description="Solving optimization model", target_gap=0.0005):
+        self.description = description
+        self.target_gap = target_gap  # Target MIP gap (e.g., 0.0005 = 0.05%)
+        self.running = False
+        self.thread = None
+        self.start_time = None
+        self.current_gap = None
+        self.log_file = None
+
+    def _parse_gurobi_line(self, line):
+        """Parse Gurobi output line to extract gap information."""
+        try:
+            line = line.strip()
+            if not line:
+                return False
+
+            # Pattern 1: Heuristic solution lines: "H  150     0                    2.234056e+08 2.234056e+08  0.00%     0s"
+            if line.startswith('H') and '%' in line:
+                parts = line.split()
+                for i, part in enumerate(parts):
+                    if '%' in part:
+                        gap_str = part.replace('%', '')
+                        try:
+                            self.current_gap = float(gap_str) / 100.0
+                            return True
+                        except ValueError:
+                            pass
+
+            # Pattern 2: Regular iteration lines with gap: "   150     0 2.234056e+08 2.234056e+08  0.00%     0s"
+            elif line[0].isdigit() and '%' in line:
+                parts = line.split()
+                for part in parts:
+                    if '%' in part and part != '%':
+                        gap_str = part.replace('%', '')
+                        try:
+                            self.current_gap = float(gap_str) / 100.0
+                            return True
+                        except ValueError:
+                            pass
+
+            # Pattern 3: Final gap information: "Best objective 1.234567e+08, best bound 1.234567e+08, gap 0.00%"
+            elif 'gap' in line.lower() and '%' in line:
+                import re
+                # Look for "gap X.XX%" pattern
+                match = re.search(r'gap\s+(\d+\.?\d*)%', line, re.IGNORECASE)
+                if match:
+                    self.current_gap = float(match.group(1)) / 100.0
+                    return True
+
+            # Pattern 4: Presolve or other status lines that might contain gap
+            elif 'gap:' in line.lower() and '%' in line:
+                import re
+                match = re.search(r'gap:\s*(\d+\.?\d*)%', line, re.IGNORECASE)
+                if match:
+                    self.current_gap = float(match.group(1)) / 100.0
+                    return True
+
+        except (ValueError, IndexError, AttributeError):
+            pass
+        return False
+
+    def _parse_cplex_line(self, line):
+        """Parse CPLEX output line to extract gap information."""
+        try:
+            if 'gap' in line.lower() and '%' in line:
+                import re
+                match = re.search(r'(\d+\.?\d*)%', line)
+                if match:
+                    self.current_gap = float(match.group(1)) / 100.0
+                    return True
+        except (ValueError, IndexError):
+            pass
+        return False
+
+    def _monitor_solver_output(self, solver_name):
+        """Monitor solver output file for gap information."""
+        # Wait for log file to be created (up to 30 seconds)
+        wait_time = 0
+        max_wait = 30
+        while not os.path.exists(self.log_file) and wait_time < max_wait and self.running:
+            time.sleep(0.5)
+            wait_time += 0.5
+
+        if not os.path.exists(self.log_file):
+            print(
+                f"Warning: Log file {self.log_file} not created after {max_wait}s")
+            return
+
+        print(f"Gap monitoring started for {self.log_file}")
+
+        try:
+            # Start reading from the end of the file to avoid old content
+            last_position = 0
+            # Get initial file size to start reading from current end
+            if os.path.exists(self.log_file):
+                with open(self.log_file, 'r') as f:
+                    f.seek(0, 2)  # Go to end
+                    last_position = f.tell()
+                    print(f"Starting to monitor from position {last_position}")
+
+            gap_found_count = 0
+            while self.running:
+                try:
+                    with open(self.log_file, 'r') as f:
+                        f.seek(last_position)
+                        new_content = f.read()
+                        if new_content:
+                            # Process each line in the new content
+                            lines = new_content.split('\n')
+                            # Exclude last potentially incomplete line
+                            for line in lines[:-1]:
+                                if line.strip():
+                                    if solver_name.lower() == 'gurobi':
+                                        if self._parse_gurobi_line(line):
+                                            gap_found_count += 1
+                                            if gap_found_count <= 5:  # Show more for debugging
+                                                print(
+                                                    f"Gap found: {self.current_gap*100:.3f}% from NEW line: {line[:80]}...")
+                                    elif solver_name.lower() == 'cplex':
+                                        if self._parse_cplex_line(line):
+                                            gap_found_count += 1
+                                            if gap_found_count <= 5:
+                                                print(
+                                                    f"Gap found: {self.current_gap*100:.3f}% from NEW line: {line[:80]}...")
+                            last_position = f.tell()
+                        else:
+                            time.sleep(0.2)  # Wait for more content
+                except IOError:
+                    # File might be locked by solver, wait and retry
+                    time.sleep(0.5)
+        except Exception as e:
+            print(f"Error in gap monitoring: {e}")
+        finally:
+            if gap_found_count > 0:
+                print(
+                    f"Gap monitoring finished. Total NEW gaps found: {gap_found_count}")
+            else:
+                print(
+                    f"Gap monitoring finished. No NEW gaps found in {self.log_file}")
+
+    def _calculate_progress(self):
+        """Calculate progress based on current gap and target gap."""
+        if self.current_gap is None:
+            return 0.0
+
+        if self.current_gap <= self.target_gap:
+            return 100.0
+
+        # Logarithmic progress calculation
+        import math
+        initial_gap = 1.0
+
+        if self.current_gap >= initial_gap:
+            return 0.0
+
+        log_current = math.log10(max(self.current_gap, 1e-6))
+        log_target = math.log10(max(self.target_gap, 1e-6))
+        log_initial = math.log10(initial_gap)
+
+        progress = (log_initial - log_current) / \
+            (log_initial - log_target) * 100
+        return min(max(progress, 0.0), 100.0)
+
+    def _animate(self):
+        """Internal method to run the animation in a separate thread."""
+        if TQDM_AVAILABLE:
+            with tqdm(desc=self.description, total=100, unit="%",
+                      bar_format="{desc}: {percentage:3.0f}%|{bar}| Gap: {postfix} | {elapsed}") as pbar:
+                while self.running:
+                    progress = self._calculate_progress()
+                    gap_text = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
+                    pbar.set_postfix_str(gap_text)
+                    pbar.n = progress
+                    pbar.refresh()
+                    time.sleep(0.5)
+
+                # Set final state when animation stops
+                final_progress = self._calculate_progress()
+                final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
+                pbar.n = final_progress
+                pbar.set_postfix_str(final_gap)
+                pbar.close()
+
+                # Show final summary
+                if self.start_time:
+                    elapsed = time.time() - self.start_time
+                    print(
+                        f"{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})")
+        else:
+            spinners = ['|', '/', '-', '\\']
+            i = 0
+            while self.running:
+                elapsed = time.time() - self.start_time if self.start_time else 0
+                progress = self._calculate_progress()
+                gap_text = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
+                print(f"\r{self.description}... {spinners[i % len(spinners)]} Progress: {progress:.1f}% | Gap: {gap_text} | ({elapsed:.1f}s)",
+                      end="", flush=True)
+                i += 1
+                time.sleep(0.5)
+            print()
+
+    def start(self, solver_name="gurobi", log_file=None):
+        """Start the progress indicator."""
+        if not self.running:
+            self.running = True
+            self.start_time = time.time()
+            self.log_file = log_file
+            self.current_gap = None  # Reset gap for new run
+
+            # Debug output
+            if log_file:
+                print(
+                    f"Starting gap monitoring for {solver_name} with log file: {log_file}")
+
+            if log_file and solver_name:
+                monitor_thread = threading.Thread(
+                    target=self._monitor_solver_output,
+                    args=(solver_name,),
+                    daemon=True,
+                    # Unique thread name
+                    name=f"GapMonitor-{solver_name}-{int(time.time())}"
+                )
+                monitor_thread.start()
+
+            self.thread = threading.Thread(
+                target=self._animate,
+                daemon=True,
+                name=f"ProgressAnim-{int(time.time())}"  # Unique thread name
+            )
+            self.thread.start()
+
+    def stop(self):
+        """Stop the progress indicator."""
+        if self.running:
+            self.running = False
+            if self.thread:
+                self.thread.join(timeout=2.0)  # Increased timeout
+
+            # Only show completion message if tqdm is not available
+            # (tqdm animation will show its own completion message)
+            if not TQDM_AVAILABLE and self.start_time:
+                elapsed = time.time() - self.start_time
+                final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
+                print(
+                    f"\r{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})" + " " * 20)
 
 
 def calculate_crf(discount_rate, lifetime_years):
@@ -70,9 +332,6 @@ def adjust_system_params_for_remaining_life(system_params_df, remaining_years, t
     Returns:
         DataFrame: Modified system parameters with updated CRF-based values
     """
-    print(
-        f"Adjusting system parameters for remaining life: {remaining_years} years")
-
     # Create a copy of the system parameters dataframe
     df = system_params_df.copy()
 
@@ -116,25 +375,17 @@ def adjust_system_params_for_remaining_life(system_params_df, remaining_years, t
         effective_lifetime = min(
             equip_data['default_lifetime'], remaining_years)
         equip_crf = calculate_crf(discount_rate, effective_lifetime)
-        print(
-            f"{equip_type} effective lifetime: {effective_lifetime} years, CRF: {equip_crf:.5f}")
 
         # Update the parameters in the dataframe
         for param_name, calc_func in equip_data['params_to_update'].items():
             new_value = calc_func(equip_crf)
             if param_name in df.index:
                 df.loc[param_name, 'Value'] = new_value
-                print(f"Updated {param_name} to {new_value}")
-            else:
-                print(
-                    f"Warning: Parameter {param_name} not found in system parameters")
 
     # Update hydrogen subsidy duration to min of 10 years or remaining life
     hydrogen_subsidy_duration = min(10, remaining_years)
     df.loc['hydrogen_subsidy_duration_years',
            'Value'] = hydrogen_subsidy_duration
-    print(
-        f"Updated hydrogen subsidy duration to {hydrogen_subsidy_duration} years")
 
     if 'qSteam_Turbine_Breakpoints_MWth' in df.index:
         q_breakpoints_str = str(
@@ -154,13 +405,9 @@ def adjust_system_params_for_remaining_life(system_params_df, remaining_years, t
             p_outputs = [q * eff for q in q_breakpoints]
             p_outputs_str = ', '.join(f'{p:.4f}' for p in p_outputs)
             df.loc['pTurbine_Outputs_at_Breakpoints_MW', 'Value'] = p_outputs_str
-            print(
-                f"Dynamically updated pTurbine_Outputs_at_Breakpoints_MW to: {p_outputs_str}")
         except Exception as e:
             print(
                 f"Warning: Failed to update pTurbine_Outputs_at_Breakpoints_MW: {e}")
-    else:
-        print("Warning: qSteam_Turbine_Breakpoints_MWth not found in system parameters")
 
     return df
 
@@ -216,13 +463,8 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
     iso_region = plant_params["iso_region"]
     remaining_years = plant_params["remaining_years"]
 
-    if verbose:
-        print(f"\n{'='*50}")
-        print(
-            f"Preparing optimization for {plant_params['plant_name']} - {plant_params['generator_id']}")
-        print(
-            f"ISO Region: {iso_region}, Remaining Life: {remaining_years} years")
-        print(f"{'='*50}")
+    print(
+        f"Running optimization for {plant_params['plant_name']} Unit {plant_params['generator_id']} ({iso_region}, {remaining_years} years)")
 
     # Load hourly data for this ISO
     hourly_data = load_hourly_data(iso_region, base_dir="../input/hourly_data")
@@ -314,32 +556,14 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
             adjusted_df_system.loc['pTurbine_Outputs_at_Breakpoints_MW',
                                    'Value'] = p_outputs_str
 
-            if verbose:
-                print(f"Updated turbine breakpoints:")
-                print(f"  qSteam breakpoints: {q_breakpoints_str}")
-                print(f"  pTurbine outputs: {p_outputs_str}")
-
         except Exception as e:
-            if verbose:
-                print(f"Warning: Could not update turbine breakpoints: {e}")
-
-    if verbose:
-        print(f"Plant-specific parameters set:")
-        print(f"  Thermal Capacity: {thermal_capacity_mwt} MWt")
-        print(f"  Nameplate Capacity: {nameplate_capacity_mw} MW")
-        print(f"  Thermal Efficiency: {thermal_efficiency:.4f}")
-        print(
-            f"  Max Steam to Turbine: {thermal_capacity_mwt} MWt (= total thermal capacity)")
-        print(
-            f"  Min Power (from 100 MWt steam): {min_power_from_100mwt:.2f} MW")
-        print(f"  Min Steam to Turbine: {min_steam_100mwt} MWt")
+            print(f"Warning: Could not update turbine breakpoints: {e}")
 
     # Update the hourly data with the adjusted system parameters
     hourly_data['df_system'] = adjusted_df_system
 
     # Now call the original run_plant_optimization function
-    if verbose:
-        print("Running optimization with adjusted system parameters")
+    print("Creating optimization model...")
 
     # Create the model
     model = create_model(
@@ -362,13 +586,10 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
         try:
             solver = SolverFactory(solver_name_candidate)
             solver_name = solver_name_candidate
-            if verbose:
-                print(f"Using {solver_name} solver")
+            print(f"Using {solver_name} solver")
             break
         except:
-            if verbose:
-                print(
-                    f"Solver {solver_name_candidate} not available, trying another...")
+            pass
 
     if solver_name is None:
         print("Error: No suitable solver found. Exiting optimization process.")
@@ -378,35 +599,47 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
     solver_options = {}
     if solver_name == "gurobi":
         solver_options = {"MIPGap": 0.0005}  # "TimeLimit": 600,
+        target_gap = 0.0005
     elif solver_name == "cplex":
         solver_options = {"timelimit": 600, "mipgap": 0.01}
+        target_gap = 0.01
+    else:
+        target_gap = 0.01
 
     # Get plant name and generator ID for file naming
     plant_name = plant_params["plant_name"]
     generator_id = int(plant_params["generator_id"])
     file_prefix = f"{plant_name}_{generator_id}_{iso_region}_{int(remaining_years)}"
 
-    # **VERIFICATION: Print actual model parameter values for debugging**
-    if verbose:
-        print("\nVerifying model parameter values:")
-        try:
-            import pyomo.environ as pyo
-            print(
-                f"  Model qSteam_Total: {pyo.value(model.qSteam_Total):.2f} MWt")
-            print(
-                f"  Model pTurbine_max: {pyo.value(model.pTurbine_max):.2f} MW")
-            print(
-                f"  Model pTurbine_min: {pyo.value(model.pTurbine_min):.2f} MW")
-            print(
-                f"  Model convertTtE_const: {pyo.value(model.convertTtE_const):.4f}")
-        except Exception as e:
-            print(f"  Warning: Could not verify model parameters: {e}")
+    # Create log file for solver output monitoring
+    log_dir = os.path.join(output_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    solver_log_file = os.path.join(log_dir, f"{file_prefix}_solver_output.log")
+
+    # Clear/create a fresh log file for this optimization
+    if os.path.exists(solver_log_file):
+        os.remove(solver_log_file)
+
+    # Add logging to solver options
+    if solver_name == "gurobi":
+        solver_options["LogFile"] = solver_log_file
+    elif solver_name == "cplex":
+        solver_options["logfile"] = solver_log_file
 
     # Solve model
-    if verbose:
-        print(f"Solving optimization model for plant: {plant_id}")
+    print("Solving optimization model...")
 
-    results = solver.solve(model, tee=verbose, options=solver_options)
+    # Create and start progress indicator with gap monitoring
+    progress = SolverProgressIndicator(
+        f"Optimizing {plant_params['plant_name']} Unit {plant_params['generator_id']}",
+        target_gap=target_gap)
+    progress.start(solver_name=solver_name, log_file=solver_log_file)
+
+    try:
+        results = solver.solve(model, tee=False, options=solver_options)
+    finally:
+        # Always stop the progress indicator, even if solve fails
+        progress.stop()
 
     # Check solver status
     solver_status = results.solver.status
@@ -416,8 +649,7 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
         termination_condition == TerminationCondition.optimal or
         termination_condition == TerminationCondition.feasible
     ):
-        if verbose:
-            print(f"Optimization completed successfully for plant: {plant_id}")
+        print("Optimization completed successfully")
 
         # Extract results
         results_df, summary_results = extract_results(
@@ -428,18 +660,12 @@ def run_plant_optimization_with_dynamic_params(plant_params, output_dir, verbose
             output_dir, f"{file_prefix}_hourly_results.csv")
         results_df.to_csv(results_file, index=False)
 
-        if verbose:
-            print(f"Hourly results saved to: {results_file}")
+        print(f"Results saved to: {results_file}")
 
         return True
     else:
-        if verbose:
-            print(f"Optimization failed for plant: {plant_id}")
-            print(f"Solver status: {results.solver.status}")
-            print(
-                f"Termination condition: {results.solver.termination_condition}")
-
-        print("Error: Optimization failed. Exiting optimization process.")
+        print(
+            f"Optimization failed - Status: {results.solver.status}, Condition: {results.solver.termination_condition}")
         return None
 
 
@@ -453,16 +679,18 @@ def main():
     # Load NPP data
     npp_data_file = "../input/hourly_data/NPPs info.csv"
 
-    print(f"Using NPP data file: {npp_data_file}")
+    print(f"Loading NPP data from: {npp_data_file}")
     npp_df = load_npp_data(npp_data_file)
 
     # Process each nuclear power plant
+    processed_count = 0
+    total_plants = len(npp_df)
+
     for idx, row in npp_df.iterrows():
         plant_data = row.to_dict()
 
         # Skip reactors with remaining operational life of less than 10 years
         if plant_data.get('remaining', 0) < 10:
-            print(f"Skipping plant {plant_data.get('Plant Name', 'Unknown Plant')} - Unit {plant_data.get('Generator ID', 'N/A')} due to remaining operational life < 10 years ({plant_data.get('remaining', 0)} years).")
             continue
 
         # Get Plant Name and Generator ID for file naming
@@ -471,9 +699,9 @@ def main():
         plant_id = f"{plant_data['Plant Code']}_{plant_data['Generator ID']}"
         iso_region = plant_data["ISO"]
 
+        processed_count += 1
         print(
-            f"\nProcessing plant {idx+1}/{len(npp_df)}: {plant_name} - Unit {generator_id}")
-        print(f"ISO Region: {iso_region}")
+            f"\n[{processed_count}/{total_plants}] Processing: {plant_name} Unit {generator_id} ({iso_region})")
 
         # Prepare plant parameters for optimization
         plant_params = {
@@ -494,22 +722,22 @@ def main():
             success = run_plant_optimization_with_dynamic_params(
                 plant_params=plant_params,
                 output_dir=output_dir,
-                verbose=True
+                verbose=False
             )
 
             # Check if optimization was successful
             if not success:
                 print(
-                    f"Optimization failed for {plant_name} - Unit {generator_id}. Skipping to next plant.")
+                    f"Optimization failed for {plant_name} Unit {generator_id}")
                 continue
 
         except Exception as e:
             print(
-                f"Error processing plant {plant_name} - Unit {generator_id}: {str(e)}")
+                f"Error processing {plant_name} Unit {generator_id}: {str(e)}")
             # Continue with the next plant
             continue
 
-    print(f"All hourly results saved in {output_dir}")
+    print(f"\nOptimization completed. Results saved in: {output_dir}")
     print("Nuclear Power Plant Optimization Completed")
 
 

@@ -165,4 +165,4 @@ Technical Economic Analysis Report - James A Fitzpatrick Unit 1
     Electrolyzer_Stack            : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
     H2_Storage_Components         : Cost: $5,000,000 (Years: [15])
 
-Report generated: 2025-05-23 10:17:51
+Report generated: 2025-05-23 11:47:49
