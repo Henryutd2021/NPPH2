@@ -27,8 +27,8 @@ ENABLE_LOW_TEMP_ELECTROLYZER: bool = False
 ENABLE_BATTERY: bool = True  # Enable battery storage
 
 # --- Advanced Feature Flags ---
-# Enable separate hydrogen storage (requires ENABLE_ELECTROLYZER)
-ENABLE_H2_STORAGE: bool = False
+# Enable separate hydrogen storage (automatically enabled when ENABLE_ELECTROLYZER is True)
+ENABLE_H2_STORAGE: bool = True
 # Enforce H2 production target (usually disable when storage is enabled)
 ENABLE_H2_CAP_FACTOR: bool = False
 # Use piecewise linear turbine efficiency (requires ENABLE_NUCLEAR_GENERATOR)
@@ -37,6 +37,8 @@ ENABLE_NONLINEAR_TURBINE_EFF: bool = True
 ENABLE_ELECTROLYZER_DEGRADATION_TRACKING: bool = True
 # Use mixed-integer formulation for electrolyzer on/off (requires ENABLE_ELECTROLYZER)
 ENABLE_STARTUP_SHUTDOWN: bool = True
+# Enable optimal hydrogen storage capacity sizing for constant sales rate
+ENABLE_OPTIMAL_H2_STORAGE_SIZING: bool = True
 
 # --- Simulation Mode ---
 # Set to True to simulate AS dispatch execution affecting physical operation.
@@ -96,3 +98,28 @@ if SIMULATE_AS_DISPATCH_EXECUTION and not CAN_PROVIDE_ANCILLARY_SERVICES:
         "Warning: SIMULATE_AS_DISPATCH_EXECUTION=True but CAN_PROVIDE_ANCILLARY_SERVICES=False. Dispatch simulation has no effect."
     )
     SIMULATE_AS_DISPATCH_EXECUTION = False  # Or handle as needed
+
+# -----------------------------
+# VALIDATION RULES
+# -----------------------------
+
+
+def validate_configuration():
+    """Validate configuration flags and enforce dependency rules."""
+    global ENABLE_H2_STORAGE
+
+    # Rule 1: If electrolyzer is enabled, H2 storage must also be enabled
+    if ENABLE_ELECTROLYZER and not ENABLE_H2_STORAGE:
+        print("WARNING: ENABLE_H2_STORAGE automatically set to True because ENABLE_ELECTROLYZER is True")
+        print("         All hydrogen production must go through storage before being sold.")
+        ENABLE_H2_STORAGE = True
+
+    # Rule 2: If electrolyzer is disabled, H2 storage should be disabled
+    if not ENABLE_ELECTROLYZER and ENABLE_H2_STORAGE:
+        print("WARNING: ENABLE_H2_STORAGE automatically set to False because ENABLE_ELECTROLYZER is False")
+        print("         Hydrogen storage is only available when electrolyzer is enabled.")
+        ENABLE_H2_STORAGE = False
+
+
+# Run validation when module is imported
+validate_configuration()

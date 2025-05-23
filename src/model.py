@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
 
+import config
 from config import (
     CAN_PROVIDE_ANCILLARY_SERVICES,
     ENABLE_BATTERY,
@@ -67,12 +68,16 @@ from constraints import (
     electrolyzer_setpoint_min_power_rule,
     electrolyzer_startup_shutdown_exclusivity_rule,
     h2_CapacityFactor_rule,
+    h2_constant_sales_rate_rule,
+    h2_no_direct_sales_rule,
     h2_prod_dispatch_rule,
     h2_storage_balance_adj_rule,
+    h2_storage_balance_constraint_rule,
     h2_storage_charge_limit_rule,
     h2_storage_discharge_limit_rule,
     h2_storage_level_max_rule,
     h2_storage_level_min_rule,
+    h2_total_production_balance_rule,
     link_auxiliary_power_rule,
     link_deployed_to_bid_rule,
     link_setpoint_to_actual_power_if_not_simulating_dispatch_rule,
@@ -356,6 +361,8 @@ def create_model(
     model.ENABLE_ELECTROLYZER = ENABLE_ELECTROLYZER
     model.ENABLE_BATTERY = ENABLE_BATTERY
     model.ENABLE_H2_STORAGE = ENABLE_H2_STORAGE
+    model.ENABLE_OPTIMAL_H2_STORAGE_SIZING = getattr(
+        config, "ENABLE_OPTIMAL_H2_STORAGE_SIZING", True)
     model.LTE_MODE = ENABLE_LOW_TEMP_ELECTROLYZER if ENABLE_ELECTROLYZER else False
     model.CAN_PROVIDE_ANCILLARY_SERVICES = CAN_PROVIDE_ANCILLARY_SERVICES
     model.SIMULATE_AS_DISPATCH_EXECUTION = simulate_dispatch
@@ -857,16 +864,42 @@ def create_model(
             )
 
             if model.ENABLE_H2_STORAGE:
+                # Check if optimal storage sizing is enabled
+                enable_optimal_sizing = getattr(
+                    model, "ENABLE_OPTIMAL_H2_STORAGE_SIZING", False)
+
+                # Get storage capacity bounds for both modes
                 h2_storage_max = get_sys_param(
                     "H2_storage_capacity_max_kg", required=True
                 )
-                h2_storage_min = get_sys_param("H2_storage_capacity_min_kg", 0)
-                model.H2_storage_capacity_max = pyo.Param(
-                    within=pyo.NonNegativeReals, initialize=h2_storage_max
-                )
-                model.H2_storage_capacity_min = pyo.Param(
-                    within=pyo.NonNegativeReals, initialize=h2_storage_min
-                )
+                h2_storage_min = get_sys_param(
+                    "H2_storage_capacity_min_kg", 0)
+
+                if enable_optimal_sizing:
+                    # Use variable for optimal storage capacity sizing
+                    # Create variable for optimal storage capacity
+                    model.H2_storage_capacity_optimal = pyo.Var(
+                        within=pyo.NonNegativeReals,
+                        bounds=(h2_storage_min, h2_storage_max)
+                    )
+
+                    # Create upper bound parameter for constraints
+                    model.H2_storage_capacity_max_bound = pyo.Param(
+                        within=pyo.NonNegativeReals, initialize=h2_storage_max
+                    )
+                    model.H2_storage_capacity_min = pyo.Param(
+                        within=pyo.NonNegativeReals, initialize=h2_storage_min
+                    )
+                else:
+                    # Use fixed parameters as before
+                    model.H2_storage_capacity_max = pyo.Param(
+                        within=pyo.NonNegativeReals, initialize=h2_storage_max
+                    )
+                    model.H2_storage_capacity_min = pyo.Param(
+                        within=pyo.NonNegativeReals, initialize=h2_storage_min
+                    )
+
+                # Calculate initial level using the bounds (now available for both modes)
                 initial_level_raw = get_sys_param(
                     "H2_storage_level_initial_kg", h2_storage_min
                 )
@@ -900,6 +933,27 @@ def create_model(
                     initialize=get_sys_param(
                         "storage_discharge_eff_fraction", 1.0),
                 )
+
+                # Add constant hydrogen sales rate variable for optimal operation
+                if getattr(model, "ENABLE_OPTIMAL_H2_STORAGE_SIZING", False):
+                    # Maximum possible constant sales rate (based on maximum production capacity)
+                    max_h2_production_rate = 0.0
+                    if hasattr(model, "pElectrolyzer_max_upper_bound"):
+                        max_elec_capacity = pyo.value(
+                            model.pElectrolyzer_max_upper_bound)
+                        # Estimate max H2 rate using best efficiency
+                        if hasattr(model, "ke_H2_values") and model.ke_H2_values:
+                            # Lower MWh/kg is better
+                            best_efficiency = min(model.ke_H2_values.values())
+                            max_h2_production_rate = max_elec_capacity / \
+                                best_efficiency if best_efficiency > 1e-6 else 0
+                        else:
+                            max_h2_production_rate = max_elec_capacity / 0.05  # Default efficiency estimate
+
+                    model.H2_constant_sales_rate = pyo.Var(
+                        within=pyo.NonNegativeReals,
+                        bounds=(0, max_h2_production_rate)
+                    )
                 model.vom_storage_cycle = pyo.Param(
                     within=pyo.NonNegativeReals,
                     initialize=get_sys_param(
@@ -1372,18 +1426,31 @@ def create_model(
             if model.ENABLE_H2_STORAGE:
                 h2_storage_min_val_loc = pyo.value(
                     model.H2_storage_capacity_min)
-                h2_storage_max_val_loc = pyo.value(
-                    model.H2_storage_capacity_max)
                 h2_charge_max_val_loc = pyo.value(
                     model.H2_storage_charge_rate_max)
                 h2_discharge_max_val_loc = pyo.value(
                     model.H2_storage_discharge_rate_max
                 )
-                model.H2_storage_level = pyo.Var(
-                    model.TimePeriods,
-                    within=pyo.NonNegativeReals,
-                    bounds=(h2_storage_min_val_loc, h2_storage_max_val_loc),
-                )
+
+                # Handle both fixed and variable storage capacity
+                if hasattr(model, "H2_storage_capacity_optimal"):
+                    # Variable storage capacity - bounds will be handled by variable bounds
+                    model.H2_storage_level = pyo.Var(
+                        model.TimePeriods,
+                        within=pyo.NonNegativeReals,
+                        # Upper bound handled by constraint
+                        bounds=(h2_storage_min_val_loc, None),
+                    )
+                else:
+                    # Fixed storage capacity
+                    h2_storage_max_val_loc = pyo.value(
+                        model.H2_storage_capacity_max)
+                    model.H2_storage_level = pyo.Var(
+                        model.TimePeriods,
+                        within=pyo.NonNegativeReals,
+                        bounds=(h2_storage_min_val_loc,
+                                h2_storage_max_val_loc),
+                    )
                 model.H2_to_storage = pyo.Var(
                     model.TimePeriods,
                     within=pyo.NonNegativeReals,
@@ -1875,9 +1942,47 @@ def create_model(
                 )
 
             if model.ENABLE_H2_STORAGE:
-                model.h2_storage_balance_constr = pyo.Constraint(
-                    model.TimePeriods, rule=h2_storage_balance_adj_rule
-                )
+                # Use enhanced storage balance constraint for optimal sizing mode
+                if getattr(model, "ENABLE_OPTIMAL_H2_STORAGE_SIZING", False):
+                    model.h2_storage_balance_constr = pyo.Constraint(
+                        model.TimePeriods, rule=h2_storage_balance_constraint_rule
+                    )
+
+                    # Add storage level constraint for variable capacity
+                    def h2_storage_level_variable_max_rule(m, t):
+                        return m.H2_storage_level[t] <= m.H2_storage_capacity_optimal
+
+                    model.h2_storage_level_variable_max_constr = pyo.Constraint(
+                        model.TimePeriods, rule=h2_storage_level_variable_max_rule
+                    )
+
+                    # Add constant sales rate constraint
+                    model.h2_constant_sales_rate_constr = pyo.Constraint(
+                        model.TimePeriods, rule=h2_constant_sales_rate_rule
+                    )
+
+                    # Add total production balance constraint
+                    model.h2_total_production_balance_constr = pyo.Constraint(
+                        rule=h2_total_production_balance_rule
+                    )
+
+                    # Force all hydrogen to go through storage
+                    model.h2_no_direct_sales_constr = pyo.Constraint(
+                        model.TimePeriods, rule=h2_no_direct_sales_rule
+                    )
+                else:
+                    # Use original constraint for fixed capacity mode
+                    model.h2_storage_balance_constr = pyo.Constraint(
+                        model.TimePeriods, rule=h2_storage_balance_adj_rule
+                    )
+                    model.h2_storage_level_max_constr = pyo.Constraint(
+                        model.TimePeriods, rule=h2_storage_level_max_rule
+                    )
+                    model.h2_storage_level_min_constr = pyo.Constraint(
+                        model.TimePeriods, rule=h2_storage_level_min_rule
+                    )
+
+                # Common constraints for both modes
                 model.h2_prod_dispatch_constr = pyo.Constraint(
                     model.TimePeriods, rule=h2_prod_dispatch_rule
                 )
@@ -1886,12 +1991,6 @@ def create_model(
                 )
                 model.h2_storage_discharge_limit_constr = pyo.Constraint(
                     model.TimePeriods, rule=h2_storage_discharge_limit_rule
-                )
-                model.h2_storage_level_max_constr = pyo.Constraint(
-                    model.TimePeriods, rule=h2_storage_level_max_rule
-                )
-                model.h2_storage_level_min_constr = pyo.Constraint(
-                    model.TimePeriods, rule=h2_storage_level_min_rule
                 )
 
             # Conditional linking of pElectrolyzer, pElectrolyzerSetpoint, and Deployed AS

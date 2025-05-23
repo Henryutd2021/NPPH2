@@ -1543,3 +1543,98 @@ def restrict_grid_purchase_rule(m, t):
 
     # Grid purchase is directly limited to the amount of down services deployed
     return m.pGridPurchase[t] <= total_down_deployed
+
+
+def h2_constant_sales_rate_rule(m, t):
+    """Enforce constant hydrogen sales rate throughout optimization period."""
+    if not getattr(m, "ENABLE_H2_STORAGE", False) or not getattr(m, "ENABLE_ELECTROLYZER", False):
+        return pyo.Constraint.Skip
+    if not hasattr(m, "H2_constant_sales_rate"):
+        return pyo.Constraint.Skip
+
+    # Skip the first time period to allow storage buildup
+    if t == m.TimePeriods.first():
+        return pyo.Constraint.Skip
+
+    try:
+        # Total hydrogen sold to market must equal constant rate (after first period)
+        return m.H2_to_market[t] + m.H2_from_storage[t] == m.H2_constant_sales_rate
+    except Exception as e:
+        logger.error(
+            f"H2 Constant Sales Rate Error @t={t}: {e}", exc_info=True)
+        raise
+
+
+def h2_storage_balance_constraint_rule(m, t):
+    """Ensure hydrogen storage balance with constant sales rate constraint."""
+    if not getattr(m, "ENABLE_H2_STORAGE", False):
+        return pyo.Constraint.Skip
+    try:
+        discharge_eff = pyo.value(m.storage_discharge_eff)
+        charge_eff = pyo.value(m.storage_charge_eff)
+
+        # Account for efficiency losses
+        discharge_term = (
+            m.H2_from_storage[t] / discharge_eff if discharge_eff > 1e-9 else 0
+        )
+        charge_term = m.H2_to_storage[t] * charge_eff
+
+        if t == m.TimePeriods.first():
+            return (
+                m.H2_storage_level[t]
+                == m.H2_storage_level_initial + charge_term - discharge_term
+            )
+        else:
+            return (
+                m.H2_storage_level[t]
+                == m.H2_storage_level[t - 1] + charge_term - discharge_term
+            )
+    except Exception as e:
+        logger.error(
+            f"H2 Storage Balance Constraint Error @t={t}: {e}", exc_info=True)
+        raise
+
+
+def h2_total_production_balance_rule(m):
+    """Ensure total hydrogen production is sufficient to meet total sales over optimization period."""
+    if not getattr(m, "ENABLE_H2_STORAGE", False) or not getattr(m, "ENABLE_ELECTROLYZER", False):
+        return pyo.Constraint.Skip
+    if not hasattr(m, "H2_constant_sales_rate"):
+        return pyo.Constraint.Skip
+    try:
+        time_factor = pyo.value(m.delT_minutes) / 60.0
+
+        # Total production over the period
+        total_production = sum(
+            m.mHydrogenProduced[t] * time_factor for t in m.TimePeriods)
+
+        # Total sales: variable sales in first period + constant rate for remaining periods
+        first_period = m.TimePeriods.first()
+        remaining_periods = len(m.TimePeriods) - 1
+
+        first_period_sales = (
+            m.H2_to_market[first_period] + m.H2_from_storage[first_period]) * time_factor
+        constant_period_sales = m.H2_constant_sales_rate * \
+            (remaining_periods * time_factor)
+        total_sales = first_period_sales + constant_period_sales
+
+        # Production must be sufficient to meet sales (allowing for excess storage)
+        initial_storage = pyo.value(m.H2_storage_level_initial)
+        final_storage = m.H2_storage_level[m.TimePeriods.last()]
+
+        return total_production + initial_storage >= total_sales + final_storage
+    except Exception as e:
+        logger.error(f"H2 Total Production Balance Error: {e}", exc_info=True)
+        raise
+
+
+def h2_no_direct_sales_rule(m, t):
+    """Ensure all hydrogen production goes through storage before sales when storage is enabled."""
+    if not getattr(m, "ENABLE_H2_STORAGE", False) or not getattr(m, "ENABLE_ELECTROLYZER", False):
+        return pyo.Constraint.Skip
+    try:
+        # When storage is enabled, no direct sales allowed - all H2 must go through storage
+        return m.H2_to_market[t] == 0
+    except Exception as e:
+        logger.error(f"H2 No Direct Sales Error @t={t}: {e}", exc_info=True)
+        raise

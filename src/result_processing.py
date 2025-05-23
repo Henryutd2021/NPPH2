@@ -299,6 +299,53 @@ def extract_results(
     hourly_data["Battery_Capacity_MWh"] = [batt_capacity_val] * len(hours)
     hourly_data["Battery_Power_MW"] = [batt_power_val] * len(hours)
 
+    # Extract H2 storage capacity and constant sales rate for optimal sizing mode
+    h2_storage_capacity_val = 0.0
+    h2_constant_sales_rate_val = 0.0
+
+    if enable_h2_storage:
+        # Check if optimal storage sizing is enabled
+        enable_optimal_h2_sizing = getattr(
+            model, "ENABLE_OPTIMAL_H2_STORAGE_SIZING", False)
+
+        if enable_optimal_h2_sizing:
+            # Extract optimal storage capacity
+            h2_storage_cap_component = getattr(
+                model, "H2_storage_capacity_optimal", None)
+            if h2_storage_cap_component is not None:
+                h2_storage_capacity_val = get_var_value(
+                    h2_storage_cap_component, default=0.0)
+                summary_results["Optimal_H2_Storage_Capacity_kg"] = h2_storage_capacity_val
+            else:
+                # Fallback to fixed capacity
+                h2_storage_cap_component = getattr(
+                    model, "H2_storage_capacity_max", None)
+                if h2_storage_cap_component is not None:
+                    h2_storage_capacity_val = pyo.value(h2_storage_cap_component) if isinstance(
+                        h2_storage_cap_component, pyo.Param) else get_var_value(h2_storage_cap_component, default=0.0)
+                    summary_results["Fixed_H2_Storage_Capacity_kg"] = h2_storage_capacity_val
+
+            # Extract constant sales rate
+            h2_sales_rate_component = getattr(
+                model, "H2_constant_sales_rate", None)
+            if h2_sales_rate_component is not None:
+                h2_constant_sales_rate_val = get_var_value(
+                    h2_sales_rate_component, default=0.0)
+                summary_results["Optimal_H2_Constant_Sales_Rate_kg_hr"] = h2_constant_sales_rate_val
+        else:
+            # Fixed capacity mode
+            h2_storage_cap_component = getattr(
+                model, "H2_storage_capacity_max", None)
+            if h2_storage_cap_component is not None:
+                h2_storage_capacity_val = pyo.value(h2_storage_cap_component) if isinstance(
+                    h2_storage_cap_component, pyo.Param) else get_var_value(h2_storage_cap_component, default=0.0)
+                summary_results["Fixed_H2_Storage_Capacity_kg"] = h2_storage_capacity_val
+
+    hourly_data["H2_Storage_Capacity_kg"] = [
+        h2_storage_capacity_val] * len(hours)
+    hourly_data["H2_Constant_Sales_Rate_kg_hr"] = [
+        h2_constant_sales_rate_val] * len(hours)
+
     logger.info("Extracting hourly variables...")
     var_extract_list = [
         ("pIES", "pIES_MW", True, 0.0),
@@ -557,12 +604,12 @@ def extract_results(
         )
         if (
             enable_h2_storage
-            and "H2_to_Market_kg_hr" in results_df.columns
             and "H2_from_Storage_kg_hr" in results_df.columns
         ):
+            # Revenue should be based on actual sales quantity (H2_from_storage)
+            # since all hydrogen must go through storage (h2_no_direct_sales_rule enforces H2_to_market = 0)
             results_df["Revenue_Hydrogen_Sales_USD"] = (
-                (results_df["H2_to_Market_kg_hr"] +
-                 results_df["H2_from_Storage_kg_hr"])
+                results_df["H2_from_Storage_kg_hr"]
                 * h2_value_param
                 * time_factor
             )

@@ -81,17 +81,18 @@ def hydrogen_revenue_rule(m):
             )
         else:
             if (
-                not hasattr(m, "H2_to_market")
-                or not hasattr(m, "H2_from_storage")
+                not hasattr(m, "H2_from_storage")
                 or not hasattr(m, "mHydrogenProduced")
             ):
                 logger.error("Missing vars for H2 Revenue (with storage).")
                 return 0.0
+            # Revenue should be based on actual sales quantity (H2_from_storage)
+            # since all hydrogen must go through storage (h2_no_direct_sales_rule enforces H2_to_market = 0)
             revenue_from_sales_expr = sum(
-                h2_value * (m.H2_to_market[t] +
-                            m.H2_from_storage[t]) * time_factor
+                h2_value * m.H2_from_storage[t] * time_factor
                 for t in m.TimePeriods
             )
+            # Subsidy is still based on production quantity
             revenue_from_subsidy_expr = sum(
                 h2_subsidy * m.mHydrogenProduced[t] * time_factor for t in m.TimePeriods
             )

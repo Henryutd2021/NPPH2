@@ -586,6 +586,29 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                     "H2_Storage_Capacity_kg column unexpectedly missing in calculate_annual_metrics and no user value available."
                 )
 
+        # H2 Constant Sales Rate (for optimal storage sizing mode)
+        if "H2_Constant_Sales_Rate_kg_hr" in df.columns:
+            metrics["H2_Constant_Sales_Rate_kg_hr"] = (
+                df["H2_Constant_Sales_Rate_kg_hr"].iloc[0]
+                if not df["H2_Constant_Sales_Rate_kg_hr"].empty
+                else 0
+            )
+            logger.debug(
+                f"H2 constant sales rate from results: {metrics['H2_Constant_Sales_Rate_kg_hr']} kg/hr"
+            )
+        else:
+            metrics["H2_Constant_Sales_Rate_kg_hr"] = 0
+            logger.debug("H2 constant sales rate not found in results")
+
+        # If we have summary results with optimal values, prefer those
+        for summary_col in df.columns:
+            if "Optimal_H2_Constant_Sales_Rate_kg_hr" in summary_col:
+                optimal_rate = df[summary_col].iloc[0] if not df[summary_col].empty else 0
+                if optimal_rate > 0:
+                    metrics["Optimal_H2_Constant_Sales_Rate_kg_hr"] = optimal_rate
+                    logger.debug(
+                        f"Found optimal H2 constant sales rate: {optimal_rate} kg/hr")
+
         # Battery Capacity and Power (from results DataFrame, ensured by load_hourly_results)
         metrics["Battery_Capacity_MWh"] = (
             df["Battery_Capacity_MWh"].iloc[0]
@@ -2103,6 +2126,25 @@ def generate_report(
             for name, value in capacity_metrics.items():
                 unit = capacity_units.get(name, "")
                 f.write(f"  {name:<40}: {value:,.2f} {unit}\n")
+
+            # Add hydrogen constant sales rate if available (for optimal storage sizing mode)
+            h2_constant_sales_rate = annual_metrics_rpt.get(
+                "Optimal_H2_Constant_Sales_Rate_kg_hr", 0)
+            if h2_constant_sales_rate == 0:
+                h2_constant_sales_rate = annual_metrics_rpt.get(
+                    "H2_Constant_Sales_Rate_kg_hr", 0)
+
+            if h2_constant_sales_rate > 0:
+                f.write(
+                    f"  {'Optimal H2 Constant Sales Rate':<40}: {h2_constant_sales_rate:,.2f} kg/hr\n")
+
+                # Calculate and show daily/annual production rates
+                daily_sales = h2_constant_sales_rate * 24
+                annual_sales = daily_sales * 365
+                f.write(
+                    f"  {'Optimal H2 Daily Sales Rate':<40}: {daily_sales:,.2f} kg/day\n")
+                f.write(
+                    f"  {'Optimal H2 Annual Sales Rate':<40}: {annual_sales:,.0f} kg/year\n")
 
             # **REMOVED: Reference capacities section as requested**
             f.write("\n")
