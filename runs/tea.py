@@ -715,6 +715,69 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         else:
             metrics["Battery_CF_percent"] = 0
 
+        # **NEW: Calculate annual battery charging electricity consumption**
+        # This is critical for TEA opportunity cost calculations
+        # Handle different possible column names for battery charging data
+        battery_charge_col = None
+        possible_battery_charge_cols = [
+            "BatteryCharge_MW", "Battery_Charge_MW", "BatteryCharge"]
+        for col_name in possible_battery_charge_cols:
+            if col_name in df.columns:
+                battery_charge_col = col_name
+                break
+
+        if battery_charge_col is not None and len(df) > 0:
+            # Annual battery charging electricity (MWh)
+            battery_charge_mwh_annual = df[battery_charge_col].sum(
+            ) * annualization_factor
+            metrics["Annual_Battery_Charge_MWh"] = battery_charge_mwh_annual
+
+            # Distinguish charging source based on grid interaction
+            # When pGridPurchase > 0, battery is likely charging from grid
+            # When pGridPurchase == 0 and battery is charging, it's from NPP excess
+            grid_purchase_col = None
+            possible_grid_purchase_cols = [
+                "pGridPurchase_MW", "pGridPurchase", "GridPurchase_MW"]
+            for col_name in possible_grid_purchase_cols:
+                if col_name in df.columns:
+                    grid_purchase_col = col_name
+                    break
+
+            if grid_purchase_col is not None:
+                # Battery charging from grid (when grid purchase > 0)
+                battery_grid_charge_mask = (df[battery_charge_col] > 0) & (
+                    df[grid_purchase_col] > 0)
+                battery_charge_from_grid_mwh = df.loc[battery_grid_charge_mask, battery_charge_col].sum(
+                ) * annualization_factor
+
+                # Battery charging from NPP (when no grid purchase and battery charging)
+                battery_npp_charge_mask = (df[battery_charge_col] > 0) & (
+                    df[grid_purchase_col] <= 1e-6)
+                battery_charge_from_npp_mwh = df.loc[battery_npp_charge_mask, battery_charge_col].sum(
+                ) * annualization_factor
+
+                metrics["Annual_Battery_Charge_From_Grid_MWh"] = battery_charge_from_grid_mwh
+                metrics["Annual_Battery_Charge_From_NPP_MWh"] = battery_charge_from_npp_mwh
+
+                logger.debug(f"Battery charging breakdown:")
+                logger.debug(
+                    f"  Total: {battery_charge_mwh_annual:.2f} MWh/year")
+                logger.debug(
+                    f"  From Grid: {battery_charge_from_grid_mwh:.2f} MWh/year")
+                logger.debug(
+                    f"  From NPP: {battery_charge_from_npp_mwh:.2f} MWh/year")
+            else:
+                # Fallback: assume all charging is from NPP if no grid purchase data
+                metrics["Annual_Battery_Charge_From_Grid_MWh"] = 0.0
+                metrics["Annual_Battery_Charge_From_NPP_MWh"] = battery_charge_mwh_annual
+                logger.warning(
+                    "No pGridPurchase_MW data found. Assuming all battery charging is from NPP.")
+        else:
+            # No battery charging data
+            metrics["Annual_Battery_Charge_MWh"] = 0.0
+            metrics["Annual_Battery_Charge_From_Grid_MWh"] = 0.0
+            metrics["Annual_Battery_Charge_From_NPP_MWh"] = 0.0
+
         # Try to get Turbine_Capacity_MW from results file first
         metrics["Turbine_Capacity_MW"] = (
             df.get("Turbine_Capacity_MW", pd.Series(
@@ -1403,6 +1466,31 @@ def calculate_incremental_metrics(
 
     h2_rev_annual = annual_metrics_optimized.get("H2_Total_Revenue", 0)
     as_rev_annual = annual_metrics_optimized.get("AS_Revenue", 0)
+
+    # **IMPROVED: Distinguish battery charging costs based on electricity source**
+    opp_cost_battery_annual = 0.0
+    direct_cost_battery_annual = 0.0
+
+    if ENABLE_BATTERY and optimized_capacities_inc.get("Battery_Capacity_MWh", 0) > 0:
+        avg_elec_price = annual_metrics_optimized.get(
+            "Avg_Electricity_Price_USD_per_MWh", 40.0)
+
+        # Battery charging from NPP is an opportunity cost (lost revenue from not selling to grid)
+        battery_charge_from_npp_mwh = annual_metrics_optimized.get(
+            "Annual_Battery_Charge_From_NPP_MWh", 0)
+        opp_cost_battery_annual = battery_charge_from_npp_mwh * avg_elec_price
+
+        # Battery charging from grid is a direct operating cost (electricity purchase)
+        battery_charge_from_grid_mwh = annual_metrics_optimized.get(
+            "Annual_Battery_Charge_From_Grid_MWh", 0)
+        direct_cost_battery_annual = battery_charge_from_grid_mwh * avg_elec_price
+
+        logger.info(f"Battery charging cost breakdown:")
+        logger.info(
+            f"  Opportunity cost (NPP charging): ${opp_cost_battery_annual:,.2f}/year")
+        logger.info(
+            f"  Direct cost (grid charging): ${direct_cost_battery_annual:,.2f}/year")
+
     vom_annual_inc = sum(
         annual_metrics_optimized.get(k, 0)
         for k in [
@@ -1414,19 +1502,14 @@ def calculate_incremental_metrics(
             "H2_Storage_Cycle_Cost",
         ]
     )
+    # Add direct cost of battery charging from grid to VOM costs
+    vom_annual_inc += direct_cost_battery_annual
+
     opp_cost_elec_annual = annual_metrics_optimized.get(
         "Annual_Electrolyzer_MWh", 0
     ) * annual_metrics_optimized.get("Avg_Electricity_Price_USD_per_MWh", 40.0)
-    # Add battery charging cost to opportunity cost if battery is part of incremental system
-    if ENABLE_BATTERY and optimized_capacities_inc.get("Battery_Capacity_MWh", 0) > 0:
-        # Assuming VOM_Battery_Cost from optimization is for degradation/cycling, not electricity.
-        # Electricity for charging battery should be an opportunity cost if not bought from grid.
-        # This needs careful definition: is battery charging from NPP or grid?
-        # If from NPP, it's an opportunity cost. If from grid, it's a direct cost (already in VOM_Battery_Cost if so).
-        # For now, assuming VOM_Battery_Cost covers electricity if bought from grid.
-        # If charged by NPP, its energy use should be an opportunity cost.
-        # This part might need refinement based on how battery charging is modeled in optimization.
-        pass
+    # Add NPP charging to opportunity cost
+    opp_cost_elec_annual += opp_cost_battery_annual
 
     for op_idx in range(project_lifetime - construction_period):
         proj_yr_idx = op_idx + construction_period
@@ -2043,19 +2126,22 @@ def generate_report(
             + "\n\n"
         )
         f.write("1. Project Configuration\n" + "-" * 25 + "\n")
+        f.write(f"  ISO Region                      : {target_iso_rpt}\n")
         f.write(
-            f"  {subtitle_info}\n  Project Lifetime: {project_lt_rpt} years\n  Construction Period: {construction_p_rpt} years\n"
-        )
+            f"  Project Lifetime                : {project_lt_rpt} years\n")
         f.write(
-            f"  Discount Rate: {discount_rt_rpt*100:.2f}%\n  Corporate Tax Rate: {tax_rt_rpt*100:.1f}%\n"
-        )
+            f"  Construction Period             : {construction_p_rpt} years\n")
+        f.write(
+            f"  Discount Rate                   : {discount_rt_rpt*100:.2f}%\n")
+        f.write(f"  Corporate Tax Rate              : {tax_rt_rpt*100:.1f}%\n")
 
         # **ENHANCEMENT: Add plant-specific technical parameters**
         if annual_metrics_rpt:
             # Add Turbine Capacity (moved from System Capacities section)
             turbine_capacity = annual_metrics_rpt.get("Turbine_Capacity_MW", 0)
             if turbine_capacity > 0:
-                f.write(f"  Turbine Capacity: {turbine_capacity:,.2f} MW\n")
+                f.write(
+                    f"  Turbine Capacity                : {turbine_capacity:,.2f} MW\n")
 
             # Add Thermal Capacity if available
             thermal_capacity = annual_metrics_rpt.get(
@@ -2064,7 +2150,8 @@ def generate_report(
                 thermal_capacity = annual_metrics_rpt.get(
                     "Thermal_Capacity_MWt", 0)
             if thermal_capacity > 0:
-                f.write(f"  Thermal Capacity: {thermal_capacity:,.2f} MWt\n")
+                f.write(
+                    f"  Thermal Capacity                : {thermal_capacity:,.2f} MWt\n")
 
             # Add Thermal Efficiency if available
             thermal_efficiency = annual_metrics_rpt.get(
@@ -2074,7 +2161,7 @@ def generate_report(
                     "Thermal_Efficiency", 0)
             if thermal_efficiency > 0:
                 f.write(
-                    f"  Thermal Efficiency: {thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)\n")
+                    f"  Thermal Efficiency              : {thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)\n")
 
         f.write("\n")
 
@@ -2094,9 +2181,10 @@ def generate_report(
                     percentage = (cost / total_capex *
                                   100) if total_capex > 0 else 0
                     f.write(
-                        f"  {component:<40}: ${cost:,.0f} ({percentage:.1f}%)\n")
+                        f"  {component:<30}             : ${cost:,.0f} ({percentage:.1f}%)\n")
 
-            f.write(f"\n  Total CAPEX: ${total_capex:,.0f}\n\n")
+            f.write(
+                f"  \n  Total CAPEX                     : ${total_capex:,.0f}\n\n")
         else:
             f.write("  No CAPEX breakdown data available.\n\n")
 
@@ -2125,7 +2213,7 @@ def generate_report(
 
             for name, value in capacity_metrics.items():
                 unit = capacity_units.get(name, "")
-                f.write(f"  {name:<40}: {value:,.2f} {unit}\n")
+                f.write(f"  {name:<30}          : {value:,.2f} {unit}\n")
 
             # Add hydrogen constant sales rate if available (for optimal storage sizing mode)
             h2_constant_sales_rate = annual_metrics_rpt.get(
@@ -2136,15 +2224,15 @@ def generate_report(
 
             if h2_constant_sales_rate > 0:
                 f.write(
-                    f"  {'Optimal H2 Constant Sales Rate':<40}: {h2_constant_sales_rate:,.2f} kg/hr\n")
+                    f"  Optimal H2 Constant Sales Rate  : {h2_constant_sales_rate:,.2f} kg/hr\n")
 
                 # Calculate and show daily/annual production rates
                 daily_sales = h2_constant_sales_rate * 24
                 annual_sales = daily_sales * 365
                 f.write(
-                    f"  {'Optimal H2 Daily Sales Rate':<40}: {daily_sales:,.2f} kg/day\n")
+                    f"  Optimal H2 Daily Sales Rate     : {daily_sales:,.2f} kg/day\n")
                 f.write(
-                    f"  {'Optimal H2 Annual Sales Rate':<40}: {annual_sales:,.0f} kg/year\n")
+                    f"  Optimal H2 Annual Sales Rate    : {annual_sales:,.0f} kg/year\n")
 
             # **REMOVED: Reference capacities section as requested**
             f.write("\n")
@@ -2179,6 +2267,10 @@ def generate_report(
                 # Skip AS revenue here as it will be shown in the AS section
                 "AS_Revenue",
                 "Revenue_Ancillary_USD",
+                # Skip battery charging metrics here as they will be shown in battery section
+                "Annual_Battery_Charge_MWh",
+                "Annual_Battery_Charge_From_Grid_MWh",
+                "Annual_Battery_Charge_From_NPP_MWh",
             ]
             for k, v in sorted(annual_metrics_rpt.items()):
                 # Only show AS-related metrics for this ISO's services
@@ -2188,20 +2280,94 @@ def generate_report(
                     k.startswith(f"AS_Deployment_Efficiency_{s}")
                     for s in as_services
                 ):
-                    f.write(
-                        f"  {k.replace('_',' ').title():<45}: {v:,.2f}\n"
-                        if isinstance(v, (int, float)) and not pd.isna(v)
-                        else f"  {k.replace('_',' ').title():<45}: {v}\n"
-                    )
+                    # Format AS metric names properly
+                    display_name = k.replace('_', ' ').replace(
+                        'As ', 'AS ').replace('Mw', 'MW').replace('Mwh', 'MWh')
+                    if isinstance(v, (int, float)) and not pd.isna(v):
+                        if 'Revenue' in k or 'Cost' in k:
+                            formatted_value = f"${v:,.2f}"
+                        elif k.endswith('_percent') or 'Utilization' in k:
+                            formatted_value = f"{v:.2f}%" if v < 10 else f"{v:.0f}%"
+                        elif 'Hours' in k:
+                            formatted_value = f"{v:,.0f}"
+                        else:
+                            formatted_value = f"{v:,.2f}"
+                    else:
+                        formatted_value = str(v)
+                    f.write(f"  {display_name:<45}: {formatted_value}\n")
                 # Show non-AS metrics as usual
                 elif not any(x in k for x in ["AS_Max_Bid_", "AS_Avg_Bid_", "AS_Total_Deployed_", "AS_Avg_Deployed_", "AS_Deployment_Efficiency_"]) and k not in metrics_to_skip:
-                    f.write(
-                        f"  {k.replace('_',' ').title():<45}: {v:,.2f}\n"
-                        if isinstance(v, (int, float)) and not pd.isna(v)
-                        else f"  {k.replace('_',' ').title():<45}: {v}\n"
-                    )
+                    # Format non-AS metric names properly
+                    display_name = k.replace('_', ' ').replace('Cf ', 'Capacity Factor ').replace('Soc ', 'SOC ').replace('Vom ', 'VOM ').replace(
+                        'Opex ', 'OPEX ').replace('Capex', 'CAPEX').replace('Mw', 'MW').replace('Mwh', 'MWh').replace('Usd', 'USD')
+                    if isinstance(v, (int, float)) and not pd.isna(v):
+                        if 'Revenue' in k or 'Cost' in k or 'USD' in k:
+                            formatted_value = f"${v:,.2f}"
+                        elif k.endswith('_percent') or 'Percent' in display_name:
+                            formatted_value = f"{v:.2f}%"
+                        elif 'Hours' in k:
+                            formatted_value = f"{v:,.0f}"
+                        elif 'Price' in k and 'USD' in k:
+                            formatted_value = f"${v:.2f}"
+                        else:
+                            formatted_value = f"{v:,.2f}"
+                    else:
+                        formatted_value = str(v)
+                    f.write(f"  {display_name:<45}: {formatted_value}\n")
         else:
             f.write("  No annual metrics data available.\n")
+
+        # **NEW: Battery Performance and Charging Analysis Section**
+        battery_capacity = annual_metrics_rpt.get(
+            "Battery_Capacity_MWh", 0) if annual_metrics_rpt else 0
+        if battery_capacity > 0:
+            f.write(
+                "\n4.1. Battery Performance and Charging Analysis\n" + "-" * 47 + "\n")
+
+            # Battery charging breakdown
+            total_charge = annual_metrics_rpt.get(
+                "Annual_Battery_Charge_MWh", 0)
+            grid_charge = annual_metrics_rpt.get(
+                "Annual_Battery_Charge_From_Grid_MWh", 0)
+            npp_charge = annual_metrics_rpt.get(
+                "Annual_Battery_Charge_From_NPP_MWh", 0)
+
+            f.write(f"  Battery Charging Electricity Consumption:\n")
+            f.write(
+                f"    Total Annual Charging: {total_charge:,.2f} MWh/year\n")
+
+            if total_charge > 0:
+                grid_pct = (grid_charge / total_charge) * 100
+                npp_pct = (npp_charge / total_charge) * 100
+                f.write(
+                    f"    From Grid Purchase: {grid_charge:,.2f} MWh/year ({grid_pct:.1f}%)\n")
+                f.write(
+                    f"    From NPP (Opportunity Cost): {npp_charge:,.2f} MWh/year ({npp_pct:.1f}%)\n")
+
+            # Battery utilization metrics
+            battery_cf = annual_metrics_rpt.get("Battery_CF_percent", 0)
+            battery_soc = annual_metrics_rpt.get("Battery_SOC_percent", 0)
+
+            f.write(f"\n  Battery Utilization:\n")
+            f.write(f"    Capacity Factor: {battery_cf:.2f}%\n")
+            f.write(f"    Average State of Charge: {battery_soc:.2f}%\n")
+
+            # Economic implications
+            avg_price = annual_metrics_rpt.get(
+                "Avg_Electricity_Price_USD_per_MWh", 0)
+            if avg_price > 0 and total_charge > 0:
+                total_charge_cost = total_charge * avg_price
+                grid_charge_cost = grid_charge * avg_price
+                npp_opportunity_cost = npp_charge * avg_price
+
+                f.write(
+                    f"\n  Economic Impact (at avg price ${avg_price:.2f}/MWh):\n")
+                f.write(
+                    f"    Total Charging Cost: ${total_charge_cost:,.2f}/year\n")
+                f.write(
+                    f"    Direct Cost (Grid): ${grid_charge_cost:,.2f}/year\n")
+                f.write(
+                    f"    Opportunity Cost (NPP): ${npp_opportunity_cost:,.2f}/year\n")
 
         # 5. Ancillary Services Performance
         f.write("\n5. Ancillary Services Performance\n" + "-" * 35 + "\n")
@@ -2214,7 +2380,7 @@ def generate_report(
                 as_revenue = annual_metrics_rpt.get("Revenue_Ancillary_USD", 0)
 
             f.write(
-                f"  Total Ancillary Services Revenue: ${as_revenue:,.2f}\n")
+                f"  Total Ancillary Services Revenue            : ${as_revenue:,.2f}\n")
 
             # AS revenue statistics
             as_avg_hourly = annual_metrics_rpt.get(
@@ -2226,11 +2392,11 @@ def generate_report(
 
             if as_avg_hourly > 0 or as_max_hourly > 0:
                 f.write(
-                    f"  Average Hourly AS Revenue: ${as_avg_hourly:,.2f}\n")
+                    f"  Average Hourly AS Revenue                   : ${as_avg_hourly:,.2f}\n")
                 f.write(
-                    f"  Maximum Hourly AS Revenue: ${as_max_hourly:,.2f}\n")
+                    f"  Maximum Hourly AS Revenue                   : ${as_max_hourly:,.2f}\n")
                 f.write(
-                    f"  AS Revenue Utilization Rate: {as_utilization:.1f}%\n")
+                    f"  AS Revenue Utilization Rate                 : {as_utilization:.1f}%\n")
 
             # Revenue per MW statistics
             as_rev_per_mw_elec = annual_metrics_rpt.get(
@@ -2239,10 +2405,10 @@ def generate_report(
                 "AS_Revenue_per_MW_Battery", 0)
             if as_rev_per_mw_elec > 0:
                 f.write(
-                    f"  AS Revenue per MW Electrolyzer: ${as_rev_per_mw_elec:,.2f}/MW\n")
+                    f"  AS Revenue per MW Electrolyzer              : ${as_rev_per_mw_elec:,.2f}/MW\n")
             if as_rev_per_mw_batt > 0:
                 f.write(
-                    f"  AS Revenue per MW Battery Power: ${as_rev_per_mw_batt:,.2f}/MW\n")
+                    f"  AS Revenue per MW Battery Power             : ${as_rev_per_mw_batt:,.2f}/MW\n")
 
             # Revenue breakdown by AS type if available
             as_revenue_types = {
@@ -2259,13 +2425,13 @@ def generate_report(
                     if rev_amount > 0:
                         percentage = (rev_amount / total_revenue) * 100
                         f.write(
-                            f"    {rev_type:<35}: ${rev_amount:,.2f} ({percentage:.1f}%)\n")
+                            f"    {rev_type:<30}            : ${rev_amount:,.2f} ({percentage:.1f}%)\n")
 
             # AS revenue as percentage of total revenue
             if total_revenue > 0 and as_revenue > 0:
                 as_percentage = (as_revenue / total_revenue) * 100
                 f.write(
-                    f"\n  AS Revenue as % of Total Revenue: {as_percentage:.2f}%\n")
+                    f"\n  AS Revenue as % of Total Revenue            : {as_percentage:.2f}%\n")
 
             # AS Bidding Statistics
             as_total_services = annual_metrics_rpt.get(
@@ -2279,13 +2445,13 @@ def generate_report(
                 f.write(f"\n  AS Bidding Performance:\n")
                 if as_total_services > 0:
                     f.write(
-                        f"    Number of AS Services Bid: {as_total_services}\n")
+                        f"    Number of AS Services Bid                 : {as_total_services}\n")
                 if as_total_bid_capacity > 0:
                     f.write(
-                        f"    Total Maximum Bid Capacity: {as_total_bid_capacity:,.2f} MW\n")
+                        f"    Total Maximum Bid Capacity                : {as_total_bid_capacity:,.2f} MW\n")
                 if as_bid_utilization > 0:
                     f.write(
-                        f"    Bid Capacity vs Electrolyzer: {as_bid_utilization:.1f}%\n")
+                        f"    Bid Capacity vs Electrolyzer             : {as_bid_utilization:.1f}%\n")
 
             # Individual AS service breakdown
             as_service_metrics = {}
@@ -2313,7 +2479,7 @@ def generate_report(
             if as_total_deployed > 0:
                 f.write(f"\n  AS Deployment Performance:\n")
                 f.write(
-                    f"    Total Deployed Energy: {as_total_deployed:,.2f} MWh\n")
+                    f"    Total Deployed Energy                     : {as_total_deployed:,.2f} MWh\n")
 
                 # Individual deployment metrics
                 deployment_metrics = {}
@@ -2333,16 +2499,16 @@ def generate_report(
                             }
 
                 if deployment_metrics:
-                    f.write(f"    Service-Specific Deployment:\n")
+                    f.write(f"    \n    Service-Specific Deployment:\n")
                     for service, data in sorted(deployment_metrics.items()):
                         eff_str = f", Efficiency {data['efficiency']:.1f}%" if data['efficiency'] > 0 else ""
                         f.write(
-                            f"      {service:<15}: {data['total_mwh']:>8.1f} MWh (Avg {data['avg_mw']:>6.1f} MW{eff_str})\n")
+                            f"      {service:<30}                      : {data['total_mwh']:>10,.1f} MWh    (Avg {data['avg_mw']:>6.1f} MW{eff_str})\n")
 
             # System utilization metrics
             capacity_factors = {
-                "Electrolyzer CF": annual_metrics_rpt.get("Electrolyzer_CF_percent", 0),
-                "Turbine CF": annual_metrics_rpt.get("Turbine_CF_percent", 0),
+                "Electrolyzer Capacity Factor": annual_metrics_rpt.get("Electrolyzer_CF_percent", 0),
+                "Turbine Capacity Factor": annual_metrics_rpt.get("Turbine_CF_percent", 0),
                 "Battery SOC": annual_metrics_rpt.get("Battery_SOC_percent", 0),
             }
 
@@ -2350,7 +2516,8 @@ def generate_report(
             if non_zero_cfs:
                 f.write(f"\n  System Utilization (affects AS capability):\n")
                 for cf_name, cf_value in non_zero_cfs.items():
-                    f.write(f"    {cf_name:<35}: {cf_value:.2f}%\n")
+                    f.write(
+                        f"    {cf_name:<30}              : {cf_value:.2f}%\n")
         else:
             f.write("  No ancillary services data available.\n")
 
@@ -2365,22 +2532,39 @@ def generate_report(
             if npv is not None and total_capex and total_capex > 0:
                 roi = npv / total_capex
             for k, v in sorted(financial_metrics_rpt.items()):
-                lbl = (
-                    k.replace("_USD", " (USD)")
-                    .replace("_percent", " (%)")
-                    .replace("_Years", " (Years)")
-                    .replace("_per_kg", " (USD/kg)")
-                    .replace("_", " ")
-                    .title()
-                )
-                f.write(
-                    f"  {lbl:<45}: {v:,.2f}\n"
-                    if isinstance(v, (int, float)) and not pd.isna(v)
-                    else f"  {lbl:<45}: {v}\n"
-                )
+                if k == "IRR_percent":
+                    lbl = "IRR (%)"
+                elif k == "LCOH_USD_per_kg":
+                    lbl = "LCOH (USD/kg)"
+                elif k == "NPV_USD":
+                    lbl = "NPV (USD)"
+                elif k == "Payback_Period_Years":
+                    lbl = "Payback Period (Years)"
+                else:
+                    lbl = (
+                        k.replace("_USD", " (USD)")
+                        .replace("_percent", " (%)")
+                        .replace("_Years", " (Years)")
+                        .replace("_per_kg", " (USD/kg)")
+                        .replace("_", " ")
+                        .title()
+                    )
+
+                if isinstance(v, (int, float)) and not pd.isna(v):
+                    if k == "IRR_percent":
+                        formatted_value = f"{v:.2f}%"
+                    elif "USD" in k:
+                        formatted_value = f"${v:,.2f}"
+                    else:
+                        formatted_value = f"{v:,.2f}"
+                else:
+                    formatted_value = str(v)
+
+                f.write(f"  {lbl:<45}: {formatted_value}\n")
+
             if roi is not None:
                 f.write(
-                    f"  Return On Investment (ROI)                   : {roi:.4f}\n")
+                    f"  Return on Investment (ROI)                  : {roi:.4f}\n")
         else:
             f.write("  No financial metrics data available.\n")
 
@@ -2390,13 +2574,46 @@ def generate_report(
                 + "-" * 68
                 + "\n"
             )
+
+            # **NEW: Battery charging cost breakdown in incremental analysis**
+            if annual_metrics_rpt and annual_metrics_rpt.get("Battery_Capacity_MWh", 0) > 0:
+                f.write("  Battery Charging Cost Analysis:\n")
+
+                # Get battery charging data
+                total_charge = annual_metrics_rpt.get(
+                    "Annual_Battery_Charge_MWh", 0)
+                grid_charge = annual_metrics_rpt.get(
+                    "Annual_Battery_Charge_From_Grid_MWh", 0)
+                npp_charge = annual_metrics_rpt.get(
+                    "Annual_Battery_Charge_From_NPP_MWh", 0)
+                avg_price = annual_metrics_rpt.get(
+                    "Avg_Electricity_Price_USD_per_MWh", 0)
+
+                if total_charge > 0 and avg_price > 0:
+                    grid_cost = grid_charge * avg_price
+                    npp_opportunity_cost = npp_charge * avg_price
+
+                    f.write(
+                        f"    Direct Operating Cost (Grid Charging): ${grid_cost:,.2f}/year\n")
+                    f.write(
+                        f"    Opportunity Cost (NPP Charging): ${npp_opportunity_cost:,.2f}/year\n")
+                    f.write(
+                        f"    Total Battery Charging Cost: ${grid_cost + npp_opportunity_cost:,.2f}/year\n")
+
+                    if total_charge > 0:
+                        f.write(
+                            f"    Cost Breakdown: {grid_charge/total_charge*100:.1f}% Direct, {npp_charge/total_charge*100:.1f}% Opportunity\n")
+                f.write("\n")
+
             for k_inc in [
                 "Annual_Electricity_Opportunity_Cost_USD",
                 "Total_Incremental_CAPEX_Learned_USD",
             ]:
                 if k_inc in incremental_metrics_rpt:
+                    label = k_inc.replace(
+                        '_', ' ').title().replace('(USD)', '(USD)')
                     f.write(
-                        f"  {k_inc.replace('_',' ').title()} (USD): {incremental_metrics_rpt[k_inc]:,.2f}\n"
+                        f"  {label:<35}  : ${incremental_metrics_rpt[k_inc]:,.2f}\n"
                     )
 
             # Add ROI calculation for incremental
@@ -2415,23 +2632,40 @@ def generate_report(
                     "Total_Incremental_CAPEX_Learned_USD",
                 ]:
                     continue
-                lbl = (
-                    k.replace("_USD", " (USD)")
-                    .replace("_percent", " (%)")
-                    .replace("_Years", " (Years)")
-                    .replace("_per_kg", " (USD/kg)")
-                    .replace("_", " ")
-                    .title()
-                )
+                if k == "IRR_percent":
+                    lbl = "IRR (%)"
+                elif k == "LCOH_USD_per_kg":
+                    lbl = "LCOH (USD/kg)"
+                elif k == "NPV_USD":
+                    lbl = "NPV (USD)"
+                elif k == "Payback_Period_Years":
+                    lbl = "Payback Period (Years)"
+                else:
+                    lbl = (
+                        k.replace("_USD", " (USD)")
+                        .replace("_percent", " (%)")
+                        .replace("_Years", " (Years)")
+                        .replace("_per_kg", " (USD/kg)")
+                        .replace("_", " ")
+                        .title()
+                    )
+
+                if isinstance(v, (int, float)) and not pd.isna(v):
+                    if k == "IRR_percent":
+                        formatted_value = f"{v:.2f}%"
+                    elif "USD" in k:
+                        formatted_value = f"${v:,.2f}"
+                    else:
+                        formatted_value = f"{v:,.2f}"
+                else:
+                    formatted_value = str(v)
+
                 f.write(
-                    f"  Incremental {lbl:<32}: {v:,.2f}\n"
-                    if isinstance(v, (int, float)) and not pd.isna(v)
-                    else f"  Incremental {lbl:<32}: {v}\n"
-                )
+                    f"  Incremental {lbl:<25}         : {formatted_value}\n")
 
             if inc_roi is not None:
                 f.write(
-                    f"  Incremental Return On Investment (ROI)       : {inc_roi:.4f}\n")
+                    f"  Incremental Return on Investment (ROI)      : {inc_roi:.4f}\n")
 
         # 移除LCOH Analysis & Comparison部分 (原第8部分)
 
@@ -2443,22 +2677,22 @@ def generate_report(
         )
         for comp, det in sorted(capex_data.items()):
             f.write(
-                f"    {comp:<30}: ${det.get('total_base_cost_for_ref_size',0):,.0f} (Ref Cap: {det.get('reference_total_capacity_mw',0)}, LR: {det.get('learning_rate_decimal',0)*100}%, Pay Sched: {det.get('payment_schedule_years',{})})\n"
+                f"    {comp:<30}                     : ${det.get('total_base_cost_for_ref_size',0):,.0f} (Ref Cap: {det.get('reference_total_capacity_mw',0)}, LR: {det.get('learning_rate_decimal',0)*100}%, Pay Sched: {det.get('payment_schedule_years',{})})\n"
             )
-        f.write("  O&M Components (Annual Base):\n")
+        f.write("    \n  O&M Components (Annual Base):\n")
         for comp, det in sorted(om_data.items()):
             if comp == "Fixed_OM_Battery":
                 f.write(
-                    f"    {comp:<30}: ${det.get('base_cost_per_mw_year',0):,.2f}/MW/yr + ${det.get('base_cost_per_mwh_year',0):,.2f}/MWh/yr (Inflation: {det.get('inflation_rate',0)*100:.1f}%)\n"
+                    f"    {comp:<30}                          : ${det.get('base_cost_per_mw_year',0):,.2f}/MW/yr + ${det.get('base_cost_per_mwh_year',0):,.2f}/MWh/yr (Inflation: {det.get('inflation_rate',0)*100:.1f}%)\n"
                 )
             else:
                 f.write(
-                    f"    {comp:<30}: ${det.get('base_cost',0):,.0f} (Inflation: {det.get('inflation_rate',0)*100:.1f}%)\n"
+                    f"    {comp:<30}                          : ${det.get('base_cost',0):,.0f} (Inflation: {det.get('inflation_rate',0)*100:.1f}%)\n"
                 )
-        f.write("  Major Replacements:\n")
+        f.write("    \n  Major Replacements:\n")
         for comp, det in sorted(replacement_data.items()):
             f.write(
-                f"    {comp:<30}: Cost: {'{:.2f}% of Initial CAPEX'.format(det.get('cost_percent_initial_capex',0)*100) if 'cost_percent_initial_capex' in det else '${:,.0f}'.format(det.get('cost',0))} (Years: {det.get('years',[])})\n"
+                f"    {comp:<30}                        : Cost: {'{:.2f}% of Initial CAPEX'.format(det.get('cost_percent_initial_capex',0)*100) if 'cost_percent_initial_capex' in det else '${:,.0f}'.format(det.get('cost',0))} (Years: {det.get('years',[])})\n"
             )
 
         f.write(

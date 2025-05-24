@@ -77,6 +77,7 @@ class SolverProgressIndicator:
         self.best_solution = None
         self.log_file = None
         self.iterations = 0
+        self.completion_message = None
 
     def _parse_gurobi_line(self, line):
         """Parse Gurobi output line to extract gap information."""
@@ -159,7 +160,7 @@ class SolverProgressIndicator:
                 f"Warning: Log file {self.log_file} not created after {max_wait}s")
             return
 
-        print(f"Gap monitoring started for {self.log_file}")
+        # print(f"Gap monitoring started for {self.log_file}")  # Removed to reduce output clutter
 
         try:
             # Start reading from the end of the file to avoid old content
@@ -169,7 +170,7 @@ class SolverProgressIndicator:
                 with open(self.log_file, 'r') as f:
                     f.seek(0, 2)  # Go to end
                     last_position = f.tell()
-                    print(f"Starting to monitor from position {last_position}")
+                    # print(f"Starting to monitor from position {last_position}")  # Removed to reduce output clutter
 
             gap_found_count = 0
             while self.running:
@@ -186,15 +187,11 @@ class SolverProgressIndicator:
                                     if solver_name.lower() == 'gurobi':
                                         if self._parse_gurobi_line(line):
                                             gap_found_count += 1
-                                            if gap_found_count <= 5:  # Show more for debugging
-                                                print(
-                                                    f"Gap found: {self.current_gap*100:.3f}% from NEW line: {line[:80]}...")
+                                            # Removed gap debugging output to reduce clutter
                                     elif solver_name.lower() == 'cplex':
                                         if self._parse_cplex_line(line):
                                             gap_found_count += 1
-                                            if gap_found_count <= 5:
-                                                print(
-                                                    f"Gap found: {self.current_gap*100:.3f}% from NEW line: {line[:80]}...")
+                                            # Removed gap debugging output to reduce clutter
                             last_position = f.tell()
                         else:
                             time.sleep(0.2)  # Wait for more content
@@ -204,12 +201,8 @@ class SolverProgressIndicator:
         except Exception as e:
             print(f"Error in gap monitoring: {e}")
         finally:
-            if gap_found_count > 0:
-                print(
-                    f"Gap monitoring finished. Total NEW gaps found: {gap_found_count}")
-            else:
-                print(
-                    f"Gap monitoring finished. No NEW gaps found in {self.log_file}")
+            # Removed gap monitoring completion messages to reduce output clutter
+            pass
 
     def _calculate_progress(self):
         """Calculate progress based on current gap and target gap."""
@@ -255,13 +248,12 @@ class SolverProgressIndicator:
                 final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
                 pbar.n = final_progress
                 pbar.set_postfix_str(final_gap)
-                pbar.close()
+                pbar.refresh()
 
-                # Show final summary
+                # Store completion message for later display
                 if self.start_time:
                     elapsed = time.time() - self.start_time
-                    print(
-                        f"{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})")
+                    self.completion_message = f"{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})"
         else:
             # Fallback to simple text display
             spinners = ['|', '/', '-', '\\']
@@ -314,9 +306,10 @@ class SolverProgressIndicator:
             if self.thread:
                 self.thread.join(timeout=1.0)
 
-            # Only show completion message if tqdm is not available
-            # (tqdm animation will show its own completion message)
-            if not TQDM_AVAILABLE and self.start_time:
+            # Show completion message after progress bar is properly closed
+            if TQDM_AVAILABLE and hasattr(self, 'completion_message') and self.completion_message:
+                print(self.completion_message)
+            elif not TQDM_AVAILABLE and self.start_time:
                 elapsed = time.time() - self.start_time
                 final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
                 print(

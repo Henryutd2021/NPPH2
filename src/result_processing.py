@@ -433,6 +433,9 @@ def extract_results(
             enable_battery,
             0.0,
         ),
+        # **NEW: Extract grid purchase/sale data for battery source attribution**
+        ("pGridPurchase", "pGridPurchase_MW", True, 0.0),
+        ("pGridSale", "pGridSale_MW", True, 0.0),
     ]
     for var_name, col_name, is_enabled_flag, default_val in var_extract_list:
         if is_enabled_flag:
