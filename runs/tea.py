@@ -664,6 +664,7 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         # Calculate H2 Storage SOC (similar approach as battery)
         h2_storage_soc_col = None
         possible_h2_soc_cols = [
+            "H2_Storage_Level_kg",  # This is the actual column name in results
             "H2_Storage_SOC_kg",
             "H2StorageSOC_kg",
             "H2StorageSOC",

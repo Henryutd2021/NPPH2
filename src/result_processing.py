@@ -372,7 +372,7 @@ def extract_results(
         ),
         ("pAuxiliary", "pAuxiliary_MW", True, 0.0),
         ("H2_storage_level", "H2_Storage_Level_kg", enable_h2_storage, 0.0),
-        ("H2_to_market", "H2_to_Market_kg_hr", enable_h2_storage, 0.0),
+        # ("H2_to_market", "H2_to_Market_kg_hr", enable_h2_storage, 0.0),  # Removed: All H2 now goes through storage
         ("H2_from_storage", "H2_from_Storage_kg_hr", enable_h2_storage, 0.0),
         ("H2_to_storage", "H2_to_Storage_Input_kg_hr", enable_h2_storage, 0.0),
         (
@@ -834,11 +834,8 @@ def extract_results(
     else:
         summary_results["Total_H2_Produced_kg"] = 0.0
     if enable_h2_storage:
-        summary_results["Total_H2_to_Market_Direct_kg"] = (
-            results_df["H2_to_Market_kg_hr"].sum() * time_factor
-            if "H2_to_Market_kg_hr" in results_df.columns
-            else 0.0
-        )
+        # All hydrogen now goes through storage, so H2_to_Market_Direct_kg is always 0
+        summary_results["Total_H2_to_Market_Direct_kg"] = 0.0
         summary_results["Total_H2_from_Storage_kg"] = (
             results_df["H2_from_Storage_kg_hr"].sum() * time_factor
             if "H2_from_Storage_kg_hr" in results_df.columns
