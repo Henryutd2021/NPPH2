@@ -1015,6 +1015,71 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                         deployment_efficiency = (avg_deployed / avg_bid) * 100
                         metrics[f"AS_Deployment_Efficiency_{service_base}_percent"] = deployment_efficiency
 
+        # **NEW: Calculate High Temperature Electrolyzer (HTE) heat opportunity cost**
+        # For HTE systems, calculate the opportunity cost of steam consumption that could have been used for electricity generation
+        metrics["HTE_Heat_Opportunity_Cost_Annual_USD"] = 0.0
+        metrics["HTE_Steam_Consumption_Annual_MWth"] = 0.0
+        metrics["HTE_Mode_Detected"] = False
+
+        if "qSteam_Electrolyzer_MWth" in df.columns:
+            # Check if this is an HTE system by looking for non-zero steam consumption
+            steam_consumption_hourly = df["qSteam_Electrolyzer_MWth"]
+            total_steam_consumption_annual = steam_consumption_hourly.sum() * \
+                annualization_factor
+
+            # Threshold to detect HTE mode (>1 MWth annually)
+            if total_steam_consumption_annual > 1.0:
+                metrics["HTE_Mode_Detected"] = True
+                metrics["HTE_Steam_Consumption_Annual_MWth"] = total_steam_consumption_annual
+
+                # Calculate opportunity cost using thermal efficiency and electricity price
+                thermal_efficiency = metrics.get("thermal_efficiency", 0.0)
+                avg_electricity_price = metrics.get(
+                    "Avg_Electricity_Price_USD_per_MWh", 40.0)
+
+                if thermal_efficiency > 0:
+                    # Convert steam thermal energy to equivalent electrical energy using thermal efficiency
+                    # Opportunity cost = steam_thermal_MWth * thermal_efficiency * electricity_price
+                    lost_electricity_generation_mwh = total_steam_consumption_annual * thermal_efficiency
+                    heat_opportunity_cost_annual = lost_electricity_generation_mwh * avg_electricity_price
+
+                    metrics["HTE_Heat_Opportunity_Cost_Annual_USD"] = heat_opportunity_cost_annual
+                    metrics["HTE_Lost_Electricity_Generation_Annual_MWh"] = lost_electricity_generation_mwh
+
+                    logger.info(f"HTE Heat Opportunity Cost Analysis:")
+                    logger.info(
+                        f"  Annual steam consumption: {total_steam_consumption_annual:,.1f} MWth")
+                    logger.info(
+                        f"  Thermal efficiency: {thermal_efficiency:.4f}")
+                    logger.info(
+                        f"  Average electricity price: ${avg_electricity_price:.2f}/MWh")
+                    logger.info(
+                        f"  Lost electricity generation: {lost_electricity_generation_mwh:,.1f} MWh")
+                    logger.info(
+                        f"  Heat opportunity cost: ${heat_opportunity_cost_annual:,.2f}/year")
+
+                    # Add per-kg hydrogen cost component
+                    h2_production_annual = metrics.get(
+                        "H2_Production_kg_annual", 0)
+                    if h2_production_annual > 0:
+                        heat_opportunity_cost_per_kg_h2 = heat_opportunity_cost_annual / h2_production_annual
+                        metrics["HTE_Heat_Opportunity_Cost_USD_per_kg_H2"] = heat_opportunity_cost_per_kg_h2
+                        logger.info(
+                            f"  Heat opportunity cost per kg H2: ${heat_opportunity_cost_per_kg_h2:.3f}/kg")
+                    else:
+                        metrics["HTE_Heat_Opportunity_Cost_USD_per_kg_H2"] = 0.0
+                else:
+                    logger.warning(
+                        "HTE system detected but thermal efficiency is 0 or missing. Cannot calculate heat opportunity cost.")
+                    metrics["HTE_Heat_Opportunity_Cost_USD_per_kg_H2"] = 0.0
+                    metrics["HTE_Lost_Electricity_Generation_Annual_MWh"] = 0.0
+            else:
+                logger.debug(
+                    "LTE mode detected (no significant steam consumption by electrolyzer)")
+        else:
+            logger.debug(
+                "No steam consumption data found - likely LTE mode or steam consumption not tracked")
+
     except KeyError as e:
         logger.error(
             f"Missing column in hourly results for annual metrics calculation: {e}"
@@ -1199,6 +1264,15 @@ def calculate_cash_flows(
             current_year_profit_before_fixed_om_repl_tax -= annual_metrics.get(
                 "H2_Subsidy_Revenue", 0
             )
+
+        # **NEW: HTE Heat Opportunity Cost - subtract from profit (add to costs)**
+        # For high temperature electrolyzers, include the opportunity cost of steam that could have been used for electricity generation
+        hte_heat_opportunity_cost_annual = annual_metrics.get(
+            "HTE_Heat_Opportunity_Cost_Annual_USD", 0.0)
+        if hte_heat_opportunity_cost_annual > 0:
+            current_year_profit_before_fixed_om_repl_tax -= hte_heat_opportunity_cost_annual
+            logger.debug(
+                f"Year {operational_year_num} HTE Heat Opportunity Cost: ${hte_heat_opportunity_cost_annual:,.2f}")
 
         # Fixed O&M - based on 2% of total CAPEX (instead of a fixed amount)
         if (
