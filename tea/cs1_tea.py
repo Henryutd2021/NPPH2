@@ -26,11 +26,27 @@ os.makedirs(TEA_RESULTS_DIR, exist_ok=True)
 FILENAME_PATTERN = re.compile(r'^(.*?)_(.*?)_(.*?)_(\d+)_hourly_results\.csv$')
 
 # Import tea.py main function
-sys.path.append(str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent))
 try:
+    # Force fresh import of tea module
+    if 'tea' in sys.modules:
+        del sys.modules['tea']
     import tea
-except ImportError:
-    print('Error: tea.py not found or import failed.')
+
+    # Verify that the required function exists
+    if not hasattr(tea, 'load_tea_sys_params'):
+        # Try reloading the module
+        import importlib
+        importlib.reload(tea)
+        if not hasattr(tea, 'load_tea_sys_params'):
+            print('Error: tea.load_tea_sys_params function not found after reload.')
+            print(
+                f"Available tea attributes: {[attr for attr in dir(tea) if not attr.startswith('_')]}")
+            sys.exit(1)
+
+    print("Successfully imported tea module with load_tea_sys_params function")
+except ImportError as e:
+    print(f'Error: tea.py not found or import failed: {e}')
     sys.exit(1)
 
 
