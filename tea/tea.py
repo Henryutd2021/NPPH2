@@ -208,7 +208,8 @@ NUCLEAR_INTEGRATED_CONFIG = {
 # Nuclear Plant CAPEX Components (separate from existing components)
 NUCLEAR_CAPEX_COMPONENTS = {
     "Nuclear_Power_Plant": {
-        "total_base_cost_for_ref_size": 15_000_000_000,  # $15B for 1000MW plant
+        # $10B for 1000MW plant (more realistic)
+        "total_base_cost_for_ref_size": 10_000_000_000,
         "reference_total_capacity_mw": 1000,  # Reference capacity in MW
         "applies_to_component_capacity_key": "Nuclear_Plant_Capacity_MW",
         "learning_rate_decimal": 0.05,  # 5% learning rate for nuclear construction
@@ -216,21 +217,21 @@ NUCLEAR_CAPEX_COMPONENTS = {
         "payment_schedule_years": {0: 0.05, 1: 0.10, 2: 0.15, 3: 0.20, 4: 0.20, 5: 0.15, 6: 0.10, 7: 0.05},
     },
     "Nuclear_Site_Preparation": {
-        "total_base_cost_for_ref_size": 500_000_000,  # Site preparation costs
+        "total_base_cost_for_ref_size": 300_000_000,  # Reduced site preparation costs
         "reference_total_capacity_mw": 1000,
         "applies_to_component_capacity_key": "Nuclear_Plant_Capacity_MW",
         "learning_rate_decimal": 0.02,
         "payment_schedule_years": {0: 0.8, 1: 0.2},  # Front-loaded
     },
     "Nuclear_Safety_Systems": {
-        "total_base_cost_for_ref_size": 2_000_000_000,  # Safety and containment systems
+        "total_base_cost_for_ref_size": 1_500_000_000,  # Reduced safety systems cost
         "reference_total_capacity_mw": 1000,
         "applies_to_component_capacity_key": "Nuclear_Plant_Capacity_MW",
         "learning_rate_decimal": 0.03,
         "payment_schedule_years": {3: 0.3, 4: 0.4, 5: 0.3},
     },
     "Nuclear_Grid_Connection": {
-        "total_base_cost_for_ref_size": 300_000_000,  # Grid connection infrastructure
+        "total_base_cost_for_ref_size": 200_000_000,  # Reduced grid connection cost
         "reference_total_capacity_mw": 1000,
         "applies_to_component_capacity_key": "Nuclear_Plant_Capacity_MW",
         "learning_rate_decimal": 0.0,
@@ -245,7 +246,7 @@ NUCLEAR_OM_COMPONENTS = {
         "inflation_rate": 0.025,  # Slightly higher inflation for nuclear O&M
     },
     "Nuclear_Fuel_Cost": {
-        "base_cost_per_mwh": 8.5,  # $8.5/MWh fuel cost
+        "base_cost_per_mwh": 8.0,  # $8/MWh fuel cost (from PDF data)
         "inflation_rate": 0.02,
     },
     "Nuclear_Security": {
@@ -966,8 +967,7 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                     df["pTurbine_MW"].mean() / metrics["Turbine_Capacity_MW"]
                 ) * 100
                 logger.debug(
-                    f"Turbine CF calculated: {metrics['Turbine_CF_percent']}% (Capacity: {metrics['Turbine_Capacity_MW']} MW)"
-                )
+                    f"Turbine CF calculated: {metrics['Turbine_CF_percent']}% (Capacity: {metrics['Turbine_Capacity_MW']} MW)")
             else:
                 metrics["Turbine_CF_percent"] = 0
                 logger.debug(
@@ -1693,8 +1693,7 @@ def calculate_cash_flows(
                 )
             )
             logger.debug(
-                f"Year {operational_year_num} Fixed O&M: ${fixed_om_general_cost:,.2f} ({fixed_om_percent*100}% of CAPEX)"
-            )
+                f"Year {operational_year_num} Fixed O&M: ${fixed_om_general_cost:,.2f} ({fixed_om_percent*100}% of CAPEX)")
         else:
             # Traditional method, fixed amount (deprecated, but kept for compatibility)
             fixed_om_general_cost = om_details.get("Fixed_OM_General", {}).get(
@@ -4468,20 +4467,21 @@ def calculate_greenfield_nuclear_hydrogen_system(
     # Calculate replacement costs over 60-year lifecycle
 
     # Electrolyzer replacements (every 20 years: years 20, 40)
-    electrolyzer_unit_cost = 1500  # $/kW (2024 cost target)
+    electrolyzer_unit_cost = 1200  # $/kW (updated 2024 cost target)
     electrolyzer_replacement_cost = electrolyzer_capacity_mw * \
         1000 * electrolyzer_unit_cost
     total_electrolyzer_replacements = electrolyzer_replacement_cost * \
         2  # 2 replacements (20, 40)
 
     # H2 Storage system replacements (every 30 years: year 30)
-    h2_storage_unit_cost = 500  # $/kg capacity (underground storage cost)
+    # $/kg capacity (updated underground storage cost)
+    h2_storage_unit_cost = 400
     h2_storage_replacement_cost = h2_storage_capacity_kg * h2_storage_unit_cost
     total_h2_storage_replacements = h2_storage_replacement_cost * \
         1  # 1 replacement (30)
 
     # Battery replacements (every 15 years: years 15, 30, 45)
-    battery_unit_cost = 300_000  # $/MWh (2024 grid storage cost)
+    battery_unit_cost = 150_000  # $/MWh (updated 2024 grid storage cost)
     battery_replacement_cost = battery_capacity_mwh * battery_unit_cost
     total_battery_replacements = battery_replacement_cost * \
         3  # 3 replacements (15, 30, 45)
@@ -4536,9 +4536,11 @@ def calculate_greenfield_nuclear_hydrogen_system(
 
     # === 5. FINANCIAL ANALYSIS ===
 
-    # Annual revenues
+    # Annual revenues - use actual prices from optimization results where available
     h2_price = 5.0  # $/kg (target price for clean hydrogen)
-    electricity_price = 60.0  # $/MWh (average wholesale electricity price)
+    # Use actual electricity price from optimization results if available
+    electricity_price = annual_metrics.get(
+        "Avg_Electricity_Price_USD_per_MWh", 60.0)
 
     annual_h2_revenue = annual_h2_production * h2_price
     annual_electricity_revenue = annual_nuclear_generation * electricity_price
@@ -4761,19 +4763,39 @@ def calculate_lifecycle_comparison_analysis(
     construction_period = 8
     discount_rate = 0.08
 
-    # Investment costs
-    nuclear_capex = 16_980_000_000  # $16.98B
+    # Investment costs - use calculated nuclear CAPEX instead of hardcoded value
+    nuclear_capex_breakdown = calculate_nuclear_capex_breakdown(
+        nuclear_capacity_mw)
+    nuclear_capex = nuclear_capex_breakdown["Total_Nuclear_CAPEX"]
     h2_initial_capex = annual_metrics.get("total_capex", 509_860_000)
 
-    # Annual performance metrics
+    # Annual performance metrics - use actual optimization results
     annual_h2_production = annual_metrics.get(
         "H2_Production_kg_annual", 42_620_782)
     annual_nuclear_generation = nuclear_capacity_mw * 8760 * 0.9
-    annual_h2_revenue = 213_103_911
-    annual_electricity_revenue = 473_040_000
-    annual_as_revenue = annual_metrics.get("AS_Revenue_Total", 25_321_033)
-    annual_h2_subsidy = 127_862_347
-    h2_subsidy_years = 10
+
+    # Use actual revenue calculations from optimization results
+    h2_price = 5.0  # $/kg (target price for clean hydrogen)
+    # Use actual electricity price from optimization results if available
+    electricity_price = annual_metrics.get(
+        "Avg_Electricity_Price_USD_per_MWh", 60.0)
+    annual_h2_revenue = annual_h2_production * h2_price
+    annual_electricity_revenue = annual_nuclear_generation * electricity_price
+    annual_as_revenue = annual_metrics.get("AS_Revenue_Total", 0)
+    if annual_as_revenue == 0:
+        annual_as_revenue = annual_metrics.get("AS_Revenue", 0)
+
+    # Get subsidy parameters from tea_sys_params
+    h2_subsidy_val = float(tea_sys_params.get(
+        "hydrogen_subsidy_value_usd_per_kg", 0))
+    h2_subsidy_duration_raw = tea_sys_params.get(
+        "hydrogen_subsidy_duration_years", 10)
+    try:
+        h2_subsidy_years = int(
+            float(str(h2_subsidy_duration_raw))) if h2_subsidy_duration_raw else 10
+    except (ValueError, TypeError):
+        h2_subsidy_years = 10
+    annual_h2_subsidy = annual_h2_production * h2_subsidy_val
 
     # Component costs for replacements
     electrolyzer_capacity_mw = annual_metrics.get(
@@ -4782,9 +4804,9 @@ def calculate_lifecycle_comparison_analysis(
         "H2_Storage_Capacity_kg", 10_000_000)
     battery_capacity_mwh = annual_metrics.get("Battery_Capacity_MWh", 100)
 
-    electrolyzer_unit_cost = 1500  # $/kW
-    h2_storage_unit_cost = 500  # $/kg
-    battery_unit_cost = 300_000  # $/MWh
+    electrolyzer_unit_cost = 1200  # $/kW (updated cost)
+    h2_storage_unit_cost = 400  # $/kg (updated cost)
+    battery_unit_cost = 150_000  # $/MWh (updated cost)
 
     electrolyzer_replacement_cost = electrolyzer_capacity_mw * \
         1000 * electrolyzer_unit_cost

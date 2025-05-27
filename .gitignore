@@ -39,6 +39,7 @@ temp_sensitivity_runs/
 src/__pycache__
 TEA_results/*
 output/*
+runs/*
 
 # Ignore model checkpoints or intermediate files
 checkpoints/
