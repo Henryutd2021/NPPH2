@@ -25,6 +25,8 @@ ENV/
 *.out
 *.tmp
 *.bak
+*.json
+*.png
 
 # ========== System Files ==========
 .DS_Store
@@ -40,6 +42,7 @@ src/__pycache__
 TEA_results/*
 output/*
 runs/*
+.tea/
 
 # Ignore model checkpoints or intermediate files
 checkpoints/
