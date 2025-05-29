@@ -5,35 +5,48 @@ Data loading functions for the TEA module.
 import logging
 import pandas as pd
 from pathlib import Path
-# import numpy as np # Not directly used
+import src.tea.config as config
 
-# Attempt to import from tea.config, handling potential circular imports or module not found
+# Detailed logging setup
+logger = logging.getLogger(__name__)
+
+# Using fallback default values if config module doesn't have some of the required constants.
+# This is a defensive programming approach to ensure the module works even if config.py doesn't have all expected values.
 try:
-    from .config import (  # Changed to relative import
-        HOURS_IN_YEAR,
-        CAPEX_COMPONENTS,
-        # Use alias to avoid direct modification
-        PROJECT_LIFETIME_YEARS as DEFAULT_PROJECT_LIFETIME_YEARS,
-        DISCOUNT_RATE as DEFAULT_DISCOUNT_RATE,
-        CONSTRUCTION_YEARS as DEFAULT_CONSTRUCTION_YEARS,
-        TAX_RATE as DEFAULT_TAX_RATE,
-        OM_COMPONENTS as DEFAULT_OM_COMPONENTS,
-        NUCLEAR_INTEGRATED_CONFIG as DEFAULT_NUCLEAR_INTEGRATED_CONFIG
-    )
-except ImportError:
-    # Fallback values if tea.config is not available during initial setup or specific contexts
-    # This is a safeguard, ideally tea.config should always be resolvable
-    HOURS_IN_YEAR = 8760
-    CAPEX_COMPONENTS = {}  # Define a default empty dict
+    DEFAULT_CAPEX_COMPONENTS = getattr(config, 'CAPEX_COMPONENTS', {})
+    DEFAULT_REPLACEMENT_SCHEDULE = getattr(config, 'REPLACEMENT_SCHEDULE', {})
+    DEFAULT_PROJECT_LIFETIME_YEARS = getattr(
+        config, 'PROJECT_LIFETIME_YEARS', 30)
+    DEFAULT_DISCOUNT_RATE = getattr(config, 'DISCOUNT_RATE', 0.08)
+    DEFAULT_CONSTRUCTION_YEARS = getattr(config, 'CONSTRUCTION_YEARS', 2)
+    DEFAULT_TAX_RATE = getattr(config, 'TAX_RATE', 0.21)
+    DEFAULT_OM_COMPONENTS = getattr(config, 'OM_COMPONENTS', {})
+    DEFAULT_NUCLEAR_INTEGRATED_CONFIG = getattr(
+        config, 'NUCLEAR_INTEGRATED_CONFIG', {})
+    logger.info("Successfully loaded configuration from tea.config")
+except ImportError as e:
+    logger.warning(
+        f"Could not import from tea.config. Using fallback default values: {e}")
+    # If config import fails, provide sensible defaults
+    DEFAULT_CAPEX_COMPONENTS = {}
+    DEFAULT_REPLACEMENT_SCHEDULE = {}
     DEFAULT_PROJECT_LIFETIME_YEARS = 30
     DEFAULT_DISCOUNT_RATE = 0.08
     DEFAULT_CONSTRUCTION_YEARS = 2
     DEFAULT_TAX_RATE = 0.21
     DEFAULT_OM_COMPONENTS = {}
     DEFAULT_NUCLEAR_INTEGRATED_CONFIG = {}
-
-
-logger = logging.getLogger(__name__)
+except Exception as e:
+    logger.error(f"Unexpected error importing from tea.config: {e}")
+    # Same fallback values
+    DEFAULT_CAPEX_COMPONENTS = {}
+    DEFAULT_REPLACEMENT_SCHEDULE = {}
+    DEFAULT_PROJECT_LIFETIME_YEARS = 30
+    DEFAULT_DISCOUNT_RATE = 0.08
+    DEFAULT_CONSTRUCTION_YEARS = 2
+    DEFAULT_TAX_RATE = 0.21
+    DEFAULT_OM_COMPONENTS = {}
+    DEFAULT_NUCLEAR_INTEGRATED_CONFIG = {}
 
 # Helper function (can be module-level or stay nested if preferred)
 
@@ -246,8 +259,8 @@ def load_hourly_results(filepath: Path) -> pd.DataFrame | None:
             return None
 
         capacity_cols_needed_for_capex = set()
-        if CAPEX_COMPONENTS:  # Check if CAPEX_COMPONENTS is not empty
-            for comp_details in CAPEX_COMPONENTS.values():
+        if DEFAULT_CAPEX_COMPONENTS:  # Check if CAPEX_COMPONENTS is not empty
+            for comp_details in DEFAULT_CAPEX_COMPONENTS.values():
                 cap_key = comp_details.get("applies_to_component_capacity_key")
                 if cap_key:
                     capacity_cols_needed_for_capex.add(cap_key)

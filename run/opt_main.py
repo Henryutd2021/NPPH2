@@ -9,25 +9,6 @@ Run:
 """
 
 from __future__ import annotations
-from result_processing import extract_results
-from model import create_model
-from logging_setup import logger  # Make sure logger is initialized early
-from data_io import load_hourly_data
-from config import (
-    ENABLE_BATTERY,
-    ENABLE_ELECTROLYZER,
-    ENABLE_ELECTROLYZER_DEGRADATION_TRACKING,
-    ENABLE_H2_CAP_FACTOR,
-    ENABLE_H2_STORAGE,
-    ENABLE_NONLINEAR_TURBINE_EFF,
-    ENABLE_NUCLEAR_GENERATOR,
-    ENABLE_STARTUP_SHUTDOWN,
-    LOG_FILE,
-    SIMULATE_AS_DISPATCH_EXECUTION,
-    TARGET_ISO,
-)
-from config import HOURS_IN_YEAR  # <-- Added this import
-
 import sys
 import timeit
 import traceback  # Import traceback for detailed error logging
@@ -50,274 +31,56 @@ except ImportError:
     print("Warning: tqdm not available. Install with 'pip install tqdm' for progress bars.")
 
 # Add src directory to Python path
-src_path = Path(__file__).parent.parent / "src"
-sys.path.append(str(src_path))
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# Add src directories to Python path
+src_opt_path = project_root / "src" / "opt"
+src_logging_path = project_root / "src" / "logging"
+sys.path.append(str(src_opt_path))
+sys.path.append(str(src_logging_path))
 
 
-# --- MODIFICATION: Added HOURS_IN_YEAR to the import ---
+# Global variables for lazy loading
+_imports_loaded = False
+extract_results = None
+create_model = None
+logger = None
+load_hourly_data = None
+config_vars = None
+SolverProgressIndicator = None
+
+
+def _load_imports():
+    """Load the src imports after path setup"""
+    global _imports_loaded, extract_results, create_model, logger, load_hourly_data, config_vars, SolverProgressIndicator
+
+    if _imports_loaded:
+        return
+
+    # Now import the modules
+    from src.opt.result_processing import extract_results as _extract_results
+    from src.opt.model import create_model as _create_model
+    from src.logging.logging_setup import logger as _logger  # Use unified logging system
+    from src.opt.data_io import load_hourly_data as _load_hourly_data
+    import src.opt.config as _config
+    # Use unified progress indicator
+    from src.logging.progress_indicators import SolverProgressIndicator as _SolverProgressIndicator
+
+    # Assign to global variables
+    extract_results = _extract_results
+    create_model = _create_model
+    logger = _logger
+    load_hourly_data = _load_hourly_data
+    config_vars = _config
+    SolverProgressIndicator = _SolverProgressIndicator
+
+    _imports_loaded = True
+
 
 # ---------------------------------------------------------------------------
 # Progress Indicator
 # ---------------------------------------------------------------------------
-
-class SolverProgressIndicator:
-    """
-    A progress indicator for optimization solving process that shows real progress
-    based on MIP gap information from the solver output.
-    """
-
-    def __init__(self, description="Solving optimization model", target_gap=0.0005):
-        self.description = description
-        self.target_gap = target_gap  # Target MIP gap (e.g., 0.0005 = 0.05%)
-        self.running = False
-        self.thread = None
-        self.start_time = None
-        self.current_gap = None
-        self.best_bound = None
-        self.best_solution = None
-        self.log_file = None
-        self.iterations = 0
-        self.completion_message = None
-
-    def _parse_gurobi_line(self, line):
-        """Parse Gurobi output line to extract gap information."""
-        try:
-            line = line.strip()
-            if not line:
-                return False
-
-            # Pattern 1: Heuristic solution lines: "H  150     0                    2.234056e+08 2.234056e+08  0.00%     0s"
-            if line.startswith('H') and '%' in line:
-                parts = line.split()
-                for i, part in enumerate(parts):
-                    if '%' in part:
-                        gap_str = part.replace('%', '')
-                        try:
-                            self.current_gap = float(gap_str) / 100.0
-                            return True
-                        except ValueError:
-                            pass
-
-            # Pattern 2: Regular iteration lines with gap: "   150     0 2.234056e+08 2.234056e+08  0.00%     0s"
-            elif line[0].isdigit() and '%' in line:
-                parts = line.split()
-                for part in parts:
-                    if '%' in part and part != '%':
-                        gap_str = part.replace('%', '')
-                        try:
-                            self.current_gap = float(gap_str) / 100.0
-                            return True
-                        except ValueError:
-                            pass
-
-            # Pattern 3: Final gap information: "Best objective 1.234567e+08, best bound 1.234567e+08, gap 0.00%"
-            elif 'gap' in line.lower() and '%' in line:
-                import re
-                # Look for "gap X.XX%" pattern
-                match = re.search(r'gap\s+(\d+\.?\d*)%', line, re.IGNORECASE)
-                if match:
-                    self.current_gap = float(match.group(1)) / 100.0
-                    return True
-
-            # Pattern 4: Presolve or other status lines that might contain gap
-            elif 'gap:' in line.lower() and '%' in line:
-                import re
-                match = re.search(r'gap:\s*(\d+\.?\d*)%', line, re.IGNORECASE)
-                if match:
-                    self.current_gap = float(match.group(1)) / 100.0
-                    return True
-
-        except (ValueError, IndexError, AttributeError):
-            pass
-        return False
-
-    def _parse_cplex_line(self, line):
-        """Parse CPLEX output line to extract gap information."""
-        try:
-            # CPLEX format varies, but often contains "gap" keyword
-            if 'gap' in line.lower() and '%' in line:
-                # Extract percentage value
-                import re
-                match = re.search(r'(\d+\.?\d*)%', line)
-                if match:
-                    self.current_gap = float(match.group(1)) / 100.0
-                    return True
-        except (ValueError, IndexError):
-            pass
-        return False
-
-    def _monitor_solver_output(self, solver_name):
-        """Monitor solver output file for gap information."""
-        # Wait for log file to be created (up to 30 seconds)
-        wait_time = 0
-        max_wait = 30
-        while not os.path.exists(self.log_file) and wait_time < max_wait and self.running:
-            time.sleep(0.5)
-            wait_time += 0.5
-
-        if not os.path.exists(self.log_file):
-            print(
-                f"Warning: Log file {self.log_file} not created after {max_wait}s")
-            return
-
-        # print(f"Gap monitoring started for {self.log_file}")  # Removed to reduce output clutter
-
-        try:
-            # Start reading from the end of the file to avoid old content
-            last_position = 0
-            # Get initial file size to start reading from current end
-            if os.path.exists(self.log_file):
-                with open(self.log_file, 'r') as f:
-                    f.seek(0, 2)  # Go to end
-                    last_position = f.tell()
-                    # print(f"Starting to monitor from position {last_position}")  # Removed to reduce output clutter
-
-            gap_found_count = 0
-            while self.running:
-                try:
-                    with open(self.log_file, 'r') as f:
-                        f.seek(last_position)
-                        new_content = f.read()
-                        if new_content:
-                            # Process each line in the new content
-                            lines = new_content.split('\n')
-                            # Exclude last potentially incomplete line
-                            for line in lines[:-1]:
-                                if line.strip():
-                                    if solver_name.lower() == 'gurobi':
-                                        if self._parse_gurobi_line(line):
-                                            gap_found_count += 1
-                                            # Removed gap debugging output to reduce clutter
-                                    elif solver_name.lower() == 'cplex':
-                                        if self._parse_cplex_line(line):
-                                            gap_found_count += 1
-                                            # Removed gap debugging output to reduce clutter
-                            last_position = f.tell()
-                        else:
-                            time.sleep(0.2)  # Wait for more content
-                except IOError:
-                    # File might be locked by solver, wait and retry
-                    time.sleep(0.5)
-        except Exception as e:
-            print(f"Error in gap monitoring: {e}")
-        finally:
-            # Removed gap monitoring completion messages to reduce output clutter
-            pass
-
-    def _calculate_progress(self):
-        """Calculate progress based on current gap and target gap."""
-        if self.current_gap is None:
-            return 0.0
-
-        if self.current_gap <= self.target_gap:
-            return 100.0
-
-        # Assume initial gap is 100% and calculate progress
-        # Progress = (initial_gap - current_gap) / (initial_gap - target_gap)
-        # For simplicity, we'll use logarithmic scaling since gap decreases exponentially
-        initial_gap = 1.0  # Assume 100% initial gap
-
-        if self.current_gap >= initial_gap:
-            return 0.0
-
-        # Logarithmic progress calculation
-        log_current = math.log10(max(self.current_gap, 1e-6))
-        log_target = math.log10(max(self.target_gap, 1e-6))
-        log_initial = math.log10(initial_gap)
-
-        progress = (log_initial - log_current) / \
-            (log_initial - log_target) * 100
-        return min(max(progress, 0.0), 100.0)
-
-    def _animate(self):
-        """Internal method to run the animation in a separate thread."""
-        if TQDM_AVAILABLE:
-            # Use tqdm for a nice progress bar
-            with tqdm(desc=self.description, total=100, unit="%",
-                      bar_format="{desc}: {percentage:3.0f}%|{bar}| Gap: {postfix} | {elapsed}") as pbar:
-                while self.running:
-                    progress = self._calculate_progress()
-                    gap_text = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                    pbar.set_postfix_str(gap_text)
-                    pbar.n = progress
-                    pbar.refresh()
-                    time.sleep(0.5)
-
-                # Set final state when animation stops
-                final_progress = self._calculate_progress()
-                final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                pbar.n = final_progress
-                pbar.set_postfix_str(final_gap)
-                pbar.refresh()
-
-                # Store completion message for later display
-                if self.start_time:
-                    elapsed = time.time() - self.start_time
-                    self.completion_message = f"{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})"
-        else:
-            # Fallback to simple text display
-            spinners = ['|', '/', '-', '\\']
-            i = 0
-            while self.running:
-                elapsed = time.time() - self.start_time if self.start_time else 0
-                progress = self._calculate_progress()
-                gap_text = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                print(f"\r{self.description}... {spinners[i % len(spinners)]} Progress: {progress:.1f}% | Gap: {gap_text} | ({elapsed:.1f}s)",
-                      end="", flush=True)
-                i += 1
-                time.sleep(0.5)
-            print()  # New line when done
-
-    def start(self, solver_name="gurobi", log_file=None):
-        """Start the progress indicator."""
-        if not self.running:
-            self.running = True
-            self.start_time = time.time()
-            self.log_file = log_file
-            self.current_gap = None  # Reset gap for new run
-
-            # Debug output
-            if log_file:
-                print(
-                    f"Starting gap monitoring for {solver_name} with log file: {log_file}")
-
-            # Start output monitoring thread if log file is provided
-            if log_file and solver_name:
-                monitor_thread = threading.Thread(
-                    target=self._monitor_solver_output,
-                    args=(solver_name,),
-                    daemon=True,
-                    name=f"GapMonitor-{solver_name}-{int(time.time())}"
-                )
-                monitor_thread.start()
-
-            # Start animation thread
-            self.thread = threading.Thread(
-                target=self._animate,
-                daemon=True,
-                name=f"ProgressAnim-{int(time.time())}"
-            )
-            self.thread.start()
-
-    def stop(self):
-        """Stop the progress indicator."""
-        if self.running:
-            self.running = False
-            if self.thread:
-                self.thread.join(timeout=1.0)
-
-            # Show completion message after progress bar is properly closed
-            if TQDM_AVAILABLE and hasattr(self, 'completion_message') and self.completion_message:
-                print(self.completion_message)
-            elif not TQDM_AVAILABLE and self.start_time:
-                elapsed = time.time() - self.start_time
-                final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                print(
-                    f"\r{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})" + " " * 20)
-
-    def update_gap(self, gap_value):
-        """Manually update the current gap value."""
-        self.current_gap = gap_value
 
 
 # ---------------------------------------------------------------------------
@@ -329,10 +92,12 @@ def parse_cli() -> ArgumentParser:
     """
     Parse command line arguments
     """
+    _load_imports()  # Load imports before using config variables
+
     p = ArgumentParser(
         description="Nuclear-Hydrogen Flexibility Optimization Model")
     p.add_argument(
-        "--iso", default=TARGET_ISO, help="Target ISO (default: %(default)s)"
+        "--iso", default=config_vars.TARGET_ISO, help="Target ISO (default: %(default)s)"
     )
     p.add_argument(
         "--solver", default="gurobi", help="Solver name registered with Pyomo"
@@ -341,7 +106,7 @@ def parse_cli() -> ArgumentParser:
     p.add_argument(
         "--hours",
         type=int,
-        default=HOURS_IN_YEAR,  # Use imported HOURS_IN_YEAR as default
+        default=config_vars.HOURS_IN_YEAR,  # Use imported HOURS_IN_YEAR as default
         help="Number of hours to simulate (default: from config)",
     )
     # --- Add option to enable IIS/Debugging ---
@@ -375,6 +140,8 @@ def main(argv: list[str] | None = None):
     """
     Main execution function
     """
+    _load_imports()  # Load imports at the start
+
     args = parse_cli().parse_args(argv)
 
     # Start timing
@@ -394,9 +161,9 @@ def main(argv: list[str] | None = None):
         # 1. Load data
         logger.info("Step 1: Loading hourly data...")
         # --- MODIFICATION: Use imported HOURS_IN_YEAR for comparison ---
-        if args.hours != HOURS_IN_YEAR:
+        if args.hours != config_vars.HOURS_IN_YEAR:
             logger.warning(
-                f"Simulating for {args.hours} hours, but config HOURS_IN_YEAR is {HOURS_IN_YEAR}. Ensure data loading and model use the correct number of hours."
+                f"Simulating for {args.hours} hours, but config HOURS_IN_YEAR is {config_vars.HOURS_IN_YEAR}. Ensure data loading and model use the correct number of hours."
             )
             # NOTE: data_io.py and potentially model.py might need adjustment
             # if args.hours should override config HOURS_IN_YEAR for data slicing / TimePeriods definition.
@@ -413,7 +180,7 @@ def main(argv: list[str] | None = None):
         logger.info("Step 2: Creating optimization model...")
         # Pass simulate_dispatch flag correctly
         model = create_model(
-            data, args.iso, simulate_dispatch=SIMULATE_AS_DISPATCH_EXECUTION
+            data, args.iso, simulate_dispatch=config_vars.SIMULATE_AS_DISPATCH_EXECUTION
         )
         # Check if model creation returned None (could indicate internal error)
         if model is None:
@@ -451,7 +218,7 @@ def main(argv: list[str] | None = None):
         logger.info("Step 3b: Calling solver.solve()...")
 
         # Create log file for solver output monitoring
-        log_dir = Path("../logs")
+        log_dir = Path("../output/logs")
         log_dir.mkdir(parents=True, exist_ok=True)
         solver_log_file = log_dir / f"{args.iso}_solver_output.log"
 
@@ -539,7 +306,7 @@ def main(argv: list[str] | None = None):
                 )
                 print("Attempting to write infeasible model file for IIS analysis...")
                 try:
-                    log_dir = Path("../logs")
+                    log_dir = Path("../output/logs")
                     log_dir.mkdir(parents=True, exist_ok=True)
                     infeasible_lp_file = log_dir / \
                         f"{args.iso}_infeasible_model.lp"
@@ -604,7 +371,7 @@ def main(argv: list[str] | None = None):
                 "Diagnosing unbounded models often requires checking objective function terms and variable bounds."
             )
             try:
-                log_dir = Path("../logs")
+                log_dir = Path("../output/logs")
                 log_dir.mkdir(parents=True, exist_ok=True)
                 unbounded_lp_file = log_dir / f"{args.iso}_unbounded_model.lp"
                 try:
@@ -709,10 +476,12 @@ def main(argv: list[str] | None = None):
         print("Total profit: N/A")
     print(f"Runtime = {runtime:.2f} seconds")
     if term_cond == TerminationCondition.infeasible and args.debug_infeasibility:
-        infeasible_lp_file = Path(f"../logs/{args.iso}_infeasible_model.lp")
+        infeasible_lp_file = Path(
+            f"../output/logs/{args.iso}_infeasible_model.lp")
         print(f"Infeasible model saved to {infeasible_lp_file}")
     elif term_cond == TerminationCondition.unbounded:
-        unbounded_lp_file = Path(f"../logs/{args.iso}_unbounded_model.lp")
+        unbounded_lp_file = Path(
+            f"../output/logs/{args.iso}_unbounded_model.lp")
         print(f"Potentially unbounded model saved to {unbounded_lp_file}")
 
 

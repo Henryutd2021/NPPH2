@@ -1,10 +1,6 @@
 """
 Enhanced CS1 TEA Analysis Runner with Standardized Logging and Naming
 """
-
-import tea.tea as tea
-import tea.data_loader as data_loader
-from tea.enhanced_logging import ReactorLogSession, create_reactor_logger
 import os
 import sys
 import re
@@ -15,8 +11,14 @@ import shutil
 import pandas as pd
 from contextlib import contextmanager
 
-# Add the parent directory to sys.path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add the project root to sys.path FIRST - before any src imports
+project_root = str(Path(__file__).parent.parent.resolve())
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# Add src/logging to the path for unified logging
+src_logging_path = Path(__file__).parent.parent / "src" / "logging"
+sys.path.append(str(src_logging_path))
 
 # Import tqdm for progress bar
 try:
@@ -27,10 +29,10 @@ except ImportError:
 
 # Output directory for TEA results
 TEA_RESULTS_DIR = Path(__file__).resolve(
-).parent.parent / 'TEA_results' / 'cs1'
-# Directory containing CS1 optimization results
-CS1_OUTPUT_DIR = Path(__file__).resolve().parent.parent / 'output' / 'cs1'
-
+).parent.parent / 'output' / 'tea' / 'cs1'
+# Input directory for CS1 optimization results
+CS1_OUTPUT_DIR = Path(__file__).resolve(
+).parent.parent / 'output' / 'opt' / 'cs1'
 os.makedirs(TEA_RESULTS_DIR, exist_ok=True)
 
 # Enhanced filename pattern for input CSVs
@@ -46,56 +48,6 @@ def enhanced_tea_logging_simple(logger):
         yield logger
     finally:
         logger.info("🔄 Enhanced TEA logging cleanup completed")
-
-
-class TEAProgressIndicator:
-    """Enhanced progress indicator with logging integration"""
-
-    def __init__(self, description="Running TEA analysis", logger=None):
-        self.description = description
-        self.logger = logger
-        self.running = False
-        self.thread = None
-        self.start_time = None
-
-    def _animate(self):
-        if TQDM_AVAILABLE:
-            with tqdm(desc=self.description, unit=" run", bar_format="{desc}: {elapsed} | {rate_fmt}") as pbar:
-                while self.running:
-                    pbar.update(0)
-                    time.sleep(0.1)
-        else:
-            spinners = ['|', '/', '-', '\\']
-            i = 0
-            while self.running:
-                elapsed = time.time() - self.start_time if self.start_time else 0
-                print(
-                    f"\r{self.description}... {spinners[i % len(spinners)]} ({elapsed:.1f}s)", end="", flush=True)
-                i += 1
-                time.sleep(0.25)
-            if not TQDM_AVAILABLE:
-                print()
-
-    def start(self):
-        if not self.running:
-            self.running = True
-            self.start_time = time.time()
-            self.thread = threading.Thread(target=self._animate, daemon=True)
-            self.thread.start()
-            if self.logger:
-                self.logger.log_phase_start(self.description)
-
-    def stop(self):
-        if self.running:
-            self.running = False
-            if self.thread:
-                self.thread.join(timeout=0.5)
-            duration = time.time() - self.start_time if self.start_time else 0
-            if self.logger:
-                self.logger.log_phase_complete(self.description, duration)
-            elif not TQDM_AVAILABLE:
-                print(
-                    f"\r{self.description} completed in {duration:.1f}s." + " " * 20)
 
 
 def extract_plant_parameters(plant_name: str, generator_id: str, logger):
@@ -202,6 +154,9 @@ def enhanced_load_tea_sys_params_for_cs1(iso_target, input_base_dir, plant_speci
     """
     Enhanced parameter loading function with logging integration
     """
+    # Import required modules
+    import src.tea.data_loader as data_loader
+
     logger.log_phase_start("System Parameters Loading",
                            f"Target ISO: {iso_target}")
 
@@ -258,8 +213,14 @@ def run_tea_for_file_enhanced(csv_path: Path, plant_name: str, generator_id: str
     """
     Run enhanced TEA analysis with comprehensive logging
     """
+    # Import required modules
+    import src.tea.data_loader as data_loader
+    import src.tea.tea as tea
+    from src.logging.enhanced_logging import ReactorLogSession
+    from src.logging.progress_indicators import TEAProgressIndicator
+
     # Create reactor-specific logger
-    with ReactorLogSession(plant_name, generator_id, iso_region, remaining_years_str) as logger:
+    with ReactorLogSession(plant_name, generator_id, iso_region) as logger:
         logger.info(f"🔬 Starting enhanced TEA analysis")
         logger.info(f"   📁 File: {csv_path.name}")
         logger.info(f"   🏭 Plant: {plant_name}")

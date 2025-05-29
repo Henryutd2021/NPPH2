@@ -9,7 +9,8 @@ This script performs comprehensive lifecycle analysis including:
 - Visualization of results
 """
 
-import logging  # Keep for basic logging if setup_logging fails
+# Import standard library logging to avoid conflict with src.logging
+import logging as std_logging
 import math  # Keep as it's used in some calculations that might remain or be called
 import os
 import sys
@@ -21,21 +22,21 @@ import numpy as np  # Keep for np.array, np.cumsum, etc.
 import pandas as pd  # Keep for pd.Series, pd.isna etc.
 
 # New imports for refactored structure
-from . import config  # To access and update configuration variables
-from .utils import setup_logging
-from .data_loader import load_tea_sys_params, load_hourly_results
-from .calculations import (
+import src.tea.config as config  # To access and update configuration variables
+from src.tea.utils import setup_logging
+from src.tea.data_loader import load_tea_sys_params, load_hourly_results
+from src.tea.calculations import (
     calculate_annual_metrics,
     calculate_cash_flows,
     calculate_financial_metrics,
     calculate_lcoh_breakdown,
     calculate_incremental_metrics
 )
-from .nuclear_calculations import (
+from src.tea.nuclear_calculations import (
     calculate_greenfield_nuclear_hydrogen_system,
     calculate_lifecycle_comparison_analysis
 )
-from .reporting import plot_results, generate_report
+from src.tea.reporting import plot_results, generate_report
 
 # Global logger, will be initialized by setup_logging in main()
 logger = None
@@ -56,9 +57,24 @@ def main(
     enable_nuclear_greenfield_analysis_override: bool = None
 ):
     """
-    Main execution function for TEA analysis.
-    Orchestrates the workflow using functions from other modules.
+    Main TEA analysis function with comprehensive calculations
     """
+
+    def safe_float_from_params(key: str, default_value: float = 0.0) -> float:
+        """Safely convert tea_sys_params value to float with fallback"""
+        try:
+            value = tea_sys_params.get(key)
+            if value is None:
+                return default_value
+            if isinstance(value, str):
+                # Handle string representations that might be empty or 'nan'
+                value = value.strip()
+                if not value or value.lower() in ['nan', 'none', '']:
+                    return default_value
+            return float(value)
+        except (ValueError, TypeError):
+            return default_value
+
     global logger
 
     current_target_iso = target_iso_override if target_iso_override else config.TARGET_ISO
@@ -159,7 +175,7 @@ def main(
     # config.SCRIPT_DIR_PATH in config.py is tea/
     # So config.SCRIPT_DIR_PATH.parent is the project root.
     results_file_path = input_hourly_results_file_override if input_hourly_results_file_override \
-        else config.SCRIPT_DIR_PATH.parent / "output" / "Results_Standardized" / f"{current_target_iso}_Hourly_Results_Comprehensive.csv"
+        else config.SCRIPT_DIR_PATH.parent.parent / "output" / "opt" / "Results_Standardized" / f"{current_target_iso}_Hourly_Results_Comprehensive.csv"
 
     logger.info(f"Loading results from: {results_file_path}")
     if not results_file_path.exists():
@@ -191,10 +207,10 @@ def main(
         annual_metrics=annual_metrics_results,
         project_lifetime=config.PROJECT_LIFETIME_YEARS,
         construction_period=config.CONSTRUCTION_YEARS,
-        h2_subsidy_value=float(tea_sys_params.get(
-            "hydrogen_subsidy_value_usd_per_kg", 0.0)),
-        h2_subsidy_duration=int(
-            float(str(tea_sys_params.get("hydrogen_subsidy_duration_years", 10)))),
+        h2_subsidy_value=safe_float_from_params(
+            "hydrogen_subsidy_value_usd_per_kg", 0.0),
+        h2_subsidy_duration=int(safe_float_from_params(
+            "hydrogen_subsidy_duration_years", 10.0)),
         capex_details=config.CAPEX_COMPONENTS,
         om_details=config.OM_COMPONENTS,
         replacement_details=config.REPLACEMENT_SCHEDULE,
@@ -230,9 +246,22 @@ def main(
         logger.info("Starting Greenfield Nuclear-Hydrogen Integrated Analysis.")
 
         # Use actual reactor capacity from annual metrics, not default values
-        actual_nuclear_capacity = annual_metrics_results.get("Turbine_Capacity_MW",
-                                                             float(tea_sys_params.get("nuclear_plant_capacity_MW",
-                                                                                      config.NUCLEAR_INTEGRATED_CONFIG.get("nuclear_plant_capacity_mw", 1000))))
+        nuclear_capacity_from_params = tea_sys_params.get(
+            "nuclear_plant_capacity_MW")
+        nuclear_capacity_from_config = config.NUCLEAR_INTEGRATED_CONFIG.get(
+            "nuclear_plant_capacity_mw", 1000)
+
+        # Ensure we have a valid float value, with proper fallback chain
+        if nuclear_capacity_from_params is not None:
+            try:
+                nuclear_capacity_fallback = float(nuclear_capacity_from_params)
+            except (ValueError, TypeError):
+                nuclear_capacity_fallback = nuclear_capacity_from_config
+        else:
+            nuclear_capacity_fallback = nuclear_capacity_from_config
+
+        actual_nuclear_capacity = annual_metrics_results.get(
+            "Turbine_Capacity_MW", nuclear_capacity_fallback)
 
         logger.info(
             f"Using actual nuclear reactor capacity: {actual_nuclear_capacity:.1f} MW")
@@ -326,11 +355,11 @@ def main(
         inc_repl = {k: v for k, v in config.REPLACEMENT_SCHEDULE.items() if any(
             sub in k for sub in inc_repl_keys)}
 
-        baseline_revenue_val = float(tea_sys_params.get(
-            "baseline_nuclear_annual_revenue_USD", 0.0))
+        baseline_revenue_val = safe_float_from_params(
+            "baseline_nuclear_annual_revenue_USD", 0.0)
         if baseline_revenue_val <= 0 and "Energy_Revenue" in annual_metrics_results:
-            turbine_max_cap = float(tea_sys_params.get(
-                "pTurbine_max_MW", annual_metrics_results.get("Turbine_Capacity_MW", 300)))
+            turbine_max_cap = safe_float_from_params(
+                "pTurbine_max_MW", annual_metrics_results.get("Turbine_Capacity_MW", 300.0))
             avg_lmp = annual_metrics_results.get(
                 "Avg_Electricity_Price_USD_per_MWh", 40)
             baseline_revenue_val = turbine_max_cap * config.HOURS_IN_YEAR * avg_lmp
@@ -348,10 +377,10 @@ def main(
             capex_components_incremental=inc_capex,
             om_components_incremental=inc_om,
             replacement_schedule_incremental=inc_repl,
-            h2_subsidy_val=float(tea_sys_params.get(
-                "hydrogen_subsidy_value_usd_per_kg", 0.0)),
-            h2_subsidy_yrs=int(
-                float(str(tea_sys_params.get("hydrogen_subsidy_duration_years", 10)))),
+            h2_subsidy_val=safe_float_from_params(
+                "hydrogen_subsidy_value_usd_per_kg", 0.0),
+            h2_subsidy_yrs=int(safe_float_from_params(
+                "hydrogen_subsidy_duration_years", 10.0)),
             optimized_capacities_inc=optimized_caps,
         )
         logger.info("Incremental metrics calculated.")
@@ -400,7 +429,7 @@ def main(
     log_file_actual_path = "N/A"
     if logger and logger.handlers:
         for handler in logger.handlers:
-            if isinstance(handler, logging.FileHandler):
+            if isinstance(handler, std_logging.FileHandler):
                 log_file_actual_path = handler.baseFilename
                 break
     print(f"  Log file: {log_file_actual_path}")

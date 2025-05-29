@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 class EnhancedTEAAnalyzer:
     """Enhanced TEA Data Analyzer with comprehensive data extraction"""
 
-    def __init__(self, results_dir: str = "TEA_results"):
+    def __init__(self, results_dir: str = "output/tea"):
         self.results_dir = Path(results_dir)
         self.data = {}
 

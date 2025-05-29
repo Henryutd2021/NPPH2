@@ -5,7 +5,7 @@ Nuclear power plant economic calculations for TEA analysis.
 import logging
 import numpy as np
 import numpy_financial as npf
-from .config import NUCLEAR_INTEGRATED_CONFIG
+from src.tea.config import NUCLEAR_INTEGRATED_CONFIG
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ from typing import Dict, Optional
 import pandas as pd
 
 from config import HOURS_IN_YEAR
-from logging_setup import logger
+from src.logging.logging_setup import logger
 
 
 def load_hourly_data(
@@ -94,7 +94,8 @@ def load_hourly_data(
                     df = df.iloc[:HOURS_IN_YEAR]
 
             data[key] = df
-            logger.info(f"Loaded required {key} ({len(df)} rows) from {fpath.name}")
+            logger.info(
+                f"Loaded required {key} ({len(df)} rows) from {fpath.name}")
         except Exception as e:
             logger.error(
                 f"Failed to load or process required file {fpath}: {e}",
@@ -126,7 +127,8 @@ def load_hourly_data(
                         df = df.iloc[:HOURS_IN_YEAR]
 
                 data[key] = df
-                logger.info(f"Loaded optional {key} ({len(df)} rows) from {fpath.name}")
+                logger.info(
+                    f"Loaded optional {key} ({len(df)} rows) from {fpath.name}")
             except Exception as e:
                 logger.warning(
                     f"Failed to load or process optional file {fpath}, it will be skipped: {e}",

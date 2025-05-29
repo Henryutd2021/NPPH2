@@ -61,44 +61,60 @@ For the complete list of dependencies, see `requirements.txt`.
 ## Project Structure
 
 - `src/`: Core model implementation
-  - `model.py`: Main optimization model
-  - `constraints.py`: Constraint definitions
-  - `revenue_cost.py`: Revenue and cost calculations
-  - `lcoh.py`: Levelized Cost of Hydrogen calculations
-  - `lcos.py`: Levelized Cost of Storage calculations
-  - `config.py`: Configuration parameters
-  - `data_io.py`: Data input/output utilities
-  - `utils.py`: Common utility functions
-  - `result_processing.py`: Tools for analyzing optimization results
+  - `opt/`: Optimization framework
+    - `model.py`: Main optimization model
+    - `constraints.py`: Constraint definitions
+    - `revenue_cost.py`: Revenue and cost calculations
+    - `config.py`: Configuration parameters
+    - `data_io.py`: Data input/output utilities
+    - `utils.py`: Common utility functions
+    - `result_processing.py`: Tools for analyzing optimization results
+  - `tea/`: Techno-economic analysis framework
+    - `tea.py`: Main TEA calculations
+    - `calculations.py`: Economic calculations
+    - `data_loader.py`: TEA data loading utilities
+    - `config.py`: TEA configuration parameters
+  - `logging/`: Unified logging system
+    - `enhanced_logging.py`: Enhanced logging capabilities
+    - `progress_indicators.py`: Progress tracking utilities
 - `input/`: Input data files
-- `output/`: Output results
+  - `hourly_data/`: ISO-specific hourly market data
+- `output/`: All output results organized by category
+  - `opt/`: Optimization results
+    - `cs1/`: Case study 1 results
+    - `Results_Standardized/`: Standardized optimization results
+  - `tea/`: Techno-economic analysis results
+    - `cs1/`: Case study 1 TEA results
+  - `sa/`: Sensitivity analysis results
+  - `logs/`: All system logs
+- `run/`: Execution scripts
+  - `opt_main.py`: Main optimization runner
+  - `opt_cs1.py`: Case study 1 optimization
+  - `tea_cs1.py`: TEA analysis for case study 1
+  - `sa.py`: Sensitivity analysis runner
 - `tests/`: Test cases
-- `TEA_results/`: Techno-economic analysis results
-- `sensitivity_analysis_results/`: Results from sensitivity analyses
-- `runs/`: Simulation runs with different parameter configurations
-- `temp_sensitivity_runs/`: Temporary sensitivity analysis results
+- `flex/`: Flexibility analysis tools
 - `data/`: Data utilities and sources
-  - `data_gen.py`: Generates synthetic datasets required by the optimization framework
-  - `data_ana.ipynb`: Notebook to fetch, clean and analyze real-world data
+  - `data_gen.py`: Generates synthetic datasets
+  - `data_ana.ipynb`: Data analysis notebook
   - `Raw/`: Raw downloaded data files
-  - `ISOs/`: ISO-specific data subsets
 
 ## Usage
 
-1. Configure the system in `src/config.py`
+1. Configure the system in `src/opt/config.py` and `src/tea/config.py`
 2. Prepare input data files in the `input/` directory
 3. Run the optimization model with:
 
    ```bash
-   python runs/main.py
+   python run/optimization_main.py
    ```
 
-4. Use `src/result_processing.py` for automated result processing and analysis
+4. Use `src/opt/result_processing.py` for automated result processing and analysis
 
 5. The techno-economic analysis (TEA) mode performs detailed financial assessment including:
 
     ```bash
-    python runs/tea.py
+    python run/tea_cs1.py
     ```
 
     - Net Present Value (NPV) calculations
@@ -110,7 +126,7 @@ For the complete list of dependencies, see `requirements.txt`.
 6. The sensitivity analysis (SA) mode evaluates system performance across:
 
     ```bash
-    python runs/sa.py
+    python run/sensitivity_analysis.py
     ```
 
     - Parameter variations (capital costs, efficiencies, etc.)
@@ -121,7 +137,7 @@ For the complete list of dependencies, see `requirements.txt`.
 
 ## Configuration Options
 
-Key configuration parameters in `config.py`:
+Key configuration parameters in `src/opt/config.py`:
 
 ```python
 # ISO selection
@@ -140,6 +156,20 @@ ENABLE_NONLINEAR_TURBINE_EFF: bool = True
 ENABLE_ELECTROLYZER_DEGRADATION_TRACKING: bool = True
 ENABLE_STARTUP_SHUTDOWN: bool = True
 SIMULATE_AS_DISPATCH_EXECUTION: bool = True
+```
+
+TEA-specific configuration in `src/tea/config.py`:
+
+```python
+# TEA Parameters
+PROJECT_LIFETIME_YEARS = 30
+DISCOUNT_RATE = 0.08
+CONSTRUCTION_YEARS = 2
+TAX_RATE = 0.21
+
+# Output directories
+BASE_OUTPUT_DIR_DEFAULT = "output/tea"
+LOG_DIR = "output/logs"
 ```
 
 ## Hydrogen Cost Analysis

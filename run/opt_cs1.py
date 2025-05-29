@@ -27,10 +27,23 @@ except ImportError:
     TQDM_AVAILABLE = False
 
 # Add src directory to Python path for importing optimization framework modules
-src_path = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '..', 'src'))
-if src_path not in sys.path:
-    sys.path.append(src_path)
+# Get the absolute path to the workspace root (parent of opt directory)
+workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+src_opt_path = os.path.join(workspace_root, 'src', 'opt')
+src_logging_path = os.path.join(workspace_root, 'src', 'logging')
+src_root_path = os.path.join(workspace_root, 'src')
+
+# Add all necessary paths to sys.path, including workspace root for absolute 'src' imports
+for path in [workspace_root, src_opt_path, src_logging_path, src_root_path]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+# Debug: Print the paths being added
+print(f"Added paths to sys.path:")
+print(f"  - {workspace_root} (for 'src' absolute imports)")
+print(f"  - {src_opt_path}")
+print(f"  - {src_logging_path}")
+print(f"  - {src_root_path}")
 
 # Try to import the optimization framework modules
 try:
@@ -42,258 +55,14 @@ try:
     import pyomo.environ as pyo
     # Import the framework's optimization module
     from optimization_utils import run_plant_optimization
+    # Import unified progress indicator
+    from progress_indicators import SolverProgressIndicator
     optimization_framework_available = True
     print("Successfully imported optimization framework modules")
 except ImportError as e:
     print(f"Error: Optimization framework modules not available: {e}")
     optimization_framework_available = False
     sys.exit(1)  # Exit if framework is not available
-
-
-class SolverProgressIndicator:
-    """
-    A progress indicator for optimization solving process that shows real progress
-    based on MIP gap information from the solver output.
-    """
-
-    def __init__(self, description="Solving optimization model", target_gap=0.0005):
-        self.description = description
-        self.target_gap = target_gap  # Target MIP gap (e.g., 0.0005 = 0.05%)
-        self.running = False
-        self.thread = None
-        self.start_time = None
-        self.current_gap = None
-        self.log_file = None
-        self.completion_message = None
-
-    def _parse_gurobi_line(self, line):
-        """Parse Gurobi output line to extract gap information."""
-        try:
-            line = line.strip()
-            if not line:
-                return False
-
-            # Pattern 1: Heuristic solution lines: "H  150     0                    2.234056e+08 2.234056e+08  0.00%     0s"
-            if line.startswith('H') and '%' in line:
-                parts = line.split()
-                for i, part in enumerate(parts):
-                    if '%' in part:
-                        gap_str = part.replace('%', '')
-                        try:
-                            self.current_gap = float(gap_str) / 100.0
-                            return True
-                        except ValueError:
-                            pass
-
-            # Pattern 2: Regular iteration lines with gap: "   150     0 2.234056e+08 2.234056e+08  0.00%     0s"
-            elif line[0].isdigit() and '%' in line:
-                parts = line.split()
-                for part in parts:
-                    if '%' in part and part != '%':
-                        gap_str = part.replace('%', '')
-                        try:
-                            self.current_gap = float(gap_str) / 100.0
-                            return True
-                        except ValueError:
-                            pass
-
-            # Pattern 3: Final gap information: "Best objective 1.234567e+08, best bound 1.234567e+08, gap 0.00%"
-            elif 'gap' in line.lower() and '%' in line:
-                import re
-                # Look for "gap X.XX%" pattern
-                match = re.search(r'gap\s+(\d+\.?\d*)%', line, re.IGNORECASE)
-                if match:
-                    self.current_gap = float(match.group(1)) / 100.0
-                    return True
-
-            # Pattern 4: Presolve or other status lines that might contain gap
-            elif 'gap:' in line.lower() and '%' in line:
-                import re
-                match = re.search(r'gap:\s*(\d+\.?\d*)%', line, re.IGNORECASE)
-                if match:
-                    self.current_gap = float(match.group(1)) / 100.0
-                    return True
-
-        except (ValueError, IndexError, AttributeError):
-            pass
-        return False
-
-    def _parse_cplex_line(self, line):
-        """Parse CPLEX output line to extract gap information."""
-        try:
-            if 'gap' in line.lower() and '%' in line:
-                import re
-                match = re.search(r'(\d+\.?\d*)%', line)
-                if match:
-                    self.current_gap = float(match.group(1)) / 100.0
-                    return True
-        except (ValueError, IndexError):
-            pass
-        return False
-
-    def _monitor_solver_output(self, solver_name):
-        """Monitor solver output file for gap information."""
-        # Wait for log file to be created (up to 30 seconds)
-        wait_time = 0
-        max_wait = 30
-        while not os.path.exists(self.log_file) and wait_time < max_wait and self.running:
-            time.sleep(0.5)
-            wait_time += 0.5
-
-        if not os.path.exists(self.log_file):
-            print(
-                f"Warning: Log file {self.log_file} not created after {max_wait}s")
-            return
-
-        # print(f"Gap monitoring started for {self.log_file}")  # Removed to reduce output clutter
-
-        try:
-            # Start reading from the end of the file to avoid old content
-            last_position = 0
-            # Get initial file size to start reading from current end
-            if os.path.exists(self.log_file):
-                with open(self.log_file, 'r') as f:
-                    f.seek(0, 2)  # Go to end
-                    last_position = f.tell()
-                    # print(f"Starting to monitor from position {last_position}")  # Removed to reduce output clutter
-
-            gap_found_count = 0
-            while self.running:
-                try:
-                    with open(self.log_file, 'r') as f:
-                        f.seek(last_position)
-                        new_content = f.read()
-                        if new_content:
-                            # Process each line in the new content
-                            lines = new_content.split('\n')
-                            # Exclude last potentially incomplete line
-                            for line in lines[:-1]:
-                                if line.strip():
-                                    if solver_name.lower() == 'gurobi':
-                                        if self._parse_gurobi_line(line):
-                                            gap_found_count += 1
-                                            # Removed gap debugging output to reduce clutter
-                                    elif solver_name.lower() == 'cplex':
-                                        if self._parse_cplex_line(line):
-                                            gap_found_count += 1
-                                            # Removed gap debugging output to reduce clutter
-                            last_position = f.tell()
-                        else:
-                            time.sleep(0.2)  # Wait for more content
-                except IOError:
-                    # File might be locked by solver, wait and retry
-                    time.sleep(0.5)
-        except Exception as e:
-            print(f"Error in gap monitoring: {e}")
-        finally:
-            # Removed gap monitoring completion messages to reduce output clutter
-            pass
-
-    def _calculate_progress(self):
-        """Calculate progress based on current gap and target gap."""
-        if self.current_gap is None:
-            return 0.0
-
-        if self.current_gap <= self.target_gap:
-            return 100.0
-
-        # Logarithmic progress calculation
-        import math
-        initial_gap = 1.0
-
-        if self.current_gap >= initial_gap:
-            return 0.0
-
-        log_current = math.log10(max(self.current_gap, 1e-6))
-        log_target = math.log10(max(self.target_gap, 1e-6))
-        log_initial = math.log10(initial_gap)
-
-        progress = (log_initial - log_current) / \
-            (log_initial - log_target) * 100
-        return min(max(progress, 0.0), 100.0)
-
-    def _animate(self):
-        """Internal method to run the animation in a separate thread."""
-        if TQDM_AVAILABLE:
-            with tqdm(desc=self.description, total=100, unit="%",
-                      bar_format="{desc}: {percentage:3.0f}%|{bar}| Gap: {postfix} | {elapsed}") as pbar:
-                while self.running:
-                    progress = self._calculate_progress()
-                    gap_text = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                    pbar.set_postfix_str(gap_text)
-                    pbar.n = progress
-                    pbar.refresh()
-                    time.sleep(0.5)
-
-                # Set final state when animation stops
-                final_progress = self._calculate_progress()
-                final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                pbar.n = final_progress
-                pbar.set_postfix_str(final_gap)
-                pbar.refresh()
-
-                # Store completion message for later display
-                if self.start_time:
-                    elapsed = time.time() - self.start_time
-                    self.completion_message = f"{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})"
-        else:
-            spinners = ['|', '/', '-', '\\']
-            i = 0
-            while self.running:
-                elapsed = time.time() - self.start_time if self.start_time else 0
-                progress = self._calculate_progress()
-                gap_text = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                print(f"\r{self.description}... {spinners[i % len(spinners)]} Progress: {progress:.1f}% | Gap: {gap_text} | ({elapsed:.1f}s)",
-                      end="", flush=True)
-                i += 1
-                time.sleep(0.5)
-            print()
-
-    def start(self, solver_name="gurobi", log_file=None):
-        """Start the progress indicator."""
-        if not self.running:
-            self.running = True
-            self.start_time = time.time()
-            self.log_file = log_file
-            self.current_gap = None  # Reset gap for new run
-
-            # Debug output
-            if log_file:
-                print(
-                    f"Starting gap monitoring for {solver_name} with log file: {log_file}")
-
-            if log_file and solver_name:
-                monitor_thread = threading.Thread(
-                    target=self._monitor_solver_output,
-                    args=(solver_name,),
-                    daemon=True,
-                    # Unique thread name
-                    name=f"GapMonitor-{solver_name}-{int(time.time())}"
-                )
-                monitor_thread.start()
-
-            self.thread = threading.Thread(
-                target=self._animate,
-                daemon=True,
-                name=f"ProgressAnim-{int(time.time())}"  # Unique thread name
-            )
-            self.thread.start()
-
-    def stop(self):
-        """Stop the progress indicator."""
-        if self.running:
-            self.running = False
-            if self.thread:
-                self.thread.join(timeout=2.0)  # Increased timeout
-
-            # Show completion message after progress bar is properly closed
-            if TQDM_AVAILABLE and hasattr(self, 'completion_message') and self.completion_message:
-                print(self.completion_message)
-            elif not TQDM_AVAILABLE and self.start_time:
-                elapsed = time.time() - self.start_time
-                final_gap = f"{self.current_gap*100:.3f}%" if self.current_gap is not None else "N/A"
-                print(
-                    f"\r{self.description} completed in {elapsed:.1f}s (Final gap: {final_gap})" + " " * 20)
 
 
 def calculate_crf(discount_rate, lifetime_years):
@@ -407,7 +176,7 @@ def adjust_system_params_for_remaining_life(system_params_df, remaining_years, t
 
 def create_output_directory():
     """Create the output directory for storing results."""
-    output_dir = "../output/cs1"
+    output_dir = "../output/opt/cs1"
     os.makedirs(output_dir, exist_ok=True)
     return output_dir
 

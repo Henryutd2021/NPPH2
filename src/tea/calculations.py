@@ -10,7 +10,7 @@ import pandas as pd
 
 # Attempt to import from tea.config, handling potential circular imports or module not found
 try:
-    from .config import (  # Changed to relative import
+    from src.tea.config import (  # Changed to absolute import
         HOURS_IN_YEAR,
         ENABLE_BATTERY,
         TAX_RATE,
@@ -20,6 +20,7 @@ try:
         CAPEX_COMPONENTS,
         OM_COMPONENTS,
         REPLACEMENT_SCHEDULE,
+        CONSTRUCTION_FINANCING
         # NUCLEAR_INTEGRATED_CONFIG, # This is used in nuclear specific calculations, not directly here
         # NUCLEAR_CAPEX_COMPONENTS, # This is used in nuclear specific calculations
         # NUCLEAR_OM_COMPONENTS, # This is used in nuclear specific calculations

@@ -1,5 +1,5 @@
 """
-Enhanced Logging System for CS1 TEA Analysis
+Enhanced Logging System for TEA Analysis
 Provides reactor-specific logging with data issue tracking and standardized naming
 """
 
@@ -324,6 +324,43 @@ class EnhancedReactorLogger:
             self.info(f"💾 Session summary saved to {self.session_file}")
         except Exception as e:
             self.error(f"Failed to save session summary: {e}")
+
+
+class TEALoggerAdapter:
+    """Adapter to bridge enhanced logging with existing TEA functions"""
+
+    def __init__(self, reactor_logger: EnhancedReactorLogger):
+        self.logger = reactor_logger
+
+    def log_tea_parameter(self, param_name: str, value: Any, unit: str = ""):
+        """Log TEA parameter with standardized format"""
+        self.logger.log_calculation_result(param_name, value, unit)
+
+    def log_tea_phase(self, phase_name: str, description: str = ""):
+        """Log TEA calculation phase"""
+        self.logger.log_phase_start(f"TEA_{phase_name}", description)
+
+    def complete_tea_phase(self, phase_name: str, duration: Optional[float] = None):
+        """Complete TEA calculation phase"""
+        self.logger.log_phase_complete(f"TEA_{phase_name}", duration)
+
+    def log_data_validation_error(self, parameter: str, value: str, reason: str):
+        """Log data validation errors"""
+        self.logger.log_invalid_data(
+            component="tea_validation",
+            parameter=parameter,
+            invalid_value=value,
+            impact="medium"
+        )
+
+    def log_missing_input(self, parameter: str, fallback_value: str = None):
+        """Log missing input parameters"""
+        self.logger.log_missing_data(
+            component="tea_input",
+            parameter=parameter,
+            fallback_value=fallback_value,
+            impact="high"
+        )
 
 
 @contextmanager

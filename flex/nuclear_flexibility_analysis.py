@@ -80,7 +80,7 @@ class NuclearFlexibilityAnalyzer:
         # Try to use enhanced TEA analyzer first
         try:
             from enhanced_tea_analyzer import EnhancedTEAAnalyzer
-            enhanced_analyzer = EnhancedTEAAnalyzer("../TEA_results")
+            enhanced_analyzer = EnhancedTEAAnalyzer("../output/tea")
             df = enhanced_analyzer.collect_comprehensive_data()
 
             if not df.empty:
@@ -96,13 +96,13 @@ class NuclearFlexibilityAnalyzer:
         # Fallback to original TEA analyzer
         try:
             from tea.tea_ana import TEAAnalyzer
-            tea_analyzer = TEAAnalyzer("../TEA_results")
+            tea_analyzer = TEAAnalyzer("../output/tea")
         except ImportError:
             try:
                 import sys
                 sys.path.append('..')
                 from tea.tea_ana import TEAAnalyzer
-                tea_analyzer = TEAAnalyzer("../TEA_results")
+                tea_analyzer = TEAAnalyzer("../output/tea")
             except ImportError:
                 print(
                     "❌ Could not import TEAAnalyzer. Creating sample data for demonstration...")

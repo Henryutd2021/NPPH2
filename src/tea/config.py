@@ -7,7 +7,8 @@ from pathlib import Path
 
 # Base file paths
 SCRIPT_DIR_PATH = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR_PATH.parent / "logs"
+# Updated: Point to new output/logs directory structure
+LOG_DIR = SCRIPT_DIR_PATH.parent.parent / "output" / "logs"
 os.makedirs(LOG_DIR, exist_ok=True)  # Ensure log directory exists
 
 # Add src directory to Python path (though this might be better handled at runtime in main script)
@@ -18,8 +19,8 @@ SRC_PATH = SCRIPT_DIR_PATH.parent / "src"
 #     sys.path.append(str(SRC_PATH))
 
 # TEA Configuration
-BASE_OUTPUT_DIR_DEFAULT = SCRIPT_DIR_PATH.parent / "TEA_results"
-BASE_INPUT_DIR_DEFAULT = SCRIPT_DIR_PATH.parent / "input"
+BASE_OUTPUT_DIR_DEFAULT = SCRIPT_DIR_PATH.parent.parent / "output" / "tea"
+BASE_INPUT_DIR_DEFAULT = SCRIPT_DIR_PATH.parent.parent / "input"
 
 # TEA Parameters
 PROJECT_LIFETIME_YEARS = 30

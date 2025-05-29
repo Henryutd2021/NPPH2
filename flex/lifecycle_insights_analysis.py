@@ -19,7 +19,7 @@ def analyze_lifecycle_insights():
     print("=" * 60)
 
     # Load data
-    analyzer = EnhancedTEAAnalyzer('../TEA_results')
+    analyzer = EnhancedTEAAnalyzer('../output/tea')
     df = analyzer.collect_comprehensive_data()
     df = analyzer.calculate_enhanced_metrics(df)
 

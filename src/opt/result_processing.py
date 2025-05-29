@@ -14,7 +14,7 @@ from config import (
     ENABLE_NUCLEAR_GENERATOR,
     ENABLE_STARTUP_SHUTDOWN,
 )
-from logging_setup import logger
+from src.logging.logging_setup import logger
 from utils import get_param, get_total_deployed_as, get_var_value
 
 
@@ -195,7 +195,7 @@ def calculate_hourly_as_revenue(m: pyo.ConcreteModel, t: int) -> float:
 def extract_results(
     model: pyo.ConcreteModel,
     target_iso: str,
-    output_dir: str = "../output/Results_Standardized",
+    output_dir: str = "../output/opt/Results_Standardized",
 ):
     """
     Extracts comprehensive results from the solved Pyomo model.

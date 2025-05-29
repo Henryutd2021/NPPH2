@@ -3,7 +3,7 @@ Reporting and plotting coordination functions for the TEA module.
 Main entry point for generating reports and coordinating visualizations.
 """
 
-from .visualization import (
+from src.tea.visualization import (
     get_component_color,
     create_cash_flow_plots,
     create_capex_breakdown_plots,

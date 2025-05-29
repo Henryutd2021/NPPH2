@@ -4,6 +4,22 @@ This script performs comprehensive sensitivity analysis on various parameters
 and generates detailed reports and visualizations.
 """
 
+from result_processing import extract_results
+from model import create_model
+from data_io import load_hourly_data
+from config import (
+    ENABLE_BATTERY,
+    ENABLE_ELECTROLYZER,
+    ENABLE_ELECTROLYZER_DEGRADATION_TRACKING,
+    ENABLE_H2_CAP_FACTOR,
+    ENABLE_H2_STORAGE,
+    ENABLE_LOW_TEMP_ELECTROLYZER,
+    ENABLE_NONLINEAR_TURBINE_EFF,
+    ENABLE_NUCLEAR_GENERATOR,
+    ENABLE_STARTUP_SHUTDOWN,
+    SIMULATE_AS_DISPATCH_EXECUTION,
+    TARGET_ISO,
+)
 import copy
 import json
 import logging
@@ -22,29 +38,14 @@ import pyomo.environ as pyo
 import seaborn as sns
 from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+sys.path.append(os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "src")))
 
-from config import (
-    ENABLE_BATTERY,
-    ENABLE_ELECTROLYZER,
-    ENABLE_ELECTROLYZER_DEGRADATION_TRACKING,
-    ENABLE_H2_CAP_FACTOR,
-    ENABLE_H2_STORAGE,
-    ENABLE_LOW_TEMP_ELECTROLYZER,
-    ENABLE_NONLINEAR_TURBINE_EFF,
-    ENABLE_NUCLEAR_GENERATOR,
-    ENABLE_STARTUP_SHUTDOWN,
-    SIMULATE_AS_DISPATCH_EXECUTION,
-    TARGET_ISO,
-)
-from data_io import load_hourly_data
-from model import create_model
-from result_processing import extract_results
 
 # --- Configuration ---
 BASE_INPUT_DIR = "../input/hourly_data"
 BASE_SYS_DATA_FILE = os.path.join(BASE_INPUT_DIR, "sys_data_advanced.csv")
-SENSITIVITY_OUTPUT_DIR = "../sensitivity_analysis_results"
+SENSITIVITY_OUTPUT_DIR = "../output/sa"
 SENSITIVITY_OUTPUT_CSV = os.path.join(
     SENSITIVITY_OUTPUT_DIR, "sensitivity_analysis_results.csv"
 )
@@ -526,7 +527,8 @@ def modify_hourly_data(
         # Apply AS price multiplier if provided
         if as_price_multiplier is not None and as_price_multiplier != 1.0:
             for iso in iso_dirs:
-                ans_price_file = os.path.join(input_dir, iso, "Price_ANS_hourly.csv")
+                ans_price_file = os.path.join(
+                    input_dir, iso, "Price_ANS_hourly.csv")
                 if os.path.exists(ans_price_file):
                     df = pd.read_csv(ans_price_file)
                     # Apply multiplier to all price columns (exclude timestamps, etc.)
@@ -669,7 +671,8 @@ def run_single_optimization(
                 # Make sure Python can import from this directory
                 sys.path.insert(0, input_dir)
             else:
-                logging.warning("Failed to create custom config, using default")
+                logging.warning(
+                    "Failed to create custom config, using default")
 
         # Determine which ISO to use
         target_iso = iso if iso else TARGET_ISO
@@ -868,7 +871,8 @@ def plot_sensitivity_results(results_df, output_dir):
 
                 if not top_params.empty:
                     plt.figure(figsize=(10, 6))
-                    ax = sns.barplot(data=top_params, x="Parameter", y=change_col)
+                    ax = sns.barplot(
+                        data=top_params, x="Parameter", y=change_col)
                     ax.set_title(f"Top 10 Parameters Affecting {metric}")
                     ax.set_xlabel("Parameter")
                     ax.set_ylabel("Maximum Absolute % Change")
@@ -927,7 +931,8 @@ def plot_sensitivity_results(results_df, output_dir):
 
         plt.tight_layout()
         plt.savefig(
-            os.path.join(output_dir, f'sensitivity_{param.replace(" ", "_")}.png')
+            os.path.join(
+                output_dir, f'sensitivity_{param.replace(" ", "_")}.png')
         )
         plt.close()
 
@@ -955,7 +960,8 @@ def plot_sensitivity_results(results_df, output_dir):
             plt.title(f"Correlation Matrix for {param}")
             plt.tight_layout()
             plt.savefig(
-                os.path.join(output_dir, f'correlation_{param.replace(" ", "_")}.png')
+                os.path.join(
+                    output_dir, f'correlation_{param.replace(" ", "_")}.png')
             )
             plt.close()
 
@@ -993,10 +999,12 @@ def create_tornado_plots(results_df, output_dir):
                         {
                             "Parameter": param,
                             "Max Increase (%)": (
-                                max_increase if not np.isnan(max_increase) else 0
+                                max_increase if not np.isnan(
+                                    max_increase) else 0
                             ),
                             "Max Decrease (%)": (
-                                max_decrease if not np.isnan(max_decrease) else 0
+                                max_decrease if not np.isnan(
+                                    max_decrease) else 0
                             ),
                         }
                     )
@@ -1048,7 +1056,8 @@ def create_tornado_plots(results_df, output_dir):
 
             plt.tight_layout()
             plt.savefig(
-                os.path.join(output_dir, f'tornado_{metric.replace(" ", "_")}.png')
+                os.path.join(
+                    output_dir, f'tornado_{metric.replace(" ", "_")}.png')
             )
             plt.close()
 
@@ -1086,12 +1095,14 @@ def analyze_scenario_results(scenario_results, scenario_type, output_dir):
     for metric in metric_cols:
         plt.figure(figsize=(12, 6))
         ax = sns.barplot(data=results_df, x="Scenario", y=metric)
-        ax.set_title(f'{metric} by {scenario_type.replace("_", " ").title()} Scenario')
+        ax.set_title(
+            f'{metric} by {scenario_type.replace("_", " ").title()} Scenario')
         ax.set_xlabel("")
         plt.xticks(rotation=45, ha="right")
         plt.tight_layout()
         plt.savefig(
-            os.path.join(output_dir, f'{scenario_type}_{metric.replace(" ", "_")}.png')
+            os.path.join(
+                output_dir, f'{scenario_type}_{metric.replace(" ", "_")}.png')
         )
         plt.close()
 
@@ -1134,7 +1145,8 @@ def analyze_size_combinations(output_dir=None):
         DataFrame containing the results
     """
     if output_dir is None:
-        output_dir = os.path.join(SENSITIVITY_OUTPUT_DIR, "size_combination_analysis")
+        output_dir = os.path.join(
+            SENSITIVITY_OUTPUT_DIR, "size_combination_analysis")
 
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(TEMP_RUN_DIR_BASE, exist_ok=True)
@@ -1169,7 +1181,8 @@ def analyze_size_combinations(output_dir=None):
 
                 # Create run directory
                 run_name = f"E{elec_size}_BP{batt_power}_BE{batt_energy}"
-                run_dir = os.path.join(TEMP_RUN_DIR_BASE, f"size_combo_{run_name}")
+                run_dir = os.path.join(
+                    TEMP_RUN_DIR_BASE, f"size_combo_{run_name}")
 
                 if os.path.exists(run_dir):
                     shutil.rmtree(run_dir)
@@ -1217,7 +1230,8 @@ def analyze_size_combinations(output_dir=None):
                     "Battery Duration (h)": batt_duration,
                     "Battery Energy (MWh)": batt_energy,
                     "E/B Power Ratio": (
-                        elec_size / batt_power if batt_power > 0 else float("inf")
+                        elec_size /
+                        batt_power if batt_power > 0 else float("inf")
                     ),
                 }
                 result_dict.update(results)
@@ -1243,7 +1257,8 @@ def analyze_size_combinations(output_dir=None):
         if metric in results_df.columns:
             for duration in results_df["Battery Duration (h)"].unique():
                 # Filter data for specific battery duration
-                df_duration = results_df[results_df["Battery Duration (h)"] == duration]
+                df_duration = results_df[results_df["Battery Duration (h)"]
+                                         == duration]
 
                 if len(df_duration) > 0:
                     # Create pivot table
@@ -1255,13 +1270,15 @@ def analyze_size_combinations(output_dir=None):
 
                     # Plot heatmap
                     plt.figure(figsize=(10, 8))
-                    sns.heatmap(pivot_data, annot=True, cmap="viridis", fmt=".2f")
+                    sns.heatmap(pivot_data, annot=True,
+                                cmap="viridis", fmt=".2f")
                     plt.title(f"{metric} - Battery Duration: {duration}h")
                     plt.tight_layout()
 
                     # Save chart
                     metric_name = (
-                        metric.replace(" ", "_").replace("(", "").replace(")", "")
+                        metric.replace(" ", "_").replace(
+                            "(", "").replace(")", "")
                     )
                     plt.savefig(
                         os.path.join(
@@ -1280,7 +1297,8 @@ def analyze_size_combinations(output_dir=None):
 
         # Plot bar chart comparing top combinations
         plt.figure(figsize=(12, 8))
-        bars = plt.bar(range(len(top_combinations)), top_combinations["Total Profit"])
+        bars = plt.bar(range(len(top_combinations)),
+                       top_combinations["Total Profit"])
         plt.xticks(
             range(len(top_combinations)),
             [
@@ -1349,7 +1367,8 @@ def sensitivity_analysis():
     current_run = 0
     all_results = []
 
-    logging.info(f"Starting sensitivity analysis with {total_runs} total runs...")
+    logging.info(
+        f"Starting sensitivity analysis with {total_runs} total runs...")
     print(f"Starting sensitivity analysis with {total_runs} total runs...")
 
     # Get base case result
@@ -1380,7 +1399,8 @@ def sensitivity_analysis():
         logging.info(
             f"Running sensitivity for {param_name} from {min_pct}% to {max_pct}%..."
         )
-        print(f"Running sensitivity for {param_name} from {min_pct}% to {max_pct}%...")
+        print(
+            f"Running sensitivity for {param_name} from {min_pct}% to {max_pct}%...")
 
         # Read base value
         base_df = pd.read_csv(BASE_SYS_DATA_FILE, index_col=0)
@@ -1461,7 +1481,8 @@ def sensitivity_analysis():
                 # Calculate changes from base case
                 result_dict = {
                     "Parameter": param_name,
-                    "Variation (%)": pct,  # Store the original 'pct' value from the range
+                    # Store the original 'pct' value from the range
+                    "Variation (%)": pct,
                     "Parameter Value": current_value,
                 }
 
@@ -1677,7 +1698,8 @@ def sensitivity_analysis():
         for param, value in scenario.items():
             if param != "name":
                 param_display = (
-                    param.replace("user_specified_", "").replace("_", " ").title()
+                    param.replace("user_specified_", "").replace(
+                        "_", " ").title()
                 )
                 result_dict[param_display] = value
 
@@ -1694,7 +1716,8 @@ def sensitivity_analysis():
 
     # Save scenario analysis results
     pd.DataFrame(tech_scenario_results).to_csv(
-        os.path.join(SENSITIVITY_OUTPUT_DIR, "technology_scenario_results.csv"),
+        os.path.join(SENSITIVITY_OUTPUT_DIR,
+                     "technology_scenario_results.csv"),
         index=False,
     )
     pd.DataFrame(market_scenario_results).to_csv(
@@ -1706,7 +1729,8 @@ def sensitivity_analysis():
         index=False,
     )
     pd.DataFrame(fixed_size_results).to_csv(
-        os.path.join(SENSITIVITY_OUTPUT_DIR, "fixed_size_scenario_results.csv"),
+        os.path.join(SENSITIVITY_OUTPUT_DIR,
+                     "fixed_size_scenario_results.csv"),
         index=False,
     )
 
@@ -1787,7 +1811,8 @@ def sensitivity_analysis():
             )
         )
     except Exception as e:
-        logging.error(f"Error generating correlation analysis: {e}", exc_info=True)
+        logging.error(
+            f"Error generating correlation analysis: {e}", exc_info=True)
 
     # Clean up temporary files
     if os.path.exists(TEMP_RUN_DIR_BASE):
@@ -1803,7 +1828,8 @@ def sensitivity_analysis():
     run_size_combination = False  # Set to True to enable combination analysis
 
     if run_size_combination:
-        logging.info("Starting electrolyzer & battery size combination analysis...")
+        logging.info(
+            "Starting electrolyzer & battery size combination analysis...")
         print("\nRunning electrolyzer & battery size combination analysis...")
         analyze_size_combinations()
 
@@ -1914,7 +1940,8 @@ if __name__ == "__main__":
                 sensitivity_analysis()
                 if args.combinations:
                     analyze_size_combinations(
-                        output_dir=os.path.join(output_dir, "size_combination_analysis")
+                        output_dir=os.path.join(
+                            output_dir, "size_combination_analysis")
                     )
             finally:
                 # Restore global settings (actually not modified, but good practice)
@@ -1944,5 +1971,6 @@ if __name__ == "__main__":
             if args.combinations:
                 print("Running equipment size combination analysis...")
                 analyze_size_combinations(
-                    output_dir=os.path.join(output_dir, "size_combination_analysis")
+                    output_dir=os.path.join(
+                        output_dir, "size_combination_analysis")
                 )
