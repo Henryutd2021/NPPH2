@@ -206,6 +206,13 @@ NUCLEAR_REPLACEMENT_SCHEDULE = {
     },
 }
 
+# Construction Financing Configuration
+CONSTRUCTION_FINANCING = {
+    "interest_rate_during_construction": 0.06,  # 6% annual interest rate
+    "financing_method": "compound",  # compound or simple
+    "payment_schedule_type": "end_of_period",  # end_of_period or beginning_of_period
+}
+
 # Fallback/default values that might be overridden by framework imports
 # These are included here for completeness, but the main script tea.py
 # will handle the try-except block for framework imports.

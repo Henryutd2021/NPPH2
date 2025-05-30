@@ -77,7 +77,7 @@ def plot_results(
     financial_metrics_data: dict,
     cash_flows_data: np.ndarray,
     plot_dir: Path,
-    construction_p: int,
+    construction_period_years: int,
     incremental_metrics_data: dict | None = None,
 ):
     """Generate all visualization charts by coordinating specialized visualization functions"""
@@ -108,7 +108,7 @@ def plot_results(
     create_cash_flow_plots(
         cash_flows_data,
         plot_dir,
-        construction_p,
+        construction_period_years,
         incremental_metrics_data
     )
 
@@ -357,10 +357,10 @@ def generate_report(
     capex_data: dict,
     om_data: dict,
     replacement_data: dict,
-    project_lt_rpt: int,
-    construction_p_rpt: int,
-    discount_rt_rpt: float,
-    tax_rt_rpt: float,
+    project_lifetime_years_rpt: int,
+    construction_period_years_rpt: int,
+    discount_rate_rpt: float,
+    tax_rate_rpt: float,
     incremental_metrics_rpt: dict | None = None,
 ):
     """Generate comprehensive TEA report exactly matching main tea.py"""
@@ -388,10 +388,10 @@ def generate_report(
         # **ENHANCEMENT: Use consistent alignment formatting**
         config_items = {
             "ISO Region": target_iso_rpt,
-            "Project Lifetime": f"{project_lt_rpt} years",
-            "Construction Period": f"{construction_p_rpt} years",
-            "Discount Rate": f"{discount_rt_rpt*100:.2f}%",
-            "Corporate Tax Rate": f"{tax_rt_rpt*100:.1f}%",
+            "Project Lifetime": f"{project_lifetime_years_rpt} years",
+            "Construction Period": f"{construction_period_years_rpt} years",
+            "Discount Rate": f"{discount_rate_rpt*100:.2f}%",
+            "Corporate Tax Rate": f"{tax_rate_rpt*100:.1f}%",
         }
 
         # **ENHANCEMENT: Add plant-specific technical parameters**
@@ -894,6 +894,31 @@ def generate_report(
             else:
                 f.write("    Baseline analysis data not available\n")
 
+            # **ENHANCED: Electricity cost analysis using nuclear LCOE (mandatory per memory)**
+            f.write("\n  Electricity Cost Analysis (Using Nuclear LCOE):\n")
+
+            # Electrolyzer electricity consumption
+            electrolyzer_mwh = annual_metrics_rpt.get("Annual_Electrolyzer_MWh", 0) if annual_metrics_rpt else 0
+            nuclear_lcoe = annual_metrics_rpt.get("Nuclear_LCOE_USD_per_MWh", 0) if annual_metrics_rpt else 0
+            avg_price = annual_metrics_rpt.get("Avg_Electricity_Price_USD_per_MWh", 0) if annual_metrics_rpt else 0
+
+            # In incremental analysis, Nuclear LCOE may be zero (since nuclear plant already exists)
+            # Use market price as the opportunity cost for electricity in incremental analysis
+            if nuclear_lcoe <= 0 and avg_price > 0:
+                effective_electricity_price = avg_price
+                price_note = f"market price (incremental analysis)"
+            else:
+                effective_electricity_price = nuclear_lcoe
+                price_note = f"Nuclear LCOE"
+
+            electrolyzer_cost = electrolyzer_mwh * effective_electricity_price
+            f.write(f"    Electrolyzer Electricity Consumption: {electrolyzer_mwh:,.0f} MWh/year\n")
+            f.write(f"    Electrolyzer Electricity Cost (at {price_note}): ${electrolyzer_cost:,.2f}/year\n")
+            f.write(f"    Nuclear LCOE: ${nuclear_lcoe:.2f}/MWh\n")
+            if nuclear_lcoe <= 0:
+                f.write(f"    Note: Nuclear LCOE is zero in incremental analysis (existing plant)\n")
+                f.write(f"    Note: Using market price ${avg_price:.2f}/MWh for opportunity cost calculation\n")
+
             # **ENHANCED: Battery charging cost analysis**
             if annual_metrics_rpt and annual_metrics_rpt.get("Battery_Capacity_MWh", 0) > 0:
                 f.write("\n  Battery Charging Cost Analysis:\n")
@@ -902,17 +927,28 @@ def generate_report(
                     "Annual_Battery_Charge_From_Grid_MWh", 0)
                 npp_charge = annual_metrics_rpt.get(
                     "Annual_Battery_Charge_From_NPP_MWh", 0)
-                avg_price = annual_metrics_rpt.get(
-                    "Avg_Electricity_Price_USD_per_MWh", 0)
+
+                # Use appropriate pricing for battery charging costs
+                # In incremental analysis, use market price for both grid and NPP charging
+                if nuclear_lcoe <= 0 and avg_price > 0:
+                    # Incremental analysis: use market price for NPP opportunity cost
+                    npp_price = avg_price
+                    npp_price_note = "market price (incremental analysis)"
+                else:
+                    # Greenfield analysis: use Nuclear LCOE for NPP opportunity cost
+                    npp_price = nuclear_lcoe
+                    npp_price_note = "Nuclear LCOE"
 
                 direct_cost = grid_charge * avg_price
-                opportunity_cost = npp_charge * avg_price
+                opportunity_cost = npp_charge * npp_price
                 total_charging_cost = direct_cost + opportunity_cost
 
+                f.write(f"    Grid Charging: {grid_charge:,.0f} MWh/year\n")
+                f.write(f"    NPP Charging: {npp_charge:,.0f} MWh/year\n")
                 f.write(
-                    f"    Direct Operating Cost (Grid Charging): ${direct_cost:,.2f}/year\n")
+                    f"    Direct Operating Cost (Grid at Market Price): ${direct_cost:,.2f}/year\n")
                 f.write(
-                    f"    Opportunity Cost (NPP Charging): ${opportunity_cost:,.2f}/year\n")
+                    f"    Opportunity Cost (NPP at {npp_price_note}): ${opportunity_cost:,.2f}/year\n")
                 f.write(
                     f"    Total Battery Charging Cost: ${total_charging_cost:,.2f}/year\n")
 
@@ -921,6 +957,9 @@ def generate_report(
                     opp_pct = (opportunity_cost / total_charging_cost) * 100
                     f.write(
                         f"    Cost Breakdown: {direct_pct:.1f}% Direct, {opp_pct:.1f}% Opportunity\n")
+
+                f.write(f"    Note: NPP charging uses {npp_price_note} (${npp_price:.2f}/MWh) as opportunity cost\n")
+                f.write(f"    Note: Grid charging uses market price (${avg_price:.2f}/MWh) as direct cost\n")
 
             # **ENHANCED: AS opportunity cost analysis**
             if annual_metrics_rpt:
@@ -948,6 +987,39 @@ def generate_report(
                     f.write(
                         f"    Net AS Benefit: ${net_as_benefit:,.2f}/year\n")
                     f.write(f"    Net AS Margin: {net_as_margin:.1f}%\n")
+
+            # **ENHANCED: HTE thermal opportunity cost analysis (mandatory per memory)**
+            if annual_metrics_rpt:
+                hte_thermal_cost = incremental_metrics_rpt.get(
+                    "Annual_HTE_Thermal_Opportunity_Cost_USD", 0)
+                # Always show HTE analysis section, even if cost is zero
+                f.write("\n  HTE Thermal Energy Opportunity Cost Analysis:\n")
+
+                # Get thermal efficiency and steam consumption data
+                thermal_efficiency = annual_metrics_rpt.get("thermal_efficiency", 0)
+                steam_consumption = annual_metrics_rpt.get("HTE_Steam_Consumption_Annual_MWth", 0)
+                avg_price = annual_metrics_rpt.get("Avg_Electricity_Price_USD_per_MWh", 0)
+                lost_generation = annual_metrics_rpt.get("HTE_Lost_Electricity_Generation_Annual_MWh", 0)
+                hte_mode = annual_metrics_rpt.get("HTE_Mode_Detected", False)
+
+                f.write(f"    HTE Mode Detected: {'Yes' if hte_mode else 'No (LTE Mode)'}\n")
+                f.write(f"    Annual Steam Consumption: {steam_consumption:,.1f} MWth/year\n")
+                f.write(f"    Thermal Efficiency: {thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)\n")
+                f.write(f"    Lost Electricity Generation: {lost_generation:,.1f} MWh/year\n")
+                f.write(f"    Average Electricity Price: ${avg_price:.2f}/MWh\n")
+                f.write(f"    HTE Thermal Opportunity Cost: ${hte_thermal_cost:,.2f}/year\n")
+
+                # Calculate cost per kg H2 if H2 production data is available
+                h2_production = annual_metrics_rpt.get("H2_Production_kg_annual", 0)
+                if h2_production > 0:
+                    hte_cost_per_kg = hte_thermal_cost / h2_production
+                    f.write(f"    HTE Thermal Cost per kg H2: ${hte_cost_per_kg:.3f}/kg\n")
+
+                # Show impact on LCOH
+                if hte_thermal_cost > 0:
+                    f.write(f"    Note: HTE thermal opportunity cost included in LCOH calculation\n")
+                else:
+                    f.write(f"    Note: No thermal opportunity cost (LTE mode or no steam consumption)\n")
 
             f.write("\n")
         else:
@@ -1294,17 +1366,26 @@ def generate_report(
             if annual_metrics_rpt and annual_metrics_rpt.get("Battery_Capacity_MWh", 0) > 0:
                 f.write("\nBattery Storage Cost Analysis:\n")
 
-                # Get LCOS from both scenarios
+                # Get LCOS from both scenarios with improved error handling
                 lcos_60 = lifecycle_60.get('battery_lcos_usd_per_mwh', 0)
                 lcos_80 = lifecycle_80.get('battery_lcos_usd_per_mwh', 0)
+
+                # Validate LCOS values and log any issues
+                if lcos_60 <= 0:
+                    logger.warning(f"60-year LCOS is zero or negative: {lcos_60}")
+                if lcos_80 <= 0:
+                    logger.warning(f"80-year LCOS is zero or negative: {lcos_80}")
+
                 lcos_difference = lcos_80 - lcos_60
 
                 if lcos_60 > 0 or lcos_80 > 0:
                     f.write(
                         f"{'LCOS (USD/MWh)':<35} ${lcos_60:>15.2f} ${lcos_80:>15.2f} ${lcos_difference:>12.2f}\n")
+                    logger.info(f"LCOS comparison: 60yr=${lcos_60:.2f}/MWh, 80yr=${lcos_80:.2f}/MWh, diff=${lcos_difference:.2f}/MWh")
                 else:
                     f.write(
                         f"{'LCOS (USD/MWh)':<35} {'N/A':>20} {'N/A':>20} {'N/A':>15}\n")
+                    logger.warning("Both LCOS values are zero or invalid")
 
         f.write("\nReport generated successfully.\n")
 

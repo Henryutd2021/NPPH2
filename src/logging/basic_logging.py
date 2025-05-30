@@ -88,9 +88,9 @@ def setup_basic_logger(
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
 
-    # Console handler (only for INFO and above)
+    # Console handler (only for errors)
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.ERROR)  # Only errors to console
     console_formatter = logging.Formatter("%(levelname)s - %(message)s")
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)

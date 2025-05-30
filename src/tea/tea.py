@@ -108,6 +108,12 @@ def main(
     logger = logger_instance  # Assign to global logger
     logger.info("🚀 Starting TEA analysis...")
 
+    # Reduce verbose logging for cleaner console output
+    std_logging.getLogger('src.tea.calculations').setLevel(std_logging.WARNING)
+    std_logging.getLogger('src.tea.nuclear_calculations').setLevel(std_logging.WARNING)
+    std_logging.getLogger('src.tea.visualization').setLevel(std_logging.WARNING)
+    std_logging.getLogger('src.tea.reporting').setLevel(std_logging.WARNING)
+
     # Apply overrides to config module variables if provided
     if project_lifetime_override is not None:
         config.PROJECT_LIFETIME_YEARS = project_lifetime_override
@@ -206,11 +212,11 @@ def main(
 
     cash_flows_results = calculate_cash_flows(  # from calculations
         annual_metrics=annual_metrics_results,
-        project_lifetime=config.PROJECT_LIFETIME_YEARS,
-        construction_period=config.CONSTRUCTION_YEARS,
+        project_lifetime_years=config.PROJECT_LIFETIME_YEARS,
+        construction_period_years=config.CONSTRUCTION_YEARS,
         h2_subsidy_value=safe_float_from_params(
             "hydrogen_subsidy_value_usd_per_kg", 0.0),
-        h2_subsidy_duration=int(safe_float_from_params(
+        h2_subsidy_duration_years=int(safe_float_from_params(
             "hydrogen_subsidy_duration_years", 10.0)),
         capex_details=config.CAPEX_COMPONENTS,
         om_details=config.OM_COMPONENTS,
@@ -222,11 +228,11 @@ def main(
 
     financial_metrics_results = calculate_financial_metrics(  # from calculations
         cash_flows_input=cash_flows_results,
-        discount_rt=config.DISCOUNT_RATE,
-        annual_h2_prod_kg=annual_metrics_results.get(
+        discount_rate=config.DISCOUNT_RATE,
+        annual_h2_production_kg=annual_metrics_results.get(
             "H2_Production_kg_annual", 0),
-        project_lt=config.PROJECT_LIFETIME_YEARS,
-        construction_p=config.CONSTRUCTION_YEARS,
+        project_lifetime_years=config.PROJECT_LIFETIME_YEARS,
+        construction_period_years=config.CONSTRUCTION_YEARS,
     )
 
     total_capex_val = annual_metrics_results.get("total_capex", 0)
@@ -313,8 +319,8 @@ def main(
         lcoh_breakdown_results = calculate_lcoh_breakdown(  # from calculations
             annual_metrics=annual_metrics_results,
             capex_breakdown=annual_metrics_results["capex_breakdown"],
-            project_lifetime=config.PROJECT_LIFETIME_YEARS,
-            construction_period=config.CONSTRUCTION_YEARS,
+            project_lifetime_years=config.PROJECT_LIFETIME_YEARS,
+            construction_period_years=config.CONSTRUCTION_YEARS,
             discount_rate=config.DISCOUNT_RATE,
             annual_h2_production_kg=h2_prod_annual_lcoh,
         )
@@ -406,17 +412,17 @@ def main(
                 incremental_fin_metrics = calculate_incremental_metrics(  # from calculations
                     optimized_cash_flows=cash_flows_results,
                     baseline_annual_revenue=baseline_revenue_val,
-                    project_lifetime=config.PROJECT_LIFETIME_YEARS,
-                    construction_period=config.CONSTRUCTION_YEARS,
-                    discount_rt=config.DISCOUNT_RATE,
-                    tax_rt=config.TAX_RATE,
+                    project_lifetime_years=config.PROJECT_LIFETIME_YEARS,
+                    construction_period_years=config.CONSTRUCTION_YEARS,
+                    discount_rate=config.DISCOUNT_RATE,
+                    tax_rate=config.TAX_RATE,
                     annual_metrics_optimized=annual_metrics_results,
                     capex_components_incremental=inc_capex,
                     om_components_incremental=inc_om,
                     replacement_schedule_incremental=inc_repl,
-                    h2_subsidy_val=safe_float_from_params(
+                    h2_subsidy_value=safe_float_from_params(
                         "hydrogen_subsidy_value_usd_per_kg", 0.0),
-                    h2_subsidy_yrs=int(safe_float_from_params(
+                    h2_subsidy_duration_years=int(safe_float_from_params(
                         "hydrogen_subsidy_duration_years", 10.0)),
                     optimized_capacities_inc=optimized_caps,
                 )
@@ -441,7 +447,7 @@ def main(
         financial_metrics_data=financial_metrics_results,
         cash_flows_data=cash_flows_results,
         plot_dir=plot_output_dir,
-        construction_p=config.CONSTRUCTION_YEARS,
+        construction_period_years=config.CONSTRUCTION_YEARS,
         incremental_metrics_data=incremental_fin_metrics,
     )
     logger.info("Plots generated successfully.")
@@ -456,28 +462,30 @@ def main(
         capex_data=config.CAPEX_COMPONENTS,
         om_data=config.OM_COMPONENTS,
         replacement_data=config.REPLACEMENT_SCHEDULE,
-        project_lt_rpt=config.PROJECT_LIFETIME_YEARS,
-        construction_p_rpt=config.CONSTRUCTION_YEARS,
-        discount_rt_rpt=config.DISCOUNT_RATE,
-        tax_rt_rpt=config.TAX_RATE,
+        project_lifetime_years_rpt=config.PROJECT_LIFETIME_YEARS,
+        construction_period_years_rpt=config.CONSTRUCTION_YEARS,
+        discount_rate_rpt=config.DISCOUNT_RATE,
+        tax_rate_rpt=config.TAX_RATE,
         incremental_metrics_rpt=incremental_fin_metrics,
     )
     logger.info("Report generation finished.")
 
     logger.info(
         f"--- Technical Economic Analysis completed successfully for {current_target_iso} ---")
-    print(f"\nTEA Analysis completed for {current_target_iso}.")
-    print(f"  Summary Report: {tea_output_file}")
-    print(f"  Plots: {plot_output_dir}")
 
-    # Find the file handler and print its baseFilename
+    # Log completion details to file only
+    logger.info(f"TEA Analysis completed for {current_target_iso}")
+    logger.info(f"Summary Report: {tea_output_file}")
+    logger.info(f"Plots: {plot_output_dir}")
+
+    # Find the file handler and log its baseFilename
     log_file_actual_path = "N/A"
     if logger and logger.handlers:
         for handler in logger.handlers:
             if isinstance(handler, std_logging.FileHandler):
                 log_file_actual_path = handler.baseFilename
                 break
-    print(f"  Log file: {log_file_actual_path}")
+    logger.info(f"Log file: {log_file_actual_path}")
     return True
 
 

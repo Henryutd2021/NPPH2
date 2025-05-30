@@ -105,9 +105,9 @@ class EnhancedReactorLogger:
             self.main_log_file, encoding='utf-8')
         file_handler.setLevel(logging.DEBUG)
 
-        # Create console handler
+        # Create console handler - reduced output level
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(logging.ERROR)  # Only errors to console
 
         # Create formatter
         formatter = logging.Formatter(

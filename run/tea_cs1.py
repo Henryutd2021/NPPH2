@@ -33,11 +33,56 @@ TEA_RESULTS_DIR = Path(__file__).resolve(
 # Input directory for CS1 optimization results
 CS1_OUTPUT_DIR = Path(__file__).resolve(
 ).parent.parent / 'output' / 'opt' / 'cs1'
+# Log directory for CS1 TEA analysis
+CS1_LOG_DIR = Path(__file__).resolve().parent.parent / 'logs' / 'cs1_tea'
+
 os.makedirs(TEA_RESULTS_DIR, exist_ok=True)
+os.makedirs(CS1_LOG_DIR, exist_ok=True)
 
 # Enhanced filename pattern for input CSVs
 FILENAME_PATTERN = re.compile(
     r'^(?:enhanced_)?(.*?)_(.*?)_(.*?)_(\d+)_hourly_results\.csv$')
+
+
+def setup_main_logger():
+    """Setup main logger for CS1 TEA analysis with minimal console output"""
+    import logging
+    from datetime import datetime
+
+    # Create main log file
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    main_log_file = CS1_LOG_DIR / f"cs1_tea_main_{timestamp}.log"
+
+    # Setup logger
+    logger = logging.getLogger('cs1_tea_main')
+    logger.setLevel(logging.DEBUG)
+
+    # Clear existing handlers
+    logger.handlers.clear()
+
+    # File handler - captures everything
+    file_handler = logging.FileHandler(main_log_file, mode='w', encoding='utf-8')
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+
+    # Console handler - only important messages
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.WARNING)  # Only warnings and errors to console
+    console_formatter = logging.Formatter('%(levelname)s: %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+
+    logger.info(f"CS1 TEA Analysis started at {datetime.now()}")
+    logger.info(f"Main log file: {main_log_file}")
+    logger.info(f"Input directory: {CS1_OUTPUT_DIR}")
+    logger.info(f"Output directory: {TEA_RESULTS_DIR}")
+    logger.info(f"Detailed logs directory: logs/cs1/")
+
+    return logger, main_log_file
 
 
 @contextmanager
@@ -394,31 +439,41 @@ def run_tea_for_file_enhanced(csv_path: Path, plant_name: str, generator_id: str
 
 def main():
     """Main function to run enhanced TEA analysis for all reactors"""
+    # Setup main logger with minimal console output
+    main_logger, main_log_file = setup_main_logger()
+
+    # Only essential information to console
     print(f"\n🚀 Starting Enhanced CS1 TEA Analysis")
-    print(f"📂 Input directory: {CS1_OUTPUT_DIR}")
-    print(f"📂 Output directory: {TEA_RESULTS_DIR}")
-    print(f"📂 Logs directory: logs/cs1/")
+    print(f"📂 Input: {CS1_OUTPUT_DIR}")
+    print(f"📂 Output: {TEA_RESULTS_DIR}")
+    print(f"📋 Main log: {main_log_file}")
+    print(f"📋 Detailed logs: logs/cs1/")
 
     files_to_process = list(CS1_OUTPUT_DIR.glob("*_hourly_results.csv"))
     if not files_to_process:
-        print(
-            f"❌ No files found in {CS1_OUTPUT_DIR} matching pattern '*_hourly_results.csv'")
+        error_msg = f"No files found in {CS1_OUTPUT_DIR} matching pattern '*_hourly_results.csv'"
+        print(f"❌ {error_msg}")
+        main_logger.error(error_msg)
         return
 
-    print(
-        f"📊 Found {len(files_to_process)} reactor files to process for enhanced TEA analysis")
-    print(f"=" * 80)
+    print(f"📊 Found {len(files_to_process)} reactor files to process")
+    main_logger.info(f"Found {len(files_to_process)} reactor files to process for enhanced TEA analysis")
+    print(f"=" * 60)
 
     successful_analyses = []
     failed_analyses = []
 
     for i, file_path in enumerate(files_to_process, 1):
-        print(
-            f"\n📍 Processing file {i}/{len(files_to_process)}: {file_path.name}")
+        # Minimal console output - just progress
+        print(f"📍 [{i}/{len(files_to_process)}] {file_path.name}", end=" ... ")
+
+        # Detailed logging to file
+        main_logger.info(f"Processing file {i}/{len(files_to_process)}: {file_path.name}")
 
         match = FILENAME_PATTERN.match(file_path.name)
         if not match:
-            print(f"⚠️  Skipping file with unexpected name: {file_path.name}")
+            print("⚠️  SKIPPED (invalid name)")
+            main_logger.warning(f"Skipping file with unexpected name: {file_path.name}")
             failed_analyses.append(
                 (file_path.name, "Invalid filename pattern"))
             continue
@@ -426,8 +481,8 @@ def main():
         plant_name, generator_id, iso_region, remaining_years_str = match.groups()
 
         if not all([plant_name, generator_id, iso_region, remaining_years_str]):
-            print(
-                f"⚠️  Skipping file due to missing parts in filename: {file_path.name}")
+            print("⚠️  SKIPPED (missing components)")
+            main_logger.warning(f"Skipping file due to missing parts in filename: {file_path.name}")
             failed_analyses.append(
                 (file_path.name, "Missing filename components"))
             continue
@@ -435,44 +490,60 @@ def main():
         try:
             int(remaining_years_str)
         except ValueError:
-            print(
-                f"⚠️  Skipping file, invalid remaining_years: {remaining_years_str}")
+            print("⚠️  SKIPPED (invalid years)")
+            main_logger.warning(f"Skipping file, invalid remaining_years: {remaining_years_str}")
             failed_analyses.append(
                 (file_path.name, f"Invalid remaining years: {remaining_years_str}"))
             continue
 
         # Run enhanced TEA analysis
+        main_logger.info(f"Starting TEA analysis for {plant_name} Unit {generator_id}")
         success = run_tea_for_file_enhanced(file_path, plant_name, generator_id,
                                             iso_region, remaining_years_str)
 
         if success:
             successful_analyses.append(file_path.name)
-            print(f"✅ Successfully completed enhanced TEA for {plant_name}")
+            print("✅ SUCCESS")
+            main_logger.info(f"Successfully completed enhanced TEA for {plant_name}")
         else:
             failed_analyses.append((file_path.name, "TEA analysis failed"))
-            print(f"❌ Failed enhanced TEA analysis for {plant_name}")
+            print("❌ FAILED")
+            main_logger.error(f"Failed enhanced TEA analysis for {plant_name}")
 
-    # Summary report
-    print(f"\n" + "=" * 80)
-    print(f"🎯 Enhanced CS1 TEA Analysis Summary")
-    print(f"=" * 80)
-    print(f"✅ Successful analyses: {len(successful_analyses)}")
-    print(f"❌ Failed analyses: {len(failed_analyses)}")
-    print(f"📊 Total files processed: {len(files_to_process)}")
+    # Summary report - concise console output
+    print(f"\n" + "=" * 60)
+    print(f"🎯 CS1 TEA Analysis Summary")
+    print(f"=" * 60)
+    print(f"✅ Successful: {len(successful_analyses)}")
+    print(f"❌ Failed: {len(failed_analyses)}")
+    print(f"📊 Total: {len(files_to_process)}")
+
+    # Detailed summary to log file
+    main_logger.info("=" * 80)
+    main_logger.info("Enhanced CS1 TEA Analysis Summary")
+    main_logger.info("=" * 80)
+    main_logger.info(f"Successful analyses: {len(successful_analyses)}")
+    main_logger.info(f"Failed analyses: {len(failed_analyses)}")
+    main_logger.info(f"Total files processed: {len(files_to_process)}")
 
     if successful_analyses:
-        print(f"\n📈 Successfully processed reactors:")
+        main_logger.info("Successfully processed reactors:")
         for filename in successful_analyses:
-            print(f"   - {filename}")
+            main_logger.info(f"   - {filename}")
 
     if failed_analyses:
-        print(f"\n⚠️  Failed analyses:")
+        main_logger.warning("Failed analyses:")
         for filename, reason in failed_analyses:
-            print(f"   - {filename}: {reason}")
+            main_logger.warning(f"   - {filename}: {reason}")
 
-    print(f"\n📂 All TEA results are stored in: {TEA_RESULTS_DIR}")
-    print(f"📋 All enhanced logs are stored in: logs/cs1/")
-    print(f"🎉 Enhanced CS1 TEA Analysis completed!")
+    print(f"\n📂 Results: {TEA_RESULTS_DIR}")
+    print(f"📋 Logs: {main_log_file}")
+    print(f"🎉 Analysis completed!")
+
+    # Final log entries
+    main_logger.info(f"All TEA results are stored in: {TEA_RESULTS_DIR}")
+    main_logger.info(f"All enhanced logs are stored in: logs/cs1/")
+    main_logger.info("Enhanced CS1 TEA Analysis completed successfully!")
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ import pandas as pd
 
 # Attempt to import from tea.config, handling potential circular imports or module not found
 try:
-    from src.tea.config import (  # Changed to absolute import
+    from src.tea.config import (  # Use absolute import
         HOURS_IN_YEAR,
         ENABLE_BATTERY,
         TAX_RATE,
@@ -26,7 +26,9 @@ try:
         # NUCLEAR_OM_COMPONENTS, # This is used in nuclear specific calculations
         # NUCLEAR_REPLACEMENT_SCHEDULE # This is used in nuclear specific calculations
     )
-except ImportError:
+    logger = logging.getLogger(__name__)
+    logger.info("Successfully imported configuration from src.tea.config")
+except ImportError as e:
     # Fallback values if tea.config is not available during initial setup or specific contexts
     # This is a safeguard, ideally tea.config should always be resolvable
     HOURS_IN_YEAR = 8760
@@ -35,9 +37,21 @@ except ImportError:
     CAPEX_COMPONENTS = {}
     OM_COMPONENTS = {}
     REPLACEMENT_SCHEDULE = {}
+    CONSTRUCTION_FINANCING = {}
     logger = logging.getLogger(__name__)
     logger.warning(
-        "Could not import from tea.config. Using fallback default values for calculations.py")
+        f"Could not import from src.tea.config. Using fallback default values for calculations.py: {e}")
+except Exception as e:
+    # Handle any other import errors
+    HOURS_IN_YEAR = 8760
+    ENABLE_BATTERY = False
+    TAX_RATE = 0.21
+    CAPEX_COMPONENTS = {}
+    OM_COMPONENTS = {}
+    REPLACEMENT_SCHEDULE = {}
+    CONSTRUCTION_FINANCING = {}
+    logger = logging.getLogger(__name__)
+    logger.error(f"Unexpected error importing from src.tea.config: {e}")
 
 
 logger = logging.getLogger(__name__)
@@ -107,9 +121,10 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         metrics["H2_Storage_Cycle_Cost"] = df.get(
             "Cost_Storage_Cycle_USD", pd.Series(0.0, dtype="float64")
         ).sum()
-        metrics["H2_Production_kg_annual"] = (
-            df["mHydrogenProduced_kg_hr"].sum() * annualization_factor
-        )
+        # Use actual hourly data cumulative values, not annualization factor
+        # This represents the actual production from the optimization results
+        metrics["H2_Production_kg_annual"] = df["mHydrogenProduced_kg_hr"].sum()
+        logger.info(f"H2 production calculated from hourly data: {metrics['H2_Production_kg_annual']:,.0f} kg/year")
 
         degradation_cols = [
             col for col in df.columns if "degradation" in col.lower()]
@@ -315,9 +330,10 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                 battery_charge_col = col_name
                 break
         if battery_charge_col is not None and len(df) > 0:
-            battery_charge_mwh_annual = df[battery_charge_col].sum(
-            ) * annualization_factor
+            # Use actual hourly data cumulative values for battery charging
+            battery_charge_mwh_annual = df[battery_charge_col].sum()
             metrics["Annual_Battery_Charge_MWh"] = battery_charge_mwh_annual
+            logger.info(f"Battery charging from hourly data: {battery_charge_mwh_annual:,.0f} MWh/year")
             grid_purchase_col = None
             possible_grid_purchase_cols = [
                 "pGridPurchase_MW", "pGridPurchase", "GridPurchase_MW"]
@@ -326,18 +342,17 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                     grid_purchase_col = col_name
                     break
             if grid_purchase_col is not None:
+                # Use actual hourly data for battery charging breakdown
                 battery_grid_charge_mask = (df[battery_charge_col] > 0) & (
                     df[grid_purchase_col] > 0)
-                battery_charge_from_grid_mwh = df.loc[battery_grid_charge_mask, battery_charge_col].sum(
-                ) * annualization_factor
+                battery_charge_from_grid_mwh = df.loc[battery_grid_charge_mask, battery_charge_col].sum()
                 battery_npp_charge_mask = (df[battery_charge_col] > 0) & (
                     df[grid_purchase_col] <= 1e-6)
-                battery_charge_from_npp_mwh = df.loc[battery_npp_charge_mask, battery_charge_col].sum(
-                ) * annualization_factor
+                battery_charge_from_npp_mwh = df.loc[battery_npp_charge_mask, battery_charge_col].sum()
                 metrics["Annual_Battery_Charge_From_Grid_MWh"] = battery_charge_from_grid_mwh
                 metrics["Annual_Battery_Charge_From_NPP_MWh"] = battery_charge_from_npp_mwh
-                logger.debug(
-                    f"Battery charging breakdown: Total: {battery_charge_mwh_annual:.2f} MWh/year, From Grid: {battery_charge_from_grid_mwh:.2f} MWh/year, From NPP: {battery_charge_from_npp_mwh:.2f} MWh/year")
+                logger.info(
+                    f"Battery charging breakdown from hourly data: Total: {battery_charge_mwh_annual:.2f} MWh/year, From Grid: {battery_charge_from_grid_mwh:.2f} MWh/year, From NPP: {battery_charge_from_npp_mwh:.2f} MWh/year")
             else:
                 metrics["Annual_Battery_Charge_From_Grid_MWh"] = 0.0
                 metrics["Annual_Battery_Charge_From_NPP_MWh"] = battery_charge_mwh_annual
@@ -397,8 +412,13 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             metrics["Turbine_CF_percent"] = 0
             logger.debug("Turbine CF set to 0 (pTurbine_MW column not found)")
 
-        metrics["Annual_Electrolyzer_MWh"] = (df["pElectrolyzer_MW"].sum(
-        ) * annualization_factor if "pElectrolyzer_MW" in df else 0)
+        # Use actual hourly data for electrolyzer electricity consumption
+        if "pElectrolyzer_MW" in df.columns:
+            metrics["Annual_Electrolyzer_MWh"] = df["pElectrolyzer_MW"].sum()
+            logger.info(f"Electrolyzer electricity consumption from hourly data: {metrics['Annual_Electrolyzer_MWh']:,.0f} MWh/year")
+        else:
+            metrics["Annual_Electrolyzer_MWh"] = 0
+            logger.warning("No electrolyzer power data found in hourly results")
         if ("pElectrolyzer_MW" in df.columns and metrics["Electrolyzer_Capacity_MW"] > 1e-6):
             metrics["Electrolyzer_CF_percent"] = (
                 df["pElectrolyzer_MW"].mean() / metrics["Electrolyzer_Capacity_MW"]) * 100
@@ -494,15 +514,17 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             col for col in df.columns if "_Deployed_MW" in col]
         if as_deployed_columns:
             total_deployed_energy = 0
+            logger.info("Processing AS deployment data from hourly results:")
             for deployed_col in as_deployed_columns:
-                service_deployed_total = df[deployed_col].sum(
-                ) * annualization_factor
+                # Use actual hourly data for AS deployment
+                service_deployed_total = df[deployed_col].sum()
                 total_deployed_energy += service_deployed_total
                 service_name = deployed_col.replace("_Deployed_MW", "")
                 metrics[f"AS_Total_Deployed_{service_name}_MWh"] = service_deployed_total
-                metrics[f"AS_Avg_Deployed_{service_name}_MW"] = df[deployed_col].mean(
-                )
+                metrics[f"AS_Avg_Deployed_{service_name}_MW"] = df[deployed_col].mean()
+                logger.debug(f"  {service_name}: {service_deployed_total:,.1f} MWh/year deployed")
             metrics["AS_Total_Deployed_Energy_MWh"] = total_deployed_energy
+            logger.info(f"Total AS deployment energy from hourly data: {total_deployed_energy:,.1f} MWh/year")
             for deployed_col in as_deployed_columns:
                 service_base = deployed_col.replace("_Deployed_MW", "")
                 corresponding_bid_col = f"Total_{service_base}_Bid_MW"
@@ -518,14 +540,26 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         metrics["HTE_Mode_Detected"] = False
         if "qSteam_Electrolyzer_MWth" in df.columns:
             steam_consumption_hourly = df["qSteam_Electrolyzer_MWth"]
-            total_steam_consumption_annual = steam_consumption_hourly.sum() * \
-                annualization_factor
+            # Use actual hourly data cumulative values for HTE steam consumption
+            total_steam_consumption_annual = steam_consumption_hourly.sum()
+            logger.info(f"HTE steam consumption from hourly data: {total_steam_consumption_annual:,.1f} MWth/year")
             if total_steam_consumption_annual > 1.0:
                 metrics["HTE_Mode_Detected"] = True
                 metrics["HTE_Steam_Consumption_Annual_MWth"] = total_steam_consumption_annual
                 thermal_efficiency = metrics.get("thermal_efficiency", 0.0)
-                avg_electricity_price = metrics.get(
-                    "Avg_Electricity_Price_USD_per_MWh", 40.0)
+                # Get electricity price from metrics (calculated from hourly data) or system data
+                avg_electricity_price = metrics.get("Avg_Electricity_Price_USD_per_MWh")
+                if avg_electricity_price is None or avg_electricity_price <= 0:
+                    # Try from system parameters if not in metrics
+                    avg_electricity_price = tea_sys_params.get("Avg_Electricity_Price_USD_per_MWh")
+                    if avg_electricity_price is None:
+                        avg_electricity_price = tea_sys_params.get("avg_electricity_price_usd_per_mwh")
+
+                if avg_electricity_price is None or avg_electricity_price <= 0:
+                    logger.warning("Electricity price not found in hourly data or system data. Using fallback value.")
+                    avg_electricity_price = 40.0  # Fallback only if absolutely necessary
+                else:
+                    logger.info(f"Using electricity price for HTE calculation: ${avg_electricity_price:.2f}/MWh")
                 if thermal_efficiency > 0:
                     lost_electricity_generation_mwh = total_steam_consumption_annual * thermal_efficiency
                     heat_opportunity_cost_annual = lost_electricity_generation_mwh * avg_electricity_price
@@ -566,8 +600,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
 def calculate_lcoh_breakdown(
     annual_metrics: dict,
     capex_breakdown: dict,
-    project_lifetime: int,
-    construction_period: int,
+    project_lifetime_years: int,
+    construction_period_years: int,
     discount_rate: float,
     annual_h2_production_kg: float,
 ) -> dict:
@@ -578,8 +612,8 @@ def calculate_lcoh_breakdown(
         return {}
 
     pv_total_h2_production = 0
-    for op_idx in range(project_lifetime - construction_period):
-        year_idx = op_idx + construction_period
+    for op_idx in range(project_lifetime_years - construction_period_years):
+        year_idx = op_idx + construction_period_years
         pv_factor = (1 + discount_rate) ** year_idx
         pv_total_h2_production += annual_h2_production_kg / pv_factor
 
@@ -590,10 +624,10 @@ def calculate_lcoh_breakdown(
 
     lcoh_breakdown = {}
     if discount_rate > 0:
-        crf = (discount_rate * (1 + discount_rate) ** project_lifetime) / \
-            ((1 + discount_rate) ** project_lifetime - 1)
+        crf = (discount_rate * (1 + discount_rate) ** project_lifetime_years) / \
+            ((1 + discount_rate) ** project_lifetime_years - 1)
     else:
-        crf = 1 / project_lifetime
+        crf = 1 / project_lifetime_years
 
     capex_lcoh_components = {}
     for component, capex_cost in capex_breakdown.items():
@@ -606,7 +640,7 @@ def calculate_lcoh_breakdown(
 
     annual_fixed_om_costs = annual_metrics.get("annual_fixed_om_costs", [])
     if annual_fixed_om_costs:
-        pv_fixed_om_total = sum(cost / (1 + discount_rate)**(idx + construction_period)
+        pv_fixed_om_total = sum(cost / (1 + discount_rate)**(idx + construction_period_years)
                                 for idx, cost in enumerate(annual_fixed_om_costs))
         lcoh_breakdown["Fixed_OM"] = pv_fixed_om_total / pv_total_h2_production
         logger.debug(
@@ -674,7 +708,7 @@ def calculate_lcoh_breakdown(
     annual_stack_replacement_costs = annual_metrics.get(
         "annual_stack_replacement_costs", [])
     if annual_stack_replacement_costs:
-        pv_stack_replacement_total = sum(cost / (1 + discount_rate)**(idx + construction_period)
+        pv_stack_replacement_total = sum(cost / (1 + discount_rate)**(idx + construction_period_years)
                                          for idx, cost in enumerate(annual_stack_replacement_costs) if cost > 0)
         if pv_stack_replacement_total > 0:
             lcoh_breakdown["Stack_Replacement"] = pv_stack_replacement_total / \
@@ -685,7 +719,7 @@ def calculate_lcoh_breakdown(
     annual_other_replacement_costs = annual_metrics.get(
         "annual_other_replacement_costs", [])
     if annual_other_replacement_costs:
-        pv_other_replacement_total = sum(cost / (1 + discount_rate)**(idx + construction_period)
+        pv_other_replacement_total = sum(cost / (1 + discount_rate)**(idx + construction_period_years)
                                          for idx, cost in enumerate(annual_other_replacement_costs) if cost > 0)
         if pv_other_replacement_total > 0:
             lcoh_breakdown["Other_Replacements"] = pv_other_replacement_total / \
@@ -736,10 +770,10 @@ def calculate_lcoh_breakdown(
 
 def calculate_cash_flows(
     annual_metrics: dict,
-    project_lifetime: int,  # project_lifetime from config or params
-    construction_period: int,  # construction_period from config or params
+    project_lifetime_years: int,  # Standardized parameter name
+    construction_period_years: int,  # Standardized parameter name
     h2_subsidy_value: float,
-    h2_subsidy_duration: int,
+    h2_subsidy_duration_years: int,  # Standardized parameter name
     capex_details: dict,  # CAPEX_COMPONENTS from config
     om_details: dict,  # OM_COMPONENTS from config
     replacement_details: dict,  # REPLACEMENT_SCHEDULE from config
@@ -747,10 +781,10 @@ def calculate_cash_flows(
     tax_rate: float  # TAX_RATE from config
 ) -> np.ndarray:
     logger.info(
-        f"Calculating cash flows for {project_lifetime} years. Construction: {construction_period} years.")
+        f"Calculating cash flows for {project_lifetime_years} years. Construction: {construction_period_years} years.")
     logger.debug(f"Optimized capacities for cash flow: {optimized_capacities}")
 
-    cash_flows_array = np.zeros(project_lifetime + construction_period)
+    cash_flows_array = np.zeros(project_lifetime_years + construction_period_years)
     total_capex_sum_after_learning = 0
     initial_battery_capex_energy = 0
     initial_battery_capex_power = 0
@@ -790,8 +824,8 @@ def calculate_cash_flows(
 
         total_capex_sum_after_learning += adj_total_comp_cost
         for constr_yr_offset, share in pay_sched.items():
-            proj_yr_idx = construction_period + constr_yr_offset
-            if 0 <= proj_yr_idx < construction_period:
+            proj_yr_idx = construction_period_years + constr_yr_offset
+            if 0 <= proj_yr_idx < construction_period_years:
                 cash_flows_array[proj_yr_idx] -= (adj_total_comp_cost * share)
             else:
                 logger.warning(
@@ -811,11 +845,11 @@ def calculate_cash_flows(
     annual_stack_replacement_costs = []
     annual_other_replacement_costs = []
 
-    for op_yr_idx in range(project_lifetime - construction_period):
-        curr_proj_yr_idx = op_yr_idx + construction_period
+    for op_yr_idx in range(project_lifetime_years - construction_period_years):
+        curr_proj_yr_idx = op_yr_idx + construction_period_years
         op_yr_num = op_yr_idx + 1
         curr_yr_profit_pre_fixed_om_tax = base_annual_profit
-        if op_yr_num > h2_subsidy_duration:
+        if op_yr_num > h2_subsidy_duration_years:
             curr_yr_profit_pre_fixed_om_tax -= annual_metrics.get(
                 "H2_Subsidy_Revenue", 0)
 
@@ -893,15 +927,15 @@ def calculate_cash_flows(
 
 def calculate_financial_metrics(
     cash_flows_input: np.ndarray,
-    discount_rt: float,  # discount_rt from config or params
-    annual_h2_prod_kg: float,
-    project_lt: int,  # project_lt from config or params
-    construction_p: int,  # construction_p from config or params
+    discount_rate: float,  # Standardized parameter name
+    annual_h2_production_kg: float,  # Standardized parameter name
+    project_lifetime_years: int,  # Standardized parameter name
+    construction_period_years: int,  # Standardized parameter name
 ) -> dict:
     metrics_results = {}
     cf_array = np.array(cash_flows_input, dtype=float)
     try:
-        metrics_results["NPV_USD"] = npf.npv(discount_rt, cf_array)
+        metrics_results["NPV_USD"] = npf.npv(discount_rate, cf_array)
     except Exception:
         # Changed from 0 to np.nan for consistency
         metrics_results["NPV_USD"] = np.nan
@@ -928,11 +962,11 @@ def calculate_financial_metrics(
                 (first_positive_idx - 1) + abs(cumulative_cash_flow[first_positive_idx - 1]) /
                 (cumulative_cash_flow[first_positive_idx] -
                  cumulative_cash_flow[first_positive_idx - 1])
-            ) - construction_p + 1  # Adjust for construction period and 0-based indexing
+            ) - construction_period_years + 1  # Adjust for construction period and 0-based indexing
         # Fallback if payback calculation is unusual (e.g. all positive CFs)
         else:
             metrics_results["Payback_Period_Years"] = first_positive_idx - \
-                construction_p + 1
+                construction_period_years + 1
     else:
         # No payback within project lifetime
         metrics_results["Payback_Period_Years"] = np.nan
@@ -946,16 +980,16 @@ def calculate_financial_metrics(
 def calculate_incremental_metrics(
     optimized_cash_flows: np.ndarray,
     baseline_annual_revenue: float,
-    project_lifetime: int,  # project_lifetime from config or params
-    construction_period: int,  # construction_period from config or params
-    discount_rt: float,  # discount_rt from config or params
-    tax_rt: float,  # tax_rt from config
+    project_lifetime_years: int,  # Standardized parameter name
+    construction_period_years: int,  # Standardized parameter name
+    discount_rate: float,  # Standardized parameter name
+    tax_rate: float,  # Standardized parameter name
     annual_metrics_optimized: dict,
     capex_components_incremental: dict,  # Derived from CAPEX_COMPONENTS
     om_components_incremental: dict,  # Derived from OM_COMPONENTS
     replacement_schedule_incremental: dict,  # Derived from REPLACEMENT_SCHEDULE
-    h2_subsidy_val: float,
-    h2_subsidy_yrs: int,
+    h2_subsidy_value: float,  # Standardized parameter name
+    h2_subsidy_duration_years: int,  # Standardized parameter name
     optimized_capacities_inc: dict,
 ) -> dict:
     logger.info("Calculating incremental financial metrics.")
@@ -967,9 +1001,9 @@ def calculate_incremental_metrics(
     logger.info(
         f"Baseline revenue: ${baseline_annual_revenue:,.2f}, OPEX: ${baseline_annual_opex:,.2f}, Profit: ${baseline_annual_profit_before_tax:,.2f}")
 
-    for i in range(construction_period, total_project_years):
+    for i in range(construction_period_years, total_project_years):
         baseline_cash_flows[i] = baseline_annual_profit_before_tax * \
-            (1 - tax_rt if baseline_annual_profit_before_tax > 0 else 1)
+            (1 - tax_rate if baseline_annual_profit_before_tax > 0 else 1)
 
     pure_incremental_cf = np.zeros(total_project_years)
     total_incremental_capex_sum_after_learning = 0
@@ -1004,8 +1038,8 @@ def calculate_incremental_metrics(
         for constr_yr_offset, share in pay_sched.items():
             # Construction year payment indices are negative relative to operation start
             # Project year index is construction_period (e.g. 2) + offset (e.g. -2) = 0
-            if 0 <= construction_period + constr_yr_offset < construction_period:
-                pure_incremental_cf[construction_period +
+            if 0 <= construction_period_years + constr_yr_offset < construction_period_years:
+                pure_incremental_cf[construction_period_years +
                                     constr_yr_offset] -= (adj_cost_inc * share)
 
     inc_metrics["Total_Incremental_CAPEX_Learned_USD"] = total_incremental_capex_sum_after_learning
@@ -1026,12 +1060,17 @@ def calculate_incremental_metrics(
     if enable_battery_flag and optimized_capacities_inc.get("Battery_Capacity_MWh", 0) > 0:
         battery_charge_from_npp_mwh = annual_metrics_optimized.get(
             "Annual_Battery_Charge_From_NPP_MWh", 0)
+        # In incremental analysis, use market price for NPP electricity opportunity cost
         opp_cost_battery_annual = battery_charge_from_npp_mwh * avg_elec_price
         battery_charge_from_grid_mwh = annual_metrics_optimized.get(
             "Annual_Battery_Charge_From_Grid_MWh", 0)
         direct_cost_battery_annual = battery_charge_from_grid_mwh * avg_elec_price
         logger.info(
             f"Battery charging costs: Opportunity ${opp_cost_battery_annual:,.2f}/yr, Direct ${direct_cost_battery_annual:,.2f}/yr")
+        logger.info(
+            f"  NPP charging: {battery_charge_from_npp_mwh:,.0f} MWh/yr at ${avg_elec_price:.2f}/MWh (market price)")
+        logger.info(
+            f"  Grid charging: {battery_charge_from_grid_mwh:,.0f} MWh/yr at ${avg_elec_price:.2f}/MWh (market price)")
 
     as_opportunity_cost_annual = 0.0
     total_as_deployed_mwh = 0.0
@@ -1053,19 +1092,29 @@ def calculate_incremental_metrics(
         "VOM_Electrolyzer_Cost", "VOM_Battery_Cost", "Water_Cost", "Startup_Cost", "Ramping_Cost", "H2_Storage_Cycle_Cost"
     ]) + direct_cost_battery_annual
 
+    # Use market price for incremental electricity opportunity cost calculation
+    # In incremental analysis, we use market price as the opportunity cost for NPP electricity
+    # since the nuclear plant already exists and we're evaluating the incremental H2/battery system
     opp_cost_elec_annual = annual_metrics_optimized.get(
         "Annual_Electrolyzer_MWh", 0) * avg_elec_price + opp_cost_battery_annual
-    total_opportunity_cost_annual = opp_cost_elec_annual + as_opportunity_cost_annual
 
-    for op_idx in range(total_project_years - construction_period):
-        proj_yr_idx = op_idx + construction_period
+    # **ENHANCEMENT: Include HTE thermal energy opportunity cost in incremental analysis**
+    hte_thermal_opp_cost_annual = annual_metrics_optimized.get(
+        "HTE_Heat_Opportunity_Cost_Annual_USD", 0.0)
+    logger.info(
+        f"HTE thermal opportunity cost for incremental analysis: ${hte_thermal_opp_cost_annual:,.2f}/year")
+
+    total_opportunity_cost_annual = opp_cost_elec_annual + as_opportunity_cost_annual + hte_thermal_opp_cost_annual
+
+    for op_idx in range(total_project_years - construction_period_years):
+        proj_yr_idx = op_idx + construction_period_years
         op_yr_num = op_idx + 1
         cur_h2_rev = h2_rev_annual - \
             (annual_metrics_optimized.get("H2_Subsidy_Revenue", 0)
-             if op_yr_num > h2_subsidy_yrs else 0)
+             if op_yr_num > h2_subsidy_duration_years else 0)
         rev_inc = cur_h2_rev + as_rev_annual - as_opportunity_cost_annual
-        # total_opportunity_cost_annual includes opp_cost_elec_annual
-        costs_inc = vom_annual_inc + opp_cost_elec_annual
+        # total_opportunity_cost_annual includes opp_cost_elec_annual + hte_thermal_opp_cost_annual
+        costs_inc = vom_annual_inc + opp_cost_elec_annual + hte_thermal_opp_cost_annual
 
         fixed_om_inc_general_base = om_components_incremental.get(
             "Fixed_OM_General", {}).get("base_cost", 0)
@@ -1097,10 +1146,10 @@ def calculate_incremental_metrics(
                 costs_inc += cost_val_inc
 
         profit_inc_pre_tax = rev_inc - costs_inc
-        tax_inc = profit_inc_pre_tax * tax_rt if profit_inc_pre_tax > 0 else 0
+        tax_inc = profit_inc_pre_tax * tax_rate if profit_inc_pre_tax > 0 else 0
         pure_incremental_cf[proj_yr_idx] += profit_inc_pre_tax - tax_inc
 
-    inc_metrics["NPV_USD"] = npf.npv(discount_rt, pure_incremental_cf)
+    inc_metrics["NPV_USD"] = npf.npv(discount_rate, pure_incremental_cf)
     try:
         inc_metrics["IRR_percent"] = npf.irr(
             pure_incremental_cf) * 100 if any(cf != 0 for cf in pure_incremental_cf) else np.nan
@@ -1115,18 +1164,19 @@ def calculate_incremental_metrics(
             inc_metrics["Payback_Period_Years"] = 0
         elif first_pos > 0 and cum_pure_inc_cf[first_pos-1] < 0:
             inc_metrics["Payback_Period_Years"] = (first_pos - 1) + abs(cum_pure_inc_cf[first_pos-1]) / (
-                cum_pure_inc_cf[first_pos] - cum_pure_inc_cf[first_pos-1]) - construction_period + 1
+                cum_pure_inc_cf[first_pos] - cum_pure_inc_cf[first_pos-1]) - construction_period_years + 1
         else:
             inc_metrics["Payback_Period_Years"] = first_pos - \
-                construction_period + 1
+                construction_period_years + 1
     else:
         inc_metrics["Payback_Period_Years"] = np.nan
 
     inc_metrics["pure_incremental_cash_flows"] = pure_incremental_cf
     inc_metrics["traditional_incremental_cash_flows"] = optimized_cash_flows - \
         baseline_cash_flows
-    # This includes elec for H2 and battery from NPP
+    # This includes elec for H2 and battery from NPP + HTE thermal opportunity cost
     inc_metrics["Annual_Electricity_Opportunity_Cost_USD"] = total_opportunity_cost_annual
     inc_metrics["Annual_AS_Opportunity_Cost_USD"] = as_opportunity_cost_annual
+    inc_metrics["Annual_HTE_Thermal_Opportunity_Cost_USD"] = hte_thermal_opp_cost_annual
     inc_metrics["Annual_Baseline_OPEX_USD"] = baseline_annual_opex
     return inc_metrics

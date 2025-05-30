@@ -18,7 +18,7 @@ def setup_logging(log_dir_path: Path, log_file_name_prefix: str) -> logging.Logg
         A configured logging.Logger instance.
     """
     os.makedirs(log_dir_path, exist_ok=True)
-    
+
     log_file_path = log_dir_path / f"{log_file_name_prefix}.log"
 
     # Create a logger
@@ -29,11 +29,11 @@ def setup_logging(log_dir_path: Path, log_file_name_prefix: str) -> logging.Logg
     if logger.hasHandlers():
         logger.handlers.clear()
 
-    # Console Handler
+    # Console Handler - reduced output level
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO) # Console output level
+    console_handler.setLevel(logging.ERROR) # Only errors to console
     console_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        "TEA %(levelname)s: %(message)s"
     )
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
@@ -46,9 +46,9 @@ def setup_logging(log_dir_path: Path, log_file_name_prefix: str) -> logging.Logg
     )
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
-    
+
     logger.info(f"Logging configured. Log file: {log_file_path}")
-    
+
     return logger
 
 # Example usage (optional, for testing the function directly)
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     # It's useful for testing the setup_logging function in isolation
     current_script_dir = Path(__file__).resolve().parent
     default_log_dir = current_script_dir.parent / "logs_test" # Example test log directory
-    
+
     # Test with a generic prefix
     test_logger_generic = setup_logging(default_log_dir, "test_log_generic")
     test_logger_generic.debug("This is a generic debug message.")
@@ -68,5 +68,5 @@ if __name__ == '__main__':
     test_logger_specific = setup_logging(default_log_dir, "test_log_specific_module")
     test_logger_specific.debug("This is a specific debug message for a module.")
     test_logger_specific.info("This is a specific info message for a module.")
-    
+
     print(f"Test logs generated in: {default_log_dir}")

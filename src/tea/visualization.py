@@ -39,7 +39,7 @@ def get_component_color(component_name):
         return '#DDA0DD'  # Plum for other OPEX
 
 
-def create_cash_flow_plots(cash_flows_data, plot_dir, construction_p, incremental_metrics_data=None):
+def create_cash_flow_plots(cash_flows_data, plot_dir, construction_period_years, incremental_metrics_data=None):
     """Create cash flow profile plots exactly matching tea.py"""
     logger.info("Creating cash flow plots...")
 
@@ -74,9 +74,9 @@ def create_cash_flow_plots(cash_flows_data, plot_dir, construction_p, incrementa
     ax1.set_ylabel("Annual Cash Flow (USD)")
     ax2.set_ylabel("Cumulative Cash Flow (USD)")
 
-    if construction_p > 0:
+    if construction_period_years > 0:
         ax1.axvline(
-            construction_p + 0.5,
+            construction_period_years + 0.5,
             color="black",
             linestyle="--",
             lw=1,
@@ -125,9 +125,9 @@ def create_cash_flow_plots(cash_flows_data, plot_dir, construction_p, incrementa
         ax1_inc.set_ylabel("Incremental Annual CF (USD)")
         ax2_inc.set_ylabel("Cumulative Incremental CF (USD)")
 
-        if construction_p > 0:
+        if construction_period_years > 0:
             ax1_inc.axvline(
-                construction_p + 0.5,
+                construction_period_years + 0.5,
                 color="black",
                 linestyle="--",
                 lw=1,
@@ -518,6 +518,7 @@ def create_lcoh_comprehensive_dashboard(annual_metrics_data: dict, plot_dir: Pat
         ax6.set_ylabel("Cost (USD/kg H2)", fontsize=10)
         ax6.set_title("Cost Structure by Category",
                       fontweight="bold", fontsize=12)
+        ax6.set_xticks(range(len(categories)))
         ax6.set_xticklabels(categories, rotation=45, ha="right", fontsize=9)
 
     # Add overall title and summary information
@@ -594,6 +595,7 @@ def create_lcoh_benchmarking_analysis(annual_metrics_data: dict, plot_dir: Path)
     ax_bench.set_ylabel("LCOH (USD/kg H2)", fontsize=12)
     ax_bench.set_title("LCOH Benchmarking Analysis",
                        fontweight="bold", fontsize=14)
+    ax_bench.set_xticks(range(len(bench_names)))
     ax_bench.set_xticklabels(bench_names, rotation=45, ha="right", fontsize=10)
     ax_bench.grid(True, alpha=0.3, axis='y')
     ax_bench.axhline(y=2.0, color='red', linestyle='--',

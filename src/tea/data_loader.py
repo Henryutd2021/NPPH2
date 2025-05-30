@@ -123,6 +123,10 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path) -> tuple[dict, in
                 "nuclear_construction_years",
                 "enable_nuclear_capex_costs",
                 "enable_nuclear_opex_costs",
+                # Add hydrogen price parameters
+                "H2_value_USD_per_kg",
+                "hydrogen_price_usd_per_kg",
+                "h2_price_usd_per_kg",
             ]
             for key in param_keys:
                 if key in df_system.index:
