@@ -197,6 +197,10 @@ def enhanced_load_tea_sys_params_for_cs1(iso_target, input_base_dir, plant_speci
         'max_optimization_iterations': 1000,
         'convergence_criteria': 'strict',
         'enable_advanced_control_logic': True,
+
+        # Incremental Analysis
+        'enable_incremental_analysis': True,
+        'baseline_annual_revenue': 0.0,  # Will be calculated automatically if not provided
     }
 
     enhanced_params.update(cs1_enhancements)
@@ -315,6 +319,7 @@ def run_tea_for_file_enhanced(csv_path: Path, plant_name: str, generator_id: str
                         input_hourly_results_file_override=actual_input_file,
                         base_output_dir_override=reactor_output_dir,
                         enable_nuclear_greenfield_analysis_override=True,
+                        run_incremental_analysis_override=True,  # Explicitly enable incremental analysis
                     )
 
                     logger.log_phase_complete("Main TEA Analysis")

@@ -43,7 +43,7 @@ logger = None
 
 
 def main(
-    target_iso_override: str = None,
+    target_iso_override: str = None,  # Restored from PJM to None
     project_lifetime_override: int = None,
     construction_years_override: int = None,
     discount_rate_override: float = None,
@@ -53,7 +53,8 @@ def main(
     input_hourly_results_file_override: Path = None,
     input_sys_data_file_path_override: Path = None,
     enable_battery_override: bool = None,
-    run_incremental_analysis_override: bool = None,
+    run_incremental_analysis_override: bool = None,  # Restored from True to None
+    # Restored from False to None
     enable_nuclear_greenfield_analysis_override: bool = None
 ):
     """
@@ -349,43 +350,87 @@ def main(
             inc_om["Fixed_OM_Battery"] = config.OM_COMPONENTS.get(
                 "Fixed_OM_Battery", {})
 
-        inc_repl_keys = ["Electrolyzer", "H2_Storage"]
-        if config.ENABLE_BATTERY:
-            inc_repl_keys.append("Battery")
-        inc_repl = {k: v for k, v in config.REPLACEMENT_SCHEDULE.items() if any(
-            sub in k for sub in inc_repl_keys)}
-
+        inc_repl = config.REPLACEMENT_SCHEDULE
         baseline_revenue_val = safe_float_from_params(
-            "baseline_nuclear_annual_revenue_USD", 0.0)
-        if baseline_revenue_val <= 0 and "Energy_Revenue" in annual_metrics_results:
+            "baseline_annual_revenue", 0.0)
+
+        # Enhanced baseline revenue calculation
+        if baseline_revenue_val <= 0:
+            # Try multiple methods to calculate baseline revenue
             turbine_max_cap = safe_float_from_params(
                 "pTurbine_max_MW", annual_metrics_results.get("Turbine_Capacity_MW", 300.0))
             avg_lmp = annual_metrics_results.get(
                 "Avg_Electricity_Price_USD_per_MWh", 40)
-            baseline_revenue_val = turbine_max_cap * config.HOURS_IN_YEAR * avg_lmp
-            logger.info(
-                f"Estimated baseline nuclear revenue: ${baseline_revenue_val:,.2f}")
+            turbine_cf = annual_metrics_results.get(
+                "Turbine_CF_percent", 90) / 100
 
-        incremental_fin_metrics = calculate_incremental_metrics(  # from calculations
-            optimized_cash_flows=cash_flows_results,
-            baseline_annual_revenue=baseline_revenue_val,
-            project_lifetime=config.PROJECT_LIFETIME_YEARS,
-            construction_period=config.CONSTRUCTION_YEARS,
-            discount_rt=config.DISCOUNT_RATE,
-            tax_rt=config.TAX_RATE,
-            annual_metrics_optimized=annual_metrics_results,
-            capex_components_incremental=inc_capex,
-            om_components_incremental=inc_om,
-            replacement_schedule_incremental=inc_repl,
-            h2_subsidy_val=safe_float_from_params(
-                "hydrogen_subsidy_value_usd_per_kg", 0.0),
-            h2_subsidy_yrs=int(safe_float_from_params(
-                "hydrogen_subsidy_duration_years", 10.0)),
-            optimized_capacities_inc=optimized_caps,
-        )
-        logger.info("Incremental metrics calculated.")
+            # Method 1: Calculate from turbine capacity and price
+            if turbine_max_cap > 0 and avg_lmp > 0 and turbine_cf > 0:
+                baseline_revenue_val = turbine_max_cap * \
+                    config.HOURS_IN_YEAR * turbine_cf * avg_lmp
+                logger.info(
+                    f"Baseline nuclear revenue calculated from turbine capacity: ${baseline_revenue_val:,.2f}")
+
+            # Method 2: Use energy revenue if available
+            elif "Energy_Revenue" in annual_metrics_results:
+                energy_revenue = annual_metrics_results.get(
+                    "Energy_Revenue", 0)
+                if energy_revenue > 0:
+                    # Estimate baseline as higher capacity factor operation
+                    current_cf = annual_metrics_results.get(
+                        "Turbine_CF_percent", 90) / 100
+                    # Assume 95% max or 10% higher
+                    baseline_cf = min(0.95, current_cf * 1.1)
+                    baseline_revenue_val = energy_revenue * \
+                        (baseline_cf / current_cf) if current_cf > 0 else energy_revenue
+                    logger.info(
+                        f"Baseline nuclear revenue estimated from energy revenue: ${baseline_revenue_val:,.2f}")
+
+            # Method 3: Fallback calculation
+            if baseline_revenue_val <= 0:
+                # Use a minimum reasonable baseline
+                turbine_capacity_fallback = annual_metrics_results.get(
+                    "Turbine_Capacity_MW", 300.0)
+                avg_price_fallback = max(avg_lmp, 40.0)  # At least $40/MWh
+                baseline_cf_fallback = 0.90  # 90% capacity factor
+                baseline_revenue_val = turbine_capacity_fallback * \
+                    config.HOURS_IN_YEAR * baseline_cf_fallback * avg_price_fallback
+                logger.info(
+                    f"Baseline nuclear revenue using fallback calculation: ${baseline_revenue_val:,.2f}")
+
+        # Ensure we have valid baseline revenue for incremental analysis
+        if baseline_revenue_val > 0:
+            logger.info(
+                f"Final baseline revenue for incremental analysis: ${baseline_revenue_val:,.2f}")
+            try:
+                incremental_fin_metrics = calculate_incremental_metrics(  # from calculations
+                    optimized_cash_flows=cash_flows_results,
+                    baseline_annual_revenue=baseline_revenue_val,
+                    project_lifetime=config.PROJECT_LIFETIME_YEARS,
+                    construction_period=config.CONSTRUCTION_YEARS,
+                    discount_rt=config.DISCOUNT_RATE,
+                    tax_rt=config.TAX_RATE,
+                    annual_metrics_optimized=annual_metrics_results,
+                    capex_components_incremental=inc_capex,
+                    om_components_incremental=inc_om,
+                    replacement_schedule_incremental=inc_repl,
+                    h2_subsidy_val=safe_float_from_params(
+                        "hydrogen_subsidy_value_usd_per_kg", 0.0),
+                    h2_subsidy_yrs=int(safe_float_from_params(
+                        "hydrogen_subsidy_duration_years", 10.0)),
+                    optimized_capacities_inc=optimized_caps,
+                )
+                logger.info("Incremental metrics calculated successfully.")
+            except Exception as e:
+                logger.error(f"Error calculating incremental metrics: {e}")
+                incremental_fin_metrics = None
+        else:
+            logger.warning(
+                "Cannot calculate incremental metrics: baseline revenue is zero or negative")
+            incremental_fin_metrics = None
     else:
         logger.info("Incremental analysis disabled.")
+        incremental_fin_metrics = None
 
     # Plotting and Reporting
     report_title_to_use = plant_report_title_override if plant_report_title_override else current_target_iso
