@@ -15,7 +15,7 @@ Requires CAN_PROVIDE_ANCILLARY_SERVICES flag from config.py (passed via model).
 """
 import pyomo.environ as pyo
 
-from src.logging.logging_setup import logger
+from src.logger_utils.logging_setup import logger
 from utils import get_param, get_symbolic_as_deployed_sum
 
 

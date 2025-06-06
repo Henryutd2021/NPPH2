@@ -12,7 +12,7 @@ from typing import Dict, Optional
 import pandas as pd
 
 from config import HOURS_IN_YEAR
-from src.logging.logging_setup import logger
+from src.logger_utils.logging_setup import logger
 
 
 def load_hourly_data(

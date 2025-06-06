@@ -14,7 +14,7 @@ from config import (
     ENABLE_NUCLEAR_GENERATOR,
     ENABLE_STARTUP_SHUTDOWN,
 )
-from src.logging.logging_setup import logger
+from src.logger_utils.logging_setup import logger
 from utils import get_param, get_total_deployed_as, get_var_value
 
 

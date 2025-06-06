@@ -61,11 +61,11 @@ def _load_imports():
     # Now import the modules
     from src.opt.result_processing import extract_results as _extract_results
     from src.opt.model import create_model as _create_model
-    from src.logging.logging_setup import logger as _logger  # Use unified logging system
+    from src.logger_utils.logging_setup import logger as _logger  # Use unified logging system
     from src.opt.data_io import load_hourly_data as _load_hourly_data
     import src.opt.config as _config
     # Use unified progress indicator
-    from src.logging.progress_indicators import SolverProgressIndicator as _SolverProgressIndicator
+    from src.logger_utils.progress_indicators import SolverProgressIndicator as _SolverProgressIndicator
 
     # Assign to global variables
     extract_results = _extract_results
@@ -218,7 +218,8 @@ def main(argv: list[str] | None = None):
         logger.info("Step 3b: Calling solver.solve()...")
 
         # Create log file for solver output monitoring
-        log_dir = Path("../output/logs")
+        # Use absolute path to project root's output/logs directory
+        log_dir = Path(__file__).resolve().parent.parent / "output" / "logs"
         log_dir.mkdir(parents=True, exist_ok=True)
         solver_log_file = log_dir / f"{args.iso}_solver_output.log"
 
@@ -306,7 +307,8 @@ def main(argv: list[str] | None = None):
                 )
                 print("Attempting to write infeasible model file for IIS analysis...")
                 try:
-                    log_dir = Path("../output/logs")
+                    # Use absolute path to project root's output/logs directory
+                    log_dir = Path(__file__).resolve().parent.parent / "output" / "logs"
                     log_dir.mkdir(parents=True, exist_ok=True)
                     infeasible_lp_file = log_dir / \
                         f"{args.iso}_infeasible_model.lp"
@@ -371,7 +373,8 @@ def main(argv: list[str] | None = None):
                 "Diagnosing unbounded models often requires checking objective function terms and variable bounds."
             )
             try:
-                log_dir = Path("../output/logs")
+                # Use absolute path to project root's output/logs directory
+                log_dir = Path(__file__).resolve().parent.parent / "output" / "logs"
                 log_dir.mkdir(parents=True, exist_ok=True)
                 unbounded_lp_file = log_dir / f"{args.iso}_unbounded_model.lp"
                 try:
@@ -476,12 +479,12 @@ def main(argv: list[str] | None = None):
         print("Total profit: N/A")
     print(f"Runtime = {runtime:.2f} seconds")
     if term_cond == TerminationCondition.infeasible and args.debug_infeasibility:
-        infeasible_lp_file = Path(
-            f"../output/logs/{args.iso}_infeasible_model.lp")
+        # Use absolute path to project root's output/logs directory
+        infeasible_lp_file = Path(__file__).resolve().parent.parent / "output" / "logs" / f"{args.iso}_infeasible_model.lp"
         print(f"Infeasible model saved to {infeasible_lp_file}")
     elif term_cond == TerminationCondition.unbounded:
-        unbounded_lp_file = Path(
-            f"../output/logs/{args.iso}_unbounded_model.lp")
+        # Use absolute path to project root's output/logs directory
+        unbounded_lp_file = Path(__file__).resolve().parent.parent / "output" / "logs" / f"{args.iso}_unbounded_model.lp"
         print(f"Potentially unbounded model saved to {unbounded_lp_file}")
 
 

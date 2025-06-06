@@ -3,7 +3,19 @@ Nuclear power plant economic calculations for TEA analysis.
 """
 
 import logging
+import math
 import numpy as np
+import pandas as pd
+
+# Import MACRS depreciation functions
+from .macrs import calculate_total_macrs_depreciation
+
+# Import new tax incentive analysis functionality
+from .tax_incentives import run_comprehensive_tax_incentive_analysis
+from .tax_incentive_reporting import (
+    generate_tax_incentive_comparative_report,
+    create_tax_incentive_visualizations
+)
 
 logger = logging.getLogger(__name__)
 
@@ -11,47 +23,199 @@ logger = logging.getLogger(__name__)
 HOURS_IN_YEAR = 8760
 
 
-def calculate_nuclear_capex_breakdown(nuclear_capacity_mw: float) -> dict:
+def calculate_45u_nuclear_ptc_benefits(
+    annual_generation_mwh: float,
+    project_start_year: int = 2024,
+    credit_rate_per_mwh: float = None,
+    credit_start_year: int = None,
+    credit_end_year: int = None,
+    project_lifetime_years: int = 40,
+    tax_policies: dict = None
+) -> dict:
     """
-    Calculate nuclear plant CAPEX breakdown based on capacity.
+    Calculate 45U Production Tax Credit benefits for existing nuclear power plants.
+
+    45U Policy Details:
+    - $15 per MWh for electricity generation from existing nuclear plants (configurable)
+    - Available from 2024 to 2032 (configurable)
+    - Only applies to existing nuclear plants (not new construction)
+
+    Args:
+        annual_generation_mwh: Annual electricity generation in MWh
+        project_start_year: Year when the analysis starts
+        credit_rate_per_mwh: PTC rate in $/MWh (if None, uses config default)
+        credit_start_year: Year when 45U credit begins (if None, uses config default)
+        credit_end_year: Year when 45U credit ends (if None, uses config default)
+        project_lifetime_years: Total project lifetime for analysis
+        tax_policies: Tax incentive policies configuration dictionary
+
+    Returns:
+        Dictionary containing 45U benefits calculation results
     """
-    # Nuclear CAPEX per MW (2024 USD, includes all plant systems)
-    nuclear_capex_per_mw = 11_958_860  # $/MW (from original tea.py)
 
-    # Calculate total CAPEX
-    total_nuclear_capex = nuclear_capacity_mw * nuclear_capex_per_mw
+    # Load default values from tax policies configuration if not provided
+    if tax_policies is None:
+        try:
+            from .config import TAX_INCENTIVE_POLICIES
+            tax_policies = TAX_INCENTIVE_POLICIES
+        except ImportError:
+            logger.warning("Could not import TAX_INCENTIVE_POLICIES, using hardcoded defaults")
+            tax_policies = {
+                "45u_ptc": {
+                    "credit_rate_per_mwh": 15.0,
+                    "credit_start_year": 2024,
+                    "credit_end_year": 2032
+                }
+            }
 
-    # Breakdown (percentages from industry standards)
-    breakdown = {
-        "Nuclear_Island": total_nuclear_capex * 0.45,           # 45%
-        "Turbine_Generator": total_nuclear_capex * 0.25,        # 25%
-        "Balance_of_Plant": total_nuclear_capex * 0.20,         # 20%
-        "Owner_Costs": total_nuclear_capex * 0.10,              # 10%
-        "Total_Nuclear_CAPEX": total_nuclear_capex
+    # Use configuration values if parameters not explicitly provided
+    if credit_rate_per_mwh is None:
+        credit_rate_per_mwh = tax_policies.get("45u_ptc", {}).get("credit_rate_per_mwh", 15.0)
+    if credit_start_year is None:
+        credit_start_year = tax_policies.get("45u_ptc", {}).get("credit_start_year", 2024)
+    if credit_end_year is None:
+        credit_end_year = tax_policies.get("45u_ptc", {}).get("credit_end_year", 2032)
+    logger.info(f"Calculating 45U Nuclear PTC benefits:")
+    logger.info(f"  Annual generation: {annual_generation_mwh:,.0f} MWh")
+    logger.info(f"  Credit rate: ${credit_rate_per_mwh}/MWh")
+    logger.info(f"  Credit period: {credit_start_year}-{credit_end_year}")
+
+    # Initialize annual credit array
+    annual_45u_credits = np.zeros(project_lifetime_years)
+
+    # Calculate eligible years
+    eligible_years = []
+    for year in range(project_lifetime_years):
+        project_year = project_start_year + year
+        if credit_start_year <= project_year <= credit_end_year:
+            eligible_years.append(year)
+            annual_credit = annual_generation_mwh * credit_rate_per_mwh
+            annual_45u_credits[year] = annual_credit
+
+    # Summary calculations
+    total_eligible_years = len(eligible_years)
+    total_45u_credits = np.sum(annual_45u_credits)
+    annual_credit_value = annual_generation_mwh * credit_rate_per_mwh
+
+    logger.info(f"  Eligible years: {total_eligible_years} years")
+    logger.info(f"  Annual credit value: ${annual_credit_value:,.0f}")
+    logger.info(f"  Total 45U credits: ${total_45u_credits:,.0f}")
+
+    return {
+        "policy_name": "45U Nuclear Production Tax Credit",
+        "credit_rate_per_mwh": credit_rate_per_mwh,
+        "credit_period_start": credit_start_year,
+        "credit_period_end": credit_end_year,
+        "eligible_years": eligible_years,
+        "total_eligible_years": total_eligible_years,
+        "annual_generation_mwh": annual_generation_mwh,
+        "annual_credit_value": annual_credit_value,
+        "annual_45u_credits": annual_45u_credits,
+        "total_45u_credits": total_45u_credits,
+        "applies_to_existing_plants_only": True
     }
 
-    logger.debug(
-        f"Nuclear CAPEX breakdown for {nuclear_capacity_mw:.0f} MW: ${total_nuclear_capex:,.0f}")
 
-    return breakdown
+def calculate_nuclear_capex_breakdown(nuclear_capacity_mw: float, use_detailed_components: bool = True) -> dict:
+    """
+    Calculate nuclear plant CAPEX breakdown based on capacity.
+
+    Args:
+        nuclear_capacity_mw: Nuclear plant capacity in MW
+        use_detailed_components: If True, use detailed NUCLEAR_CAPEX_COMPONENTS with learning rates.
+                               If False, use simplified percentage-based breakdown.
+
+    Returns:
+        Dictionary with nuclear CAPEX breakdown including detailed component costs
+    """
+    from . import config
+
+    if use_detailed_components and hasattr(config, 'NUCLEAR_CAPEX_COMPONENTS'):
+        logger.info(f"Calculating detailed nuclear CAPEX breakdown for {nuclear_capacity_mw:.0f} MW")
+        logger.info("Using NUCLEAR_CAPEX_COMPONENTS with learning rates and component-specific costs")
+
+        # Calculate detailed component costs with learning rates
+        detailed_breakdown = {}
+        total_nuclear_capex = 0
+
+        for component_name, component_config in config.NUCLEAR_CAPEX_COMPONENTS.items():
+            # Get component parameters
+            base_cost = component_config.get("total_base_cost_for_ref_size", 0)
+            reference_capacity = component_config.get("reference_total_capacity_mw", 1000)
+            learning_rate = component_config.get("learning_rate_decimal", 0.0)
+
+            # Calculate capacity ratio
+            capacity_ratio = nuclear_capacity_mw / reference_capacity
+
+            # Apply learning rate (cost reduction for larger scale)
+            # Learning rate formula: adjusted_cost = base_cost * (capacity_ratio)^(-learning_rate)
+            if learning_rate > 0 and capacity_ratio != 1.0:
+                learning_factor = capacity_ratio ** (-learning_rate)
+                component_cost = base_cost * capacity_ratio * learning_factor
+                logger.debug(f"  {component_name}: ${base_cost:,.0f} * {capacity_ratio:.3f} * {learning_factor:.3f} = ${component_cost:,.0f}")
+            else:
+                component_cost = base_cost * capacity_ratio
+                logger.debug(f"  {component_name}: ${base_cost:,.0f} * {capacity_ratio:.3f} = ${component_cost:,.0f}")
+
+            detailed_breakdown[component_name] = component_cost
+            total_nuclear_capex += component_cost
+
+        # Add total to breakdown
+        detailed_breakdown["Total_Nuclear_CAPEX"] = total_nuclear_capex
+
+        logger.info(f"Detailed nuclear CAPEX breakdown:")
+        for component, cost in detailed_breakdown.items():
+            if component != "Total_Nuclear_CAPEX":
+                logger.info(f"  {component}: ${cost:,.0f}")
+        logger.info(f"  Total Nuclear CAPEX: ${total_nuclear_capex:,.0f}")
+
+        return detailed_breakdown
+
+    else:
+        # Fallback to simplified percentage-based breakdown
+        logger.info(f"Using simplified percentage-based nuclear CAPEX breakdown for {nuclear_capacity_mw:.0f} MW")
+
+        # Nuclear CAPEX per MW (from centralized config)
+        nuclear_capex_per_mw = config.NUCLEAR_COST_PARAMETERS["nuclear_capex_per_mw"]
+
+        # Calculate total CAPEX
+        total_nuclear_capex = nuclear_capacity_mw * nuclear_capex_per_mw
+
+        # Breakdown (percentages from centralized config)
+        breakdown_percentages = config.NUCLEAR_COST_PARAMETERS["capex_breakdown_percentages"]
+        breakdown = {
+            "Nuclear_Island": total_nuclear_capex * breakdown_percentages["Nuclear_Island"],
+            "Turbine_Generator": total_nuclear_capex * breakdown_percentages["Turbine_Generator"],
+            "Balance_of_Plant": total_nuclear_capex * breakdown_percentages["Balance_of_Plant"],
+            "Owner_Costs": total_nuclear_capex * breakdown_percentages["Owner_Costs"],
+            "Total_Nuclear_CAPEX": total_nuclear_capex
+        }
+
+        logger.debug(
+            f"Nuclear CAPEX breakdown for {nuclear_capacity_mw:.0f} MW: ${total_nuclear_capex:,.0f}")
+
+        return breakdown
 
 
 def calculate_nuclear_annual_opex(nuclear_capacity_mw: float, annual_generation_mwh: float) -> dict:
     """
     Calculate annual nuclear operating expenses.
+    Uses centralized parameters from config.NUCLEAR_COST_PARAMETERS.
     """
-    # Nuclear OPEX components (2024 USD)
-    fixed_om_per_mw_month = 15_000  # $/MW/month
-    variable_om_per_mwh = 3.5       # $/MWh
-    nuclear_fuel_cost_per_mwh = 7.0  # $/MWh
+    from . import config
+
+    # Nuclear OPEX components (from centralized config)
+    opex_params = config.NUCLEAR_COST_PARAMETERS["opex_parameters"]
+    fixed_om_per_mw_month = opex_params["fixed_om_per_mw_month"]
+    variable_om_per_mwh = opex_params["variable_om_per_mwh"]
+    nuclear_fuel_cost_per_mwh = opex_params["fuel_cost_per_mwh"]
+    additional_costs_per_mw_year = opex_params["additional_costs_per_mw_year"]
 
     # Calculate annual costs
     fixed_om_annual = nuclear_capacity_mw * fixed_om_per_mw_month * 12
     variable_om_annual = annual_generation_mwh * variable_om_per_mwh
     fuel_cost_annual = annual_generation_mwh * nuclear_fuel_cost_per_mwh
-
-    # Additional costs (insurance, regulatory, waste disposal)
-    additional_costs_annual = nuclear_capacity_mw * 50_000  # $/MW/year
+    additional_costs_annual = nuclear_capacity_mw * additional_costs_per_mw_year
 
     total_nuclear_opex = fixed_om_annual + variable_om_annual + \
         fuel_cost_annual + additional_costs_annual
@@ -182,11 +346,11 @@ def calculate_greenfield_nuclear_hydrogen_system(
     """
     logger.info("=" * 80)
     logger.info("GREENFIELD NUCLEAR-HYDROGEN INTEGRATED SYSTEM ANALYSIS")
-    logger.info("60-Year Lifecycle Analysis with System Data & Hourly Results")
+    logger.info(f"{project_lifetime_config}-Year Lifecycle Analysis with System Data & Hourly Results")
     logger.info("=" * 80)
 
-    # Project parameters (fixed for greenfield analysis)
-    project_lifetime = 60
+    # Project parameters (use configurable project lifetime)
+    project_lifetime = project_lifetime_config
     construction_period = 8
     discount_rate = discount_rate_config
 
@@ -203,7 +367,7 @@ def calculate_greenfield_nuclear_hydrogen_system(
 
     logger.info(f"\nSystem Configuration:")
     logger.info(
-        f"  Analysis Type                   : greenfield_nuclear_hydrogen_system_60yr")
+        f"  Analysis Type                   : greenfield_nuclear_hydrogen_system_{project_lifetime}yr")
     logger.info(
         f"  Nuclear Capacity                : {nuclear_capacity_mw:,.0f} MW")
     logger.info(
@@ -213,8 +377,9 @@ def calculate_greenfield_nuclear_hydrogen_system(
     logger.info(f"  Discount Rate                   : {discount_rate:.1%}")
 
     # === 1. NUCLEAR SYSTEM COSTS ===
+    # Use detailed nuclear CAPEX components for greenfield analysis
     nuclear_capex_breakdown = calculate_nuclear_capex_breakdown(
-        nuclear_capacity_mw)
+        nuclear_capacity_mw, use_detailed_components=True)
     nuclear_total_capex = nuclear_capex_breakdown["Total_Nuclear_CAPEX"]
 
     # === 2. HYDROGEN SYSTEM COSTS ===
@@ -229,7 +394,9 @@ def calculate_greenfield_nuclear_hydrogen_system(
     h2_initial_capex = annual_metrics.get("total_capex", 0)
 
     # Get replacement costs using actual system data from CAPEX_COMPONENTS
-    # Electrolyzer replacements (every 20 years: years 20, 40)
+    # Calculate replacement schedules based on actual project lifetime
+
+    # Electrolyzer replacements (every 20 years)
     electrolyzer_capex_component = h2_capex_components_config.get(
         "Electrolyzer_System", {})
     electrolyzer_ref_capacity = electrolyzer_capex_component.get(
@@ -244,9 +411,12 @@ def calculate_greenfield_nuclear_hydrogen_system(
         electrolyzer_replacement_cost = electrolyzer_capacity_mw * \
             1000 * 1200  # $1200/kW fallback
 
-    total_electrolyzer_replacements = electrolyzer_replacement_cost * 2  # 2 replacements
+    # Calculate number of electrolyzer replacements based on project lifetime
+    electrolyzer_replacement_years = [year for year in range(20, project_lifetime, 20)]
+    num_electrolyzer_replacements = len(electrolyzer_replacement_years)
+    total_electrolyzer_replacements = electrolyzer_replacement_cost * num_electrolyzer_replacements
 
-    # H2 Storage system replacements (every 30 years: year 30)
+    # H2 Storage system replacements (every 30 years)
     h2_storage_capex_component = h2_capex_components_config.get(
         "H2_Storage_System", {})
     h2_storage_ref_capacity = h2_storage_capex_component.get(
@@ -260,9 +430,12 @@ def calculate_greenfield_nuclear_hydrogen_system(
     else:
         h2_storage_replacement_cost = h2_storage_capacity_kg * 400  # $400/kg fallback
 
-    total_h2_storage_replacements = h2_storage_replacement_cost * 1  # 1 replacement
+    # Calculate number of H2 storage replacements based on project lifetime
+    h2_storage_replacement_years = [year for year in range(30, project_lifetime, 30)]
+    num_h2_storage_replacements = len(h2_storage_replacement_years)
+    total_h2_storage_replacements = h2_storage_replacement_cost * num_h2_storage_replacements
 
-    # Battery replacements (every 15 years: years 15, 30, 45)
+    # Battery replacements (every 15 years)
     battery_energy_capex_component = h2_capex_components_config.get(
         "Battery_System_Energy", {})
     battery_power_capex_component = h2_capex_components_config.get(
@@ -291,7 +464,11 @@ def calculate_greenfield_nuclear_hydrogen_system(
 
     battery_replacement_cost = battery_energy_replacement_cost + \
         battery_power_replacement_cost
-    total_battery_replacements = battery_replacement_cost * 3  # 3 replacements
+
+    # Calculate number of battery replacements based on project lifetime
+    battery_replacement_years = [year for year in range(15, project_lifetime, 15)]
+    num_battery_replacements = len(battery_replacement_years)
+    total_battery_replacements = battery_replacement_cost * num_battery_replacements
 
     # Enhanced maintenance factor for 60-year operation
     enhanced_maintenance_factor = 1.2
@@ -302,6 +479,48 @@ def calculate_greenfield_nuclear_hydrogen_system(
 
     # === 3. TOTAL SYSTEM INVESTMENT ===
     total_system_capex = nuclear_total_capex + total_h2_capex
+
+    # === 3.1. MACRS DEPRECIATION CALCULATION ===
+    # Create combined CAPEX breakdown for MACRS calculation
+    combined_capex_breakdown = {
+        "Nuclear_Power_Plant": nuclear_total_capex,
+        "Electrolyzer_System": h2_initial_capex * 0.6,  # Estimate electrolyzer portion
+        "H2_Storage_System": h2_initial_capex * 0.2,    # Estimate storage portion
+        # Estimate battery energy portion
+        "Battery_System_Energy": h2_initial_capex * 0.15,
+        "Battery_System_Power": h2_initial_capex * 0.05,   # Estimate battery power portion
+    }
+
+    # Import MACRS config
+    try:
+        from .config import MACRS_CONFIG
+        macrs_config = MACRS_CONFIG
+    except ImportError:
+        logger.warning(
+            "Could not import MACRS_CONFIG. Using default configuration.")
+        macrs_config = {
+            "enabled": True, "nuclear_depreciation_years": 15, "hydrogen_depreciation_years": 7}
+
+    # Calculate MACRS depreciation for the integrated system
+    logger.info(
+        "Calculating MACRS depreciation for greenfield nuclear-hydrogen system")
+    total_macrs_depreciation, component_macrs_depreciation = calculate_total_macrs_depreciation(
+        capex_breakdown=combined_capex_breakdown,
+        construction_period_years=construction_period,
+        project_lifetime_years=project_lifetime,
+        macrs_config=macrs_config
+    )
+
+    # Calculate total MACRS tax benefits
+    tax_rate = tax_rate_config
+    total_macrs_tax_benefits = np.sum(total_macrs_depreciation) * tax_rate
+
+    logger.info(f"MACRS Depreciation Summary:")
+    logger.info(
+        f"  Total MACRS Depreciation        : ${np.sum(total_macrs_depreciation):,.0f}")
+    logger.info(
+        f"  Total Tax Benefits from MACRS   : ${total_macrs_tax_benefits:,.0f}")
+    logger.info(f"  Tax Rate Applied                : {tax_rate:.1%}")
 
     logger.info(f"\nCapital Investment Breakdown:")
     logger.info(
@@ -325,19 +544,23 @@ def calculate_greenfield_nuclear_hydrogen_system(
 
     # === 4. PRODUCTION METRICS FROM HOURLY DATA ===
     # Use actual production data from optimization hourly results as typical year
-    logger.info("Using hourly optimization results as typical year for lifecycle analysis")
+    logger.info(
+        "Using hourly optimization results as typical year for lifecycle analysis")
 
     # Nuclear generation calculated from actual turbine operation
-    nuclear_capacity_factor = annual_metrics.get("Turbine_CF_percent", 90) / 100
+    nuclear_capacity_factor = annual_metrics.get(
+        "Turbine_CF_percent", 90) / 100
     annual_nuclear_generation = nuclear_capacity_mw * 8760 * nuclear_capacity_factor
 
     # Verify against any direct nuclear generation data if available
     direct_nuclear_gen = annual_metrics.get("Annual_Nuclear_Generation_MWh", 0)
     if direct_nuclear_gen > 0:
-        logger.info(f"Direct nuclear generation data available: {direct_nuclear_gen:,.0f} MWh/year")
+        logger.info(
+            f"Direct nuclear generation data available: {direct_nuclear_gen:,.0f} MWh/year")
         annual_nuclear_generation = direct_nuclear_gen
 
-    logger.info(f"Nuclear generation for lifecycle analysis: {annual_nuclear_generation:,.0f} MWh/year")
+    logger.info(
+        f"Nuclear generation for lifecycle analysis: {annual_nuclear_generation:,.0f} MWh/year")
     logger.info(f"Nuclear capacity factor: {nuclear_capacity_factor:.1%}")
 
     # Efficiency metrics based on actual production
@@ -365,14 +588,14 @@ def calculate_greenfield_nuclear_hydrogen_system(
     logger.info(
         f"  Electricity to H2 Efficiency    : {electricity_to_h2_efficiency:.1%}")
 
-    logger.info(f"\nInvestment Breakdown (60-year lifecycle):")
+    logger.info(f"\nInvestment Breakdown ({project_lifetime}-year lifecycle):")
     logger.info(
         f"  H2 System Initial CAPEX         : ${h2_initial_capex:,.0f}")
     logger.info(
         f"  H2 System Replacement CAPEX     : ${total_h2_capex - h2_initial_capex:,.0f}")
-    logger.info(f"    Electrolyzer Replacements     : 2 times")
-    logger.info(f"    H2 Storage Replacements       : 1 times")
-    logger.info(f"    Battery Replacements          : 3 times")
+    logger.info(f"    Electrolyzer Replacements     : {num_electrolyzer_replacements} times (years: {electrolyzer_replacement_years})")
+    logger.info(f"    H2 Storage Replacements       : {num_h2_storage_replacements} times (years: {h2_storage_replacement_years})")
+    logger.info(f"    Battery Replacements          : {num_battery_replacements} times (years: {battery_replacement_years})")
     logger.info(
         f"  Enhanced Maintenance Factor     : {enhanced_maintenance_factor:.1f}x")
 
@@ -388,12 +611,15 @@ def calculate_greenfield_nuclear_hydrogen_system(
     try:
         h2_price = float(h2_price_raw) if h2_price_raw is not None else None
         if h2_price is None:
-            logger.warning("Hydrogen price not found in system data file. This is required for accurate analysis.")
+            logger.warning(
+                "Hydrogen price not found in system data file. This is required for accurate analysis.")
             h2_price = 5.0  # Fallback only if absolutely necessary
         else:
-            logger.info(f"Using hydrogen price from system data: ${h2_price:.2f}/kg")
+            logger.info(
+                f"Using hydrogen price from system data: ${h2_price:.2f}/kg")
     except (ValueError, TypeError):
-        logger.warning(f"Invalid hydrogen price value in system data: {h2_price_raw}. Using fallback.")
+        logger.warning(
+            f"Invalid hydrogen price value in system data: {h2_price_raw}. Using fallback.")
         h2_price = 5.0
 
     annual_h2_revenue = annual_metrics.get(
@@ -464,7 +690,8 @@ def calculate_greenfield_nuclear_hydrogen_system(
                 h2_system_as_revenue = electrolyzer_as_revenue + battery_as_revenue
             else:
                 # Final fallback: use zero allocation when no deployment or capacity data available
-                logger.warning("No AS deployment or capacity data available. Setting AS revenue allocation to zero for accurate accounting.")
+                logger.warning(
+                    "No AS deployment or capacity data available. Setting AS revenue allocation to zero for accurate accounting.")
                 turbine_as_revenue = 0
                 h2_system_as_revenue = 0
 
@@ -547,18 +774,14 @@ def calculate_greenfield_nuclear_hydrogen_system(
         if operating_year <= h2_subsidy_yrs:
             h2_subsidy_pv += h2_subsidy_revenue / discount_factor
 
-        # Add replacement costs in specific years
+        # Add replacement costs in specific years based on dynamic schedules
         replacement_cost = 0
-        if operating_year == 15:
+        if operating_year in battery_replacement_years:
             replacement_cost += battery_replacement_cost
-        if operating_year == 20:
+        if operating_year in electrolyzer_replacement_years:
             replacement_cost += electrolyzer_replacement_cost
-        if operating_year == 30:
-            replacement_cost += h2_storage_replacement_cost + battery_replacement_cost
-        if operating_year == 40:
-            replacement_cost += electrolyzer_replacement_cost
-        if operating_year == 45:
-            replacement_cost += battery_replacement_cost
+        if operating_year in h2_storage_replacement_years:
+            replacement_cost += h2_storage_replacement_cost
 
         if replacement_cost > 0:
             h2_system_costs_pv += replacement_cost / discount_factor
@@ -589,9 +812,11 @@ def calculate_greenfield_nuclear_hydrogen_system(
     if electrolyzer_electricity_consumption_annual == 0:
         # Estimate from H2 production (50 kWh/kg H2 typical)
         electrolyzer_electricity_consumption_annual = annual_h2_production * 50 / 1000
-        logger.warning("Using estimated electrolyzer electricity consumption. Actual hourly data preferred.")
+        logger.warning(
+            "Using estimated electrolyzer electricity consumption. Actual hourly data preferred.")
     else:
-        logger.info(f"Using actual electrolyzer electricity consumption from hourly data: {electrolyzer_electricity_consumption_annual:,.0f} MWh/year")
+        logger.info(
+            f"Using actual electrolyzer electricity consumption from hourly data: {electrolyzer_electricity_consumption_annual:,.0f} MWh/year")
 
     # Add HTE thermal energy consumption and opportunity cost
     hte_steam_consumption_annual = annual_metrics.get(
@@ -603,23 +828,30 @@ def calculate_greenfield_nuclear_hydrogen_system(
         # Thermal energy converted to lost electricity generation
         hte_electricity_equivalent_annual = hte_steam_consumption_annual / thermal_efficiency
         electrolyzer_electricity_consumption_annual += hte_electricity_equivalent_annual
-        logger.info(f"HTE thermal energy equivalent: {hte_electricity_equivalent_annual:,.0f} MWh/year")
+        logger.info(
+            f"HTE thermal energy equivalent: {hte_electricity_equivalent_annual:,.0f} MWh/year")
 
     # Battery charging electricity consumption - use actual hourly data
     battery_charge_annual = annual_metrics.get("Annual_Battery_Charge_MWh", 0)
-    battery_charge_from_grid = annual_metrics.get("Annual_Battery_Charge_From_Grid_MWh", 0)
-    battery_charge_from_npp = annual_metrics.get("Annual_Battery_Charge_From_NPP_MWh", 0)
+    battery_charge_from_grid = annual_metrics.get(
+        "Annual_Battery_Charge_From_Grid_MWh", 0)
+    battery_charge_from_npp = annual_metrics.get(
+        "Annual_Battery_Charge_From_NPP_MWh", 0)
 
     logger.info(f"Battery charging breakdown:")
-    logger.info(f"  Total battery charging: {battery_charge_annual:,.0f} MWh/year")
-    logger.info(f"  From grid purchase: {battery_charge_from_grid:,.0f} MWh/year")
-    logger.info(f"  From NPP (opportunity cost): {battery_charge_from_npp:,.0f} MWh/year")
+    logger.info(
+        f"  Total battery charging: {battery_charge_annual:,.0f} MWh/year")
+    logger.info(
+        f"  From grid purchase: {battery_charge_from_grid:,.0f} MWh/year")
+    logger.info(
+        f"  From NPP (opportunity cost): {battery_charge_from_npp:,.0f} MWh/year")
 
     # Total electricity consumption for cost calculation
     # For H2 production: use nuclear LCOE (opportunity cost)
     # For battery charging from NPP: use nuclear LCOE (opportunity cost)
     # For battery charging from grid: use market price (direct cost)
-    total_electricity_consumption_annual = electrolyzer_electricity_consumption_annual + battery_charge_from_npp
+    total_electricity_consumption_annual = electrolyzer_electricity_consumption_annual + \
+        battery_charge_from_npp
     grid_electricity_consumption_annual = battery_charge_from_grid
 
     # Present value of electricity costs using nuclear LCOE for NPP-sourced electricity
@@ -629,15 +861,19 @@ def calculate_greenfield_nuclear_hydrogen_system(
     for year in range(1, project_lifetime + 1):
         discount_factor = (1 + discount_rate) ** year
         # NPP electricity at nuclear LCOE (opportunity cost)
-        electricity_costs_pv += (total_electricity_consumption_annual * nuclear_lcoe) / discount_factor
+        electricity_costs_pv += (total_electricity_consumption_annual *
+                                 nuclear_lcoe) / discount_factor
         # Grid electricity at market price (direct cost)
-        grid_electricity_costs_pv += (grid_electricity_consumption_annual * avg_electricity_price) / discount_factor
+        grid_electricity_costs_pv += (grid_electricity_consumption_annual *
+                                      avg_electricity_price) / discount_factor
 
     total_electricity_costs_pv = electricity_costs_pv + grid_electricity_costs_pv
 
     logger.info(f"Electricity cost calculation:")
-    logger.info(f"  NPP electricity cost (PV): ${electricity_costs_pv:,.0f} at LCOE ${nuclear_lcoe:.2f}/MWh")
-    logger.info(f"  Grid electricity cost (PV): ${grid_electricity_costs_pv:,.0f} at market price ${avg_electricity_price:.2f}/MWh")
+    logger.info(
+        f"  NPP electricity cost (PV): ${electricity_costs_pv:,.0f} at LCOE ${nuclear_lcoe:.2f}/MWh")
+    logger.info(
+        f"  Grid electricity cost (PV): ${grid_electricity_costs_pv:,.0f} at market price ${avg_electricity_price:.2f}/MWh")
 
     h2_system_total_costs_pv = h2_system_costs_pv + h2_opex_pv
     if total_h2_production_pv > 0:
@@ -655,51 +891,72 @@ def calculate_greenfield_nuclear_hydrogen_system(
     battery_system_costs_pv = 0
 
     if battery_capacity_mwh > 0:
-        logger.info("Calculating independent battery system LCOS using actual hourly data")
+        logger.info(
+            "Calculating independent battery system LCOS using actual hourly data")
 
         # Battery system CAPEX from replacement costs (initial investment)
-        battery_total_capex = battery_energy_replacement_cost + battery_power_replacement_cost
+        battery_total_capex = battery_energy_replacement_cost + \
+            battery_power_replacement_cost
 
         # Battery system OPEX using actual data from config
-        battery_fixed_om_annual = annual_metrics.get("Battery_Fixed_OM_Annual", 0)
+        battery_fixed_om_annual = annual_metrics.get(
+            "Battery_Fixed_OM_Annual", 0)
         if battery_fixed_om_annual == 0:
             # Fallback: estimate from capacity
-            battery_fixed_om_annual = (battery_power_mw * 10000 + battery_capacity_mwh * 5000)  # $10k/MW + $5k/MWh
+            battery_fixed_om_annual = (
+                battery_power_mw * 10000 + battery_capacity_mwh * 5000)  # $10k/MW + $5k/MWh
 
         battery_vom_annual = annual_metrics.get("VOM_Battery_Cost", 0)
 
         # Battery electricity costs using actual charging data and nuclear LCOE
-        battery_charge_from_npp_annual = annual_metrics.get("Annual_Battery_Charge_From_NPP_MWh", 0)
-        battery_charge_from_grid_annual = annual_metrics.get("Annual_Battery_Charge_From_Grid_MWh", 0)
+        battery_charge_from_npp_annual = annual_metrics.get(
+            "Annual_Battery_Charge_From_NPP_MWh", 0)
+        battery_charge_from_grid_annual = annual_metrics.get(
+            "Annual_Battery_Charge_From_Grid_MWh", 0)
 
         # Electricity costs: NPP at LCOE (opportunity cost), grid at market price
         battery_electricity_cost_annual = (battery_charge_from_npp_annual * nuclear_lcoe +
-                                         battery_charge_from_grid_annual * avg_electricity_price)
+                                           battery_charge_from_grid_annual * avg_electricity_price)
 
         # Battery AS revenue - use actual deployment data from hourly results
         battery_as_revenue_annual = 0
-        as_deployment_keys = [k for k in annual_metrics.keys() if "AS_Total_Deployed" in k and "Battery" in k]
+        as_deployment_keys = [k for k in annual_metrics.keys(
+        ) if "AS_Total_Deployed" in k and "Battery" in k]
         for key in as_deployment_keys:
             battery_as_deployed_mwh = annual_metrics.get(key, 0)
             # Use average electricity price as AS price proxy
-            battery_as_revenue_annual += battery_as_deployed_mwh * avg_electricity_price * 1.5  # 50% premium for AS
+            battery_as_revenue_annual += battery_as_deployed_mwh * \
+                avg_electricity_price * 1.5  # 50% premium for AS
 
         # Battery energy arbitrage revenue (discharge at higher prices)
-        battery_discharge_annual = annual_metrics.get("Annual_Battery_Discharge_MWh", 0)
+        battery_discharge_annual = annual_metrics.get(
+            "Annual_Battery_Discharge_MWh", 0)
         if battery_discharge_annual == 0:
             # Estimate from charging with round-trip efficiency
-            battery_discharge_annual = (battery_charge_from_npp_annual + battery_charge_from_grid_annual) * 0.85
+            battery_discharge_annual = (
+                battery_charge_from_npp_annual + battery_charge_from_grid_annual) * 0.85
 
-        battery_arbitrage_revenue_annual = battery_discharge_annual * avg_electricity_price * 0.1  # 10% arbitrage margin
+        # If still zero and we have battery capacity, use a reasonable estimate
+        if battery_discharge_annual == 0 and battery_capacity_mwh > 0:
+            # Estimate based on battery capacity and typical utilization
+            # Assume 1 cycle per day with 85% efficiency
+            battery_discharge_annual = battery_capacity_mwh * 365 * 0.85
+            logger.info(f"Using estimated battery discharge based on capacity: {battery_discharge_annual:,.0f} MWh/year")
+
+        battery_arbitrage_revenue_annual = battery_discharge_annual * \
+            avg_electricity_price * 0.1  # 10% arbitrage margin
 
         logger.info(f"Battery system annual metrics:")
         logger.info(f"  CAPEX: ${battery_total_capex:,.0f}")
         logger.info(f"  Fixed O&M: ${battery_fixed_om_annual:,.0f}/year")
         logger.info(f"  VOM: ${battery_vom_annual:,.0f}/year")
-        logger.info(f"  Electricity cost: ${battery_electricity_cost_annual:,.0f}/year")
+        logger.info(
+            f"  Electricity cost: ${battery_electricity_cost_annual:,.0f}/year")
         logger.info(f"  AS revenue: ${battery_as_revenue_annual:,.0f}/year")
-        logger.info(f"  Arbitrage revenue: ${battery_arbitrage_revenue_annual:,.0f}/year")
-        logger.info(f"  Annual discharge: {battery_discharge_annual:,.0f} MWh/year")
+        logger.info(
+            f"  Arbitrage revenue: ${battery_arbitrage_revenue_annual:,.0f}/year")
+        logger.info(
+            f"  Annual discharge: {battery_discharge_annual:,.0f} MWh/year")
 
         # Calculate present values
         battery_system_costs_pv = battery_total_capex  # Initial CAPEX
@@ -711,11 +968,12 @@ def calculate_greenfield_nuclear_hydrogen_system(
 
             # Annual costs
             annual_battery_costs = (battery_fixed_om_annual + battery_vom_annual +
-                                  battery_electricity_cost_annual)
+                                    battery_electricity_cost_annual)
             battery_system_costs_pv += annual_battery_costs / discount_factor
 
             # Annual revenues
-            annual_battery_revenue = battery_as_revenue_annual + battery_arbitrage_revenue_annual
+            annual_battery_revenue = battery_as_revenue_annual + \
+                battery_arbitrage_revenue_annual
             battery_system_revenue_pv += annual_battery_revenue / discount_factor
 
             # Annual throughput (energy discharged for consistency with existing reports)
@@ -725,18 +983,24 @@ def calculate_greenfield_nuclear_hydrogen_system(
             if year in [15, 30, 45]:
                 battery_replacement_cost = battery_total_capex * 0.8  # 80% of initial cost
                 battery_system_costs_pv += battery_replacement_cost / discount_factor
-                logger.info(f"  Battery replacement year {year}: ${battery_replacement_cost:,.0f} (PV: ${battery_replacement_cost / discount_factor:,.0f})")
+                logger.info(
+                    f"  Battery replacement year {year}: ${battery_replacement_cost:,.0f} (PV: ${battery_replacement_cost / discount_factor:,.0f})")
 
         # Calculate LCOS and NPV
         if battery_throughput_pv > 0:
-            battery_lcos = (battery_system_costs_pv - battery_system_revenue_pv) / battery_throughput_pv
+            battery_lcos = (battery_system_costs_pv -
+                            battery_system_revenue_pv) / battery_throughput_pv
 
             # Log detailed calculation for debugging (60-year)
             logger.info(f"LCOS CALCULATION DEBUG (60-year):")
-            logger.info(f"  Battery System Costs (PV): ${battery_system_costs_pv:,.0f}")
-            logger.info(f"  Battery System Revenue (PV): ${battery_system_revenue_pv:,.0f}")
-            logger.info(f"  Net Costs (PV): ${battery_system_costs_pv - battery_system_revenue_pv:,.0f}")
-            logger.info(f"  Battery Throughput (PV): {battery_throughput_pv:,.0f} MWh")
+            logger.info(
+                f"  Battery System Costs (PV): ${battery_system_costs_pv:,.0f}")
+            logger.info(
+                f"  Battery System Revenue (PV): ${battery_system_revenue_pv:,.0f}")
+            logger.info(
+                f"  Net Costs (PV): ${battery_system_costs_pv - battery_system_revenue_pv:,.0f}")
+            logger.info(
+                f"  Battery Throughput (PV): {battery_throughput_pv:,.0f} MWh")
             logger.info(f"  Calculated LCOS: ${battery_lcos:.2f}/MWh")
             logger.info(f"  Replacement count: 3 (years 15, 30, 45)")
         else:
@@ -750,9 +1014,22 @@ def calculate_greenfield_nuclear_hydrogen_system(
         logger.info(f"  NPV: ${battery_system_npv:,.0f}")
         logger.info(f"  LCOS: ${battery_lcos:.2f}/MWh discharged")
 
-    # Total system NPV
+    # Calculate present value of MACRS tax benefits
+    macrs_tax_benefits_pv = 0
+    for year in range(construction_period + 1, construction_period + project_lifetime + 1):
+        year_index = year - 1  # Convert to 0-based index for depreciation array
+        if year_index < len(total_macrs_depreciation):
+            annual_macrs_depreciation = total_macrs_depreciation[year_index]
+            annual_tax_benefit = annual_macrs_depreciation * tax_rate
+            discount_factor = (1 + discount_rate) ** (year - 1)
+            macrs_tax_benefits_pv += annual_tax_benefit / discount_factor
+
+    logger.info(
+        f"MACRS Tax Benefits (Present Value): ${macrs_tax_benefits_pv:,.0f}")
+
+    # Total system NPV (including MACRS tax benefits)
     total_revenue_pv = (h2_revenue_pv + h2_subsidy_pv + turbine_as_revenue_pv +
-                        h2_as_revenue_pv + electricity_revenue_pv)
+                        h2_as_revenue_pv + electricity_revenue_pv + macrs_tax_benefits_pv)
     total_costs_pv = (nuclear_total_costs_pv + h2_system_total_costs_pv +
                       total_electricity_costs_pv + hte_thermal_costs_pv)
     npv = total_revenue_pv - total_costs_pv
@@ -788,8 +1065,12 @@ def calculate_greenfield_nuclear_hydrogen_system(
             payback_years = year
             break
 
-    logger.info(f"\nFinancial Results (60-year lifecycle):")
+    logger.info(f"\nFinancial Results (60-year lifecycle with MACRS):")
     logger.info(f"  Net Present Value (NPV)         : ${npv:,.0f}")
+    logger.info(
+        f"  MACRS Tax Benefits (PV)         : ${macrs_tax_benefits_pv:,.0f}")
+    logger.info(
+        f"  NPV without MACRS               : ${npv - macrs_tax_benefits_pv:,.0f}")
     if irr_percent == irr_percent:  # Check for not NaN
         logger.info(f"  Internal Rate of Return (IRR)   : {irr_percent:.2f}%")
     else:
@@ -860,7 +1141,154 @@ def calculate_greenfield_nuclear_hydrogen_system(
     logger.info(
         f"This provides a comprehensive view of long-term integrated system economics.")
 
-    # === 7. COMPILE RESULTS ===
+    # === 7. CALCULATE DETAILED CASH FLOWS ===
+    # Generate detailed cash flows for tax incentive analysis
+    total_years = construction_period + project_lifetime
+    detailed_cash_flows = np.zeros(total_years)
+
+    # Construction period - CAPEX investment using detailed payment schedules
+    # Apply nuclear CAPEX components with their specific payment schedules
+    logger.info("Applying nuclear CAPEX payment schedules during construction period")
+
+    # Import nuclear CAPEX components configuration
+    try:
+        from src.tea.config import NUCLEAR_CAPEX_COMPONENTS
+        nuclear_capex_components = NUCLEAR_CAPEX_COMPONENTS
+    except ImportError:
+        logger.warning("Could not import NUCLEAR_CAPEX_COMPONENTS. Using simplified payment schedule.")
+        nuclear_capex_components = {}
+
+    # Apply nuclear CAPEX with detailed payment schedules
+    if nuclear_capex_components:
+        logger.info("Using detailed nuclear CAPEX payment schedules from config")
+        for comp_name, comp_data in nuclear_capex_components.items():
+            payment_schedule = comp_data.get("payment_schedule_years", {})
+
+            # Get the actual cost for this component from the breakdown
+            component_cost = 0
+            if comp_name == "Nuclear_Power_Plant":
+                # For the main nuclear plant, use the total nuclear CAPEX
+                component_cost = nuclear_total_capex
+            else:
+                # For other components, calculate based on capacity scaling
+                base_cost = comp_data.get("total_base_cost_for_ref_size", 0)
+                ref_capacity = comp_data.get("reference_total_capacity_mw", 1000)
+                learning_rate = comp_data.get("learning_rate_decimal", 0)
+
+                if learning_rate > 0 and ref_capacity > 0:
+                    # Apply learning rate scaling
+                    progress_ratio = 1 - learning_rate
+                    learning_exponent = math.log(progress_ratio) / math.log(2) if 0 < progress_ratio < 1 else 0
+                    component_cost = base_cost * ((nuclear_capacity_mw / ref_capacity) ** learning_exponent)
+                elif ref_capacity > 0:
+                    # Linear scaling without learning rate
+                    component_cost = base_cost * (nuclear_capacity_mw / ref_capacity)
+                else:
+                    component_cost = base_cost
+
+            # Apply payment schedule for this nuclear component
+            for constr_year_offset, payment_share in payment_schedule.items():
+                if 0 <= constr_year_offset < construction_period:
+                    payment_amount = component_cost * payment_share
+                    detailed_cash_flows[constr_year_offset] -= payment_amount
+                    logger.debug(f"Nuclear {comp_name} Year {constr_year_offset}: ${payment_amount:,.0f} ({payment_share:.1%})")
+                else:
+                    logger.warning(f"Nuclear {comp_name} payment year {constr_year_offset} outside construction period (0-{construction_period-1})")
+    else:
+        # Fallback: distribute nuclear CAPEX evenly if detailed components not available
+        logger.warning("Using fallback even distribution for nuclear CAPEX")
+        annual_nuclear_capex = nuclear_total_capex / construction_period
+        for year in range(construction_period):
+            detailed_cash_flows[year] -= annual_nuclear_capex
+
+    # Apply H2/battery system CAPEX with detailed payment schedules
+    logger.info("Applying H2/battery system CAPEX payment schedules during construction period")
+
+    # Import H2/battery CAPEX components configuration
+    h2_capex_components = h2_capex_components_config
+
+    # Get optimized capacities for H2/battery systems
+    optimized_capacities = {
+        "Electrolyzer_Capacity_MW": annual_metrics.get("Electrolyzer_Capacity_MW", 0),
+        "H2_Storage_Capacity_kg": annual_metrics.get("H2_Storage_Capacity_kg", 0),
+        "Battery_Capacity_MWh": annual_metrics.get("Battery_Capacity_MWh", 0),
+        "Battery_Power_MW": annual_metrics.get("Battery_Power_MW", 0),
+    }
+
+    # Apply H2/battery CAPEX with detailed payment schedules (similar to calculate_cash_flows logic)
+    for comp_name, comp_data in h2_capex_components.items():
+        base_cost = comp_data.get("total_base_cost_for_ref_size", 0)
+        ref_capacity = comp_data.get("reference_total_capacity_mw", 0)
+        learning_rate = comp_data.get("learning_rate_decimal", 0)
+        capacity_key = comp_data.get("applies_to_component_capacity_key")
+        payment_schedule = comp_data.get("payment_schedule_years", {})
+
+        # Get actual optimized capacity for this component
+        actual_capacity = optimized_capacities.get(capacity_key, ref_capacity if capacity_key else 0)
+
+        # Calculate adjusted cost with learning rate
+        if learning_rate > 0 and ref_capacity > 0 and actual_capacity > 0 and capacity_key:
+            progress_ratio = 1 - learning_rate
+            learning_exponent = math.log(progress_ratio) / math.log(2) if 0 < progress_ratio < 1 else 0
+            adjusted_component_cost = base_cost * ((actual_capacity / ref_capacity) ** learning_exponent)
+        elif actual_capacity > 0 and ref_capacity > 0 and capacity_key:
+            # Linear scaling without learning rate
+            adjusted_component_cost = base_cost * (actual_capacity / ref_capacity)
+        elif not capacity_key:
+            # Fixed cost component
+            adjusted_component_cost = base_cost
+        else:
+            # Zero capacity
+            adjusted_component_cost = 0
+
+        # Apply payment schedule for this H2/battery component
+        for constr_year_offset, payment_share in payment_schedule.items():
+            # Convert negative offsets to positive indices (e.g., -2 -> 6, -1 -> 7 for 8-year construction)
+            if constr_year_offset < 0:
+                actual_year_index = construction_period + constr_year_offset
+            else:
+                actual_year_index = constr_year_offset
+
+            if 0 <= actual_year_index < construction_period:
+                payment_amount = adjusted_component_cost * payment_share
+                detailed_cash_flows[actual_year_index] -= payment_amount
+                logger.debug(f"H2/Battery {comp_name} Year {actual_year_index} (offset {constr_year_offset}): ${payment_amount:,.0f} ({payment_share:.1%})")
+            else:
+                logger.warning(f"H2/Battery {comp_name} payment year {constr_year_offset} (actual {actual_year_index}) outside construction period (0-{construction_period-1})")
+
+    logger.info("Construction period CAPEX payment schedules applied successfully")
+
+    # Operating period - net cash flows
+    for year in range(construction_period, total_years):
+        operating_year = year - construction_period + 1
+
+        # Base annual net revenue (after tax)
+        annual_net_cash_flow = annual_net_revenue * (1 - tax_rate_config)
+        detailed_cash_flows[year] = annual_net_cash_flow
+
+        # Subtract replacement costs when they occur
+        # Electrolyzer replacements: years 20, 40
+        if operating_year in [20, 40]:
+            detailed_cash_flows[year] -= electrolyzer_replacement_cost
+
+        # H2 Storage replacement: year 30
+        if operating_year == 30:
+            detailed_cash_flows[year] -= h2_storage_replacement_cost
+
+        # Battery replacements: years 15, 30, 45
+        if operating_year in [15, 30, 45]:
+            detailed_cash_flows[year] -= battery_replacement_cost
+
+    logger.info(
+        f"Generated detailed cash flows: {len(detailed_cash_flows)} years")
+    logger.info(
+        f"  Construction period cash flows: ${np.sum(detailed_cash_flows[:construction_period]):,.0f}")
+    logger.info(
+        f"  Operating period cash flows: ${np.sum(detailed_cash_flows[construction_period:]):,.0f}")
+    logger.info(
+        f"  Total project cash flows: ${np.sum(detailed_cash_flows):,.0f}")
+
+    # === 8. COMPILE RESULTS ===
     greenfield_results = {
         "analysis_type": "greenfield_nuclear_hydrogen_system_60yr",
         "description": "Complete 60-year integrated system using independent accounting and real AS data",
@@ -878,6 +1306,9 @@ def calculate_greenfield_nuclear_hydrogen_system(
         "h2_initial_capex_usd": h2_initial_capex,
         "h2_replacement_capex_usd": total_h2_capex - h2_initial_capex,
 
+        # CRITICAL FIX: Include detailed cash flows for tax incentive analysis
+        "cash_flows": detailed_cash_flows,
+
         # Production metrics
         "annual_h2_production_kg": annual_h2_production,
         "annual_nuclear_generation_mwh": annual_nuclear_generation,
@@ -885,8 +1316,11 @@ def calculate_greenfield_nuclear_hydrogen_system(
         "electricity_to_h2_efficiency": electricity_to_h2_efficiency,
         "h2_production_per_mw_nuclear": h2_production_per_mw,
 
-        # Financial metrics
+        # Financial metrics (including MACRS benefits)
         "npv_usd": npv,
+        "npv_without_macrs_usd": npv - macrs_tax_benefits_pv,
+        "macrs_tax_benefits_pv_usd": macrs_tax_benefits_pv,
+        "total_macrs_depreciation_usd": np.sum(total_macrs_depreciation),
         "irr_percent": irr_percent,
         "payback_period_years": payback_years,
         "roi_percent": roi_percent,
@@ -958,74 +1392,124 @@ def calculate_lifecycle_comparison_analysis(
     annual_metrics: dict,
     nuclear_capacity_mw: float,
     tea_sys_params: dict,
+    hourly_results_df: pd.DataFrame,
     discount_rate_config: float,
     tax_rate_config: float,
     h2_capex_components_config: dict,
     h2_om_components_config: dict,
-    h2_replacement_schedule_config: dict
+    h2_replacement_schedule_config: dict,
+    macrs_config: dict,
+    output_dir: str = None
 ) -> dict:
     """
-    Compare 60-year vs 80-year project lifecycles.
-    Properly calculates both scenarios instead of using rough estimates.
+    Compare 60-year vs 80-year project lifecycles with comprehensive tax incentive analysis.
+
+    This function now calls calculate_greenfield_nuclear_hydrogen_with_tax_incentives twice:
+    - Once for 60-year lifecycle (project_lifetime_override=None, uses default 60 years)
+    - Once for 80-year lifecycle (project_lifetime_override=80)
+
+    Both analyses include detailed tax incentive scenarios (baseline, 45Y PTC, 48E ITC)
+    providing comprehensive financial comparison across different project lifetimes.
+
+    Args:
+        annual_metrics: Dictionary of annual financial metrics from optimization
+        nuclear_capacity_mw: Nuclear plant capacity in MW
+        tea_sys_params: System parameters dictionary
+        hourly_results_df: DataFrame with hourly optimization results
+        discount_rate_config: Discount rate for financial calculations
+        tax_rate_config: Corporate tax rate
+        h2_capex_components_config: Hydrogen system CAPEX components
+        h2_om_components_config: Hydrogen system O&M components
+        h2_replacement_schedule_config: Hydrogen system replacement schedule
+        macrs_config: MACRS depreciation configuration
+        output_dir: Output directory for reports and visualizations
+
+    Returns:
+        Dictionary containing comprehensive comparison results with tax incentive analysis
     """
     logger.info("=" * 80)
     logger.info("LIFECYCLE COMPARISON ANALYSIS: 60-Year vs 80-Year")
+    logger.info("WITH COMPREHENSIVE TAX INCENTIVE ANALYSIS")
     logger.info("=" * 80)
 
-    # Calculate 60-year scenario
-    logger.info("Calculating 60-year lifecycle scenario...")
-    greenfield_60yr = calculate_greenfield_nuclear_hydrogen_system(
+    # Calculate 60-year scenario with comprehensive tax incentive analysis
+    logger.info("Calculating 60-year lifecycle scenario with tax incentives...")
+    greenfield_60yr = calculate_greenfield_nuclear_hydrogen_with_tax_incentives(
         annual_metrics=annual_metrics,
         nuclear_capacity_mw=nuclear_capacity_mw,
         tea_sys_params=tea_sys_params,
-        project_lifetime_config=60,
+        hourly_results_df=hourly_results_df,
+        project_lifetime_config=60,  # Default 60-year lifecycle
         construction_period_config=8,
         discount_rate_config=discount_rate_config,
         tax_rate_config=tax_rate_config,
         h2_capex_components_config=h2_capex_components_config,
         h2_om_components_config=h2_om_components_config,
-        h2_replacement_schedule_config=h2_replacement_schedule_config
+        h2_replacement_schedule_config=h2_replacement_schedule_config,
+        macrs_config=macrs_config,
+        output_dir=output_dir,
+        project_lifetime_override=None  # Use default 60-year lifecycle
     )
 
-    # Calculate 80-year scenario with proper lifecycle analysis
-    logger.info("Calculating 80-year lifecycle scenario...")
-    greenfield_80yr = calculate_greenfield_nuclear_hydrogen_system_80yr(
+    # Calculate 80-year scenario with comprehensive tax incentive analysis
+    logger.info("Calculating 80-year lifecycle scenario with tax incentives...")
+    greenfield_80yr = calculate_greenfield_nuclear_hydrogen_with_tax_incentives(
         annual_metrics=annual_metrics,
         nuclear_capacity_mw=nuclear_capacity_mw,
         tea_sys_params=tea_sys_params,
-        project_lifetime_config=80,
+        hourly_results_df=hourly_results_df,
+        project_lifetime_config=60,  # Base config (will be overridden)
         construction_period_config=8,
         discount_rate_config=discount_rate_config,
         tax_rate_config=tax_rate_config,
         h2_capex_components_config=h2_capex_components_config,
         h2_om_components_config=h2_om_components_config,
-        h2_replacement_schedule_config=h2_replacement_schedule_config
+        h2_replacement_schedule_config=h2_replacement_schedule_config,
+        macrs_config=macrs_config,
+        output_dir=output_dir,
+        project_lifetime_override=80  # Override to 80-year lifecycle
     )
 
-    # Compile comparison results
+    # Extract baseline results for comparison (from the comprehensive tax incentive analysis)
+    baseline_60yr = greenfield_60yr["baseline_greenfield_results"]
+    baseline_80yr = greenfield_80yr["baseline_greenfield_results"]
+
+    # Compile comprehensive comparison results including tax incentive analysis
     comparison_results = {
-        "60_year_results": greenfield_60yr,
-        "80_year_results": greenfield_80yr,
+        "60_year_results": greenfield_60yr,  # Full tax incentive analysis for 60-year
+        "80_year_results": greenfield_80yr,  # Full tax incentive analysis for 80-year
         "comparison_summary": {
-            "investment_difference_usd": greenfield_80yr["total_system_capex_usd"] - greenfield_60yr["total_system_capex_usd"],
-            "npv_difference_usd": greenfield_80yr["npv_usd"] - greenfield_60yr["npv_usd"],
-            "roi_difference_percent": greenfield_80yr["roi_percent"] - greenfield_60yr["roi_percent"],
-            "lcoh_difference_usd_per_kg": greenfield_80yr["lcoh_integrated_usd_per_kg"] - greenfield_60yr["lcoh_integrated_usd_per_kg"],
-            "payback_difference_years": greenfield_80yr["payback_period_years"] - greenfield_60yr["payback_period_years"],
+            # Baseline scenario comparisons
+            "baseline_investment_difference_usd": baseline_80yr["total_system_capex_usd"] - baseline_60yr["total_system_capex_usd"],
+            "baseline_npv_difference_usd": baseline_80yr["npv_usd"] - baseline_60yr["npv_usd"],
+            "baseline_roi_difference_percent": baseline_80yr["roi_percent"] - baseline_60yr["roi_percent"],
+            "baseline_lcoh_difference_usd_per_kg": baseline_80yr["lcoh_integrated_usd_per_kg"] - baseline_60yr["lcoh_integrated_usd_per_kg"],
+            "baseline_payback_difference_years": baseline_80yr["payback_period_years"] - baseline_60yr["payback_period_years"],
+
+            # Tax incentive scenario comparisons
+            "ptc_npv_difference_usd": greenfield_80yr["financial_comparison"]["ptc_npv"] - greenfield_60yr["financial_comparison"]["ptc_npv"],
+            "itc_npv_difference_usd": greenfield_80yr["financial_comparison"]["itc_npv"] - greenfield_60yr["financial_comparison"]["itc_npv"],
+            "best_scenario_60yr": greenfield_60yr["financial_comparison"]["best_scenario"],
+            "best_scenario_80yr": greenfield_80yr["financial_comparison"]["best_scenario"],
         }
     }
 
-    logger.info(f"60-Year NPV: ${greenfield_60yr['npv_usd']:,.0f}")
-    logger.info(f"80-Year NPV: ${greenfield_80yr['npv_usd']:,.0f}")
-    logger.info(
-        f"NPV Difference: ${comparison_results['comparison_summary']['npv_difference_usd']:,.0f}")
-    logger.info(
-        f"60-Year LCOH: ${greenfield_60yr['lcoh_integrated_usd_per_kg']:.3f}/kg")
-    logger.info(
-        f"80-Year LCOH: ${greenfield_80yr['lcoh_integrated_usd_per_kg']:.3f}/kg")
-    logger.info(
-        f"LCOH Difference: ${comparison_results['comparison_summary']['lcoh_difference_usd_per_kg']:.3f}/kg")
-    logger.info(f"Lifecycle comparison completed successfully")
+    # Log comprehensive comparison results
+    logger.info(f"\nBASELINE SCENARIO COMPARISON:")
+    logger.info(f"  60-Year NPV: ${baseline_60yr['npv_usd']:,.0f}")
+    logger.info(f"  80-Year NPV: ${baseline_80yr['npv_usd']:,.0f}")
+    logger.info(f"  NPV Difference: ${comparison_results['comparison_summary']['baseline_npv_difference_usd']:,.0f}")
+    logger.info(f"  60-Year LCOH: ${baseline_60yr['lcoh_integrated_usd_per_kg']:.3f}/kg")
+    logger.info(f"  80-Year LCOH: ${baseline_80yr['lcoh_integrated_usd_per_kg']:.3f}/kg")
+    logger.info(f"  LCOH Difference: ${comparison_results['comparison_summary']['baseline_lcoh_difference_usd_per_kg']:.3f}/kg")
+
+    logger.info(f"\nTAX INCENTIVE SCENARIO COMPARISON:")
+    logger.info(f"  60-Year Best Scenario: {comparison_results['comparison_summary']['best_scenario_60yr']}")
+    logger.info(f"  80-Year Best Scenario: {comparison_results['comparison_summary']['best_scenario_80yr']}")
+    logger.info(f"  45Y PTC NPV Difference: ${comparison_results['comparison_summary']['ptc_npv_difference_usd']:,.0f}")
+    logger.info(f"  48E ITC NPV Difference: ${comparison_results['comparison_summary']['itc_npv_difference_usd']:,.0f}")
+
+    logger.info(f"\nLifecycle comparison with comprehensive tax incentive analysis completed successfully")
 
     return comparison_results
 
@@ -1070,8 +1554,9 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
     logger.info(f"  Discount Rate                   : {discount_rate:.1%}")
 
     # === 1. NUCLEAR SYSTEM COSTS ===
+    # Use detailed nuclear CAPEX components for greenfield analysis
     nuclear_capex_breakdown = calculate_nuclear_capex_breakdown(
-        nuclear_capacity_mw)
+        nuclear_capacity_mw, use_detailed_components=True)
     nuclear_total_capex = nuclear_capex_breakdown["Total_Nuclear_CAPEX"]
 
     # === 2. HYDROGEN SYSTEM COSTS FOR 80-YEAR OPERATION ===
@@ -1196,7 +1681,8 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
             h2_system_as_revenue = electrolyzer_as_revenue + battery_as_revenue
         else:
             # Final fallback: use zero allocation when no deployment or capacity data available
-            logger.warning("No AS deployment or capacity data available. Setting AS revenue allocation to zero for accurate accounting.")
+            logger.warning(
+                "No AS deployment or capacity data available. Setting AS revenue allocation to zero for accurate accounting.")
             turbine_as_revenue = 0
             h2_system_as_revenue = 0
 
@@ -1212,18 +1698,23 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
                 h2_price_raw = tea_sys_params.get("h2_price_usd_per_kg")
 
         try:
-            h2_price = float(h2_price_raw) if h2_price_raw is not None else None
+            h2_price = float(
+                h2_price_raw) if h2_price_raw is not None else None
             if h2_price is None:
-                logger.warning("Hydrogen price not found in system data file. This is required for accurate analysis.")
+                logger.warning(
+                    "Hydrogen price not found in system data file. This is required for accurate analysis.")
                 h2_price = 5.0  # Fallback only if absolutely necessary
             else:
-                logger.info(f"Using hydrogen price from system data: ${h2_price:.2f}/kg")
+                logger.info(
+                    f"Using hydrogen price from system data: ${h2_price:.2f}/kg")
         except (ValueError, TypeError):
-            logger.warning(f"Invalid hydrogen price value in system data: {h2_price_raw}. Using fallback.")
+            logger.warning(
+                f"Invalid hydrogen price value in system data: {h2_price_raw}. Using fallback.")
             h2_price = 5.0
 
         # Calculate H2 revenue using system data price
-        annual_h2_revenue = annual_metrics.get("H2_Total_Revenue", annual_h2_production * h2_price)
+        annual_h2_revenue = annual_metrics.get(
+            "H2_Total_Revenue", annual_h2_production * h2_price)
 
         hte_thermal_cost = annual_metrics.get(
             "HTE_Heat_Opportunity_Cost_Annual_USD", 0)
@@ -1274,12 +1765,16 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
             # Thermal energy converted to lost electricity generation
             hte_electricity_equivalent_annual = hte_steam_consumption_annual / thermal_efficiency
             electrolyzer_electricity_consumption_annual += hte_electricity_equivalent_annual
-            logger.info(f"HTE thermal energy equivalent: {hte_electricity_equivalent_annual:,.0f} MWh/year")
+            logger.info(
+                f"HTE thermal energy equivalent: {hte_electricity_equivalent_annual:,.0f} MWh/year")
 
         # CORRECTED: Battery charging electricity consumption - use consistent data with 60-year
-        battery_charge_annual = annual_metrics.get("Annual_Battery_Charge_MWh", 0)
-        battery_charge_from_grid = annual_metrics.get("Annual_Battery_Charge_From_Grid_MWh", 0)
-        battery_charge_from_npp = annual_metrics.get("Annual_Battery_Charge_From_NPP_MWh", 0)
+        battery_charge_annual = annual_metrics.get(
+            "Annual_Battery_Charge_MWh", 0)
+        battery_charge_from_grid = annual_metrics.get(
+            "Annual_Battery_Charge_From_Grid_MWh", 0)
+        battery_charge_from_npp = annual_metrics.get(
+            "Annual_Battery_Charge_From_NPP_MWh", 0)
 
         # If individual components are available but total is missing, calculate total
         if battery_charge_annual == 0 and (battery_charge_from_grid > 0 or battery_charge_from_npp > 0):
@@ -1289,26 +1784,44 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
         if battery_charge_annual == 0 and battery_capacity_mwh > 0:
             battery_charge_annual = 5915.64  # Use same value as 60-year for consistency
             battery_charge_from_npp = 5915.64  # Assume all from NPP
-            logger.info(f"Using fallback battery charge data for consistency: {battery_charge_annual:,.0f} MWh/year")
+            logger.info(
+                f"Using fallback battery charge data for consistency: {battery_charge_annual:,.0f} MWh/year")
 
         # Battery discharge for LCOS calculation (consistent with 60-year)
-        battery_discharge_annual = annual_metrics.get("Annual_Battery_Discharge_MWh", 0)
+        battery_discharge_annual = annual_metrics.get(
+            "Annual_Battery_Discharge_MWh", 0)
         if battery_discharge_annual == 0:
-            # Use same value as 60-year for consistency
+            # Estimate from charging with round-trip efficiency
+            battery_discharge_annual = battery_charge_annual * 0.85
+
+        # If still zero and we have battery capacity, use a reasonable estimate
+        if battery_discharge_annual == 0 and battery_capacity_mwh > 0:
+            # Estimate based on battery capacity and typical utilization
+            # Assume 1 cycle per day with 85% efficiency
+            battery_discharge_annual = battery_capacity_mwh * 365 * 0.85
+            logger.info(f"Using estimated battery discharge based on capacity: {battery_discharge_annual:,.0f} MWh/year")
+        elif battery_discharge_annual == 0:
+            # Use same value as 60-year for consistency as last resort
             battery_discharge_annual = 3473  # From 60-year scenario
-            logger.info(f"Using fallback battery discharge data for consistency: {battery_discharge_annual:,.0f} MWh/year")
+            logger.info(
+                f"Using fallback battery discharge data for consistency: {battery_discharge_annual:,.0f} MWh/year")
 
         logger.info(f"Battery charging breakdown:")
-        logger.info(f"  Total battery charging: {battery_charge_annual:,.0f} MWh/year")
-        logger.info(f"  Total battery discharging: {battery_discharge_annual:,.0f} MWh/year")
-        logger.info(f"  From grid purchase: {battery_charge_from_grid:,.0f} MWh/year")
-        logger.info(f"  From NPP (opportunity cost): {battery_charge_from_npp:,.0f} MWh/year")
+        logger.info(
+            f"  Total battery charging: {battery_charge_annual:,.0f} MWh/year")
+        logger.info(
+            f"  Total battery discharging: {battery_discharge_annual:,.0f} MWh/year")
+        logger.info(
+            f"  From grid purchase: {battery_charge_from_grid:,.0f} MWh/year")
+        logger.info(
+            f"  From NPP (opportunity cost): {battery_charge_from_npp:,.0f} MWh/year")
 
         # Total electricity consumption for cost calculation
         # For H2 production: use nuclear LCOE (opportunity cost)
         # For battery charging from NPP: use nuclear LCOE (opportunity cost)
         # For battery charging from grid: use market price (direct cost)
-        total_electricity_consumption_annual = electrolyzer_electricity_consumption_annual + battery_charge_from_npp
+        total_electricity_consumption_annual = electrolyzer_electricity_consumption_annual + \
+            battery_charge_from_npp
         grid_electricity_consumption_annual = battery_charge_from_grid
 
         # Present values for LCOH calculation
@@ -1321,24 +1834,29 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
         total_h2_production_pv = 0
 
         # Get average electricity price for grid purchases
-        avg_electricity_price = annual_metrics.get("Avg_Electricity_Price_USD_per_MWh", 60.0)
+        avg_electricity_price = annual_metrics.get(
+            "Avg_Electricity_Price_USD_per_MWh", 60.0)
 
         for year in range(1, project_lifetime + 1):
             discount_factor = (1 + discount_rate) ** year
             h2_opex_pv += h2_annual_opex / discount_factor
             h2_as_revenue_pv += h2_system_as_revenue / discount_factor
             # NPP electricity at nuclear LCOE (opportunity cost)
-            electricity_costs_pv += (total_electricity_consumption_annual * nuclear_lcoe) / discount_factor
+            electricity_costs_pv += (total_electricity_consumption_annual *
+                                     nuclear_lcoe) / discount_factor
             # Grid electricity at market price (direct cost)
-            grid_electricity_costs_pv += (grid_electricity_consumption_annual * avg_electricity_price) / discount_factor
+            grid_electricity_costs_pv += (grid_electricity_consumption_annual *
+                                          avg_electricity_price) / discount_factor
             hte_thermal_costs_pv += hte_thermal_cost / discount_factor
             total_h2_production_pv += annual_h2_production / discount_factor
 
         total_electricity_costs_pv = electricity_costs_pv + grid_electricity_costs_pv
 
         logger.info(f"Electricity cost calculation:")
-        logger.info(f"  NPP electricity cost (PV): ${electricity_costs_pv:,.0f} at LCOE ${nuclear_lcoe:.2f}/MWh")
-        logger.info(f"  Grid electricity cost (PV): ${grid_electricity_costs_pv:,.0f} at market price ${avg_electricity_price:.2f}/MWh")
+        logger.info(
+            f"  NPP electricity cost (PV): ${electricity_costs_pv:,.0f} at LCOE ${nuclear_lcoe:.2f}/MWh")
+        logger.info(
+            f"  Grid electricity cost (PV): ${grid_electricity_costs_pv:,.0f} at market price ${avg_electricity_price:.2f}/MWh")
 
         h2_system_total_costs_pv = h2_system_costs_pv + h2_opex_pv
         if total_h2_production_pv > 0:
@@ -1356,26 +1874,32 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
         battery_system_costs_pv = 0
 
         if battery_capacity_mwh > 0:
-            logger.info("Calculating independent battery system LCOS using actual hourly data")
+            logger.info(
+                "Calculating independent battery system LCOS using actual hourly data")
 
             # Battery system CAPEX from replacement costs (initial investment)
-            battery_total_capex = battery_energy_replacement_cost + battery_power_replacement_cost
+            battery_total_capex = battery_energy_replacement_cost + \
+                battery_power_replacement_cost
 
             # CORRECTED: Use the same battery cost calculation as 60-year function
             # This ensures consistency between 60-year and 80-year LCOS calculations
 
             # Battery system OPEX using actual data from config (consistent with 60-year)
-            battery_fixed_om_annual = annual_metrics.get("Battery_Fixed_OM_Annual", 0)
+            battery_fixed_om_annual = annual_metrics.get(
+                "Battery_Fixed_OM_Annual", 0)
             if battery_fixed_om_annual == 0:
                 # Use same calculation as 60-year: $25k/MW + $2.36k/MWh
-                battery_fixed_om_annual = (battery_power_mw * 25000 + battery_capacity_mwh * 2360)
+                battery_fixed_om_annual = (
+                    battery_power_mw * 25000 + battery_capacity_mwh * 2360)
 
-            battery_vom_annual = annual_metrics.get("Battery_Variable_OM_Annual", 0)
+            battery_vom_annual = annual_metrics.get(
+                "Battery_Variable_OM_Annual", 0)
             # VOM is typically minimal for batteries
 
             # CRITICAL FIX: Include battery electricity costs using same methodology as 60-year
             # The 60-year scenario uses nuclear LCOE for NPP charging, so we should too
-            avg_electricity_price = annual_metrics.get("Avg_Electricity_Price_USD_per_MWh", 31.23)
+            avg_electricity_price = annual_metrics.get(
+                "Avg_Electricity_Price_USD_per_MWh", 31.23)
 
             # For consistency with 60-year, use nuclear LCOE for NPP charging
             # This ensures both scenarios use the same electricity pricing methodology
@@ -1383,19 +1907,25 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
             battery_electricity_cost_annual = battery_charge_annual * nuclear_lcoe_for_battery
 
             logger.info(f"Battery electricity cost calculation (CORRECTED):")
-            logger.info(f"  Battery charging: {battery_charge_annual:,.0f} MWh/year")
-            logger.info(f"  Electricity price (nuclear LCOE): ${nuclear_lcoe_for_battery:.2f}/MWh")
-            logger.info(f"  Total electricity cost: ${battery_electricity_cost_annual:,.0f}/year")
+            logger.info(
+                f"  Battery charging: {battery_charge_annual:,.0f} MWh/year")
+            logger.info(
+                f"  Electricity price (nuclear LCOE): ${nuclear_lcoe_for_battery:.2f}/MWh")
+            logger.info(
+                f"  Total electricity cost: ${battery_electricity_cost_annual:,.0f}/year")
 
             # Calculate total annual OPEX (consistent with 60-year methodology)
-            battery_total_annual_opex = battery_fixed_om_annual + battery_vom_annual + battery_electricity_cost_annual
+            battery_total_annual_opex = battery_fixed_om_annual + \
+                battery_vom_annual + battery_electricity_cost_annual
 
             logger.info(f"Battery system annual costs (80-year, CORRECTED):")
             logger.info(f"  CAPEX: ${battery_total_capex:,.0f}")
             logger.info(f"  Fixed O&M: ${battery_fixed_om_annual:,.0f}/year")
             logger.info(f"  VOM: ${battery_vom_annual:,.0f}/year")
-            logger.info(f"  Electricity cost: ${battery_electricity_cost_annual:,.0f}/year")
-            logger.info(f"  Total annual OPEX: ${battery_total_annual_opex:,.0f}/year")
+            logger.info(
+                f"  Electricity cost: ${battery_electricity_cost_annual:,.0f}/year")
+            logger.info(
+                f"  Total annual OPEX: ${battery_total_annual_opex:,.0f}/year")
 
             # Battery system revenues (AS revenue allocated to battery)
             battery_annual_as_revenue = battery_as_revenue
@@ -1417,7 +1947,8 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
                 if year in [15, 30, 45, 60, 75]:
                     battery_replacement_cost = battery_total_capex * 0.8  # 80% of initial cost
                     battery_costs_pv += battery_replacement_cost / discount_factor
-                    logger.info(f"  Battery replacement year {year}: ${battery_replacement_cost:,.0f} (PV: ${battery_replacement_cost / discount_factor:,.0f})")
+                    logger.info(
+                        f"  Battery replacement year {year}: ${battery_replacement_cost:,.0f} (PV: ${battery_replacement_cost / discount_factor:,.0f})")
 
             battery_system_costs_pv = battery_costs_pv + battery_opex_pv
             battery_system_revenue_pv = battery_revenue_pv
@@ -1428,23 +1959,31 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
             # Let's ensure consistency with the 60-year calculation methodology
             if battery_throughput_pv > 0:
                 # Use the same LCOS calculation as 60-year for consistency
-                battery_lcos = (battery_system_costs_pv - battery_system_revenue_pv) / battery_throughput_pv
+                battery_lcos = (battery_system_costs_pv -
+                                battery_system_revenue_pv) / battery_throughput_pv
 
                 # Log detailed calculation for debugging
                 logger.info(f"LCOS CALCULATION DEBUG (80-year):")
-                logger.info(f"  Battery System Costs (PV): ${battery_system_costs_pv:,.0f}")
-                logger.info(f"  Battery System Revenue (PV): ${battery_system_revenue_pv:,.0f}")
-                logger.info(f"  Net Costs (PV): ${battery_system_costs_pv - battery_system_revenue_pv:,.0f}")
-                logger.info(f"  Battery Throughput (PV): {battery_throughput_pv:,.0f} MWh")
+                logger.info(
+                    f"  Battery System Costs (PV): ${battery_system_costs_pv:,.0f}")
+                logger.info(
+                    f"  Battery System Revenue (PV): ${battery_system_revenue_pv:,.0f}")
+                logger.info(
+                    f"  Net Costs (PV): ${battery_system_costs_pv - battery_system_revenue_pv:,.0f}")
+                logger.info(
+                    f"  Battery Throughput (PV): {battery_throughput_pv:,.0f} MWh")
                 logger.info(f"  Calculated LCOS: ${battery_lcos:.2f}/MWh")
-                logger.info(f"  Replacement count: 5 (years 15, 30, 45, 60, 75)")
+                logger.info(
+                    f"  Replacement count: 5 (years 15, 30, 45, 60, 75)")
             else:
                 battery_lcos = 0
 
             logger.info(f"Battery system analysis:")
-            logger.info(f"  Battery CAPEX (including replacements): ${battery_costs_pv:,.0f}")
+            logger.info(
+                f"  Battery CAPEX (including replacements): ${battery_costs_pv:,.0f}")
             logger.info(f"  Battery OPEX (PV): ${battery_opex_pv:,.0f}")
-            logger.info(f"  Battery AS Revenue (PV): ${battery_revenue_pv:,.0f}")
+            logger.info(
+                f"  Battery AS Revenue (PV): ${battery_revenue_pv:,.0f}")
             logger.info(f"  Battery System NPV: ${battery_system_npv:,.0f}")
             logger.info(f"  Battery LCOS: ${battery_lcos:.2f}/MWh")
 
@@ -1565,19 +2104,451 @@ def calculate_nuclear_integrated_financial_metrics(
     h2_capex_components_config: dict,
     h2_om_components_config: dict,
     h2_replacement_schedule_config: dict,
-    tea_sys_params: dict
+    tea_sys_params: dict,
+    enable_45u_policy: bool = True,
+    tax_policies: dict = None
 ) -> dict:
     """
-    Calculate integrated nuclear-hydrogen financial metrics.
-    """
-    logger.info("Calculating nuclear-integrated financial metrics")
+    Calculate integrated nuclear-hydrogen financial metrics for existing nuclear plant retrofit.
+    This function serves as the core financial calculation function for Case 2 (existing reactor retrofit),
+    integrating 45U PTC benefits directly into the cash flow calculations.
 
-    # For now, use the greenfield analysis as the integrated analysis
-    return calculate_greenfield_nuclear_hydrogen_system(
+    Enhanced Implementation:
+    1. Calls calculate_cash_flows to get baseline cash flows for hydrogen systems
+    2. Calls calculate_45u_nuclear_ptc_benefits to get PTC benefits
+    3. Integrates PTC benefits directly into cash flows as tax credits
+    4. Calculates comprehensive financial metrics for both scenarios
+
+    Args:
+        annual_metrics: Annual performance metrics from optimization
+        nuclear_capacity_mw: Nuclear plant capacity in MW
+        project_lifetime_config: Project lifetime in years (remaining plant life)
+        construction_period_config: Construction period for H2 systems
+        discount_rate_config: Discount rate for financial calculations
+        tax_rate_config: Corporate tax rate
+        h2_capex_components_config: Hydrogen system CAPEX configuration
+        h2_om_components_config: Hydrogen system O&M configuration
+        h2_replacement_schedule_config: Hydrogen system replacement schedule
+        tea_sys_params: System parameters dictionary
+        enable_45u_policy: Whether to include 45U Nuclear PTC benefits
+
+    Returns:
+        Dictionary containing integrated financial analysis results with and without 45U policy
+    """
+    logger.info("=" * 80)
+    logger.info(
+        "NUCLEAR-HYDROGEN INTEGRATED SYSTEM ANALYSIS (EXISTING PLANT RETROFIT)")
+    logger.info(
+        "Analyzing existing nuclear plant retrofitted with hydrogen production systems")
+    logger.info("Including 45U Nuclear Production Tax Credit impact analysis")
+    logger.info("Enhanced implementation using calculate_cash_flows for baseline")
+    logger.info("=" * 80)
+
+    # Extract key parameters
+    annual_h2_production = annual_metrics.get("H2_Production_kg_annual", 0)
+    annual_h2_revenue = annual_metrics.get("H2_Total_Revenue", 0)
+    annual_as_revenue = annual_metrics.get("AS_Revenue_Total", 0)
+    electrolyzer_capacity = annual_metrics.get("Electrolyzer_Capacity_MW", 50)
+    h2_storage_capacity = annual_metrics.get("H2_Storage_Capacity_kg", 10000)
+    battery_capacity_mwh = annual_metrics.get("Battery_Capacity_MWh", 0)
+    battery_power_mw = annual_metrics.get("Battery_Power_MW", 0)
+
+    logger.info(f"System Configuration:")
+    logger.info(f"  Nuclear Capacity: {nuclear_capacity_mw:.1f} MW")
+    logger.info(f"  Electrolyzer Capacity: {electrolyzer_capacity:.1f} MW")
+    logger.info(f"  H2 Storage Capacity: {h2_storage_capacity:,.0f} kg")
+    logger.info(f"  Battery Capacity: {battery_capacity_mwh:.1f} MWh")
+    logger.info(f"  Annual H2 Production: {annual_h2_production:,.0f} kg")
+    logger.info(f"  Project Lifetime: {project_lifetime_config} years")
+
+    # Prepare optimized capacities for cash flow calculation
+    optimized_capacities = {
+        "Electrolyzer_Capacity_MW": electrolyzer_capacity,
+        "H2_Storage_Capacity_kg": h2_storage_capacity,
+        "Battery_Capacity_MWh": battery_capacity_mwh,
+        "Battery_Power_MW": battery_power_mw,
+        "Nuclear_Capacity_MW": nuclear_capacity_mw
+    }
+
+    # ENHANCED IMPLEMENTATION: Use calculate_cash_flows for baseline cash flows
+    # For existing nuclear plant retrofit, we only need H2 system CAPEX (nuclear is already built)
+    logger.info("Using calculate_cash_flows for comprehensive baseline cash flow calculation...")
+
+    # Import calculate_cash_flows function
+    from .calculations import calculate_cash_flows
+
+    # Prepare annual metrics with nuclear costs included for comprehensive calculation
+    enhanced_annual_metrics = annual_metrics.copy()
+
+    # Calculate nuclear plant annual generation and revenue for integration
+    capacity_factor = 0.90  # Typical nuclear capacity factor
+    annual_nuclear_generation = nuclear_capacity_mw * HOURS_IN_YEAR * capacity_factor
+
+    # Get electricity price from annual metrics or use default
+    avg_electricity_price = annual_metrics.get(
+        "Avg_Electricity_Price_USD_per_MWh", 35.0)
+    annual_nuclear_revenue = annual_nuclear_generation * avg_electricity_price
+
+    # Calculate nuclear operating costs
+    nuclear_opex_breakdown = calculate_nuclear_annual_opex(
+        nuclear_capacity_mw, annual_nuclear_generation)
+    annual_nuclear_opex = nuclear_opex_breakdown["Total_Nuclear_OPEX"]
+
+    # Add nuclear costs to enhanced annual metrics for comprehensive cash flow calculation
+    enhanced_annual_metrics["Nuclear_Total_OPEX_Annual_USD"] = annual_nuclear_opex
+
+    # Total system revenue includes nuclear, H2, and AS revenues
+    total_system_revenue = annual_nuclear_revenue + annual_h2_revenue + annual_as_revenue
+    enhanced_annual_metrics["Annual_Revenue"] = total_system_revenue
+
+    logger.info(f"Enhanced Annual Metrics for Cash Flow Calculation:")
+    logger.info(f"  Nuclear Revenue: ${annual_nuclear_revenue:,.0f}")
+    logger.info(f"  H2 Revenue: ${annual_h2_revenue:,.0f}")
+    logger.info(f"  AS Revenue: ${annual_as_revenue:,.0f}")
+    logger.info(f"  Total System Revenue: ${total_system_revenue:,.0f}")
+    logger.info(f"  Nuclear OPEX: ${annual_nuclear_opex:,.0f}")
+
+    # Calculate baseline cash flows using calculate_cash_flows function
+    # This provides comprehensive cash flow calculation with MACRS, replacements, etc.
+    baseline_cash_flows = calculate_cash_flows(
+        annual_metrics=enhanced_annual_metrics,
+        project_lifetime_years=project_lifetime_config,
+        construction_period_years=construction_period_config,
+        h2_subsidy_value=0,  # No H2 subsidy for existing plant retrofit
+        h2_subsidy_duration_years=0,
+        capex_details=h2_capex_components_config,  # Only H2 system CAPEX for retrofit
+        om_details=h2_om_components_config,
+        replacement_details=h2_replacement_schedule_config,
+        optimized_capacities=optimized_capacities,
+        tax_rate=tax_rate_config
+    )
+
+    logger.info(f"✅ Baseline cash flows calculated using calculate_cash_flows")
+    logger.info(f"  Cash flows length: {len(baseline_cash_flows)} years")
+    logger.info(f"  Total baseline cash flows: ${np.sum(baseline_cash_flows):,.0f}")
+
+    # Extract CAPEX breakdown from enhanced annual metrics (populated by calculate_cash_flows)
+    h2_capex_breakdown = enhanced_annual_metrics.get("capex_breakdown", {})
+    h2_system_capex = enhanced_annual_metrics.get("total_capex", 0)
+
+    logger.info(f"Hydrogen System CAPEX Breakdown (from calculate_cash_flows):")
+    for component, capex in h2_capex_breakdown.items():
+        logger.info(f"  {component}: ${capex:,.0f}")
+    logger.info(f"Total H2 System CAPEX: ${h2_system_capex:,.0f}")
+
+    # Annual financial performance is now captured in the baseline cash flows
+    # Extract key metrics for reporting
+    total_annual_revenue = total_system_revenue
+    total_annual_opex = annual_nuclear_opex + enhanced_annual_metrics.get("Annual_Opex_Cost_from_Opt", 0)
+    annual_net_revenue_before_tax = total_annual_revenue - total_annual_opex
+
+    logger.info(f"Annual Financial Performance (integrated in cash flows):")
+    logger.info(f"  Total Revenue: ${total_annual_revenue:,.0f}")
+    logger.info(f"  Total OPEX: ${total_annual_opex:,.0f}")
+    logger.info(f"  Net Revenue (before tax): ${annual_net_revenue_before_tax:,.0f}")
+
+    # Calculate 45U Nuclear PTC benefits if enabled
+    nuclear_45u_benefits = None
+    if enable_45u_policy:
+        nuclear_45u_benefits = calculate_45u_nuclear_ptc_benefits(
+            annual_generation_mwh=annual_nuclear_generation,
+            project_start_year=2024,
+            project_lifetime_years=project_lifetime_config,
+            tax_policies=tax_policies
+        )
+        logger.info(f"45U Policy Benefits:")
+        logger.info(
+            f"  Annual Credit Value: ${nuclear_45u_benefits['annual_credit_value']:,.0f}")
+        logger.info(
+            f"  Total Credit Over {nuclear_45u_benefits['total_eligible_years']} Years: ${nuclear_45u_benefits['total_45u_credits']:,.0f}")
+
+    # ENHANCED IMPLEMENTATION: Use baseline cash flows and integrate 45U PTC benefits
+    total_years = len(baseline_cash_flows)
+
+    # Scenario 1: Without 45U policy (use baseline cash flows from calculate_cash_flows)
+    cash_flows_without_45u = baseline_cash_flows.copy()
+
+    logger.info(f"Scenario 1 - Without 45U Policy:")
+    logger.info(f"  Using baseline cash flows from calculate_cash_flows")
+    logger.info(f"  Total cash flows: ${np.sum(cash_flows_without_45u):,.0f}")
+
+    # Scenario 2: With 45U policy (integrate PTC benefits into baseline cash flows)
+    cash_flows_with_45u = baseline_cash_flows.copy()
+
+    if enable_45u_policy and nuclear_45u_benefits:
+        annual_45u_credits = nuclear_45u_benefits["annual_45u_credits"]
+        logger.info(f"Scenario 2 - With 45U Policy:")
+        logger.info(f"  Integrating 45U PTC benefits into baseline cash flows")
+
+        # Add 45U credits to operating years (after construction period)
+        for year in range(construction_period_config, total_years):
+            operating_year = year - construction_period_config
+            if operating_year < len(annual_45u_credits):
+                ptc_credit = annual_45u_credits[operating_year]
+                cash_flows_with_45u[year] += ptc_credit
+                if ptc_credit > 0:
+                    logger.debug(f"  Year {year}: Added 45U PTC credit ${ptc_credit:,.0f}")
+
+        logger.info(f"  Total cash flows with 45U: ${np.sum(cash_flows_with_45u):,.0f}")
+        logger.info(f"  45U PTC impact: +${np.sum(cash_flows_with_45u) - np.sum(cash_flows_without_45u):,.0f}")
+    else:
+        logger.info(f"Scenario 2 - 45U Policy disabled or no benefits calculated")
+
+    # ENHANCED IMPLEMENTATION: Use calculate_financial_metrics for comprehensive calculation
+    from .calculations import calculate_financial_metrics
+
+    # Calculate financial metrics for both scenarios using the standard function
+    logger.info("Calculating comprehensive financial metrics for both scenarios...")
+
+    # Without 45U policy
+    metrics_without_45u = calculate_financial_metrics(
+        cash_flows_input=cash_flows_without_45u,
+        discount_rate=discount_rate_config,
+        annual_h2_production_kg=annual_h2_production,
+        project_lifetime_years=project_lifetime_config,
+        construction_period_years=construction_period_config
+    )
+
+    npv_without_45u = metrics_without_45u.get("NPV_USD", 0)
+    irr_without_45u = metrics_without_45u.get("IRR_percent", None)
+    payback_without_45u = metrics_without_45u.get("Payback_Period_Years", None)
+
+    # With 45U policy
+    metrics_with_45u = calculate_financial_metrics(
+        cash_flows_input=cash_flows_with_45u,
+        discount_rate=discount_rate_config,
+        annual_h2_production_kg=annual_h2_production,
+        project_lifetime_years=project_lifetime_config,
+        construction_period_years=construction_period_config
+    )
+
+    npv_with_45u = metrics_with_45u.get("NPV_USD", 0)
+    irr_with_45u = metrics_with_45u.get("IRR_percent", None)
+    payback_with_45u = metrics_with_45u.get("Payback_Period_Years", None)
+
+    # Calculate 45U impact
+    npv_impact_45u = npv_with_45u - npv_without_45u
+    irr_impact_45u = irr_with_45u - \
+        irr_without_45u if (
+            irr_with_45u is not None and irr_without_45u is not None) else None
+
+    logger.info(f"Financial Results Comparison (using calculate_financial_metrics):")
+    logger.info(
+        f"  Without 45U - NPV: ${npv_without_45u:,.0f}, IRR: {irr_without_45u:.2f}%" if irr_without_45u else f"  Without 45U - NPV: ${npv_without_45u:,.0f}, IRR: N/A")
+    logger.info(
+        f"  With 45U - NPV: ${npv_with_45u:,.0f}, IRR: {irr_with_45u:.2f}%" if irr_with_45u else f"  With 45U - NPV: ${npv_with_45u:,.0f}, IRR: N/A")
+    logger.info(f"  45U Impact - NPV: +${npv_impact_45u:,.0f}")
+    if irr_impact_45u is not None:
+        logger.info(f"  45U Impact - IRR: +{irr_impact_45u:.2f} percentage points")
+
+    return {
+        "analysis_type": "Nuclear-Hydrogen Integrated System (Existing Plant Retrofit)",
+        "includes_45u_analysis": enable_45u_policy,
+
+        # System configuration
+        "nuclear_capacity_mw": nuclear_capacity_mw,
+        "electrolyzer_capacity_mw": electrolyzer_capacity,
+        "h2_storage_capacity_kg": h2_storage_capacity,
+        "battery_capacity_mwh": battery_capacity_mwh,
+        "project_lifetime_years": project_lifetime_config,
+        "construction_period_years": construction_period_config,
+
+        # Investment requirements (existing plant retrofit)
+        "nuclear_capex_usd": 0,  # Existing plant, no nuclear CAPEX
+        "h2_system_capex_usd": h2_system_capex,
+        "h2_capex_breakdown": h2_capex_breakdown,
+        "total_retrofit_capex_usd": h2_system_capex,
+
+        # Annual performance
+        "annual_nuclear_generation_mwh": annual_nuclear_generation,
+        "annual_h2_production_kg": annual_h2_production,
+        "annual_nuclear_revenue_usd": annual_nuclear_revenue,
+        "annual_h2_revenue_usd": annual_h2_revenue,
+        "annual_as_revenue_usd": annual_as_revenue,
+        "total_annual_revenue_usd": total_annual_revenue,
+        "annual_nuclear_opex_usd": annual_nuclear_opex,
+        "annual_h2_system_opex_usd": enhanced_annual_metrics.get("Annual_Opex_Cost_from_Opt", 0),
+        "total_annual_opex_usd": total_annual_opex,
+        "annual_net_revenue_before_tax_usd": annual_net_revenue_before_tax,
+
+        # 45U Policy analysis
+        "nuclear_45u_benefits": nuclear_45u_benefits,
+
+        # Financial results without 45U
+        "scenario_without_45u": {
+            "npv_usd": npv_without_45u,
+            "irr_percent": irr_without_45u,
+            "payback_period_years": payback_without_45u,
+            "cash_flows": cash_flows_without_45u.tolist()
+        },
+
+        # Financial results with 45U
+        "scenario_with_45u": {
+            "npv_usd": npv_with_45u,
+            "irr_percent": irr_with_45u,
+            "payback_period_years": payback_with_45u,
+            "cash_flows": cash_flows_with_45u.tolist()
+        },
+
+        # 45U Impact analysis
+        "45u_policy_impact": {
+            "npv_improvement_usd": npv_impact_45u,
+            "irr_improvement_percent": irr_impact_45u,
+            "total_45u_credits_usd": nuclear_45u_benefits["total_45u_credits"] if nuclear_45u_benefits else 0,
+            "eligible_years": nuclear_45u_benefits["total_eligible_years"] if nuclear_45u_benefits else 0
+        },
+
+        # Meta information
+        "calculation_timestamp": pd.Timestamp.now().isoformat(),
+        "discount_rate": discount_rate_config,
+        "tax_rate": tax_rate_config
+    }
+
+
+def calculate_irr(cash_flows: np.ndarray, is_baseline_analysis: bool = False) -> float:
+    """
+    Calculate Internal Rate of Return using numpy_financial with proper error handling.
+
+    Args:
+        cash_flows: Array of cash flows
+        is_baseline_analysis: If True, indicates this is for existing plant baseline analysis
+                             where IRR concept is not applicable
+
+    Returns:
+        IRR percentage or None if not applicable/calculable
+    """
+
+    # For existing nuclear plant baseline analysis, IRR is not applicable
+    if is_baseline_analysis:
+        logger.debug("IRR calculation skipped for baseline analysis - not applicable for existing plant operations")
+        return None
+
+    try:
+        # Try numpy_financial if available
+        import numpy_financial as npf
+
+        # Validate cash flows before IRR calculation
+        if len(cash_flows) == 0:
+            logger.warning("Empty cash flows array for IRR calculation")
+            return None
+
+        # Check if we have both positive and negative cash flows (required for IRR)
+        has_positive = any(cf > 0 for cf in cash_flows)
+        has_negative = any(cf < 0 for cf in cash_flows)
+
+        if not (has_positive and has_negative):
+            logger.warning("IRR calculation requires both positive and negative cash flows")
+            return None
+
+        # Calculate IRR using numpy_financial
+        irr_result = npf.irr(cash_flows)
+
+        # Check for valid IRR result
+        if np.isnan(irr_result) or np.isinf(irr_result):
+            logger.warning("IRR calculation returned invalid result (NaN or Inf)")
+            return None
+
+        # Convert to percentage and validate range
+        irr_percent = irr_result * 100
+
+        # Sanity check: IRR should typically be between -100% and +1000%
+        if irr_percent < -100 or irr_percent > 1000:
+            logger.warning(f"IRR calculation returned unrealistic value: {irr_percent:.2f}%")
+            # Still return the value but log the warning
+
+        return irr_percent
+
+    except ImportError:
+        logger.warning("numpy_financial not available, using fallback IRR calculation")
+        # Fallback to approximation method
+        for rate in np.arange(0.001, 1.0, 0.001):
+            discount_factors = np.array(
+                [(1 / (1 + rate) ** year) for year in range(len(cash_flows))])
+            npv = np.sum(cash_flows * discount_factors)
+            if abs(npv) < 1000:  # Close to zero
+                return rate * 100
+        return None
+    except Exception as e:
+        logger.error(f"Error calculating IRR: {e}")
+        return None
+
+
+def calculate_payback_period(cash_flows: np.ndarray) -> float:
+    """Calculate simple payback period."""
+    cumulative_cash_flows = np.cumsum(cash_flows)
+    for year, cum_cf in enumerate(cumulative_cash_flows):
+        if cum_cf > 0:
+            return year + 1
+    return None
+
+
+def calculate_greenfield_nuclear_hydrogen_with_tax_incentives(
+    annual_metrics: dict,
+    nuclear_capacity_mw: float,
+    tea_sys_params: dict,
+    hourly_results_df: pd.DataFrame,
+    project_lifetime_config: int,
+    construction_period_config: int,
+    discount_rate_config: float,
+    tax_rate_config: float,
+    h2_capex_components_config: dict,
+    h2_om_components_config: dict,
+    h2_replacement_schedule_config: dict,
+    macrs_config: dict,
+    output_dir: str = None,
+    project_lifetime_override: int = None
+) -> dict:
+    """
+    Calculate comprehensive financial analysis for greenfield nuclear-hydrogen system
+    with federal tax incentive scenarios (45Y PTC and 48E ITC).
+
+    This function provides the complete implementation requested:
+    - Baseline scenario (no tax incentives)
+    - Scenario A: 45Y Production Tax Credit ($30/MWh for 10 years)
+    - Scenario B: 48E Investment Tax Credit (50% of qualified CAPEX)
+    - Comprehensive comparative analysis and reporting
+
+    Args:
+        annual_metrics: Dictionary of annual financial metrics from optimization
+        nuclear_capacity_mw: Nuclear plant capacity in MW
+        tea_sys_params: System parameters dictionary
+        hourly_results_df: DataFrame with hourly optimization results
+        project_lifetime_config: Total project lifetime in years
+        construction_period_config: Construction period in years
+        discount_rate_config: Discount rate for financial calculations
+        tax_rate_config: Corporate tax rate
+        h2_capex_components_config: Hydrogen system CAPEX components
+        h2_om_components_config: Hydrogen system O&M components
+        h2_replacement_schedule_config: Hydrogen system replacement schedule
+        macrs_config: MACRS depreciation configuration
+        output_dir: Output directory for reports and visualizations
+        project_lifetime_override: Optional override for project lifetime (e.g., 80 years)
+                                  If provided, this will be used instead of project_lifetime_config
+                                  for all cash flow, replacement, and financial calculations
+
+    Returns:
+        Comprehensive analysis results dictionary
+    """
+    # Determine the actual project lifetime to use
+    actual_project_lifetime = project_lifetime_override if project_lifetime_override is not None else project_lifetime_config
+
+    logger.info("=" * 100)
+    logger.info("GREENFIELD NUCLEAR-HYDROGEN SYSTEM WITH FEDERAL TAX INCENTIVES")
+    logger.info(
+        "Comprehensive Analysis: Baseline, 45Y PTC, and 48E ITC Scenarios")
+    if project_lifetime_override is not None:
+        logger.info(f"Using project lifetime override: {actual_project_lifetime} years")
+    else:
+        logger.info(f"Using default project lifetime: {actual_project_lifetime} years")
+    logger.info("=" * 100)
+
+    # First calculate the baseline greenfield nuclear-hydrogen system
+    logger.info("Calculating baseline greenfield nuclear-hydrogen system...")
+    baseline_results = calculate_greenfield_nuclear_hydrogen_system(
         annual_metrics=annual_metrics,
         nuclear_capacity_mw=nuclear_capacity_mw,
         tea_sys_params=tea_sys_params,
-        project_lifetime_config=project_lifetime_config,
+        project_lifetime_config=actual_project_lifetime,
         construction_period_config=construction_period_config,
         discount_rate_config=discount_rate_config,
         tax_rate_config=tax_rate_config,
@@ -1585,3 +2556,754 @@ def calculate_nuclear_integrated_financial_metrics(
         h2_om_components_config=h2_om_components_config,
         h2_replacement_schedule_config=h2_replacement_schedule_config
     )
+
+    # Extract baseline cash flows and CAPEX breakdown
+    baseline_cash_flows = baseline_results.get("cash_flows", np.array([]))
+
+    # CRITICAL FIX: Use detailed cash flows from baseline analysis instead of generating simplified ones
+    if len(baseline_cash_flows) > 0:
+        logger.info(
+            "✅ SUCCESS: Using detailed cash flows from baseline greenfield analysis")
+        logger.info(
+            f"  Cash flows data source: Baseline greenfield calculation")
+        logger.info(f"  Cash flows length: {len(baseline_cash_flows)} years")
+        logger.info(
+            f"  Total project cash flows: ${np.sum(baseline_cash_flows):,.0f}")
+
+        # Validate cash flows before proceeding
+        expected_years = construction_period_config + actual_project_lifetime
+        if len(baseline_cash_flows) != expected_years:
+            logger.warning(
+                f"Cash flows length mismatch. Expected: {expected_years}, Got: {len(baseline_cash_flows)}")
+            if len(baseline_cash_flows) < expected_years:
+                # Pad with zeros
+                padded_cash_flows = np.zeros(expected_years)
+                padded_cash_flows[:len(baseline_cash_flows)
+                                  ] = baseline_cash_flows
+                baseline_cash_flows = padded_cash_flows
+                logger.info(f"Padded cash flows to {expected_years} years")
+            else:
+                # Truncate
+                baseline_cash_flows = baseline_cash_flows[:expected_years]
+                logger.info(f"Truncated cash flows to {expected_years} years")
+    else:
+        # Fallback: Generate simplified cash flows only if detailed ones are not available
+        logger.warning(
+            "Baseline cash flows not found in results. Generating simplified cash flows for tax incentive analysis.")
+
+        # Generate simplified cash flows for tax incentive analysis
+        total_years = construction_period_config + actual_project_lifetime
+        baseline_cash_flows = np.zeros(total_years)
+
+        # Construction period - negative cash flows (CAPEX)
+        total_capex = baseline_results.get("total_system_capex_usd", 0)
+        if total_capex > 0:
+            annual_capex = total_capex / construction_period_config
+            for year in range(construction_period_config):
+                baseline_cash_flows[year] = -annual_capex
+
+        # Operating period - positive cash flows (net revenue)
+        annual_net_revenue = baseline_results.get("annual_net_revenue_usd", 0)
+        for year in range(construction_period_config, total_years):
+            baseline_cash_flows[year] = annual_net_revenue
+
+        logger.info(
+            f"Generated simplified baseline cash flows: {len(baseline_cash_flows)} years, total: ${np.sum(baseline_cash_flows):,.0f}")
+
+    logger.info(
+        f"Final baseline cash flows: shape={baseline_cash_flows.shape}, sum=${np.sum(baseline_cash_flows):,.0f}")
+
+    # Prepare comprehensive CAPEX breakdown including both nuclear and hydrogen components
+    comprehensive_capex_breakdown = {}
+
+    # Add nuclear CAPEX components using detailed breakdown with learning rates
+    from . import config
+    logger.info("Calculating detailed nuclear CAPEX breakdown for tax incentive analysis...")
+    nuclear_capex_breakdown = calculate_nuclear_capex_breakdown(
+        nuclear_capacity_mw, use_detailed_components=True)
+
+    # Add detailed nuclear components to comprehensive breakdown
+    for component_name, component_cost in nuclear_capex_breakdown.items():
+        if component_name != "Total_Nuclear_CAPEX":
+            comprehensive_capex_breakdown[component_name] = component_cost
+
+    total_nuclear_capex = nuclear_capex_breakdown["Total_Nuclear_CAPEX"]
+
+    logger.info(f"Detailed nuclear CAPEX components for tax incentive analysis:")
+    for component_name, component_cost in nuclear_capex_breakdown.items():
+        if component_name != "Total_Nuclear_CAPEX":
+            logger.info(f"  {component_name}: ${component_cost:,.0f}")
+    logger.info(f"  Total Nuclear CAPEX: ${total_nuclear_capex:,.0f}")
+
+    # Add hydrogen system CAPEX components
+    electrolyzer_capacity = annual_metrics.get("Electrolyzer_Capacity_MW", 50)
+    h2_storage_capacity = tea_sys_params.get("h2_storage_capacity_kg", 10000)
+    battery_capacity_mwh = annual_metrics.get("Battery_Capacity_MWh", 0)
+    battery_power_mw = annual_metrics.get("Battery_Power_MW", 0)
+
+    # Calculate hydrogen system CAPEX using existing config structure
+    for component_name, component_config in h2_capex_components_config.items():
+        if component_name == "Electrolyzer_System":
+            capacity_ratio = electrolyzer_capacity / \
+                component_config.get("reference_total_capacity_mw", 50)
+            component_capex = component_config.get(
+                "total_base_cost_for_ref_size", 100_000_000) * capacity_ratio
+        elif component_name == "H2_Storage_System":
+            capacity_ratio = h2_storage_capacity / \
+                component_config.get("reference_total_capacity_mw", 10000)
+            component_capex = component_config.get(
+                "total_base_cost_for_ref_size", 10_000_000) * capacity_ratio
+        elif component_name == "Battery_System_Energy" and battery_capacity_mwh > 0:
+            capacity_ratio = battery_capacity_mwh / \
+                component_config.get("reference_total_capacity_mw", 100)
+            component_capex = component_config.get(
+                "total_base_cost_for_ref_size", 23_600_000) * capacity_ratio
+        elif component_name == "Battery_System_Power" and battery_power_mw > 0:
+            capacity_ratio = battery_power_mw / \
+                component_config.get("reference_total_capacity_mw", 25)
+            component_capex = component_config.get(
+                "total_base_cost_for_ref_size", 5_000_000) * capacity_ratio
+        else:
+            # Fixed cost components
+            component_capex = component_config.get(
+                "total_base_cost_for_ref_size", 0)
+
+        if component_capex > 0:
+            comprehensive_capex_breakdown[component_name] = component_capex
+
+    logger.info(
+        f"Total project CAPEX: ${sum(comprehensive_capex_breakdown.values()):,.0f}")
+    logger.info(
+        f"Nuclear CAPEX: ${total_nuclear_capex:,.0f} ({total_nuclear_capex/sum(comprehensive_capex_breakdown.values()):.1%})")
+    logger.info(
+        f"Hydrogen system CAPEX: ${sum(comprehensive_capex_breakdown.values()) - total_nuclear_capex:,.0f}")
+
+    # Run comprehensive tax incentive analysis
+    logger.info("Running comprehensive federal tax incentive analysis...")
+    try:
+        # Extract plant-specific parameters from tea_sys_params for tax incentive analysis
+        plant_specific_params = {}
+        plant_param_keys = ['nameplate_capacity_mw', 'pTurbine_max_MW', 'turbine_capacity_mw',
+                            'thermal_capacity_mwt', 'thermal_efficiency', 'qSteam_Total_MWth']
+        for key in plant_param_keys:
+            if key in tea_sys_params:
+                plant_specific_params[key] = tea_sys_params[key]
+
+        # Also add nuclear capacity from the function parameter
+        plant_specific_params['nuclear_capacity_mw'] = nuclear_capacity_mw
+
+        logger.info(
+            f"Plant-specific parameters for tax incentive analysis: {list(plant_specific_params.keys())}")
+
+        tax_incentive_results = run_comprehensive_tax_incentive_analysis(
+            annual_metrics=annual_metrics,
+            base_cash_flows=baseline_cash_flows,
+            capex_breakdown=comprehensive_capex_breakdown,
+            hourly_results_df=hourly_results_df,
+            macrs_config=macrs_config,
+            project_lifetime_years=actual_project_lifetime,
+            construction_period_years=construction_period_config,
+            discount_rate=discount_rate_config,
+            tax_rate=tax_rate_config,
+            plant_specific_params=plant_specific_params,
+            baseline_lcoe_nuclear=baseline_results.get("nuclear_lcoe_usd_per_mwh"),
+            baseline_lcos_battery=baseline_results.get("battery_lcos_usd_per_mwh")
+        )
+    except Exception as e:
+        logger.error(f"Tax incentive analysis failed: {e}")
+        logger.warning("Returning baseline greenfield results only")
+        # Return baseline results with tax incentive analysis marked as failed
+        return {
+            "baseline_greenfield_results": baseline_results,
+            "tax_incentive_analysis": None,
+            "system_configuration": {
+                "nuclear_capacity_mw": nuclear_capacity_mw,
+                "electrolyzer_capacity_mw": electrolyzer_capacity,
+                "h2_storage_capacity_kg": h2_storage_capacity,
+                "battery_capacity_mwh": battery_capacity_mwh,
+                "battery_power_mw": battery_power_mw,
+                "total_capex_usd": sum(comprehensive_capex_breakdown.values()),
+                "nuclear_capex_usd": total_nuclear_capex,
+                "hydrogen_capex_usd": sum(comprehensive_capex_breakdown.values()) - total_nuclear_capex
+            },
+            "financial_comparison": {
+                "baseline_npv": baseline_results.get("npv_usd", 0),
+                "ptc_npv": baseline_results.get("npv_usd", 0),
+                "itc_npv": baseline_results.get("npv_usd", 0),
+                "ptc_npv_improvement": 0,
+                "itc_npv_improvement": 0,
+                "best_scenario": "baseline"
+            },
+            "analysis_status": "failed",
+            "error_message": str(e)
+        }
+
+    # Generate comprehensive reports and visualizations
+    if output_dir:
+        from pathlib import Path
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        # Generate detailed comparative report
+        report_file = output_path / "Federal_Tax_Incentive_Analysis_Report.txt"
+        logger.info(
+            f"Generating comprehensive tax incentive report: {report_file}")
+        generate_tax_incentive_comparative_report(
+            analysis_results=tax_incentive_results,
+            output_file_path=report_file,
+            project_name="Greenfield Nuclear-Hydrogen System"
+        )
+
+        # Generate comprehensive visualizations
+        plots_dir = output_path / "Tax_Incentive_Plots"
+        logger.info(
+            f"Creating tax incentive analysis visualizations: {plots_dir}")
+        create_tax_incentive_visualizations(
+            analysis_results=tax_incentive_results,
+            output_dir=plots_dir,
+            project_name="Greenfield Nuclear-Hydrogen System"
+        )
+
+    # Combine results for comprehensive output
+    comprehensive_results = {
+        "baseline_greenfield_results": baseline_results,
+        "tax_incentive_analysis": tax_incentive_results,
+        "system_configuration": {
+            "nuclear_capacity_mw": nuclear_capacity_mw,
+            "electrolyzer_capacity_mw": electrolyzer_capacity,
+            "h2_storage_capacity_kg": h2_storage_capacity,
+            "battery_capacity_mwh": battery_capacity_mwh,
+            "battery_power_mw": battery_power_mw,
+            "total_capex_usd": sum(comprehensive_capex_breakdown.values()),
+            "nuclear_capex_usd": total_nuclear_capex,
+            "hydrogen_capex_usd": sum(comprehensive_capex_breakdown.values()) - total_nuclear_capex
+        },
+        "financial_comparison": {
+            "baseline_npv": tax_incentive_results["scenarios"]["baseline"]["financial_metrics"]["npv_usd"],
+            "ptc_npv": tax_incentive_results["scenarios"]["ptc"]["financial_metrics"]["npv_usd"],
+            "itc_npv": tax_incentive_results["scenarios"]["itc"]["financial_metrics"]["npv_usd"],
+            "ptc_npv_improvement": tax_incentive_results["comparative_analysis"]["npv_comparison"]["ptc_npv_improvement"],
+            "itc_npv_improvement": tax_incentive_results["comparative_analysis"]["npv_comparison"]["itc_npv_improvement"],
+            "best_scenario": tax_incentive_results["comparative_analysis"]["best_scenario"]
+        }
+    }
+
+    # Log executive summary
+    logger.info("=" * 80)
+    logger.info("EXECUTIVE SUMMARY - FEDERAL TAX INCENTIVE ANALYSIS")
+    logger.info("=" * 80)
+
+    baseline_npv = comprehensive_results["financial_comparison"]["baseline_npv"]
+    ptc_npv = comprehensive_results["financial_comparison"]["ptc_npv"]
+    itc_npv = comprehensive_results["financial_comparison"]["itc_npv"]
+    ptc_improvement = comprehensive_results["financial_comparison"]["ptc_npv_improvement"]
+    itc_improvement = comprehensive_results["financial_comparison"]["itc_npv_improvement"]
+    best_scenario = comprehensive_results["financial_comparison"]["best_scenario"]
+
+    logger.info(f"System Configuration:")
+    logger.info(f"  Nuclear Capacity:         {nuclear_capacity_mw:,.0f} MW")
+    logger.info(f"  Electrolyzer Capacity:    {electrolyzer_capacity:,.0f} MW")
+    logger.info(
+        f"  Total Project CAPEX:      ${sum(comprehensive_capex_breakdown.values()):,.0f}")
+    logger.info(
+        f"  Annual H2 Production:     {annual_metrics.get('H2_Production_kg_annual', 0):,.0f} kg/year")
+
+    logger.info(f"\nFinancial Analysis Results:")
+    logger.info(f"  Baseline NPV:             ${baseline_npv:,.0f}")
+    logger.info(
+        f"  45Y PTC NPV:              ${ptc_npv:,.0f} ({ptc_improvement:+,.0f})")
+    logger.info(
+        f"  48E ITC NPV:              ${itc_npv:,.0f} ({itc_improvement:+,.0f})")
+
+    best_scenario_name = {
+        "baseline": "Baseline (No Incentives)",
+        "ptc": "45Y Production Tax Credit",
+        "itc": "48E Investment Tax Credit"
+    }.get(best_scenario, best_scenario)
+
+    logger.info(f"\nRecommendation:")
+    logger.info(f"  Best Scenario: {best_scenario_name}")
+
+    if ptc_improvement > 0 and itc_improvement > 0:
+        if ptc_improvement > itc_improvement:
+            logger.info(
+                f"  The 45Y PTC provides ${ptc_improvement - itc_improvement:,.0f} higher NPV than 48E ITC")
+        elif itc_improvement > ptc_improvement:
+            logger.info(
+                f"  The 48E ITC provides ${itc_improvement - ptc_improvement:,.0f} higher NPV than 45Y PTC")
+        else:
+            logger.info(
+                f"  Both incentives provide similar financial benefits")
+
+    # Log tax incentive details
+    ptc_analysis = tax_incentive_results["scenarios"]["ptc"]["analysis"]
+    if "tax_benefits" in ptc_analysis and "ptc" in ptc_analysis["tax_benefits"]:
+        ptc_details = ptc_analysis["tax_benefits"]["ptc"]
+        logger.info(f"\n45Y PTC Details:")
+        logger.info(
+            f"  Annual Generation:        {ptc_details['annual_generation_mwh']:,.0f} MWh")
+        logger.info(
+            f"  Annual PTC Benefit:       ${ptc_details['annual_ptc_benefit_usd']:,.0f}")
+        logger.info(
+            f"  Total PTC Value:          ${ptc_details['total_ptc_value_usd']:,.0f}")
+
+    itc_analysis = tax_incentive_results["scenarios"]["itc"]["analysis"]
+    if "tax_benefits" in itc_analysis and "itc" in itc_analysis["tax_benefits"]:
+        itc_details = itc_analysis["tax_benefits"]["itc"]
+        logger.info(f"\n48E ITC Details:")
+        logger.info(
+            f"  Qualified CAPEX:          ${itc_details['total_qualified_capex_usd']:,.0f}")
+        logger.info(
+            f"  ITC Credit Amount:        ${itc_details['itc_credit_amount_usd']:,.0f}")
+        logger.info(
+            f"  Net ITC Benefit:          ${itc_analysis.get('net_itc_benefit', 0):,.0f}")
+
+    logger.info("=" * 80)
+    logger.info("Federal tax incentive analysis completed successfully")
+    logger.info("=" * 80)
+
+    return comprehensive_results
+
+
+def calculate_nuclear_baseline_financial_analysis(
+    tea_sys_params: dict,
+    hourly_results_df: pd.DataFrame,
+    project_lifetime_config: int,
+    construction_period_config: int,
+    discount_rate_config: float,
+    tax_rate_config: float,
+    target_iso: str,
+    npps_info_path: str = None,
+    tax_policies: dict = None
+) -> dict:
+    """
+    Calculate financial analysis for nuclear power plant baseline operation (no modifications).
+    Analyzes NPP operation using Nameplate Power Factor from NPPs info and hourly electricity prices.
+
+    Args:
+        tea_sys_params: System parameters dictionary
+        hourly_results_df: Hourly optimization results dataframe
+        project_lifetime_config: Project lifetime in years (fallback if NPP data unavailable)
+        construction_period_config: Construction period in years
+        discount_rate_config: Discount rate as fraction
+        tax_rate_config: Tax rate as fraction
+        target_iso: Target ISO region
+        npps_info_path: Path to NPPs info CSV file
+
+    Returns:
+        Dictionary containing baseline financial analysis results
+    """
+    logger.info("=" * 80)
+    logger.info("NUCLEAR POWER PLANT BASELINE FINANCIAL ANALYSIS")
+    logger.info("Financial analysis for NPP operation without modifications")
+    logger.info("=" * 80)
+
+    # Load NPPs info if path provided and extract actual remaining years
+    npp_info = None
+    actual_project_lifetime = project_lifetime_config  # Default fallback
+
+    if npps_info_path:
+        try:
+            import pandas as pd
+            npp_info_df = pd.read_csv(npps_info_path)
+            # Filter for the target ISO
+            iso_plants = npp_info_df[npp_info_df['ISO'] == target_iso]
+            if not iso_plants.empty:
+                # Use the first plant or an average if multiple plants
+                npp_info = iso_plants.iloc[0].to_dict()
+                plant_name = npp_info.get('Plant Name', 'Unknown')
+
+                # Extract actual remaining years from NPP data
+                remaining_years = npp_info.get('remaining', None)
+                if remaining_years is not None and pd.notna(remaining_years):
+                    try:
+                        actual_project_lifetime = int(float(remaining_years))
+                        logger.info(
+                            f"Using actual remaining plant lifetime: {actual_project_lifetime} years")
+                        logger.info(
+                            f"  (Override from NPPs info file for {plant_name})")
+                    except (ValueError, TypeError):
+                        logger.warning(
+                            f"Invalid remaining years value: {remaining_years}, using default: {project_lifetime_config}")
+                else:
+                    logger.warning(
+                        f"No remaining years data available for {plant_name}, using default: {project_lifetime_config}")
+
+                logger.info(f"Using NPP info for plant: {plant_name}")
+            else:
+                logger.warning(f"No NPP info found for ISO: {target_iso}")
+        except Exception as e:
+            logger.error(f"Error loading NPPs info: {e}")
+
+    logger.info(
+        f"Project lifetime for analysis: {actual_project_lifetime} years")
+
+    # Get nuclear plant parameters from hourly results or use defaults
+    plant_name_from_hourly = 'Unknown'
+    if len(hourly_results_df) > 0:
+        # Get plant capacity from hourly results (turbine capacity)
+        turbine_capacity_mw = hourly_results_df['pTurbine_MW'].max()
+        logger.info(
+            f"Nuclear turbine capacity from hourly results: {turbine_capacity_mw:.2f} MW")
+
+        # Try to get plant name from hourly results
+        if 'Plant_Name' in hourly_results_df.columns:
+            plant_name_from_hourly = hourly_results_df['Plant_Name'].iloc[0]
+        elif 'Original_Plant_Name' in hourly_results_df.columns:
+            plant_name_from_hourly = hourly_results_df['Original_Plant_Name'].iloc[0]
+
+        if plant_name_from_hourly != 'Unknown':
+            logger.info(
+                f"Plant name from hourly results: {plant_name_from_hourly}")
+    else:
+        turbine_capacity_mw = 1000.0  # Default fallback
+        logger.warning(
+            "No hourly results available, using default capacity: 1000 MW")
+
+    # Use Nameplate Power Factor from NPPs info if available
+    nameplate_power_factor = 0.90  # Default
+    if npp_info and 'Nameplate Power Factor' in npp_info:
+        try:
+            nameplate_power_factor = float(npp_info['Nameplate Power Factor'])
+            logger.info(
+                f"Using Nameplate Power Factor from NPPs info: {nameplate_power_factor:.3f}")
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid Nameplate Power Factor in NPPs info, using default: 0.90")
+    else:
+        logger.info(
+            f"Using default Nameplate Power Factor: {nameplate_power_factor:.3f}")
+
+    # Calculate hourly electricity prices from hourly results
+    electricity_prices_usd_per_mwh = []
+    if len(hourly_results_df) > 0 and 'EnergyPrice_LMP_USDperMWh' in hourly_results_df.columns:
+        electricity_prices_usd_per_mwh = hourly_results_df['EnergyPrice_LMP_USDperMWh'].values
+        avg_electricity_price = np.mean(electricity_prices_usd_per_mwh)
+        min_electricity_price = np.min(electricity_prices_usd_per_mwh)
+        max_electricity_price = np.max(electricity_prices_usd_per_mwh)
+
+        logger.info(f"Electricity price data source: Hourly results file")
+        logger.info(
+            f"  Data points: {len(electricity_prices_usd_per_mwh)} hours")
+        logger.info(f"  Average: ${avg_electricity_price:.2f}/MWh")
+        logger.info(f"  Minimum: ${min_electricity_price:.2f}/MWh")
+        logger.info(f"  Maximum: ${max_electricity_price:.2f}/MWh")
+    else:
+        # Use a reasonable default price
+        avg_electricity_price = 35.0  # $/MWh
+        electricity_prices_usd_per_mwh = np.full(8760, avg_electricity_price)
+        logger.warning(f"Electricity price data source: Default fallback")
+        logger.warning(
+            f"  No hourly price data available, using default: ${avg_electricity_price:.2f}/MWh")
+
+    # Nuclear plant operational parameters
+    # Use nameplate power factor as capacity factor
+    capacity_factor = nameplate_power_factor
+    hours_per_year = 8760
+
+    # Calculate annual generation
+    annual_generation_mwh = turbine_capacity_mw * hours_per_year * capacity_factor
+    logger.info(
+        f"Annual electricity generation: {annual_generation_mwh:,.0f} MWh")
+
+    # Calculate annual revenue using hourly prices
+    if len(electricity_prices_usd_per_mwh) == 8760:
+        # Use hourly prices
+        hourly_generation_mwh = turbine_capacity_mw * capacity_factor  # MWh per hour
+        hourly_revenues = hourly_generation_mwh * electricity_prices_usd_per_mwh
+        annual_revenue = np.sum(hourly_revenues)
+        logger.info("Using hourly electricity prices for revenue calculation")
+    else:
+        # Fallback to average price
+        annual_revenue = annual_generation_mwh * avg_electricity_price
+        logger.info("Using average electricity price for revenue calculation")
+
+    logger.info(f"Annual electricity revenue: ${annual_revenue:,.0f}")
+
+    # Nuclear plant operating costs (using centralized config parameters)
+    from . import config
+    opex_params = config.NUCLEAR_COST_PARAMETERS["opex_parameters"]
+
+    # Fixed O&M costs
+    fixed_om_per_mw_month = opex_params["fixed_om_per_mw_month"]
+    annual_fixed_om = turbine_capacity_mw * fixed_om_per_mw_month * 12
+
+    # Variable O&M costs
+    variable_om_per_mwh = opex_params["variable_om_per_mwh"]
+    annual_variable_om = annual_generation_mwh * variable_om_per_mwh
+
+    # Nuclear fuel costs
+    fuel_cost_per_mwh = opex_params["fuel_cost_per_mwh"]
+    annual_fuel_cost = annual_generation_mwh * fuel_cost_per_mwh
+
+    # Additional costs (insurance, regulatory, waste disposal, security)
+    additional_costs_per_mw_year = opex_params["additional_costs_per_mw_year"]
+    annual_additional_costs = turbine_capacity_mw * additional_costs_per_mw_year
+
+    # Total annual OPEX
+    annual_opex = annual_fixed_om + annual_variable_om + \
+        annual_fuel_cost + annual_additional_costs
+
+    logger.info(f"Annual operating costs breakdown:")
+    logger.info(f"  Fixed O&M: ${annual_fixed_om:,.0f}")
+    logger.info(f"  Variable O&M: ${annual_variable_om:,.0f}")
+    logger.info(f"  Fuel costs: ${annual_fuel_cost:,.0f}")
+    logger.info(f"  Additional costs: ${annual_additional_costs:,.0f}")
+    logger.info(f"  Total annual OPEX: ${annual_opex:,.0f}")
+
+    # Annual net cash flow (before tax)
+    annual_net_cash_flow_before_tax = annual_revenue - annual_opex
+    logger.info(
+        f"Annual net cash flow (before tax): ${annual_net_cash_flow_before_tax:,.0f}")
+
+    # Calculate taxes
+    annual_taxes = max(0, annual_net_cash_flow_before_tax * tax_rate_config)
+    annual_net_cash_flow_after_tax = annual_net_cash_flow_before_tax - annual_taxes
+
+    logger.info(f"Annual taxes: ${annual_taxes:,.0f}")
+    logger.info(
+        f"Annual net cash flow (after tax): ${annual_net_cash_flow_after_tax:,.0f}")
+
+    # Major replacement/refurbishment costs (using centralized config parameters)
+    replacement_costs = config.NUCLEAR_COST_PARAMETERS["replacement_costs_per_mw"]
+    replacement_schedule = {
+        15: turbine_capacity_mw * replacement_costs["turbine_overhaul_15_years"],
+        25: turbine_capacity_mw * replacement_costs["steam_generator_25_years"],
+        30: turbine_capacity_mw * replacement_costs["major_refurbishment_30_years"],
+        40: turbine_capacity_mw * replacement_costs["life_extension_40_years"],
+    }
+
+    # Calculate 45U Nuclear PTC benefits for existing nuclear plant
+    logger.info("=" * 60)
+    logger.info("45U NUCLEAR PRODUCTION TAX CREDIT ANALYSIS")
+    logger.info("=" * 60)
+
+    nuclear_45u_benefits = calculate_45u_nuclear_ptc_benefits(
+        annual_generation_mwh=annual_generation_mwh,
+        project_start_year=2024,
+        project_lifetime_years=actual_project_lifetime,
+        tax_policies=tax_policies
+    )
+
+    logger.info(f"45U Policy Benefits for Nuclear Plant:")
+    logger.info(f"  Annual Generation: {annual_generation_mwh:,.0f} MWh")
+    logger.info(
+        f"  Credit Rate: ${nuclear_45u_benefits['credit_rate_per_mwh']}/MWh")
+    logger.info(
+        f"  Credit Period: {nuclear_45u_benefits['credit_period_start']}-{nuclear_45u_benefits['credit_period_end']}")
+    logger.info(
+        f"  Eligible Years: {nuclear_45u_benefits['total_eligible_years']} years")
+    logger.info(
+        f"  Annual Credit Value: ${nuclear_45u_benefits['annual_credit_value']:,.0f}")
+    logger.info(
+        f"  Total 45U Credits: ${nuclear_45u_benefits['total_45u_credits']:,.0f}")
+
+    # Calculate lifecycle cash flows for both scenarios
+    total_years = actual_project_lifetime
+
+    # Scenario 1: Without 45U policy (baseline)
+    cash_flows_without_45u = np.zeros(total_years)
+
+    for year in range(total_years):
+        # Base annual cash flow
+        cash_flows_without_45u[year] = annual_net_cash_flow_after_tax
+
+        # Subtract replacement costs if scheduled
+        if (year + 1) in replacement_schedule:
+            replacement_cost = replacement_schedule[year + 1]
+            cash_flows_without_45u[year] -= replacement_cost
+            logger.info(
+                f"Year {year + 1}: Replacement cost ${replacement_cost:,.0f}")
+
+    # Scenario 2: With 45U policy
+    cash_flows_with_45u = cash_flows_without_45u.copy()
+    annual_45u_credits = nuclear_45u_benefits["annual_45u_credits"]
+
+    # Add 45U credits to applicable years
+    for year in range(total_years):
+        if year < len(annual_45u_credits):
+            cash_flows_with_45u[year] += annual_45u_credits[year]
+
+    # Calculate financial metrics for both scenarios
+    discount_factors = np.array(
+        [(1 / (1 + discount_rate_config) ** year) for year in range(total_years)])
+
+    # Without 45U policy
+    discounted_cash_flows_without_45u = cash_flows_without_45u * discount_factors
+    npv_without_45u = np.sum(discounted_cash_flows_without_45u)
+
+    # IRR is not applicable for existing nuclear plant baseline analysis
+    # because there's no initial investment - the plant already exists
+    irr_without_45u = calculate_irr(cash_flows_without_45u, is_baseline_analysis=True)
+    payback_without_45u = calculate_payback_period(cash_flows_without_45u)
+
+    # With 45U policy
+    discounted_cash_flows_with_45u = cash_flows_with_45u * discount_factors
+    npv_with_45u = np.sum(discounted_cash_flows_with_45u)
+
+    # IRR is still not applicable even with 45U policy for existing plant baseline
+    # The 45U policy doesn't create an investment scenario - it's just additional revenue
+    irr_with_45u = calculate_irr(cash_flows_with_45u, is_baseline_analysis=True)
+    payback_with_45u = calculate_payback_period(cash_flows_with_45u)
+
+    # Calculate 45U impact
+    npv_improvement_45u = npv_with_45u - npv_without_45u
+    # IRR improvement is not applicable for existing plant baseline analysis
+    irr_improvement_45u = None
+
+    # Legacy variables for backward compatibility
+    npv = npv_without_45u
+    irr_value = irr_without_45u
+    payback_period = payback_without_45u
+    # Default to without 45U for legacy compatibility
+    cash_flows = cash_flows_without_45u
+
+    # Additional financial metrics
+    total_revenue = annual_revenue * total_years
+    total_opex = annual_opex * total_years
+    total_replacement_costs = sum(replacement_schedule.values())
+    profit_margin = (annual_net_cash_flow_before_tax /
+                     annual_revenue * 100) if annual_revenue > 0 else 0
+
+    # Calculate LCOE (Levelized Cost of Electricity) using only OPEX costs
+    try:
+        # Calculate present value of total OPEX over project lifetime
+        total_opex_pv = 0
+        total_generation_pv = 0
+
+        # Ensure we have valid values for calculation
+        if annual_opex is not None and annual_generation_mwh is not None and annual_opex > 0 and annual_generation_mwh > 0:
+            for year in range(total_years):
+                discount_factor = 1 / ((1 + discount_rate_config) ** (year + 1))
+                # Add annual OPEX to present value
+                total_opex_pv += annual_opex * discount_factor
+                # Add annual generation to present value
+                total_generation_pv += annual_generation_mwh * discount_factor
+
+            # Calculate LCOE for both scenarios
+            lcoe_without_45u = total_opex_pv / total_generation_pv if total_generation_pv > 0 else None
+            lcoe_with_45u = lcoe_without_45u  # LCOE doesn't change with 45U since it's only OPEX-based
+
+            logger.info("LCOE (OPEX-only) calculated successfully")
+        else:
+            logger.warning("Cannot calculate LCOE: invalid annual_opex or annual_generation_mwh")
+            lcoe_without_45u = None
+            lcoe_with_45u = None
+    except Exception as e:
+        logger.error(f"Error calculating LCOE: {e}")
+        lcoe_without_45u = None
+        lcoe_with_45u = None
+
+    logger.info(f"Financial Results Comparison:")
+    logger.info(f"  WITHOUT 45U POLICY:")
+    logger.info(f"    NPV: ${npv_without_45u:,.0f}")
+    logger.info(f"    IRR: N/A (not applicable for existing plant operations)")
+    logger.info(
+        f"    Payback Period: {payback_without_45u} years" if payback_without_45u else "    Payback Period: > project lifetime")
+
+    logger.info(f"  WITH 45U POLICY:")
+    logger.info(f"    NPV: ${npv_with_45u:,.0f}")
+    logger.info(f"    IRR: N/A (not applicable for existing plant operations)")
+    logger.info(
+        f"    Payback Period: {payback_with_45u} years" if payback_with_45u else "    Payback Period: > project lifetime")
+
+    logger.info(f"  45U POLICY IMPACT:")
+    logger.info(f"    NPV Improvement: +${npv_improvement_45u:,.0f}")
+    logger.info(f"    IRR Improvement: N/A (IRR not applicable for existing plant operations)")
+    logger.info(
+        f"    Total 45U Benefits: ${nuclear_45u_benefits['total_45u_credits']:,.0f}")
+
+    logger.info(f"  Overall Profit Margin: {profit_margin:.1f}%")
+
+    # Return comprehensive results with 45U analysis
+    return {
+        "analysis_type": "Nuclear Baseline (No Modifications)",
+        "includes_45u_analysis": True,
+
+        "plant_parameters": {
+            "turbine_capacity_mw": turbine_capacity_mw,
+            "nameplate_power_factor": nameplate_power_factor,
+            "capacity_factor": capacity_factor,
+            "plant_name": npp_info.get('Plant Name', plant_name_from_hourly) if npp_info else plant_name_from_hourly,
+            "iso_region": target_iso
+        },
+
+        "annual_performance": {
+            "annual_generation_mwh": annual_generation_mwh,
+            "annual_revenue_usd": annual_revenue,
+            "annual_fixed_om_usd": annual_fixed_om,
+            "annual_variable_om_usd": annual_variable_om,
+            "annual_fuel_cost_usd": annual_fuel_cost,
+            "annual_additional_costs_usd": annual_additional_costs,
+            "annual_total_opex_usd": annual_opex,
+            "annual_net_cash_flow_before_tax_usd": annual_net_cash_flow_before_tax,
+            "annual_taxes_usd": annual_taxes,
+            "annual_net_cash_flow_after_tax_usd": annual_net_cash_flow_after_tax,
+            "profit_margin_percent": profit_margin
+        },
+
+        "electricity_market": {
+            "avg_electricity_price_usd_per_mwh": avg_electricity_price,
+            "min_electricity_price_usd_per_mwh": min_electricity_price if 'min_electricity_price' in locals() else avg_electricity_price,
+            "max_electricity_price_usd_per_mwh": max_electricity_price if 'max_electricity_price' in locals() else avg_electricity_price,
+            "using_hourly_prices": len(electricity_prices_usd_per_mwh) == 8760
+        },
+
+        # 45U Policy analysis
+        "nuclear_45u_benefits": nuclear_45u_benefits,
+
+        # Financial metrics without 45U (baseline scenario)
+        "scenario_without_45u": {
+            "npv_usd": npv_without_45u,
+            "irr_percent": irr_without_45u,
+            "payback_period_years": payback_without_45u,
+            "cash_flows": cash_flows_without_45u.tolist()
+        },
+
+        # Financial metrics with 45U (enhanced scenario)
+        "scenario_with_45u": {
+            "npv_usd": npv_with_45u,
+            "irr_percent": irr_with_45u,
+            "payback_period_years": payback_with_45u,
+            "cash_flows": cash_flows_with_45u.tolist()
+        },
+
+        # 45U Impact analysis
+        "45u_policy_impact": {
+            "npv_improvement_usd": npv_improvement_45u,
+            "irr_improvement_percent": irr_improvement_45u,
+            "total_45u_credits_usd": nuclear_45u_benefits["total_45u_credits"],
+            "eligible_years": nuclear_45u_benefits["total_eligible_years"]
+        },
+
+        # Legacy compatibility fields (default to without 45U scenario)
+        "financial_metrics": {
+            "npv_usd": npv_without_45u,
+            "irr_percent": irr_without_45u,
+            "payback_period_years": payback_without_45u,
+            "project_lifetime_years": total_years,
+            "discount_rate_percent": discount_rate_config * 100,
+            "tax_rate_percent": tax_rate_config * 100
+        },
+
+        "data_sources": {
+            "project_lifetime_source": "NPPs info file" if actual_project_lifetime != project_lifetime_config else "Config default",
+            "electricity_price_source": "Hourly results file" if len(electricity_prices_usd_per_mwh) == 8760 else "Default fallback",
+            "plant_capacity_source": "Hourly results file" if len(hourly_results_df) > 0 else "Default fallback",
+            "nameplate_power_factor_source": "NPPs info file" if npp_info and 'Nameplate Power Factor' in npp_info else "Default fallback",
+            "plant_name_source": "NPPs info file" if npp_info and 'Plant Name' in npp_info else ("Hourly results file" if plant_name_from_hourly != 'Unknown' else "Default fallback")
+        },
+
+        "lifecycle_totals": {
+            "total_revenue_usd": total_revenue,
+            "total_opex_usd": total_opex,
+            "total_replacement_costs_usd": total_replacement_costs,
+            "total_taxes_usd": annual_taxes * total_years,
+            "total_net_cash_flow_usd": np.sum(cash_flows_without_45u),
+            "total_net_cash_flow_with_45u_usd": np.sum(cash_flows_with_45u)
+        },
+
+        # Legacy compatibility fields
+        "cash_flows": cash_flows_without_45u.tolist(),
+        "replacement_schedule": replacement_schedule
+    }

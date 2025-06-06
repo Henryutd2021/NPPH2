@@ -10,6 +10,7 @@ from pathlib import Path
 import shutil
 import pandas as pd
 from contextlib import contextmanager
+import importlib.util
 
 # Add the project root to sys.path FIRST - before any src imports
 project_root = str(Path(__file__).parent.parent.resolve())
@@ -34,7 +35,8 @@ TEA_RESULTS_DIR = Path(__file__).resolve(
 CS1_OUTPUT_DIR = Path(__file__).resolve(
 ).parent.parent / 'output' / 'opt' / 'cs1'
 # Log directory for CS1 TEA analysis
-CS1_LOG_DIR = Path(__file__).resolve().parent.parent / 'logs' / 'cs1_tea'
+CS1_LOG_DIR = Path(__file__).resolve().parent.parent / \
+    'output' / 'logs' / 'cs1'
 
 os.makedirs(TEA_RESULTS_DIR, exist_ok=True)
 os.makedirs(CS1_LOG_DIR, exist_ok=True)
@@ -51,7 +53,7 @@ def setup_main_logger():
 
     # Create main log file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    main_log_file = CS1_LOG_DIR / f"cs1_tea_main_{timestamp}.log"
+    main_log_file = CS1_LOG_DIR / f"cs1_tea_batch_analysis_{timestamp}.log"
 
     # Setup logger
     logger = logging.getLogger('cs1_tea_main')
@@ -61,7 +63,8 @@ def setup_main_logger():
     logger.handlers.clear()
 
     # File handler - captures everything
-    file_handler = logging.FileHandler(main_log_file, mode='w', encoding='utf-8')
+    file_handler = logging.FileHandler(
+        main_log_file, mode='w', encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_formatter = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s'
@@ -71,7 +74,8 @@ def setup_main_logger():
 
     # Console handler - only important messages
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.WARNING)  # Only warnings and errors to console
+    # Only warnings and errors to console
+    console_handler.setLevel(logging.WARNING)
     console_formatter = logging.Formatter('%(levelname)s: %(message)s')
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
@@ -80,7 +84,7 @@ def setup_main_logger():
     logger.info(f"Main log file: {main_log_file}")
     logger.info(f"Input directory: {CS1_OUTPUT_DIR}")
     logger.info(f"Output directory: {TEA_RESULTS_DIR}")
-    logger.info(f"Detailed logs directory: logs/cs1/")
+    logger.info(f"Detailed logs directory: {CS1_LOG_DIR}/")
 
     return logger, main_log_file
 
@@ -195,78 +199,16 @@ def extract_plant_parameters(plant_name: str, generator_id: str, logger):
     return plant_specific_params
 
 
-def enhanced_load_tea_sys_params_for_cs1(iso_target, input_base_dir, plant_specific_params, logger):
-    """
-    Enhanced parameter loading function with logging integration
-    """
-    # Import required modules
-    import src.tea.data_loader as data_loader
-
-    logger.log_phase_start("System Parameters Loading",
-                           f"Target ISO: {iso_target}")
-
-    # Call the original function to get base params
-    original_params = data_loader.load_tea_sys_params(
-        iso_target, input_base_dir)
-    enhanced_params = original_params.copy()
-
-    # Add plant-specific parameters
-    if plant_specific_params:
-        enhanced_params.update(plant_specific_params)
-        logger.info(
-            f"✅ Added {len(plant_specific_params)} plant-specific parameters")
-
-    # Enhanced CS1 settings
-    cs1_enhancements = {
-        # Battery Configuration
-        'enable_battery': True,
-        'battery_hours': 6.0,
-        'battery_round_trip_efficiency': 0.92,
-        'battery_degrade_annual_percent': 2.0,
-        'battery_soc_initial_percent': 50.0,
-        'battery_soc_target_percent': 50.0,
-        'battery_min_soc_percent': 10.0,
-        'battery_max_soc_percent': 95.0,
-        'enable_battery_degradation': True,
-        'vom_battery_per_mwh_cycled': 2.0,
-
-        # Economic Parameters
-        'discount_rate': 0.08,
-        'project_lifetime_years': 30,
-        'construction_period_years': 3,
-        'tax_rate': 0.21,
-        'inflation_rate': 0.025,
-
-        # Advanced Controls
-        'optimization_tolerance': 1e-6,
-        'max_optimization_iterations': 1000,
-        'convergence_criteria': 'strict',
-        'enable_advanced_control_logic': True,
-
-        # Incremental Analysis
-        'enable_incremental_analysis': True,
-        'baseline_annual_revenue': 0.0,  # Will be calculated automatically if not provided
-    }
-
-    enhanced_params.update(cs1_enhancements)
-    logger.log_calculation_result(
-        "Enhanced Parameters Count", len(cs1_enhancements))
-
-    logger.log_phase_complete("System Parameters Loading",
-                              results_summary=f"Loaded {len(enhanced_params)} total parameters")
-    return enhanced_params
-
-
 def run_tea_for_file_enhanced(csv_path: Path, plant_name: str, generator_id: str,
                               iso_region: str, remaining_years_str: str):
     """
     Run enhanced TEA analysis with comprehensive logging
     """
     # Import required modules
-    import src.tea.data_loader as data_loader
-    import src.tea.tea as tea
-    from src.logging.enhanced_logging import ReactorLogSession
-    from src.logging.progress_indicators import TEAProgressIndicator
+    import sys
+    from src.tea.tea_engine import run_complete_tea_analysis
+    from src.logger_utils.enhanced_logging import ReactorLogSession
+    from src.logger_utils.progress_indicators import TEAProgressIndicator
 
     # Create reactor-specific logger
     with ReactorLogSession(plant_name, generator_id, iso_region) as logger:
@@ -298,91 +240,90 @@ def run_tea_for_file_enhanced(csv_path: Path, plant_name: str, generator_id: str
             plant_specific_params = extract_plant_parameters(
                 plant_name, generator_id, logger)
 
-            # Enhanced parameter loading function
-            def patched_load_tea_sys_params(iso_target, input_base_dir):
-                return enhanced_load_tea_sys_params_for_cs1(
-                    iso_target, input_base_dir, plant_specific_params, logger)
+            # Enhance CSV file if plant parameters are available
+            actual_input_file = csv_path
+            enhanced_csv_path = None
 
-            # Store original function for restoration
-            original_load_tea_sys_params = data_loader.load_tea_sys_params
+            if plant_specific_params:
+                logger.log_phase_start("CSV Enhancement",
+                                       "Adding plant-specific parameters to input file")
+                try:
+                    results_df = pd.read_csv(csv_path)
 
-            try:
-                # Temporarily replace the function
-                data_loader.load_tea_sys_params = patched_load_tea_sys_params
+                    # Add plant-specific columns
+                    if "Turbine_Capacity_MW" not in results_df.columns:
+                        results_df["Turbine_Capacity_MW"] = plant_specific_params["nameplate_capacity_mw"]
 
-                # Enhance CSV file if plant parameters are available
-                actual_input_file = csv_path
-                if plant_specific_params:
-                    logger.log_phase_start("CSV Enhancement",
-                                           "Adding plant-specific parameters to input file")
-                    try:
-                        results_df = pd.read_csv(csv_path)
+                    if "Thermal_Capacity_MWt" not in results_df.columns:
+                        results_df["Thermal_Capacity_MWt"] = plant_specific_params["thermal_capacity_mwt"]
 
-                        # Add plant-specific columns
-                        if "Turbine_Capacity_MW" not in results_df.columns:
-                            results_df["Turbine_Capacity_MW"] = plant_specific_params["nameplate_capacity_mw"]
+                    if "Thermal_Efficiency" not in results_df.columns:
+                        results_df["Thermal_Efficiency"] = plant_specific_params["thermal_efficiency"]
 
-                        if "Thermal_Capacity_MWt" not in results_df.columns:
-                            results_df["Thermal_Capacity_MWt"] = plant_specific_params["thermal_capacity_mwt"]
+                    # Save enhanced file
+                    enhanced_csv_path = csv_path.parent / \
+                        f"enhanced_{csv_path.name}"
+                    results_df.to_csv(enhanced_csv_path, index=False)
+                    actual_input_file = enhanced_csv_path
 
-                        if "Thermal_Efficiency" not in results_df.columns:
-                            results_df["Thermal_Efficiency"] = plant_specific_params["thermal_efficiency"]
+                    logger.log_calculation_result(
+                        "Enhanced CSV Columns", len(plant_specific_params))
+                    logger.log_phase_complete("CSV Enhancement")
 
-                        # Save enhanced file
-                        enhanced_csv_path = csv_path.parent / \
-                            f"enhanced_{csv_path.name}"
-                        results_df.to_csv(enhanced_csv_path, index=False)
-                        actual_input_file = enhanced_csv_path
-
-                        logger.log_calculation_result(
-                            "Enhanced CSV Columns", len(plant_specific_params))
-                        logger.log_phase_complete("CSV Enhancement")
-
-                    except Exception as e:
-                        logger.log_invalid_data(
-                            component="csv_enhancement",
-                            parameter="file_processing",
-                            invalid_value=str(e),
-                            impact="medium"
-                        )
-                        actual_input_file = csv_path
-
-                # Create reactor output directory
-                reactor_output_dir = TEA_RESULTS_DIR / \
-                    f"{plant_name}_{generator_id}_{iso_region}_{remaining_years_str}"
-                reactor_output_dir.mkdir(parents=True, exist_ok=True)
-
-                # Use enhanced TEA logging context
-                with enhanced_tea_logging_simple(logger):
-                    logger.log_phase_start("Main TEA Analysis",
-                                           "Starting core calculations")
-
-                    # Run main TEA calculation
-                    main_result = tea.main(
-                        target_iso_override=iso_region,
-                        plant_report_title_override=f"{plant_name}_{generator_id}_{iso_region}_{remaining_years_str}",
-                        input_hourly_results_file_override=actual_input_file,
-                        base_output_dir_override=reactor_output_dir,
-                        enable_nuclear_greenfield_analysis_override=True,
-                        run_incremental_analysis_override=True,  # Explicitly enable incremental analysis
+                except Exception as e:
+                    logger.log_invalid_data(
+                        component="csv_enhancement",
+                        parameter="file_processing",
+                        invalid_value=str(e),
+                        impact="medium"
                     )
+                    actual_input_file = csv_path
 
-                    logger.log_phase_complete("Main TEA Analysis")
+            # Create reactor output directory
+            reactor_output_dir = TEA_RESULTS_DIR / \
+                f"{plant_name}_{generator_id}_{iso_region}_{remaining_years_str}"
+            reactor_output_dir.mkdir(parents=True, exist_ok=True)
 
-            finally:
-                # Always restore original function
-                data_loader.load_tea_sys_params = original_load_tea_sys_params
+            # Prepare plant report title
+            plant_report_title = f"{plant_name}_{generator_id}_{iso_region}_{remaining_years_str}"
 
-                # Clean up enhanced CSV file
-                if 'enhanced_csv_path' in locals() and enhanced_csv_path.exists():
-                    try:
-                        enhanced_csv_path.unlink()
-                        logger.debug("🧹 Cleaned up enhanced CSV file")
-                    except:
-                        pass
+            # Prepare input sys data directory
+            project_root = Path(__file__).parent.parent
+            input_sys_data_dir = project_root / "input" / "hourly_data"
+
+            # Use enhanced TEA logging context
+            with enhanced_tea_logging_simple(logger):
+                logger.log_phase_start(
+                    "Main TEA Analysis", "Starting core calculations")
+
+                # Run TEA analysis using the engine
+                main_result = run_complete_tea_analysis(
+                    target_iso=iso_region,
+                    input_hourly_results_file=actual_input_file,
+                    output_dir=reactor_output_dir,
+                    plant_report_title=plant_report_title,
+                    input_sys_data_dir=input_sys_data_dir,
+                    plant_specific_params=plant_specific_params,
+                    enable_greenfield=True,
+                    enable_incremental=True,
+                    config_overrides=None,
+                    analysis_type="reactor-specific",
+                    log_dir=CS1_LOG_DIR,
+                    case_type="case1_existing_retrofit"  # CS1 is existing plant analysis
+                )
+
+                logger.log_phase_complete("Main TEA Analysis")
+
+            # Clean up enhanced CSV file
+            if enhanced_csv_path and enhanced_csv_path.exists():
+                try:
+                    enhanced_csv_path.unlink()
+                    logger.debug("🧹 Cleaned up enhanced CSV file")
+                except:
+                    pass
 
             # Validate results
-            if main_result is None:
+            if not main_result:
                 logger.error(f"❌ TEA analysis failed for {plant_name}")
                 return False
 
@@ -447,17 +388,34 @@ def main():
     print(f"📂 Input: {CS1_OUTPUT_DIR}")
     print(f"📂 Output: {TEA_RESULTS_DIR}")
     print(f"📋 Main log: {main_log_file}")
-    print(f"📋 Detailed logs: logs/cs1/")
+    print(f"📋 Detailed logs: {CS1_LOG_DIR}/")
 
-    files_to_process = list(CS1_OUTPUT_DIR.glob("*_hourly_results.csv"))
+    # CRITICAL FIX: Only process original files, not enhanced ones
+    all_files = list(CS1_OUTPUT_DIR.glob("*_hourly_results.csv"))
+    files_to_process = [f for f in all_files if not f.name.startswith("enhanced_")]
+
     if not files_to_process:
-        error_msg = f"No files found in {CS1_OUTPUT_DIR} matching pattern '*_hourly_results.csv'"
+        error_msg = f"No original files found in {CS1_OUTPUT_DIR} matching pattern '*_hourly_results.csv' (excluding enhanced_ files)"
         print(f"❌ {error_msg}")
         main_logger.error(error_msg)
         return
 
+    # Log information about excluded enhanced files
+    enhanced_files = [f for f in all_files if f.name.startswith("enhanced_")]
+    if enhanced_files:
+        main_logger.info(f"Found {len(enhanced_files)} enhanced files that will be skipped:")
+        for ef in enhanced_files:
+            main_logger.info(f"   - {ef.name} (will be recreated if needed)")
+            # Clean up any existing enhanced files to avoid conflicts
+            try:
+                ef.unlink()
+                main_logger.debug(f"Cleaned up existing enhanced file: {ef.name}")
+            except:
+                pass
+
     print(f"📊 Found {len(files_to_process)} reactor files to process")
-    main_logger.info(f"Found {len(files_to_process)} reactor files to process for enhanced TEA analysis")
+    main_logger.info(
+        f"Found {len(files_to_process)} reactor files to process for enhanced TEA analysis")
     print(f"=" * 60)
 
     successful_analyses = []
@@ -468,12 +426,14 @@ def main():
         print(f"📍 [{i}/{len(files_to_process)}] {file_path.name}", end=" ... ")
 
         # Detailed logging to file
-        main_logger.info(f"Processing file {i}/{len(files_to_process)}: {file_path.name}")
+        main_logger.info(
+            f"Processing file {i}/{len(files_to_process)}: {file_path.name}")
 
         match = FILENAME_PATTERN.match(file_path.name)
         if not match:
             print("⚠️  SKIPPED (invalid name)")
-            main_logger.warning(f"Skipping file with unexpected name: {file_path.name}")
+            main_logger.warning(
+                f"Skipping file with unexpected name: {file_path.name}")
             failed_analyses.append(
                 (file_path.name, "Invalid filename pattern"))
             continue
@@ -482,7 +442,8 @@ def main():
 
         if not all([plant_name, generator_id, iso_region, remaining_years_str]):
             print("⚠️  SKIPPED (missing components)")
-            main_logger.warning(f"Skipping file due to missing parts in filename: {file_path.name}")
+            main_logger.warning(
+                f"Skipping file due to missing parts in filename: {file_path.name}")
             failed_analyses.append(
                 (file_path.name, "Missing filename components"))
             continue
@@ -491,20 +452,23 @@ def main():
             int(remaining_years_str)
         except ValueError:
             print("⚠️  SKIPPED (invalid years)")
-            main_logger.warning(f"Skipping file, invalid remaining_years: {remaining_years_str}")
+            main_logger.warning(
+                f"Skipping file, invalid remaining_years: {remaining_years_str}")
             failed_analyses.append(
                 (file_path.name, f"Invalid remaining years: {remaining_years_str}"))
             continue
 
         # Run enhanced TEA analysis
-        main_logger.info(f"Starting TEA analysis for {plant_name} Unit {generator_id}")
+        main_logger.info(
+            f"Starting TEA analysis for {plant_name} Unit {generator_id}")
         success = run_tea_for_file_enhanced(file_path, plant_name, generator_id,
                                             iso_region, remaining_years_str)
 
         if success:
             successful_analyses.append(file_path.name)
             print("✅ SUCCESS")
-            main_logger.info(f"Successfully completed enhanced TEA for {plant_name}")
+            main_logger.info(
+                f"Successfully completed enhanced TEA for {plant_name}")
         else:
             failed_analyses.append((file_path.name, "TEA analysis failed"))
             print("❌ FAILED")
@@ -542,7 +506,7 @@ def main():
 
     # Final log entries
     main_logger.info(f"All TEA results are stored in: {TEA_RESULTS_DIR}")
-    main_logger.info(f"All enhanced logs are stored in: logs/cs1/")
+    main_logger.info(f"All enhanced logs are stored in: {CS1_LOG_DIR}/")
     main_logger.info("Enhanced CS1 TEA Analysis completed successfully!")
 
 

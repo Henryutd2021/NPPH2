@@ -48,7 +48,8 @@ SIMULATE_AS_DISPATCH_EXECUTION: bool = True
 # -----------------------------
 # LOGGING
 # -----------------------------
-LOG_DIR = Path("../logs")
+# Use absolute path to project root's output/logs directory
+LOG_DIR = Path(__file__).resolve().parent.parent.parent / "output" / "logs"
 LOG_DIR.mkdir(exist_ok=True, parents=True)
 LOG_FILE = LOG_DIR / f"{TARGET_ISO}_optimization_standardized.log"
 

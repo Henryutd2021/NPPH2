@@ -1,0 +1,391 @@
+Technical Economic Analysis Report - ERCOT
+===================================
+
+1. Project Configuration
+-------------------------
+  ISO Region                      : ERCOT
+  Project Lifetime                : 30 years
+  Construction Period             : 2 years
+  Discount Rate                   : 8.00%
+  Corporate Tax Rate              : 21.0%
+  Turbine Capacity                : 1,354.30 MW
+  Thermal Capacity                : 3,853.00 MWt
+  Thermal Efficiency              : 0.3515 (35.15%)
+
+2. Capital Expenditure (CAPEX) Breakdown
+------------------------------------------
+  Electrolyzer System                        : $400,000,000 (78.5%)
+  H2 Storage System                          : $100,000,000 (19.6%)
+  Grid Integration                           : $5,000,000 (1.0%)
+  Battery System Energy                      : $2,360,000 (0.5%)
+  NPP Modifications                          : $2,000,000 (0.4%)
+  Battery System Power                       : $500,000 (0.1%)
+  
+  Total CAPEX                     : $509,860,000
+
+3. Optimization Results - System Capacities
+---------------------------------------------
+  Electrolyzer Capacity                   : 200.00 MW
+  Hydrogen Storage Capacity               : 100,000.00 kg
+  Battery Energy Capacity                 : 10.00 MWh
+  Battery Power Capacity                  : 2.50 MW
+  Optimal H2 Constant Sales Rate  : 4,673.21 kg/hr
+  Optimal H2 Daily Sales Rate     : 112,157.11 kg/day
+  Optimal H2 Annual Sales Rate    : 40,937,345 kg/year
+
+4. Representative Annual Performance (from Optimization)
+----------------------------------------------------------
+  AS Avg Bid ECRS MW                           : 98.75
+  AS Avg Bid RegDown MW                        : 30.13
+  AS Avg Bid RegUp MW                          : 30.13
+  AS Avg Deployed ECRS Battery MW              : 0.01
+  AS Avg Deployed ECRS Electrolyzer MW         : 0.01
+  AS Avg Deployed ECRS Turbine MW              : 0.00
+  AS Avg Deployed RegDown Battery MW           : 0.00
+  AS Avg Deployed RegDown Electrolyzer MW      : 3.88
+  AS Avg Deployed RegDown Turbine MW           : 21.79
+  AS Avg Deployed RegUp Battery MW             : 0.00
+  AS Avg Deployed RegUp Electrolyzer MW        : 3.88
+  AS Avg Deployed RegUp Turbine MW             : 21.79
+  AS Bid Utilization vs Electrolyzer           : 333.09
+  AS Max Bid ECRS MW                           : 178.75
+  AS Max Bid RegDown MW                        : 91.21
+  AS Max Bid RegUp MW                          : 91.21
+  AS Revenue Average Hourly                    : $2,890.53
+  AS Revenue Hours Positive                    : 8760
+  AS Revenue Maximum Hourly                    : $808,823.23
+  AS Revenue Total                             : $25,321,033.17
+  AS Revenue Utilization Rate                  : $100.00
+  AS Revenue per MW Battery                    : $10,128,413.27
+  AS Revenue per MW Electrolyzer               : $126,605.17
+  AS Total Bid Services                        : 9.00
+  AS Total Deployed ECRS Battery MWh           : 123.56
+  AS Total Deployed ECRS Electrolyzer MWh      : 52.03
+  AS Total Deployed ECRS Turbine MWh           : 0.00
+  AS Total Deployed RegDown Battery MWh        : 0.00
+  AS Total Deployed RegDown Electrolyzer MWh   : 33,975.20
+  AS Total Deployed RegDown Turbine MWh        : 190,857.50
+  AS Total Deployed RegUp Battery MWh          : 0.00
+  AS Total Deployed RegUp Electrolyzer MWh     : 33,975.20
+  AS Total Deployed RegUp Turbine MWh          : 190,857.50
+  AS Total Max Bid Capacity MW                 : 666.17
+  Annual Electrolyzer MWh                      : 1,712,593.99
+  Annual OPEX Cost from Opt                    : $42,535,292.36
+  Annual Profit                                : 498,212,192.51
+  Annual Revenue                               : $540,747,484.98
+  Avg Electricity Price USD per MWh            : $26.22
+  Battery CF percent                           : 0.00%
+  Battery SOC percent                          : 54.99%
+  DegradationState Units avg                   : 0.00
+  DegradationState Units end                   : 0.00
+  Electrolyzer CF percent                      : 97.75%
+  Energy Revenue                               : $264,766,090.66
+  H2 Constant Sales Rate kg hr                 : 4,673.21
+  H2 Production kg annual                      : 42,620,782.28
+  H2 Sales Revenue                             : $122,798,014.50
+  H2 Storage Cycle Cost                        : $835,534.73
+  H2 Storage SOC percent                       : 44.00%
+  H2 Subsidy Revenue                           : $127,862,346.83
+  H2 Total Revenue                             : $250,660,361.32
+  HTE Heat Opportunity Cost Annual USD         : $5,891,551.06
+  HTE Heat Opportunity Cost USD per kg H2      : $0.14
+  HTE Lost Electricity Generation Annual MWh   : 224,713.12
+  HTE Mode Detected                            : 1.00
+  HTE Steam Consumption Annual MWth            : 639,311.55
+  Ramping Cost                                 : $17,285.65
+  Startup Cost                                 : $0.00
+  Turbine CF percent                           : 98.11%
+  VOM Battery Cost                             : $0.00
+  VOM Electrolyzer Cost                        : $17,125,939.89
+  VOM Turbine Cost                             : $23,277,908.98
+  Water Cost                                   : $1,278,623.10
+  Weighted Avg Electricity Price USD per MWh   : $23.73
+  annual fixed om costs                        : [np.float64(10220800.0), np.float64(10425216.0), np.float64(10633720.32), np.float64(10846394.726400001), np.float64(11063322.620928), np.float64(11284589.07334656), np.float64(11510280.854813492), np.float64(11740486.471909761), np.float64(11975296.201347956), np.float64(12214802.125374917), np.float64(12459098.167882416), np.float64(12708280.131240064), np.float64(12962445.733864864), np.float64(13221694.648542164), np.float64(13486128.541513007), np.float64(13755851.112343267), np.float64(14030968.134590132), np.float64(14311587.497281935), np.float64(14597819.247227576), np.float64(14889775.632172126), np.float64(15187571.14481557), np.float64(15491322.56771188), np.float64(15801149.01906612), np.float64(16117171.999447443), np.float64(16439515.439436393), np.float64(16768305.748225119), np.float64(17103671.863189623), np.float64(17445745.300453413)]
+  annual other replacement costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(1716000.0), 0, 0, 0, 0, 5000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  annual stack replacement costs               : [0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(120000000.0), 0, 0, 0, 0, 0, 0, 0, 0, 0, np.float64(120000000.0), 0, 0, 0, 0, 0, 0, 0, 0]
+  electrolyzer capex                           : 400,000,000.00
+  greenfield nuclear analysis                  : {'analysis_type': 'greenfield_nuclear_hydrogen_system_improved', 'description': 'Complete 60-year integrated system using system data and hourly results', 'nuclear_capacity_mw': 1000.0, 'project_lifetime_years': 60, 'construction_period_years': 8, 'discount_rate': 0.08, 'nuclear_capex_usd': 11449000000.0, 'hydrogen_system_capex_usd': np.float64(1418440000.0), 'total_system_capex_usd': np.float64(12867440000.0), 'h2_initial_capex_usd': np.float64(509860000.0), 'h2_replacement_capex_usd': np.float64(908580000.0), 'annual_h2_production_kg': np.float64(42620782.27549999), 'annual_nuclear_generation_mwh': 7884000.0, 'nuclear_capacity_factor': 0.9, 'electricity_to_h2_efficiency': np.float64(180.01928586683786), 'h2_production_per_mw_nuclear': np.float64(42620.782275499994), 'npv_usd': np.float64(-14971666080.860756), 'irr_percent': 0, 'payback_period_years': 60, 'roi_percent': np.float64(-116.35310583038083), 'lcoh_integrated_usd_per_kg': np.float64(9.51987049303586), 'nuclear_lcoe_usd_per_mwh': np.float64(125.6522309652414), 'total_revenue_pv_usd': np.float64(2493642355.2173843), 'total_costs_pv_usd': np.float64(17465308436.07814), 'net_cash_flow_pv_usd': np.float64(-14971666080.860756), 'capex_per_mw_nuclear': np.float64(12867440.0), 'capex_per_kg_h2_annual': np.float64(301.9052986128948), 'annual_h2_revenue_usd': np.float64(250660361.32420003), 'annual_turbine_as_revenue_usd': np.float64(7596309.952079999), 'annual_h2_system_as_revenue_usd': np.float64(17724723.22152), 'annual_h2_subsidy_revenue_usd': np.float64(127862346.82649997), 'annual_hte_thermal_cost_usd': np.float64(5891551.061422114), 'annual_total_opex_usd': np.float64(162553200.0), 'electrolyzer_replacements_count': 2, 'h2_storage_replacements_count': 1, 'battery_replacements_count': 3, 'enhanced_maintenance_factor': 1.2, 'uses_system_data': True, 'uses_hourly_results': True, 'corrected_lcoe_lcoh': True}
+  lcoh breakdown analysis                      : {'total_lcoh_usd_per_kg': np.float64(3.175526353851274), 'lcoh_breakdown_usd_per_kg': {'Fixed_OM': np.float64(0.2886786112115526), 'VOM_Electrolyzer': np.float64(0.40182134107248957), 'Water_Cost': np.float64(0.02999999138999849), 'Ramping_Cost': np.float64(0.00040556866104112866), 'H2_Storage_Cycle_Cost': np.float64(0.01960392761210055), 'Electricity_Opportunity_Cost_Electrolyzer': np.float64(1.0534992346406444), 'Electricity_Opportunity_Cost_Battery': np.float64(0.0029640904149399257), 'HTE_Heat_Opportunity_Cost': np.float64(0.1382318847021444), 'Stack_Replacement': np.float64(0.17267098667498515), 'Other_Replacements': np.float64(0.005034013392984064), 'CAPEX_Electrolyzer System': np.float64(0.8336537120608748), 'CAPEX_H2 Storage System': np.float64(0.2084134280152187), 'CAPEX_Battery System Energy': np.float64(0.004918556901159161), 'CAPEX_Battery System Power': np.float64(0.0010420671400760936), 'CAPEX_Grid Integration': np.float64(0.010420671400760936), 'CAPEX_NPP Modifications': np.float64(0.004168268560304374)}, 'lcoh_percentages': {'Fixed_OM': np.float64(9.090732654806772), 'VOM_Electrolyzer': np.float64(12.653692531481001), 'Water_Cost': np.float64(0.9447250013722777), 'Ramping_Cost': np.float64(0.0127716987940993), 'H2_Storage_Cycle_Cost': np.float64(0.6173441951859393), 'Electricity_Opportunity_Cost_Electrolyzer': np.float64(33.17557838444521), 'Electricity_Opportunity_Cost_Battery': np.float64(0.09334170416646302), 'HTE_Heat_Opportunity_Cost': np.float64(4.353038498153131), 'Stack_Replacement': np.float64(5.437554831361107), 'Other_Replacements': np.float64(0.15852532248327333), 'CAPEX_Electrolyzer System': np.float64(26.25245767681382), 'CAPEX_H2 Storage System': np.float64(6.563114419203455), 'CAPEX_Battery System Energy': np.float64(0.15488950029320153), 'CAPEX_Battery System Power': np.float64(0.03281557209601728), 'CAPEX_Grid Integration': np.float64(0.3281557209601728), 'CAPEX_NPP Modifications': np.float64(0.13126228838406911)}, 'pv_total_h2_production_kg': np.float64(436116305.82633185), 'sensitivity_analysis': {'Electricity_Opportunity_Cost_Electrolyzer': {'-20%': {'lcoh_change': np.float64(-0.21069984692812893), 'new_total_lcoh': np.float64(2.964826506923145), 'impact_percentage': np.float64(-6.635115676889043)}, '+20%': {'lcoh_change': np.float64(0.21069984692812893), 'new_total_lcoh': np.float64(3.386226200779403), 'impact_percentage': np.float64(6.635115676889043)}}, 'CAPEX_Electrolyzer System': {'-20%': {'lcoh_change': np.float64(-0.16673074241217467), 'new_total_lcoh': np.float64(3.0087956114390995), 'impact_percentage': np.float64(-5.250491535362755)}, '+20%': {'lcoh_change': np.float64(0.16673074241217511), 'new_total_lcoh': np.float64(3.3422570962634492), 'impact_percentage': np.float64(5.250491535362769)}}, 'VOM_Electrolyzer': {'-20%': {'lcoh_change': np.float64(-0.08036426821449805), 'new_total_lcoh': np.float64(3.095162085636776), 'impact_percentage': np.float64(-2.530738506296204)}, '+20%': {'lcoh_change': np.float64(0.08036426821449805), 'new_total_lcoh': np.float64(3.255890622065772), 'impact_percentage': np.float64(2.530738506296204)}}, 'Fixed_OM': {'-20%': {'lcoh_change': np.float64(-0.057735722242310494), 'new_total_lcoh': np.float64(3.1177906316089636), 'impact_percentage': np.float64(-1.8181465309613534)}, '+20%': {'lcoh_change': np.float64(0.057735722242310494), 'new_total_lcoh': np.float64(3.2332620760935846), 'impact_percentage': np.float64(1.8181465309613534)}}, 'CAPEX_H2 Storage System': {'-20%': {'lcoh_change': np.float64(-0.04168268560304389), 'new_total_lcoh': np.float64(3.1338436682482302), 'impact_percentage': np.float64(-1.3126228838406957)}, '+20%': {'lcoh_change': np.float64(0.04168268560304389), 'new_total_lcoh': np.float64(3.217209039454318), 'impact_percentage': np.float64(1.3126228838406957)}}}}
+  lifecycle comparison analysis                : {'lifecycle_60': {'project_lifetime': 60, 'total_investment_usd': np.float64(12483360000.0), 'npv_usd': np.float64(-9898089951.670235), 'roi_percent': np.float64(-79.29027082187996), 'lcoh_usd_per_kg': np.float64(23.73952703179855), 'payback_years': 39, 'h2_replacements': {'electrolyzer': 2, 'storage': 1, 'battery': 3}}, 'lifecycle_80': {'project_lifetime': 80, 'total_investment_usd': np.float64(12766360000.0), 'npv_usd': np.float64(-10227867437.05594), 'roi_percent': np.float64(-80.11576860636815), 'lcoh_usd_per_kg': np.float64(24.090368872234794), 'payback_years': 41, 'h2_replacements': {'electrolyzer': 3, 'storage': 2, 'battery': 5}}, 'comparison': {'additional_investment_usd': np.float64(283000000.0), 'npv_improvement_usd': np.float64(-329777485.38570595), 'roi_improvement_percent': np.float64(-0.8254977844881921), 'lcoh_improvement_usd_per_kg': np.float64(-0.3508418404362459), 'payback_improvement_years': -2, 'recommended_lifecycle': '60-year lifecycle'}}
+  thermal capacity mwt                         : 3,853.00
+  thermal efficiency                           : 0.35
+
+4.1. Battery Performance and Charging Analysis
+-----------------------------------------------
+  Battery Charging Electricity Consumption:
+    Total Annual Charging: 4,818.50 MWh/year
+    From Grid Purchase: 0.00 MWh/year (0.0%)
+    From NPP (Opportunity Cost): 4,818.50 MWh/year (100.0%)
+
+  Battery Utilization:
+    Capacity Factor: 0.00%
+    Average State of Charge: 54.99%
+
+  Economic Impact (at avg price $26.22/MWh):
+    Total Charging Cost: $126,331.85/year
+    Direct Cost (Grid): $0.00/year
+    Opportunity Cost (NPP): $126,331.85/year
+
+5. Ancillary Services Performance
+-----------------------------------
+  Total Ancillary Services Revenue            : $25,321,033.17
+  Average Hourly AS Revenue                   : $2,890.53
+  Maximum Hourly AS Revenue                   : $808,823.23
+  AS Revenue Utilization Rate                 : 100.0%
+  AS Revenue per MW Electrolyzer              : $126,605.17/MW
+  AS Revenue per MW Battery Power             : $10,128,413.27/MW
+
+  Revenue Mix:
+    Energy Revenue                            : $264,766,090.66 (49.0%)
+    H2 Sales Revenue                          : $122,798,014.50 (22.7%)
+    H2 Subsidy Revenue                        : $127,862,346.83 (23.6%)
+    Ancillary Services Revenue                : $25,321,033.17 (4.7%)
+
+  AS Revenue as % of Total Revenue            : 4.68%
+
+  AS Bidding Performance:
+    Number of AS Services Bid                 : 9
+    Total Maximum Bid Capacity                : 666.17 MW
+    Bid Capacity vs Electrolyzer             : 333.1%
+
+  AS Service Breakdown:
+    ECRS           : Max  178.8 MW, Avg   98.7 MW
+    NSR            : Max  152.5 MW, Avg    8.6 MW
+    RegDown        : Max   91.2 MW, Avg   30.1 MW
+    RegUp          : Max   91.2 MW, Avg   30.1 MW
+    SR             : Max  152.5 MW, Avg   35.0 MW
+
+  AS Deployment Performance:
+    Total Deployed Energy                     : 449,854.51 MWh
+    
+    Service-Specific Deployment:
+      ECRS_Battery                                        :      123.6 MWh    (Avg    0.0 MW)
+      ECRS_Electrolyzer                                   :       52.0 MWh    (Avg    0.0 MW)
+      Energy                                              :  449,854.5 MWh    (Avg    0.0 MW)
+      NSR_Battery                                         :        0.9 MWh    (Avg    0.0 MW)
+      RegDown_Electrolyzer                                :   33,975.2 MWh    (Avg    3.9 MW)
+      RegDown_Turbine                                     :  190,857.5 MWh    (Avg   21.8 MW)
+      RegUp_Electrolyzer                                  :   33,975.2 MWh    (Avg    3.9 MW)
+      RegUp_Turbine                                       :  190,857.5 MWh    (Avg   21.8 MW)
+      SR_Battery                                          :       12.6 MWh    (Avg    0.0 MW)
+
+  System Utilization (affects AS capability):
+    Electrolyzer Capacity Factor                : 97.75%
+    Turbine Capacity Factor                     : 98.11%
+    Battery SOC                                 : 54.99%
+
+6. Lifecycle Financial Metrics (Total System)
+----------------------------------------------
+  IRR (%)                                      : 57.80%
+  LCOH (USD/kg)                                : $3.176
+  NPV (USD)                                    : $2,922,300,182.22
+  Payback Period (Years)                       : 1.34
+  Roi                                          : 5.73
+  Return on Investment (ROI)                  : 5.7316
+
+6.1. Detailed Levelized Cost of Hydrogen (LCOH) Analysis
+----------------------------------------------------------
+  Total LCOH: $3.176/kg H2
+
+  LCOH Component Breakdown:
+    Electricity Opportunity Cost       : $   1.053/kg ( 33.2%)
+    Electrolyzer System                : $   0.834/kg ( 26.3%)
+    Vom Electrolyzer                   : $   0.402/kg ( 12.7%)
+    Fixed Om                           : $   0.289/kg (  9.1%)
+    H2 Storage System                  : $   0.208/kg (  6.6%)
+    Stack Replacement                  : $   0.173/kg (  5.4%)
+    Hte Heat Opportunity Cost          : $   0.138/kg (  4.4%)
+    Water Cost                         : $   0.030/kg (  0.9%)
+    H2 Storage Cycle Cost              : $   0.020/kg (  0.6%)
+    Grid Integration                   : $   0.010/kg (  0.3%)
+    Other Replacements                 : $   0.005/kg (  0.2%)
+    Battery System Energy              : $   0.005/kg (  0.2%)
+    NPP Modifications                  : $   0.004/kg (  0.1%)
+    Electricity Opportunity Cost       : $   0.003/kg (  0.1%)
+    Battery System Power               : $   0.001/kg (  0.0%)
+
+  Cost Category Analysis:
+    Capital Recovery (CAPEX)           : $   1.063/kg ( 33.5%)
+    Electricity Costs                  : $   1.195/kg ( 37.6%)
+    Fixed O&M                          : $   0.289/kg (  9.1%)
+    Variable OPEX                      : $   0.452/kg ( 14.2%)
+    Equipment Replacements             : $   0.178/kg (  5.6%)
+
+  LCOH Benchmarking:
+    vs DOE 2030 Target               : ✗ Above by $1.176/kg
+    vs Steam Methane Reforming (typical): ✗ Above by $1.676/kg
+    vs Grid Electrolysis (typical)   : ✓ Below by $1.824/kg
+    vs Renewable Electrolysis (typical): ✓ Below by $0.324/kg
+
+  Cost Efficiency Metrics:
+
+  Key Cost Drivers (Sensitivity Analysis):
+    1. Electricity Opportunity Cost  : ±20% cost → -$0.211/+$0.211/kg
+    2. Electrolyzer System           : ±20% cost → -$0.167/+$0.167/kg
+    3. Vom Electrolyzer              : ±20% cost → -$0.080/+$0.080/kg
+
+  Potential Cost Reduction Opportunities:
+    1. Electricity Opportunity Cost Electrolyzer (-20%): $2.965/kg ($0.211 reduction)
+       Strategy: Optimize electrolyzer operation during low-price periods
+    2. Electrolyzer System (-20%): $3.009/kg ($0.167 reduction)
+       Strategy: Technology learning curve, economies of scale
+    3. Vom Electrolyzer (-20%): $3.095/kg ($0.080 reduction)
+       Strategy: Technology learning curve, economies of scale
+
+7. Incremental Financial Metrics (H2/Battery System vs. Baseline)
+--------------------------------------------------------------------
+  Baseline Nuclear Plant Analysis:
+    Annual Baseline Revenue (Electricity Sales): $264,766,090.66
+    Annual Baseline OPEX (Turbine VOM): $23,277,908.98
+    Annual Baseline Profit: $241,488,181.68
+    Baseline Profit Margin: 91.2%
+
+  Battery Charging Cost Analysis:
+    Direct Operating Cost (Grid Charging): $0.00/year
+    Opportunity Cost (NPP Charging): $126,331.85/year
+    Total Battery Charging Cost: $126,331.85/year
+    Cost Breakdown: 0.0% Direct, 100.0% Opportunity
+
+  Ancillary Services Opportunity Cost Analysis:
+    AS Revenue: $25,321,033.17/year
+    AS Opportunity Cost (Lost Electricity Sales): $10,007,842.52/year
+    Net AS Benefit: $15,313,190.65/year
+    Net AS Margin: 60.5%
+
+  Annual Electricity Opportunity Cost Usd  : $55,035,135.88
+  Total Incremental Capex Learned Usd  : $504,860,000.00
+  Incremental Annual As Opportunity Cost (Usd)         : $10,007,842.52
+  Incremental Annual Baseline Opex (Usd)         : $23,277,908.98
+  Incremental IRR (%)                           : 26.16%
+  Incremental NPV (USD)                         : $747,437,989.14
+  Incremental Payback Period (Years)            : 3.17
+  Incremental Return on Investment (ROI)      : 1.4805
+
+8. Cost Assumptions (Base Year)
+--------------------------------
+  CAPEX Components:
+    Battery_System_Energy                              : $23,600,000 (Ref Cap: 100, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Battery_System_Power                               : $5,000,000 (Ref Cap: 25, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Electrolyzer_System                                : $100,000,000 (Ref Cap: 50, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    Grid_Integration                                   : $5,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-1: 1.0})
+    H2_Storage_System                                  : $10,000,000 (Ref Cap: 10000, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    NPP_Modifications                                  : $2,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-2: 1.0})
+    
+  O&M Components (Annual Base):
+    Fixed_OM_Battery                                        : $0.00/MW/yr + $2,360.00/MWh/yr (Inflation: 2.0%)
+    Fixed_OM_General                                        : $0 (Inflation: 2.0%)
+    
+  Major Replacements:
+    Battery_Augmentation_Replacement                        : Cost: 60.00% of Initial CAPEX (Years: [10])
+    Electrolyzer_Stack                                    : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
+    H2_Storage_Components                                 : Cost: $5,000,000 (Years: [15])
+
+9. Greenfield Nuclear-Hydrogen System
+---------------------------------------------------------------------------
+This analysis calculates the economics of building both nuclear plant
+and hydrogen production system from scratch (greenfield development).
+
+System Configuration:
+  Analysis Type                   : greenfield_nuclear_hydrogen_system_improved
+  Nuclear Capacity                : 1,000 MW
+  Project Lifetime                : 60 years
+  Construction Period             : 8 years
+  Discount Rate                   : 8.0%
+
+Capital Investment Breakdown:
+  Nuclear Plant CAPEX             : $11,449,000,000 (89.0%)
+  Hydrogen System CAPEX           : $1,418,440,000 (11.0%)
+  Total System CAPEX              : $12,867,440,000
+  CAPEX per MW Nuclear            : $12,867,440/MW
+  CAPEX per kg H2/year            : $302/kg
+
+Production Metrics:
+  Annual H2 Production            : 42,620,782 kg/year
+  Annual Nuclear Generation       : 7,884,000 MWh/year
+  H2 Production per MW Nuclear    : 42,621 kg/MW/year
+  Nuclear Capacity Factor         : 90.0%
+  Electricity to H2 Efficiency    : 18001.9%
+
+Investment Breakdown (60-year lifecycle):
+  H2 System Initial CAPEX         : $509,860,000
+  H2 System Replacement CAPEX     : $908,580,000
+    Electrolyzer Replacements     : 2 times
+    H2 Storage Replacements       : 1 times
+    Battery Replacements          : 3 times
+  Enhanced Maintenance Factor     : 1.2x
+
+Annual Performance:
+  Total Annual Revenue            : $0
+    H2 Revenue                    : $250,660,361
+    Electricity Revenue           : $0
+    Ancillary Services Revenue    : $0
+    H2 Subsidy Revenue            : $127,862,347
+  Total Annual OPEX               : $162,553,200
+  Net Annual Revenue              : $0
+
+Financial Results (60-year lifecycle):
+  Net Present Value (NPV)         : $-14,971,666,081
+  Internal Rate of Return (IRR)   : 0.00%
+  Return on Investment (ROI)      : -116.35%
+  Payback Period                  : 60.0 years
+
+Levelized Costs:
+  LCOH (Integrated System)        : $9.520/kg
+  Nuclear LCOE                    : $125.65/MWh
+
+Cash Flow Summary (Present Value):
+  Total Revenue (PV)              : $2,493,642,355
+  Total Costs (PV)                : $17,465,308,436
+  Net Cash Flow (PV)              : $-14,971,666,081
+
+Key Insights:
+  • The greenfield nuclear-hydrogen system shows negative NPV
+  • IRR is below the discount rate, indicating marginal returns
+  • Long payback period indicates high capital requirements
+
+Note: This greenfield analysis assumes building both nuclear plant and
+hydrogen system from zero, with both systems designed for 60-year operation.
+The analysis includes periodic replacement of H2 system components:
+• Electrolyzers replaced every 20 years (2 replacements)
+• H2 storage systems replaced every 30 years (1 replacement)
+• Batteries replaced every 15 years (3 replacements)
+• Enhanced maintenance costs (+20%) for extended lifecycle operation
+This provides a comprehensive view of long-term integrated system economics.
+
+
+10. Lifecycle Comparison Analysis: 60-Year vs 80-Year
+---------------------------------------------------------------------------
+This section compares the financial performance of 60-year vs 80-year project lifecycles
+to evaluate the impact of extending project duration on investment returns.
+
+Financial Performance Comparison:
+Metric                              60-Year              80-Year              Difference     
+------------------------------------------------------------------------------------------
+Total Investment                    $12.48B            $12.77B            $+0.28B
+Net Present Value (NPV)             $-9.90B            $-10.23B            $-0.33B
+Return on Investment (ROI)          -79.29%               -80.12%               -0.83%
+LCOH (USD/kg)                       $23.740/kg            $24.090/kg            $-0.351/kg
+Payback Period                      39.0 years           41.0 years           -2.0 years
+
+Replacement Schedule Comparison:
+Component            60-Year Count   80-Year Count   Additional  
+--------------------------------------------------------------
+Electrolyzer         2               3               1           
+H2 Storage           1               2               1           
+Battery              3               5               2           
+
+Key Findings:
+  • Extending to 80-year lifecycle requires additional $0.28B investment
+  • NPV worsens by $0.33B with 80-year lifecycle
+  • Additional investment does not generate sufficient returns
+  • LCOH increases by $0.351/kg with extended lifecycle
+
+Recommendation: 60-year lifecycle provides better financial performance
+
+Note: This comparison uses identical annual performance metrics and cost assumptions
+for both scenarios, varying only the project duration and associated replacement
+schedules. The analysis considers the time value of money through NPV calculations
+and evaluates whether additional investment for extended operation is justified.
+
+
+Report generated: 2025-05-28 14:20:03

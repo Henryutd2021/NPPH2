@@ -27,6 +27,7 @@ ENV/
 *.tmp
 *.bak
 *.json
+*.png
 
 # ========== System Files ==========
 .DS_Store
@@ -40,7 +41,7 @@ data/data.ipynb
 
 # Output directories (new structure)
 output/opt/*
-output/tea/*
+# output/tea/*
 output/sa/*
 output/logs/*
 

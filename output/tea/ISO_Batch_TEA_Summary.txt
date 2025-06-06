@@ -1,0 +1,20 @@
+================================================================================
+ISO BATCH TEA ANALYSIS SUMMARY
+================================================================================
+Generated: 2025-05-26 16:58:15
+
+ANALYSIS PARAMETERS
+----------------------------------------
+project_lifetime: 25
+discount_rate: 8.0%
+construction_period: 2
+tax_rate: 21.0%
+h2_subsidy_value: 3.0
+h2_subsidy_duration: 10
+
+BATCH RESULTS SUMMARY
+----------------------------------------
+Total ISO regions processed: 0
+Successful analyses: 0
+Failed analyses: 0
+

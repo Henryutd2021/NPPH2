@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
 
-from src.logging.logging_setup import logger
+from src.logger_utils.logging_setup import logger
 
 
 def get_param(model, param_name_base, time_index=None, default=0.0):

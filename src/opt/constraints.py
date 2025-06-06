@@ -19,7 +19,7 @@ from config import (
     ENABLE_NUCLEAR_GENERATOR,
     ENABLE_STARTUP_SHUTDOWN,
 )
-from src.logging.logging_setup import logger
+from src.logger_utils.logging_setup import logger
 from utils import get_symbolic_as_bid_sum, get_symbolic_as_deployed_sum
 
 # This map defines which services are considered "actually available" or "expected" for each ISO.

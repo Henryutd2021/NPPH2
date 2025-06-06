@@ -82,3 +82,11 @@ BatteryFixedOM_USD_per_MWh_year,2360.0
 user_specified_electrolyzer_capacity_MW,
 user_specified_battery_power_MW,
 user_specified_battery_energy_MWh,
+# Tax Incentive Policy Parameters (optional overrides)
+45u_ptc_rate_per_mwh,15.0
+45u_ptc_start_year,2024
+45u_ptc_end_year,2032
+45y_ptc_rate_per_mwh,30.0
+45y_ptc_duration_years,10
+48e_itc_rate,0.50
+48e_itc_depreciation_basis_reduction_rate,0.50

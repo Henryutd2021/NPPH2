@@ -368,7 +368,7 @@ def ReactorLogSession(reactor_name: str, unit_id: str, iso_region: str,
                       base_log_dir: Path = None):
     """Context manager for reactor logging sessions"""
     if base_log_dir is None:
-        base_log_dir = Path(__file__).parent.parent.parent / "logs" / "cs1"
+        base_log_dir = Path(__file__).parent.parent.parent / "output" / "logs" / "cs1"
 
     logger = create_reactor_logger(
         reactor_name, unit_id, iso_region, base_log_dir)
@@ -384,6 +384,6 @@ def create_reactor_logger(reactor_name: str, unit_id: str, iso_region: str,
                           base_log_dir: Path = None) -> EnhancedReactorLogger:
     """Factory function to create reactor logger"""
     if base_log_dir is None:
-        base_log_dir = Path(__file__).parent.parent.parent / "logs" / "cs1"
+        base_log_dir = Path(__file__).parent.parent.parent / "output" / "logs" / "cs1"
 
     return EnhancedReactorLogger(reactor_name, unit_id, iso_region, base_log_dir)

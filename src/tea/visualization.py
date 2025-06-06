@@ -39,31 +39,51 @@ def get_component_color(component_name):
         return '#DDA0DD'  # Plum for other OPEX
 
 
-def create_cash_flow_plots(cash_flows_data, plot_dir, construction_period_years, incremental_metrics_data=None):
-    """Create cash flow profile plots exactly matching tea.py"""
+def create_cash_flow_plots(cash_flows_data, plot_dir, construction_period_years, incremental_metrics_data=None, case_type=None, project_lifetime_years=None):
+    """Create cash flow profile plots with case-specific enhancements"""
     logger.info("Creating cash flow plots...")
 
     years_axis = np.arange(1, len(cash_flows_data) + 1)
     cumulative_cf_plot = np.cumsum(cash_flows_data)
 
+    # Determine case-specific title and styling
+    is_existing_project = True
+    title_suffix = ""
+    if case_type:
+        case_lower = case_type.lower()
+        if any(case in case_lower for case in ["case4", "case5", "greenfield", "new"]):
+            is_existing_project = False
+            if "case5" in case_lower:
+                title_suffix = " (Case 5: 80-Year New Construction)"
+            elif "case4" in case_lower:
+                title_suffix = " (Case 4: 60-Year New Construction)"
+            else:
+                title_suffix = " (New Construction)"
+        elif any(case in case_lower for case in ["case1", "case2", "case3", "existing", "retrofit"]):
+            is_existing_project = True
+            if project_lifetime_years:
+                title_suffix = f" (Existing Plant: {project_lifetime_years}-Year Remaining Life)"
+            else:
+                title_suffix = " (Existing Plant Retrofit)"
+
     # Main cash flow plot
-    fig, ax1 = plt.subplots()
+    fig, ax1 = plt.subplots(figsize=(12, 8))
     bars = ax1.bar(
         years_axis,
         cash_flows_data,
-        color="cornflowerblue",
+        color="cornflowerblue" if is_existing_project else "steelblue",
         alpha=0.7,
         label="Annual Cash Flow",
     )
     for i, val in enumerate(cash_flows_data):
         if val < 0:
-            bars[i].set_color("salmon")
+            bars[i].set_color("salmon" if is_existing_project else "lightcoral")
 
     ax2 = ax1.twinx()
     ax2.plot(
         years_axis,
         cumulative_cf_plot,
-        "forestgreen",
+        "forestgreen" if is_existing_project else "darkgreen",
         marker="o",
         markersize=4,
         label="Cumulative Cash Flow",
@@ -83,7 +103,20 @@ def create_cash_flow_plots(cash_flows_data, plot_dir, construction_period_years,
             label="Operations Start",
         )
 
-    ax1.set_title("Project Cash Flow Profile", fontweight="bold")
+    # Add case-specific annotations
+    if is_existing_project and project_lifetime_years:
+        # Add annotation for existing plant lifetime
+        ax1.text(0.02, 0.98, f"Remaining Plant Life: {project_lifetime_years} years",
+                transform=ax1.transAxes, fontsize=10, verticalalignment='top',
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7))
+    elif not is_existing_project:
+        # Add annotation for new construction
+        lifetime_text = f"Full Plant Lifecycle: {len(cash_flows_data)} years"
+        ax1.text(0.02, 0.98, lifetime_text,
+                transform=ax1.transAxes, fontsize=10, verticalalignment='top',
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgreen", alpha=0.7))
+
+    ax1.set_title(f"Project Cash Flow Profile{title_suffix}", fontweight="bold")
     handles1, labels1 = ax1.get_legend_handles_labels()
     handles2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(handles1 + handles2, labels1 + labels2, loc="best")
@@ -157,6 +190,99 @@ def create_cash_flow_plots(cash_flows_data, plot_dir, construction_period_years,
         plt.tight_layout()
         plt.savefig(plot_dir / "incremental_cash_flow_profile.png", dpi=300)
         plt.close(fig_inc)
+
+
+def create_lifecycle_comparison_cash_flow_plots(lifecycle_comparison_data, plot_dir):
+    """Create cash flow comparison plots for 60-year vs 80-year lifecycle analysis"""
+    if not lifecycle_comparison_data:
+        logger.debug("No lifecycle comparison data provided for plotting")
+        return
+
+    logger.info("Creating lifecycle comparison cash flow plots...")
+
+    # Extract cash flow data for both scenarios
+    results_60yr = lifecycle_comparison_data.get("60_year_results", {})
+    results_80yr = lifecycle_comparison_data.get("80_year_results", {})
+
+    # Get baseline cash flows (without tax incentives)
+    baseline_60yr = results_60yr.get("baseline_scenario", {})
+    baseline_80yr = results_80yr.get("baseline_scenario", {})
+
+    cf_60yr = baseline_60yr.get("cash_flows", [])
+    cf_80yr = baseline_80yr.get("cash_flows", [])
+
+    if not cf_60yr and not cf_80yr:
+        logger.warning("Missing cash flow data for lifecycle comparison plots")
+        return
+    elif not cf_60yr:
+        logger.warning("Missing 60-year cash flow data for lifecycle comparison plots")
+        cf_60yr = [0] * len(cf_80yr) if cf_80yr else []
+    elif not cf_80yr:
+        logger.warning("Missing 80-year cash flow data for lifecycle comparison plots")
+        cf_80yr = [0] * len(cf_60yr) if cf_60yr else []
+
+    # If both are still empty, cannot create plots
+    if not cf_60yr and not cf_80yr:
+        logger.warning("No valid cash flow data available for lifecycle comparison plots")
+        return
+
+    # Create comparison plot
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
+
+    # Plot 1: Annual cash flows comparison
+    years_60 = np.arange(1, len(cf_60yr) + 1)
+    years_80 = np.arange(1, len(cf_80yr) + 1)
+
+    ax1.plot(years_60, np.array(cf_60yr) / 1e6, 'b-', linewidth=2,
+             label='60-Year Lifecycle (Case 4)', alpha=0.8)
+    ax1.plot(years_80, np.array(cf_80yr) / 1e6, 'r-', linewidth=2,
+             label='80-Year Lifecycle (Case 5)', alpha=0.8)
+
+    ax1.axhline(0, color='grey', linestyle='--', alpha=0.5)
+    ax1.axvline(8.5, color='black', linestyle=':', alpha=0.7, label='Operations Start')
+    ax1.set_xlabel('Project Year')
+    ax1.set_ylabel('Annual Cash Flow (Million USD)')
+    ax1.set_title('Annual Cash Flow Comparison: 60-Year vs 80-Year Lifecycle', fontweight='bold')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+
+    # Plot 2: Cumulative cash flows comparison
+    cumulative_60 = np.cumsum(cf_60yr) / 1e6
+    cumulative_80 = np.cumsum(cf_80yr) / 1e6
+
+    ax2.plot(years_60, cumulative_60, 'b-', linewidth=2,
+             label='60-Year Cumulative', alpha=0.8)
+    ax2.plot(years_80, cumulative_80, 'r-', linewidth=2,
+             label='80-Year Cumulative', alpha=0.8)
+
+    ax2.axhline(0, color='grey', linestyle='--', alpha=0.5)
+    ax2.axvline(8.5, color='black', linestyle=':', alpha=0.7, label='Operations Start')
+    ax2.set_xlabel('Project Year')
+    ax2.set_ylabel('Cumulative Cash Flow (Million USD)')
+    ax2.set_title('Cumulative Cash Flow Comparison: 60-Year vs 80-Year Lifecycle', fontweight='bold')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+
+    # Add summary statistics
+    npv_60 = baseline_60yr.get("npv_usd", 0) / 1e6
+    npv_80 = baseline_80yr.get("npv_usd", 0) / 1e6
+    irr_60 = baseline_60yr.get("irr_percent", 0)
+    irr_80 = baseline_80yr.get("irr_percent", 0)
+
+    summary_text = f"Financial Metrics Comparison:\n"
+    summary_text += f"60-Year NPV: ${npv_60:.1f}M, IRR: {irr_60:.2f}%\n"
+    summary_text += f"80-Year NPV: ${npv_80:.1f}M, IRR: {irr_80:.2f}%\n"
+    summary_text += f"NPV Difference: ${npv_80 - npv_60:.1f}M"
+
+    ax2.text(0.02, 0.98, summary_text, transform=ax2.transAxes,
+             fontsize=10, verticalalignment='top',
+             bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow", alpha=0.8))
+
+    plt.tight_layout()
+    plt.savefig(plot_dir / "lifecycle_comparison_cash_flows.png", dpi=300)
+    plt.close(fig)
+
+    logger.info("Lifecycle comparison cash flow plots created successfully")
 
 
 def create_capex_breakdown_plots(annual_metrics_data, cash_flows_data, plot_dir):

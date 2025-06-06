@@ -67,18 +67,103 @@ def _get_param_value(params_dict, key, default_val, type_converter, param_logger
         return default_val
 
 
-def load_tea_sys_params(iso_target: str, input_base_dir: Path) -> tuple[dict, int, float, int, float, dict, dict]:
+def load_tax_incentive_policies(params: dict) -> dict:
+    """
+    Load and update tax incentive policy parameters from sys_data_advanced.csv.
+
+    Args:
+        params: Dictionary of parameters loaded from sys_data_advanced.csv
+
+    Returns:
+        Updated tax incentive policies dictionary
+    """
+    try:
+        from src.tea.config import TAX_INCENTIVE_POLICIES
+        tax_policies = TAX_INCENTIVE_POLICIES.copy()
+
+        # Update 45U PTC parameters if available in CSV
+        if params.get("45u_ptc_rate_per_mwh") is not None:
+            tax_policies["45u_ptc"]["credit_rate_per_mwh"] = _get_param_value(
+                params, "45u_ptc_rate_per_mwh",
+                tax_policies["45u_ptc"]["credit_rate_per_mwh"],
+                float, logger
+            )
+
+        if params.get("45u_ptc_start_year") is not None:
+            tax_policies["45u_ptc"]["credit_start_year"] = _get_param_value(
+                params, "45u_ptc_start_year",
+                tax_policies["45u_ptc"]["credit_start_year"],
+                int, logger
+            )
+
+        if params.get("45u_ptc_end_year") is not None:
+            tax_policies["45u_ptc"]["credit_end_year"] = _get_param_value(
+                params, "45u_ptc_end_year",
+                tax_policies["45u_ptc"]["credit_end_year"],
+                int, logger
+            )
+
+        # Update 45Y PTC parameters if available in CSV
+        if params.get("45y_ptc_rate_per_mwh") is not None:
+            tax_policies["45y_ptc"]["credit_rate_per_mwh"] = _get_param_value(
+                params, "45y_ptc_rate_per_mwh",
+                tax_policies["45y_ptc"]["credit_rate_per_mwh"],
+                float, logger
+            )
+
+        if params.get("45y_ptc_duration_years") is not None:
+            tax_policies["45y_ptc"]["credit_duration_years"] = _get_param_value(
+                params, "45y_ptc_duration_years",
+                tax_policies["45y_ptc"]["credit_duration_years"],
+                int, logger
+            )
+
+        # Update 48E ITC parameters if available in CSV
+        if params.get("48e_itc_rate") is not None:
+            tax_policies["48e_itc"]["credit_rate"] = _get_param_value(
+                params, "48e_itc_rate",
+                tax_policies["48e_itc"]["credit_rate"],
+                float, logger
+            )
+
+        if params.get("48e_itc_depreciation_basis_reduction_rate") is not None:
+            tax_policies["48e_itc"]["depreciation_basis_reduction_rate"] = _get_param_value(
+                params, "48e_itc_depreciation_basis_reduction_rate",
+                tax_policies["48e_itc"]["depreciation_basis_reduction_rate"],
+                float, logger
+            )
+
+        logger.info("Successfully loaded and updated tax incentive policies from CSV parameters")
+        return tax_policies
+
+    except ImportError as e:
+        logger.warning(f"Could not import TAX_INCENTIVE_POLICIES from config: {e}")
+        # Return default policies if config import fails
+        return {
+            "45u_ptc": {"credit_rate_per_mwh": 15.0, "credit_start_year": 2024, "credit_end_year": 2032},
+            "45y_ptc": {"credit_rate_per_mwh": 30.0, "credit_duration_years": 10},
+            "48e_itc": {"credit_rate": 0.50, "depreciation_basis_reduction_rate": 0.50}
+        }
+
+
+def load_tea_sys_params(iso_target: str, input_base_dir: Path, npps_info_path: str = None, case_type: str = None) -> tuple[dict, int, float, int, float, dict, dict, dict]:
     """
     Loads TEA-relevant system parameters.
 
+    Args:
+        iso_target: Target ISO region
+        input_base_dir: Base input directory path
+        npps_info_path: Optional path to NPPs info file for extracting actual remaining years
+
     Returns a tuple containing:
     - params (dict): The raw parameters loaded from CSV.
-    - project_lifetime (int): Project lifetime in years.
+    - project_lifetime (int): Project lifetime in years (actual remaining years if available).
     - discount_rate (float): Discount rate as a fraction.
     - construction_years (int): Construction period in years.
     - tax_rate (float): Corporate tax rate as a fraction.
     - om_components (dict): O&M components dictionary, potentially updated.
     - nuclear_config (dict): Nuclear integrated config dictionary, potentially updated.
+    - tax_policies (dict): Tax incentive policies dictionary, potentially updated.
     """
     logger.debug(f"load_tea_sys_params called for ISO: {iso_target}")
     params = {}
@@ -127,6 +212,14 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path) -> tuple[dict, in
                 "H2_value_USD_per_kg",
                 "hydrogen_price_usd_per_kg",
                 "h2_price_usd_per_kg",
+                # Add tax incentive policy parameters
+                "45u_ptc_rate_per_mwh",
+                "45u_ptc_start_year",
+                "45u_ptc_end_year",
+                "45y_ptc_rate_per_mwh",
+                "45y_ptc_duration_years",
+                "48e_itc_rate",
+                "48e_itc_depreciation_basis_reduction_rate",
             ]
             for key in param_keys:
                 if key in df_system.index:
@@ -151,6 +244,7 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path) -> tuple[dict, in
             f"Error loading TEA system data from {sys_data_file_path}: {e}")
         logger.debug(f"Error in load_tea_sys_params: {e}", exc_info=True)
 
+    # First get project lifetime from CSV parameters
     project_lifetime_years = _get_param_value(
         params,
         "plant_lifetime_years",
@@ -158,6 +252,74 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path) -> tuple[dict, in
         lambda x: int(float(x)),
         logger,
     )
+
+    # Apply case-specific lifetime logic based on case_type
+    from . import config
+
+    # Determine if this is an existing project or new construction
+    is_existing_project = True  # Default assumption
+    if case_type:
+        case_lower = case_type.lower()
+        if any(case in case_lower for case in ["case4", "case5", "greenfield", "new"]):
+            is_existing_project = False
+        elif any(case in case_lower for case in ["case1", "case2", "case3", "existing", "retrofit"]):
+            is_existing_project = True
+
+    logger.info(f"Case type: {case_type}, Existing project: {is_existing_project}")
+
+    # For existing projects (case1-3), try to get actual remaining years from NPPs info
+    if is_existing_project and npps_info_path:
+        try:
+            npps_path = Path(npps_info_path)
+            if npps_path.exists():
+                npp_info_df = pd.read_csv(npps_path)
+                # Filter for the target ISO
+                iso_plants = npp_info_df[npp_info_df['ISO'] == iso_target]
+                if not iso_plants.empty:
+                    # Use the first plant or an average if multiple plants
+                    npp_info = iso_plants.iloc[0].to_dict()
+                    plant_name = npp_info.get('Plant Name', 'Unknown')
+
+                    # Extract actual remaining years from NPP data
+                    remaining_years = npp_info.get('remaining', None)
+                    if remaining_years is not None and pd.notna(remaining_years):
+                        try:
+                            actual_remaining_years = int(float(remaining_years))
+                            logger.info(
+                                f"EXISTING PROJECT: Using actual remaining plant lifetime: {actual_remaining_years} years")
+                            logger.info(
+                                f"  (Override from NPPs info file for {plant_name})")
+                            logger.info(
+                                f"  (Previous value from CSV/config: {project_lifetime_years} years)")
+                            project_lifetime_years = actual_remaining_years
+                        except (ValueError, TypeError):
+                            logger.warning(
+                                f"Invalid remaining years value: {remaining_years}, using CSV/config value: {project_lifetime_years}")
+                    else:
+                        logger.warning(
+                            f"No remaining years data available for {plant_name}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
+                        project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
+                else:
+                    logger.warning(
+                        f"No plants found for ISO {iso_target} in NPPs info file, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
+                    project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
+            else:
+                logger.warning(
+                    f"NPPs info file not found at {npps_path}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
+                project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
+        except Exception as e:
+            logger.error(f"Error loading NPPs info: {e}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
+            project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
+    elif not is_existing_project:
+        # For new construction projects (case4-5), use full lifecycle
+        if case_type and "case5" in case_type.lower():
+            project_lifetime_years = config.CASE_CLASSIFICATION['new_construction']['case5_lifetime']
+            logger.info(f"NEW CONSTRUCTION (Case 5): Using 80-year lifecycle: {project_lifetime_years} years")
+        else:
+            project_lifetime_years = config.CASE_CLASSIFICATION['new_construction']['case4_lifetime']
+            logger.info(f"NEW CONSTRUCTION (Case 4): Using 60-year lifecycle: {project_lifetime_years} years")
+    else:
+        logger.debug(f"No NPPs info path provided for existing project, using CSV/config value: {project_lifetime_years}")
     discount_rate = _get_param_value(
         params, "discount_rate_fraction", discount_rate, float, logger  # Default from config
     )
@@ -224,8 +386,12 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path) -> tuple[dict, in
     )
     logger.debug(f"Nuclear Integrated Config: {nuclear_integrated_config}")
 
+    # Load tax incentive policies (with potential CSV overrides)
+    tax_policies = load_tax_incentive_policies(params)
+    logger.debug(f"Tax Incentive Policies: {tax_policies}")
+
     # Return both the raw params and the potentially updated config dictionaries/values
-    return params, project_lifetime_years, discount_rate, construction_years, tax_rate, om_components, nuclear_integrated_config
+    return params, project_lifetime_years, discount_rate, construction_years, tax_rate, om_components, nuclear_integrated_config, tax_policies
 
 
 def load_hourly_results(filepath: Path) -> pd.DataFrame | None:

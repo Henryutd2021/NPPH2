@@ -1,0 +1,308 @@
+Techno-Economic Analysis Report - Byron Generating Station_2_MISO_22
+====================================================================
+
+1. Project Overview & Nuclear Unit Characteristics
+--------------------------------------------------
+  ISO Region                               : MISO
+  Project Lifecycle                        : 20 years (Plant Remaining Lifetime from Case 1 financial_metrics: 20 yrs)
+  Discount Rate                            : 8.0%
+  Tax Rate                                 : 21.0%
+  Nuclear Unit Capacity (MW)               : 1,209.40
+  Nuclear Unit Thermal Capacity (MWt)      : 3,645.00
+  Nuclear Unit Thermal Efficiency          : 0.3360 (33.60%)
+  Other Key Configuration Parameters       : Refer to specific case sections and assumptions
+
+2. Case 1: Existing Reactor Baseline Operation Analysis
+-------------------------------------------------------
+  Objective & Description:
+    Analysis of an existing nuclear reactor's baseline operations without
+    modifications for hydrogen production. This case evaluates the financial
+    performance of the nuclear plant operating as-is, considering its
+    remaining lifetime and typical operational parameters. It serves as a
+    benchmark for comparison with retrofit or integrated system scenarios.
+
+  Key Assumptions:
+    Remaining Lifetime                  : 20 years
+    Nameplate Power Factor              : 0.900
+
+  Financial Metrics (NPV, IRR, Payback - without 45U):
+    NPV                       : $-1,287,809,098
+    IRR                       : N/A
+    Payback                   : N/A years
+
+  LCOE (Levelized Cost of Electricity - OPEX only over remaining lifetime):
+    LCOE (Nuclear OPEX only)  : $39.67/MWh
+
+  45U PTC Policy Impact:
+    Financial Metrics (NPV, IRR, Payback - with 45U):
+      NPV                       : $-322,877,180
+      IRR                       : N/A
+      Payback                   : 1.0 years
+
+    NPV Improvement etc.:
+      NPV Improvement           : $964,931,918
+      Total 45U Credits         : $1,287,216,840
+
+  Key Annual Operating Data (Generation, Revenue, OPEX etc.):
+    Annual Generation              : 9,534,940 MWh
+    Annual Revenue                 : $257,994,502
+    Total Annual OPEX              : $378,279,739
+
+3. Case 2: Existing Reactor Retrofit Analysis (Integrated Hydrogen and Battery Systems)
+--------------------------------------------------------------------------------
+  Objective & Description:
+    Analysis of an existing nuclear reactor retrofitted with integrated hydrogen
+    production and battery storage systems. This case evaluates the combined
+    financial and operational performance of the nuclear plant augmented with
+    these new energy system components.
+
+  New System Capacities (Electrolyzer, H2 Storage, Battery):
+    Electrolyzer Capacity               : 200.00 MW
+    H2 Storage Capacity                 : 100,000 kg
+    Battery Energy Capacity             : 10.00 MWh
+    Battery Power Capacity              : 2.50 MW
+
+  Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
+    NPV                            : $-478,599,522
+    IRR                            : N/A
+    Payback                        : N/A years
+
+  45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
+    NPV                            : $-163,509,826
+    IRR                            : N/A
+    Payback                        : 5.8 years
+
+  LCOH (Detailed Composition):
+    Total LCOH: $3.637/kg
+      Electrolyzer System                     : $1.196/kg (31.6%)
+      Electricity Opportunity Cost Electrolyzer: $1.087/kg (28.7%)
+      Vom Electrolyzer                        : $0.402/kg (10.6%)
+      Fixed Om                                : $0.340/kg (9.0%)
+      H2 Storage System                       : $0.287/kg (7.6%)
+      Stack Replacement                       : $0.174/kg (4.6%)
+      Hte Heat Opportunity Cost               : $0.136/kg (3.6%)
+      Water Cost                              : $0.030/kg (0.8%)
+      H2 Storage Cycle Cost                   : $0.020/kg (0.5%)
+      Grid Integration                        : $0.012/kg (0.3%)
+      Other Replacements                      : $0.007/kg (0.2%)
+      Battery System Energy                   : $0.006/kg (0.1%)
+      Battery System Power                    : $0.006/kg (0.1%)
+      Npp Modifications                       : $0.005/kg (0.1%)
+      Electricity Opportunity Cost Battery    : $0.003/kg (0.1%)
+      Ramping Cost                            : $0.001/kg (0.0%)
+
+  Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
+    Total Annual Revenue                : $512,848,556
+    Total System OPEX                   : $432,417,607
+    Annual H2 Production                : 42,582,220 kg
+    Ancillary Services Revenue          : $22,082,580
+
+4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
+---------------------------------------------------------------------------
+  Objective & Description:
+    Financial analysis focusing solely on the incremental investment in hydrogen
+    and battery systems, assuming they are added to an existing operational
+    nuclear plant. This evaluates the standalone economics of the H2/battery
+    project, considering its own CAPEX, revenues, and opportunity costs.
+
+  Incremental Investment CAPEX:
+    Total Incremental CAPEX: $626,720,000
+    CAPEX Breakdown:
+      Electrolyzer                       : $500,000,000 (79.8%)
+      H2 Storage                         : $120,000,000 (19.1%)
+      Battery Energy                     : $2,360,000 (0.4%)
+      Battery Power                      : $2,360,000 (0.4%)
+      NPP Modifications                  : $2,000,000 (0.3%)
+
+  Incremental Financial Metrics (NPV, IRR, Payback):
+    NPV                            : $570,204,499
+    IRR                            : 21.7%
+    Payback                        : 3.6 years
+
+  MACRS Depreciation Impact on Incremental Project:
+    Total Incremental MACRS Depreciation          : $626,719,200
+    Tax Shield Effect (Value)                     : $131,611,032
+    NPV Contribution from MACRS (Approximation)   : $131,611,032
+
+  Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
+    Incremental Revenue                 : $262,650,284
+    Incremental Costs                   : $71,487,102
+    Electricity Opportunity Cost        : $62,083,220
+    Thermal Energy Opportunity Cost     : $5,807,845
+
+5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
+------------------------------------------------------------------------------------------
+  Objective & Description:
+    Analysis of a new, purpose-built nuclear-hydrogen integrated system with a
+    60-year project lifetime. This case evaluates the project's financial viability
+    under different federal tax incentive scenarios: a baseline (no incentives),
+    the 45Y Production Tax Credit (PTC), and the 48E Investment Tax Credit (ITC).
+
+  Status: Greenfield Nuclear-Hydrogen (60yr) Tax Incentive Analysis data not available or incomplete.
+          (Expected under 'comprehensive_tax_incentive_analysis' -> 'tax_incentive_analysis' -> 'scenarios' in input data)
+
+6. Case 5: Greenfield Nuclear-Hydrogen Project Lifecycle Comparison (60 years vs. 80 years) - Federal Tax Incentive Analysis
+------------------------------------------------------------------------------------------------------------------------
+  Objective & Description:
+    Comparative analysis of new nuclear-hydrogen integrated systems with varying
+    project lifecycles (60 years vs. 80 years). This evaluation includes the impact
+    of federal tax incentives (Baseline, 45Y PTC, 48E ITC) on the financial
+    viability of these long-term projects.
+
+  Comparison Summary Table:
+  -----------------------------------------------------------------------------------------------------------
+  Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
+  -----------------------------------------------------------------------------------------------------------
+  60 years  | Baseline     |   -13525.8 |     N/A |           N/A |  $43.985/kg |  $132.63/MWh |  $319.20/MWh
+  60 years  | 45Y PTC      |   -12290.6 |     N/A |           N/A |  $39.968/kg |  $132.63/MWh |  $319.20/MWh
+  60 years  | 48E ITC      |    -9849.4 |     N/A |           N/A |  $32.029/kg |  $132.63/MWh |  $319.20/MWh
+  80 years  | Baseline     |   -13636.6 |     N/A |           N/A |  $44.000/kg |  $131.76/MWh |  $317.01/MWh
+  80 years  | 45Y PTC      |   -12401.5 |     N/A |           N/A |  $40.015/kg |  $131.76/MWh |  $317.01/MWh
+  80 years  | 48E ITC      |    -9960.3 |     N/A |           N/A |  $32.138/kg |  $131.76/MWh |  $317.01/MWh
+  -----------------------------------------------------------------------------------------------------------
+
+  Different Lifecycle Key Differences Analysis and Conclusions:
+    - Longer lifecycles generally improve NPV due to extended revenue generation and longer amortization of initial CAPEX.
+    - LCOH and LCOE may decrease with longer amortization periods for fixed costs, though more replacement cycles are also incurred.
+    - The relative benefit of tax incentives (PTC vs. ITC) may shift with different project lifetimes and cash flow profiles.
+    - Decision-making should weigh improved long-term returns against potential increased risks and O&M over extended periods.
+
+
+6. Lifecycle Cash Flow Analysis
+--------------------------------
+  Analysis of cash flow patterns across different project lifecycles,
+  comparing existing plant retrofit scenarios with new construction projects.
+
+  A. New Construction Lifecycle Comparison:
+    60-Year Project NPV                 : $0
+    80-Year Project NPV                 : $0
+    NPV Improvement (80yr vs 60yr)      : $0
+    60-Year Project IRR                 : N/A
+    80-Year Project IRR                 : N/A
+    IRR Improvement (80yr vs 60yr)      : N/A
+
+  C. Existing Plant vs New Construction Comparison:
+    Existing Plant Remaining Life: 20 years
+    New Construction Options: 60 years (Case 4) or 80 years (Case 5)
+    
+    Key Insights:
+    • Existing plants have limited remaining lifetime but lower initial investment
+    • New construction requires higher CAPEX but offers full lifecycle benefits
+    • 80-year lifecycle provides additional 20 years of revenue generation
+    • Lifecycle extension significantly improves long-term financial metrics
+
+  Note: Cash flow visualizations are available in the plots directory,
+  including lifecycle comparison charts for detailed analysis.
+7. Detailed Performance & Cost Analysis
+----------------------------------------
+  A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
+    Total Generation/H2 Production/Battery Throughput
+    Total Nuclear Generation                      : 10,515,478 MWh
+    Annual H2 Production                          : 42,582,220 kg
+    Battery Annual Throughput                     : 7,545 MWh
+    Capacity Factors
+    Electrolyzer Capacity Factor                  : 97.7%
+    Turbine Capacity Factor                       : 98.0%
+    Battery Capacity Factor                       : 0.0%
+    Average Prices
+    Average Electricity Price                     : $27.06/MWh
+    Average Hydrogen Price (if set)               : $N/A/kg
+    Ancillary Services
+    Total AS Revenue                              : $22,082,580
+    Thermal Energy Utilization
+    HTE Thermal Efficiency                        : 0.3360
+    HTE Heat Opportunity Cost                     : $5,807,845
+
+  B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
+    Total CAPEX Composition Details:
+      Electrolyzer System                     : $500,000,000 (79.1%)
+      H2 Storage System                       : $120,000,000 (19.0%)
+      Grid Integration                        : $5,000,000 (0.8%)
+      Battery System Energy                   : $2,360,000 (0.4%)
+      Battery System Power                    : $2,360,000 (0.4%)
+      NPP Modifications                       : $2,000,000 (0.3%)
+      Total CAPEX                             : $631,720,000
+
+    Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
+      Nuclear Fixed O&M                       : $220,482,000
+      Nuclear Variable O&M                    : $36,804,175
+      Nuclear Fuel Cost                       : $73,608,349
+      Nuclear Additional Costs                : $61,245,000
+      H2/Battery VOM (Electrolyzer)           : $17,110,762
+      Water Cost (for H2)                     : $1,277,466
+      Ramping Costs                           : $24,118
+      H2 Storage Cycle Cost                   : $834,782
+      Calculated Total Annual OPEX            : $411,386,651
+      Reported Total System OPEX              : $432,417,607
+
+    LCOH Detailed Composition (if H2 produced):
+      Total LCOH: $3.637/kg
+        Electrolyzer System                     : $1.196/kg (31.6%)
+        Electricity Opportunity Cost Electrolyzer: $1.087/kg (28.7%)
+        Vom Electrolyzer                        : $0.402/kg (10.6%)
+        Fixed Om                                : $0.340/kg (9.0%)
+        H2 Storage System                       : $0.287/kg (7.6%)
+        Stack Replacement                       : $0.174/kg (4.6%)
+        Hte Heat Opportunity Cost               : $0.136/kg (3.6%)
+        Water Cost                              : $0.030/kg (0.8%)
+        H2 Storage Cycle Cost                   : $0.020/kg (0.5%)
+        Grid Integration                        : $0.012/kg (0.3%)
+        Other Replacements                      : $0.007/kg (0.2%)
+        Battery System Energy                   : $0.006/kg (0.1%)
+        Battery System Power                    : $0.006/kg (0.1%)
+        Npp Modifications                       : $0.005/kg (0.1%)
+        Electricity Opportunity Cost Battery    : $0.003/kg (0.1%)
+        Ramping Cost                            : $0.001/kg (0.0%)
+
+  C. MACRS Depreciation Summary:
+    Total MACRS Depreciation Over Lifetime        : $631,720,000
+    Total Tax Shield Value (at current tax rate)  : $132,661,200
+
+    MACRS Depreciation by Asset Type/Component Category:
+      Electrolyzer System                           : $500,000,000
+      H2 Storage System                             : $120,000,000
+      Battery System Energy                         : $2,360,000
+      Battery System Power                          : $2,360,000
+      Grid Integration                              : $5,000,000
+      NPP Modifications                             : $2,000,000
+
+8. Core Economic & Cost Assumptions
+-----------------------------------
+  Global Parameters (used unless overridden by specific analysis case):
+    Project Lifetime (General)               : 20 years
+    Construction Period (General)            : 2 years
+    Discount Rate                            : 8.0%
+    Corporate Tax Rate                       : 21.0%
+
+  Main Equipment CAPEX Cost Parameters (from `config.CAPEX_COMPONENTS`):
+    Electrolyzer System                      : $125,000,000 for 50 MW
+    H2 Storage System                        : $120,000,000 for 100,000 kg
+    Battery System Energy                    : $23,600,000 for 100 MWh
+    Battery System Power                     : $23,600,000 for 25 MW
+    Grid Integration                         : $5,000,000 for 0 units
+    NPP Modifications                        : $2,000,000 for 0 units
+
+  Main Operations & Maintenance Cost Parameters (from `config.OM_COMPONENTS`):
+    Fixed OM General                         : 2.0% of CAPEX (Inflation: 2.0%)
+    Fixed OM Battery                         : $2,360/MWh/year (Inflation: 2.0%)
+    Variable OM Electrolyzer                 : $10.00/MWh (Inflation: 2.0%)
+    Variable OM H2 Storage                   : $0.01/kg cycled (Inflation: 2.0%)
+
+  Main Replacement Cost Parameters (from `config.REPLACEMENT_SCHEDULE`):
+    Electrolyzer Stack                       : 30.0% of initial CAPEX in years: 10, 20
+    H2 Storage Components                    : $5,000,000 in years: 15
+    Battery Augmentation Replacement         : 60.0% of initial CAPEX in years: 10
+
+  Nuclear Cost Parameters (from `config.NUCLEAR_COST_PARAMETERS` or calculation outputs):
+    Nuclear Fixed O&M                        : $15,000/MW/month
+    Nuclear Variable O&M                     : 3.50/MWh
+    Nuclear Fuel Cost                        : 7.00/MWh
+    Nuclear Additional Costs                 : $50,000/MW/year
+    Nuclear CAPEX (if greenfield)            : N/A/MW
+
+  MACRS Depreciation Year Classifications (from `config.MACRS_CONFIG`):
+    7-year MACRS                             : Electrolyzer System, H2 Storage System, Battery System Energy, Battery System Power
+    15-year MACRS                            : Nuclear Power Plant, Nuclear Island, Nuclear Site Preparation, Nuclear Safety Systems, Nuclear Grid Connection, Grid Integration, NPP Modifications
+
+
+Report generated successfully.

@@ -1,0 +1,302 @@
+Technical Economic Analysis Report - SPP
+=================================
+
+1. Project Configuration
+-------------------------
+  ISO Region                     : SPP
+  Project Lifetime               : 30 years
+  Construction Period            : 2 years
+  Discount Rate                  : 8.00%
+  Corporate Tax Rate             : 21.0%
+  Turbine Capacity               : 928.14 MW
+
+2. Capital Expenditure (CAPEX) Breakdown
+------------------------------------------
+  Electrolyzer System                        : $400,000,000 (78.5%)
+  H2 Storage System                          : $100,000,000 (19.6%)
+  Grid Integration                           : $5,000,000 (1.0%)
+  Battery System Energy                      : $2,360,000 (0.5%)
+  NPP Modifications                          : $2,000,000 (0.4%)
+  Battery System Power                       : $500,000 (0.1%)
+  
+  Total CAPEX                     : $509,860,000
+
+3. Optimization Results - System Capacities
+---------------------------------------------
+  Electrolyzer Capacity               : 200.00 MW
+  Hydrogen Storage Capacity           : 100,000.00 kg
+  Battery Energy Capacity             : 10.00 MWh
+  Battery Power Capacity              : 2.50 MW
+  Optimal H2 Constant Sales Rate      : 4,610.83 kg/hr
+  Optimal H2 Daily Sales Rate         : 110,659.96 kg/day
+  Optimal H2 Annual Sales Rate        : 40,390,887 kg/year
+
+4. Representative Annual Performance (from Optimization)
+----------------------------------------------------------
+  AS Revenue                                   : $23,747,229.43
+  AS Revenue Hours Positive                    : 8760
+  Annual Electrolyzer MWh                      : 1,690,342.53
+  Annual OPEX Cost from Opt                    : $35,136,713.29
+  Annual Profit                                : 403,960,442.33
+  Annual Revenue                               : $439,097,156.03
+  Avg Electricity Price USD per MWh            : $25.68
+  Battery CF percent                           : 0.00%
+  Battery SOC percent                          : 58.37%
+  DegradationState Units avg                   : 0.00
+  DegradationState Units end                   : 0.00
+  Electrolyzer CF percent                      : 96.48%
+  Energy Revenue                               : $168,024,748.34
+  H2 Constant Sales Rate kg hr                 : 4,610.83
+  H2 Production kg annual                      : 42,055,450.44
+  H2 Sales Revenue                             : $121,158,827.21
+  H2 Storage Cycle Cost                        : $824,417.54
+  H2 Storage SOC percent                       : 51.48%
+  H2 Subsidy Revenue                           : $126,166,351.33
+  H2 Total Revenue                             : $247,325,178.54
+  HTE Heat Opportunity Cost Annual USD         : $0.00
+  HTE Heat Opportunity Cost USD per kg H2      : $0.00
+  HTE Lost Electricity Generation Annual MWh   : 0.00
+  HTE Mode Detected                            : 1.00
+  HTE Steam Consumption Annual MWth            : 630,831.58
+  Ramping Cost                                 : $27,574.46
+  Startup Cost                                 : $0.00
+  Turbine CF percent                           : 99.13%
+  VOM Battery Cost                             : $0.00
+  VOM Electrolyzer Cost                        : $16,903,425.28
+  VOM Turbine Cost                             : $16,119,632.85
+  Water Cost                                   : $1,261,663.16
+  Weighted Avg Electricity Price USD per MWh   : $23.15
+
+4.1. Battery Performance and Charging Analysis
+-----------------------------------------------
+  Battery Charging Electricity Consumption:
+    Total Annual Charging                    : 4,782.08 MWh/year
+    From Grid Purchase                       : 0.00 MWh/year (0.0%)
+    From NPP (Opportunity Cost)              : 4,782.08 MWh/year (100.0%)
+
+  Battery Utilization:
+    Capacity Factor                          : 0.00%
+    Average State of Charge                  : 58.37%
+
+  Economic Impact (at avg price $25.68/MWh):
+    Total Charging Cost                      : $122,794.73/year
+    Direct Cost (Grid)                       : $0.00/year
+    Opportunity Cost (NPP)                   : $122,794.73/year
+
+5. Ancillary Services Performance
+-----------------------------------
+  Total Ancillary Services Revenue              : $23,747,229.43
+
+  Revenue Mix:
+    Energy Revenue                                : $168,024,748.34 (38.3%)
+    H2 Sales Revenue                              : $121,158,827.21 (27.6%)
+    H2 Subsidy Revenue                            : $126,166,351.33 (28.7%)
+    Ancillary Services Revenue                    : $23,747,229.43 (5.4%)
+
+  AS Revenue as % of Total Revenue            : 5.41%
+
+  System Utilization (affects AS capability):
+    Electrolyzer Capacity Factor                  : 96.48%
+    Turbine Capacity Factor                       : 99.13%
+    Battery SOC                                   : 58.37%
+
+6. Lifecycle Financial Metrics (Total System)
+----------------------------------------------
+  IRR (%)                                       : 48.68%
+  LCOH (USD/kg)                                 : $3.036
+  NPV (USD)                                     : $2,213,641,489.29
+  Payback Period (Years)                        : 1.64
+
+6.1. Detailed Levelized Cost of Hydrogen (LCOH) Analysis
+----------------------------------------------------------
+  Total LCOH: $3.036/kg H2
+
+  LCOH Component Breakdown:
+    Electricity Opportunity Cost       : $   1.032/kg ( 34.0%)
+    Electrolyzer System                : $   0.845/kg ( 27.8%)
+    Vom Electrolyzer                   : $   0.402/kg ( 13.2%)
+    Fixed Om                           : $   0.292/kg (  9.6%)
+    H2 Storage System                  : $   0.211/kg (  7.0%)
+    Stack Replacement                  : $   0.175/kg (  5.8%)
+    Water Cost                         : $   0.030/kg (  1.0%)
+    H2 Storage Cycle Cost              : $   0.020/kg (  0.6%)
+    Grid Integration                   : $   0.011/kg (  0.3%)
+    Other Replacements                 : $   0.005/kg (  0.2%)
+    Battery System Energy              : $   0.005/kg (  0.2%)
+    NPP Modifications                  : $   0.004/kg (  0.1%)
+    Electricity Opportunity Cost       : $   0.003/kg (  0.1%)
+    Battery System Power               : $   0.001/kg (  0.0%)
+
+  Cost Category Analysis:
+    Capital Recovery (CAPEX)           : $   1.077/kg ( 35.5%)
+    Electricity Costs                  : $   1.035/kg ( 34.1%)
+    Fixed O&M                          : $   0.292/kg (  9.6%)
+    Variable OPEX                      : $   0.452/kg ( 14.9%)
+    Equipment Replacements             : $   0.180/kg (  5.9%)
+
+  LCOH Benchmarking:
+    vs DOE 2030 Target               : ✗ Above by $1.036/kg
+    vs Steam Methane Reforming (typical): ✗ Above by $1.536/kg
+    vs Grid Electrolysis (typical)   : ✓ Below by $1.964/kg
+    vs Renewable Electrolysis (typical): ✓ Below by $0.464/kg
+
+  Cost Efficiency Metrics:
+    Daily H2 Production Rate            : 115,220 kg/day
+    Electrolyzer Capacity Factor        : 96.5%
+    LCOH per Capacity Factor Point      : $0.0315/kg per 1%
+    Specific H2 Production              : 210,277 kg/MW/year
+
+7. Incremental Financial Metrics (H2/Battery System vs. Baseline)
+--------------------------------------------------------------------
+  Incremental Financial Results:
+    NPV (USD)                                    : $743,258,466.86
+    IRR (%)                                      : 26.10%
+    Payback Period (Years)                       : 3.18
+    Total Incremental CAPEX (USD)                : $502,000,000.00
+    Annual Electricity Opportunity Cost (USD)    : $51,979,938.89
+    Incremental ROI                              : 1.4806
+
+  Baseline Nuclear Plant Analysis:
+    Annual Baseline Revenue (Electricity Sales): $206,960,944.14
+    Annual Baseline OPEX (Turbine VOM): $16,119,632.85
+    Annual Baseline Profit: $190,841,311.29
+    Baseline Profit Margin: 92.2%
+
+  Battery Charging Cost Analysis:
+    Direct Operating Cost (Grid Charging): $0.00/year
+    Opportunity Cost (NPP Charging): $122,794.73/year
+    Total Battery Charging Cost: $122,794.73/year
+    Cost Breakdown: 0.0% Direct, 100.0% Opportunity
+
+  Ancillary Services Opportunity Cost Analysis:
+    AS Revenue: $23,747,229.43/year
+    AS Opportunity Cost (Lost Electricity Sales): $9,498,891.77/year
+    Net AS Benefit: $14,248,337.66/year
+    Net AS Margin: 60.0%
+
+
+8. Cost Assumptions
+-------------------
+  CAPEX Components (Base Cost for Reference Size):
+    Battery_System_Energy                              : $23,600,000 (Ref Cap: 100, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Battery_System_Power                               : $5,000,000 (Ref Cap: 25, LR: 0.0%, Pay Sched: {-1: 1.0})
+    Electrolyzer_System                                : $100,000,000 (Ref Cap: 50, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    Grid_Integration                                   : $5,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-1: 1.0})
+    H2_Storage_System                                  : $10,000,000 (Ref Cap: 10000, LR: 0.0%, Pay Sched: {-2: 0.5, -1: 0.5})
+    NPP_Modifications                                  : $2,000,000 (Ref Cap: 0, LR: 0%, Pay Sched: {-2: 1.0})
+    
+  O&M Components (Annual Base):
+    Fixed_OM_Battery                                   : $25,000.00/MW/yr + $2,360.00/MWh/yr (Inflation: 2.0%)
+    Fixed_OM_General                                   : $0 (Inflation: 2.0%)
+    
+  Major Replacements:
+    Battery_Augmentation_Replacement                   : Cost: 60.00% of Initial CAPEX (Years: [10])
+    Electrolyzer_Stack                                 : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
+    H2_Storage_Components                              : Cost: $5,000,000 (Years: [15])
+
+9. Greenfield Nuclear-Hydrogen System
+--------------------------------------
+This analysis calculates the economics of building both nuclear plant
+and hydrogen production system from scratch (greenfield development).
+
+System Configuration:
+  Analysis Type                   : greenfield_nuclear_hydrogen_system_60yr
+  Nuclear Capacity                : 928 MW
+  Project Lifetime                : 60 years
+  Construction Period             : 8 years
+  Discount Rate                   : 8.0%
+
+Capital Investment Breakdown:
+  Nuclear Plant CAPEX             : $11,099,465,227 (88.7%)
+  Hydrogen System CAPEX           : $1,418,440,000 (11.3%)
+  Total System CAPEX              : $12,517,905,227
+  CAPEX per MW Nuclear            : $13,487,125/MW
+  CAPEX per kg H2/year            : $298/kg
+
+Financial Results (60-year lifecycle):
+  Net Present Value (NPV)         : $-15,564,266,026
+  Internal Rate of Return (IRR)   : N/A
+  Return on Investment (ROI)      : -124.34%
+  Payback Period                  : N/A
+  LCOH (Integrated System)        : $9.180/kg
+
+Production Metrics:
+  Annual H2 Production            : 42,055,450 kg/year
+  Annual Nuclear Generation       : 7,317,435 MWh/year
+  H2 Production per MW Nuclear    : 45,312 kg/MW/year
+  Nuclear Capacity Factor         : 99.1%
+  Electricity to H2 Efficiency    : 19.1%
+
+Investment Breakdown (60-year lifecycle):
+  H2 System Initial CAPEX         : $509,860,000
+  H2 System Replacement CAPEX     : $908,580,000
+    Electrolyzer Replacements     : 2 times
+    H2 Storage Replacements       : 1 times
+    Battery Replacements          : 3 times
+  Enhanced Maintenance Factor     : 1.2x
+
+Annual Performance:
+  Total Annual Revenue            : $397,238,759
+    H2 Revenue                    : $247,325,179
+    Electricity Revenue           : $0
+    Turbine AS Revenue (Real)     : $18,007,602
+    Electrolyzer AS Revenue (Real): $5,739,190
+    Battery AS Revenue (Real)     : $438
+    H2 Subsidy Revenue            : $126,166,351
+  Total Annual OPEX               : $332,857,872
+  HTE Thermal Opportunity Cost    : $0
+  Net Annual Revenue              : $64,380,887
+
+Levelized Costs:
+  LCOH (Integrated System)        : $9.180/kg
+  Nuclear LCOE                    : $144.27/MWh
+  Battery LCOS                    : $514.80/MWh
+
+Cash Flow Summary (Present Value):
+  Total Revenue (PV)              : $2,451,551,345
+  Total Costs (PV)                : $18,015,817,372
+  Net Cash Flow (PV)              : $-15,564,266,026
+
+Key Insights:
+  • The greenfield nuclear-hydrogen system shows negative NPV
+  • IRR cannot be calculated (negative cash flows throughout project)
+  • Payback period cannot be calculated (negative cash flows)
+
+Accounting Method:
+  • Independent accounting method used for LCOE/LCOH/LCOS calculations
+  • LCOE: (nuclear costs + OPEX - turbine AS revenue) / total generation
+  • LCOH: (H2 costs + OPEX + electricity at LCOE + HTE thermal - H2 AS revenue) / H2 production
+  • LCOS: (battery costs + OPEX) / battery throughput
+  • AS revenues calculated from real system deployment data, not estimates
+  • HTE thermal energy opportunity cost included in LCOH calculation
+
+Note: This greenfield analysis assumes building both nuclear plant and
+hydrogen system from zero, with both systems designed for 60-year operation.
+The analysis includes periodic replacement of H2 system components:
+• Electrolyzers replaced every 20 years (2 replacements)
+• H2 storage systems replaced every 30 years (1 replacement)
+• Batteries replaced every 15 years (3 replacements)
+• Enhanced maintenance costs (+20%) for extended lifecycle operation
+This provides a comprehensive view of long-term integrated system economics.
+
+
+10. Lifecycle Comparison Analysis: 60-Year vs 80-Year
+------------------------------------------------------
+This section compares the financial performance of 60-year vs 80-year project lifecycles
+to evaluate the impact of extending project duration on investment returns.
+
+Financial Performance Comparison:
+Metric                              60-Year              80-Year              Difference     
+------------------------------------------------------------------------------------------
+NPV (USD)                           $-15,564,266,026 $-13,263,519,153 $2,300,746,873
+IRR (%)                                              N/A                  N/A             N/A
+ROI (%)                                      -124.34%          -101.84%         22.49%
+Payback (Years)                                      N/A                  N/A             N/A
+LCOH (USD/kg)                       $              9 $             10 $           1
+LCOE (USD/MWh)                      $            144 $            159 $          14
+Battery LCOS (USD/MWh)              $            515 $             70 $        -445
+
+Battery Storage Cost Analysis:
+LCOS (USD/MWh)                      $         514.80 $          69.95 $     -444.84
+
+Report generated successfully.

@@ -29,35 +29,76 @@ CONSTRUCTION_YEARS = 2
 TAX_RATE = 0.21
 HOURS_IN_YEAR = 8760
 
+# Case Classification Configuration
+CASE_CLASSIFICATION = {
+    "existing_projects": {
+        "cases": ["case1", "case2", "case3"],
+        "description": "Existing nuclear plant retrofit/modification scenarios",
+        "lifetime_source": "remaining_years",  # Use actual remaining plant lifetime
+        "default_lifetime": 10,  # Fallback if remaining years not available
+        "construction_period": 2,  # Retrofit construction period
+        "include_nuclear_capex": False,  # Existing plant, no new nuclear CAPEX
+        "tax_incentives": {
+            "45u_eligible": True,  # 45U applies to existing plants
+            "itc_ptc_eligible": False,  # ITC/PTC for new construction only
+            "macrs_eligible": True  # MACRS applies to retrofit equipment
+        }
+    },
+    "new_construction": {
+        "cases": ["case4", "case5"],
+        "description": "New nuclear-hydrogen integrated plant construction",
+        "lifetime_source": "full_lifecycle",  # Use full plant lifetime
+        "case4_lifetime": 60,  # Case 4: 60-year analysis
+        "case5_lifetime": 80,  # Case 5: 80-year analysis
+        "construction_period": 8,  # New nuclear construction period
+        "include_nuclear_capex": True,  # New plant, include nuclear CAPEX
+        "tax_incentives": {
+            "45u_eligible": False,  # 45U for existing plants only
+            "itc_ptc_eligible": True,  # ITC/PTC for new construction
+            "macrs_eligible": True  # MACRS applies to all equipment
+        }
+    }
+}
+
 # Logging Configuration
 LOG_LEVEL = "DEBUG"  # Changed from INFO to DEBUG for troubleshooting
 
-# CAPEX Components (with learning rate structure)
+# CAPEX Components (updated with sys_data_advanced.csv data)
 CAPEX_COMPONENTS = {
     "Electrolyzer_System": {
-        "total_base_cost_for_ref_size": 100_000_000,  # 50MW * 1000 * $2000
+        # Based on data_gen.py original costs: HTE = $2,500/kW = $2,500,000/MW
+        # HTE (High Temperature Electrolysis) is more suitable for nuclear-hydrogen integration
+        # due to thermal integration capabilities and higher efficiency
+        # Total cost for 50MW reference: 50 * $2,500,000 = $125,000,000
+        "total_base_cost_for_ref_size": 125_000_000,  # HTE original CAPEX from data_gen.py
         "reference_total_capacity_mw": 50,
         "applies_to_component_capacity_key": "Electrolyzer_Capacity_MW",
         "learning_rate_decimal": 0.0,
         "payment_schedule_years": {-2: 0.5, -1: 0.5},
     },
     "H2_Storage_System": {
-        "total_base_cost_for_ref_size": 10_000_000,  # 10,000kg * $1000
-        "reference_total_capacity_mw": 10000,  # Assuming kg
+        # Estimated based on industry standards: ~$1000-1500/kg storage capacity
+        # For 100,000kg reference capacity: 100,000 * $1,200 = $120M
+        "total_base_cost_for_ref_size": 120_000_000,  # Updated estimate
+        "reference_total_capacity_mw": 100000,  # kg capacity
         "applies_to_component_capacity_key": "H2_Storage_Capacity_kg",
         "learning_rate_decimal": 0.0,
         "payment_schedule_years": {-2: 0.5, -1: 0.5},
     },
     "Battery_System_Energy": {  # Cost component for MWh capacity
-        "total_base_cost_for_ref_size": 23_600_000,  # 100MWh * 1000 * $236
+        # Based on data_gen.py original costs: $236/kWh = $236,000/MWh
+        # For 100MWh reference: 100 * $236,000 = $23,600,000
+        "total_base_cost_for_ref_size": 23_600_000,  # Battery energy CAPEX from data_gen.py
         "reference_total_capacity_mw": 100,
         "applies_to_component_capacity_key": "Battery_Capacity_MWh",
         "learning_rate_decimal": 0.0,
         "payment_schedule_years": {-1: 1.0},
     },
     "Battery_System_Power": {  # Cost component for MW power
-        "total_base_cost_for_ref_size": 5_000_000,
-        "reference_total_capacity_mw": 25,  # Here unit is MW
+        # Based on data_gen.py original costs: $236/kWh * 4h = $944/kW = $944,000/MW
+        # For 25MW reference: 25 * $944,000 = $23,600,000
+        "total_base_cost_for_ref_size": 23_600_000,  # Battery power CAPEX from data_gen.py
+        "reference_total_capacity_mw": 25,  # MW power capacity
         "applies_to_component_capacity_key": "Battery_Power_MW",
         "learning_rate_decimal": 0.0,
         "payment_schedule_years": {-1: 1.0},
@@ -78,7 +119,7 @@ CAPEX_COMPONENTS = {
     },
 }
 
-# O&M Components
+# O&M Components (updated with sys_data_advanced.csv data)
 OM_COMPONENTS = {
     "Fixed_OM_General": {
         "base_cost_percent_of_capex": 0.02,
@@ -86,8 +127,20 @@ OM_COMPONENTS = {
         "inflation_rate": 0.02,
     },
     "Fixed_OM_Battery": {
-        "base_cost_per_mw_year": 25_000,
-        "base_cost_per_mwh_year": 0,
+        # Based on data_gen.py: 1% of energy capex per year = 0.01 * $236,000 = $2,360/MWh/year
+        "base_cost_per_mw_year": 0,  # No MW-based cost
+        "base_cost_per_mwh_year": 2_360,  # 1% of $236,000/MWh energy CAPEX
+        "inflation_rate": 0.02,
+    },
+    "Variable_OM_Electrolyzer": {
+        # Based on data_gen.py: HTE variable O&M = $10.0/MWh
+        # Using HTE (High Temperature Electrolysis) for nuclear-hydrogen integration
+        "base_cost_per_mwh": 10.0,  # HTE VOM from data_gen.py
+        "inflation_rate": 0.02,
+    },
+    "Variable_OM_H2_Storage": {
+        # Based on data_gen.py: hydrogen storage VOM = $0.01/kg cycled
+        "base_cost_per_kg_cycled": 0.01,  # H2 storage VOM from data_gen.py
         "inflation_rate": 0.02,
     },
 }
@@ -158,29 +211,54 @@ NUCLEAR_CAPEX_COMPONENTS = {
     },
 }
 
-# Nuclear Plant O&M Components (separate from existing components)
-NUCLEAR_OM_COMPONENTS = {
-    "Nuclear_Fixed_OM": {
-        "base_cost_per_mw_year": 120_000,  # $120k/MW/year for nuclear O&M
-        "inflation_rate": 0.025,  # Slightly higher inflation for nuclear O&M
+# Centralized Nuclear Cost Parameters (for standardized calculations across all modules)
+NUCLEAR_COST_PARAMETERS = {
+    # CAPEX Parameters ($/MW, industry standard for new nuclear plants)
+    "nuclear_capex_per_mw": 11_958_860,  # $/MW (standardized from industry data)
+
+    # CAPEX Breakdown Percentages (for detailed analysis)
+    "capex_breakdown_percentages": {
+        "Nuclear_Island": 0.45,      # 45% - reactor and primary systems
+        "Turbine_Generator": 0.25,   # 25% - turbine and generator systems
+        "Balance_of_Plant": 0.20,    # 20% - supporting systems
+        "Owner_Costs": 0.10,         # 10% - owner costs and contingency
     },
-    "Nuclear_Fuel_Cost": {
-        "base_cost_per_mwh": 8.0,  # $8/MWh fuel cost (from PDF data)
-        "inflation_rate": 0.02,
+
+    # OPEX Parameters (standardized across all calculations)
+    "opex_parameters": {
+        "fixed_om_per_mw_month": 15_000,      # $/MW/month (industry standard)
+        "fixed_om_per_mw_year": 180_000,      # $/MW/year (15,000 * 12)
+        "variable_om_per_mwh": 3.5,           # $/MWh (operations & maintenance)
+        "fuel_cost_per_mwh": 7.0,             # $/MWh (nuclear fuel costs)
+        "additional_costs_per_mw_year": 50_000, # $/MW/year (insurance, regulatory, waste, security)
+        "total_fixed_costs_per_mw_year": 230_000, # $/MW/year (180,000 + 50,000)
     },
-    "Nuclear_Security": {
-        "base_cost_per_mw_year": 15_000,  # $15k/MW/year for security
-        "inflation_rate": 0.03,
+
+    # Operational Parameters
+    "operational_parameters": {
+        "typical_capacity_factor": 0.90,      # 90% capacity factor
+        "hours_per_year": 8760,               # Hours in a year
+        "typical_annual_generation_factor": 7884, # hours/year * capacity_factor
     },
-    "Nuclear_Regulatory": {
-        "base_cost_per_mw_year": 8_000,  # $8k/MW/year for regulatory compliance
-        "inflation_rate": 0.025,
+
+    # Nuclear Plant Replacement/Refurbishment Costs (for existing plants)
+    "replacement_costs_per_mw": {
+        "turbine_overhaul_15_years": 30_000,      # $/MW at year 15
+        "steam_generator_25_years": 50_000,       # $/MW at year 25
+        "major_refurbishment_30_years": 80_000,   # $/MW at year 30
+        "life_extension_40_years": 120_000,       # $/MW at year 40
     },
-    "Nuclear_Waste_Management": {
-        "base_cost_per_mwh": 1.0,  # $1/MWh for waste management
-        "inflation_rate": 0.02,
+
+    # Inflation Rates for different cost components
+    "inflation_rates": {
+        "fixed_om": 0.025,          # 2.5% for fixed O&M
+        "variable_om": 0.02,        # 2.0% for variable O&M
+        "fuel_costs": 0.02,         # 2.0% for fuel costs
+        "additional_costs": 0.025,  # 2.5% for additional costs
     },
 }
+
+
 
 # Nuclear Plant Major Refurbishments/Replacements
 NUCLEAR_REPLACEMENT_SCHEDULE = {
@@ -210,7 +288,147 @@ NUCLEAR_REPLACEMENT_SCHEDULE = {
 CONSTRUCTION_FINANCING = {
     "interest_rate_during_construction": 0.06,  # 6% annual interest rate
     "financing_method": "compound",  # compound or simple
-    "payment_schedule_type": "end_of_period",  # end_of_period or beginning_of_period
+    # end_of_period or beginning_of_period
+    "payment_schedule_type": "end_of_period",
+}
+
+# MACRS Depreciation Configuration
+MACRS_CONFIG = {
+    "enabled": True,
+    "nuclear_depreciation_years": 15,
+    "hydrogen_depreciation_years": 7,
+    "battery_depreciation_years": 7,
+    "grid_depreciation_years": 15,
+    "component_classification": {
+        # Nuclear components (15-year MACRS)
+        "Nuclear_Power_Plant": "nuclear",
+        "Nuclear_Island": "nuclear",
+        "Nuclear_Site_Preparation": "nuclear",
+        "Nuclear_Safety_Systems": "nuclear",
+        "Nuclear_Grid_Connection": "grid",
+
+        # Hydrogen components (7-year MACRS)
+        "Electrolyzer_System": "hydrogen",
+        "H2_Storage_System": "hydrogen",
+
+        # Battery components (7-year MACRS)
+        "Battery_System_Energy": "battery",
+        "Battery_System_Power": "battery",
+
+        # Infrastructure components
+        "Grid_Integration": "grid",
+        "NPP_Modifications": "nuclear"
+    }
+}
+
+# Federal Tax Incentive Policy Configuration
+TAX_INCENTIVE_POLICIES = {
+    # 45U Production Tax Credit for Existing Nuclear Plants
+    "45u_ptc": {
+        "credit_rate_per_mwh": 15.0,              # $/MWh credit rate
+        "credit_start_year": 2024,                # Policy start year
+        "credit_end_year": 2032,                  # Policy end year
+        "applies_to_existing_plants_only": True,  # Only for existing nuclear plants
+        "description": "45U Nuclear Production Tax Credit for existing nuclear power plants"
+    },
+
+    # 45Y Production Tax Credit for New Nuclear Plants
+    "45y_ptc": {
+        "credit_rate_per_mwh": 30.0,              # $/MWh credit rate (up to $30/MWh)
+        "credit_duration_years": 10,              # Duration of credit eligibility
+        "applies_to_new_plants": True,            # For new nuclear construction
+        "description": "45Y Production Tax Credit for new nuclear power facilities"
+    },
+
+    # 48E Investment Tax Credit for Nuclear Plants
+    "48e_itc": {
+        "credit_rate": 0.50,                      # 50% ITC rate (up to 50%)
+        "depreciation_basis_reduction_rate": 0.50, # 50% of ITC amount reduces depreciation basis
+        "applies_to_nuclear_only": True,          # Only nuclear equipment qualifies
+        "description": "48E Investment Tax Credit for nuclear power facilities"
+    },
+
+    # Policy sensitivity analysis parameters
+    "sensitivity_analysis": {
+        "45u_rate_range": [10.0, 15.0, 20.0],    # $/MWh range for sensitivity analysis
+        "45y_rate_range": [20.0, 30.0, 40.0],    # $/MWh range for sensitivity analysis
+        "48e_rate_range": [0.30, 0.50, 0.60],    # ITC rate range for sensitivity analysis
+        "duration_range": [5, 10, 15],           # Years range for PTC duration analysis
+    }
+}
+
+# Integrated System Cost Parameters (based on data_gen.py original costs)
+SYSTEM_COST_PARAMETERS = {
+    # Electrolyzer Parameters (from data_gen.py original costs)
+    "electrolyzer": {
+        # Original CAPEX costs (not annualized)
+        "lte_capex_usd_per_mw": 2_000_000,        # LTE: $2,000/kW = $2M/MW
+        "hte_capex_usd_per_mw": 2_500_000,        # HTE: $2,500/kW = $2.5M/MW
+        "lifetime_years": 20,                     # Equipment lifetime
+        "discount_rate": 0.08,                    # Discount rate for annualization
+
+        # Annualized costs (for reference, calculated from original costs)
+        "lte_capex_usd_per_mw_year": 203_704.42,  # LTE annualized
+        "hte_capex_usd_per_mw_year": 254_630.52,  # HTE annualized
+
+        # Operating costs
+        "lte_vom_usd_per_mwh": 8.0,               # LTE variable O&M
+        "hte_vom_usd_per_mwh": 10.0,              # HTE variable O&M
+        "water_cost_usd_per_kg_h2": 0.03,         # Water cost
+        "aux_power_per_kg_h2": 0.0005,            # Auxiliary power consumption
+
+        # Efficiency parameters
+        "lte_efficiency_kwh_per_kg": [57.0, 56.0, 55.0, 54.0],  # LTE efficiency curve
+        "hte_efficiency_kwh_per_kg": [42.0, 41.0, 40.0, 39.0],  # HTE efficiency curve
+    },
+
+    # Battery Parameters (from data_gen.py original costs)
+    "battery": {
+        # Original CAPEX costs (not annualized)
+        "energy_capex_usd_per_mwh": 236_000,      # $236/kWh = $236k/MWh
+        "power_capex_usd_per_mw": 944_000,        # $236/kWh * 4h = $944k/MW
+        "lifetime_years": 15,                     # Equipment lifetime
+        "discount_rate": 0.08,                    # Discount rate for annualization
+
+        # Annualized costs (for reference, calculated from original costs)
+        "energy_capex_usd_per_mwh_year": 27_571.77,  # Energy capacity annualized
+        "power_capex_usd_per_mw_year": 110_287.09,   # Power capacity annualized
+
+        # Operating costs
+        "fixed_om_usd_per_mwh_year": 2_360.0,        # Fixed O&M (1% of energy CAPEX)
+
+        # Technical parameters
+        "duration_hours": 4.0,                       # Battery duration
+        "power_ratio_mw_per_mwh": 0.25,              # Power to energy ratio (1/4h)
+        "charge_efficiency": 0.92,                   # Charge efficiency
+        "discharge_efficiency": 0.92,                # Discharge efficiency
+        "min_soc_fraction": 0.1,                     # Minimum state of charge
+    },
+
+    # H2 Storage Parameters (from sys_data_advanced.csv)
+    "h2_storage": {
+        "vom_usd_per_kg_cycled": 0.01,               # Variable O&M per kg cycled
+        "charge_efficiency": 0.98,                   # Storage charge efficiency
+        "discharge_efficiency": 0.98,                # Storage discharge efficiency
+        "max_capacity_kg": 100_000.0,                # Maximum storage capacity
+        "min_capacity_kg": 5_000.0,                  # Minimum storage capacity
+    },
+
+    # Turbine Parameters (from sys_data_advanced.csv)
+    "turbine": {
+        "vom_usd_per_mwh": 2.0,                      # Variable O&M
+        "thermal_efficiency": 0.38,                  # Thermal to electric efficiency
+        "ramp_up_rate_percent_per_min": 2.0,         # Ramp up rate
+        "ramp_down_rate_percent_per_min": 2.0,       # Ramp down rate
+    },
+
+    # Economic Parameters (from sys_data_advanced.csv)
+    "economic": {
+        "h2_value_usd_per_kg": 3.0,                  # Hydrogen market value
+        "hydrogen_subsidy_usd_per_kg": 3.0,          # Hydrogen subsidy
+        "hydrogen_subsidy_duration_years": 10,       # Subsidy duration
+        "discount_rate": 0.08,                       # Discount rate
+    },
 }
 
 # Fallback/default values that might be overridden by framework imports
@@ -218,4 +436,9 @@ CONSTRUCTION_FINANCING = {
 # will handle the try-except block for framework imports.
 # This will be overridden by framework's config.py
 TARGET_ISO = "DEFAULT_ISO_FALLBACK"
-ENABLE_BATTERY = False  # This will be overridden by framework's config.py
+
+# Import ENABLE_BATTERY from optimization config to ensure consistency
+try:
+    from src.opt.config import ENABLE_BATTERY
+except ImportError:
+    ENABLE_BATTERY = False  # Fallback if optimization config is not available

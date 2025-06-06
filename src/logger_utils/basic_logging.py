@@ -61,7 +61,8 @@ def setup_basic_logger(
     # Determine log file path
     if log_file is None:
         if log_dir is None:
-            log_dir = Path("../logs")
+            # Use absolute path to project root's output/logs directory
+            log_dir = Path(__file__).resolve().parent.parent.parent / "output" / "logs"
         log_dir = Path(log_dir)
         log_dir.mkdir(parents=True, exist_ok=True)
         log_file = log_dir / f"{name}.log"
@@ -107,13 +108,14 @@ def setup_opt_logger(target_iso: str, log_dir: Optional[Path] = None) -> BasicLo
 
     Args:
         target_iso: Target ISO region (e.g., 'PJM', 'CAISO')
-        log_dir: Optional log directory (defaults to ../logs)
+        log_dir: Optional log directory (defaults to ./output/logs)
 
     Returns:
         BasicLogger instance configured for optimization
     """
     if log_dir is None:
-        log_dir = Path("../logs")
+        # Use absolute path to project root's output/logs directory
+        log_dir = Path(__file__).resolve().parent.parent.parent / "output" / "logs"
 
     return setup_basic_logger(
         name=f"opt_{target_iso}",

@@ -1,0 +1,58 @@
+================================================================================
+TEA ANALYSIS SUMMARY REPORT - CAISO
+================================================================================
+Generated: 2025-05-26 16:57:46
+
+ANALYSIS PARAMETERS
+----------------------------------------
+Project Lifetime: 25 years
+Construction Period: 2 years
+Discount Rate: 7.0%
+Tax Rate: 21.0%
+H2 Subsidy: $3.00/kg for 10 years
+
+KEY FINANCIAL METRICS
+----------------------------------------
+NPV_USD: $-1,115,532,509
+IRR_percent: 0.00%
+Payback_Period_Years: 27.0 years
+LCOH_USD_per_kg: $1625.165/kg
+Total_Investment_USD: 509,860,000
+Total_Operating_Revenue_USD: 0
+Total_Operating_Costs_USD: 1,740,944,283
+
+SYSTEM PERFORMANCE
+----------------------------------------
+Annual_H2_Production_kg: 35,172 kg/year
+Electrolyzer_CF_percent: 95.6%
+Turbine_CF_percent: 114.0%
+
+CAPEX BREAKDOWN
+----------------------------------------
+Total CAPEX: $509,860,000
+  Electrolyzer_System: $400,000,000
+  H2_Storage_System: $100,000,000
+  Battery_System_Energy: $2,360,000
+  Battery_System_Power: $500,000
+  Grid_Integration: $5,000,000
+  NPP_Modifications: $2,000,000
+
+ANNUAL O&M COSTS
+----------------------------------------
+Total Annual O&M: $10,259,700
+  Fixed_OM_General: $10,197,200
+  Fixed_OM_Battery: $62,500
+
+LCOH BREAKDOWN
+----------------------------------------
+Total LCOH: $2735.387/kg
+  CAPEX contribution: 47.0%
+  OPEX contribution: 12.8%
+  Replacement contribution: 40.2%
+
+INCREMENTAL ANALYSIS (H2/Battery System)
+----------------------------------------
+Incremental NPV: $-6,114,778,601
+Incremental IRR: 0.00%
+Baseline Annual Revenue: $581,034,235
+Electricity Opportunity Cost: $97,466,565/year

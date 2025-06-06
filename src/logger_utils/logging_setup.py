@@ -8,7 +8,8 @@ from pathlib import Path
 from .basic_logging import setup_basic_logger
 
 # Default configuration for backward compatibility
-DEFAULT_LOG_DIR = Path("../logs")
+# Use absolute path to project root's output/logs directory
+DEFAULT_LOG_DIR = Path(__file__).resolve().parent.parent.parent / "output" / "logs"
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 DEFAULT_LOG_LEVEL = "INFO"
 
