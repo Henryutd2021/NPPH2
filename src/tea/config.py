@@ -70,7 +70,8 @@ CAPEX_COMPONENTS = {
         # HTE (High Temperature Electrolysis) is more suitable for nuclear-hydrogen integration
         # due to thermal integration capabilities and higher efficiency
         # Total cost for 50MW reference: 50 * $1,500,000 = $75,000,000
-        "total_base_cost_for_ref_size": 75_000_000,  # HTE original CAPEX from data_gen.py
+        # HTE original CAPEX from data_gen.py
+        "total_base_cost_for_ref_size": 75_000_000,
         "reference_total_capacity_mw": 50,
         "applies_to_component_capacity_key": "Electrolyzer_Capacity_MW",
         "learning_rate_decimal": 0.0,
@@ -85,10 +86,9 @@ CAPEX_COMPONENTS = {
         "learning_rate_decimal": 0.0,
         "payment_schedule_years": {-2: 0.5, -1: 0.5},
     },
-    "Battery_System_Energy": {  # Cost component for MWh capacity
-        # Based on data_gen.py original costs: $236/kWh = $236,000/MWh
-        # For 100MWh reference: 100 * $236,000 = $23,600,000
-        "total_base_cost_for_ref_size": 23_600_000,  # Battery energy CAPEX from data_gen.py
+    "Battery_System_Energy": {  # Cost component for MWh capacity - DISABLED (power-only costing)
+        # MODIFIED: Set to 0 to implement power-only battery costing strategy
+        "total_base_cost_for_ref_size": 0,  # No energy capacity cost
         "reference_total_capacity_mw": 100,
         "applies_to_component_capacity_key": "Battery_Capacity_MWh",
         "learning_rate_decimal": 0.0,
@@ -97,7 +97,8 @@ CAPEX_COMPONENTS = {
     "Battery_System_Power": {  # Cost component for MW power
         # Based on data_gen.py original costs: $236/kWh * 4h = $944/kW = $944,000/MW
         # For 25MW reference: 25 * $944,000 = $23,600,000
-        "total_base_cost_for_ref_size": 23_600_000,  # Battery power CAPEX from data_gen.py
+        # Battery power CAPEX from data_gen.py
+        "total_base_cost_for_ref_size": 23_600_000,
         "reference_total_capacity_mw": 25,  # MW power capacity
         "applies_to_component_capacity_key": "Battery_Power_MW",
         "learning_rate_decimal": 0.0,
@@ -127,15 +128,16 @@ OM_COMPONENTS = {
         "inflation_rate": 0.02,
     },
     "Fixed_OM_Battery": {
-        # Based on data_gen.py: 1% of energy capex per year = 0.01 * $236,000 = $2,360/MWh/year
-        "base_cost_per_mw_year": 0,  # No MW-based cost
-        "base_cost_per_mwh_year": 2_360,  # 1% of $236,000/MWh energy CAPEX
+        # MODIFIED: Switch to power-based O&M to align with power-only costing strategy
+        # 1% of power CAPEX per year = 0.01 * $944,000 = $9,440/MW/year
+        "base_cost_per_mw_year": 48_168.0,  # Power-based O&M cost
+        "base_cost_per_mwh_year": 0,  # No energy-based O&M cost
         "inflation_rate": 0.02,
     },
     "Variable_OM_Electrolyzer": {
         # Based on data_gen.py: HTE variable O&M = $10.0/MWh
         # Using HTE (High Temperature Electrolysis) for nuclear-hydrogen integration
-        "base_cost_per_mwh": 10.0,  # HTE VOM from data_gen.py
+        "base_cost_per_mwh": 6.9,  # HTE VOM from data_gen.py
         "inflation_rate": 0.02,
     },
     "Variable_OM_H2_Storage": {
@@ -214,7 +216,8 @@ NUCLEAR_CAPEX_COMPONENTS = {
 # Centralized Nuclear Cost Parameters (for standardized calculations across all modules)
 NUCLEAR_COST_PARAMETERS = {
     # CAPEX Parameters ($/MW, industry standard for new nuclear plants)
-    "nuclear_capex_per_mw": 8_000_000,  # $/MW (standardized from industry data)
+    # $/MW (standardized from industry data)
+    "nuclear_capex_per_mw": 8_000_000,
 
     # CAPEX Breakdown Percentages (for detailed analysis)
     "capex_breakdown_percentages": {
@@ -226,19 +229,21 @@ NUCLEAR_COST_PARAMETERS = {
 
     # OPEX Parameters (standardized across all calculations)
     "opex_parameters": {
-        "fixed_om_per_mw_month": 15_000,      # $/MW/month (industry standard)
-        "fixed_om_per_mw_year": 180_000,      # $/MW/year (15,000 * 12)
-        "variable_om_per_mwh": 3.0,           # $/MWh (operations & maintenance)
+        "fixed_om_per_mw_month": 20_000,      # $/MW/month (industry standard)
+        "fixed_om_per_mw_year": 240_000,      # $/MW/year (20,000 * 12)
+        # $/MWh (operations & maintenance)
+        "variable_om_per_mwh": 1.0,
         "fuel_cost_per_mwh": 10.0,             # $/MWh (nuclear fuel costs)
-        "additional_costs_per_mw_year": 0.0, # $/MW/year (insurance, regulatory, waste, security)
-        "total_fixed_costs_per_mw_year": 180_000, # $/MW/year (180,000 + 0)
+        # $/MW/year (insurance, regulatory, waste, security)
+        "additional_costs_per_mw_year": 90_000.0,
+        "total_fixed_costs_per_mw_year": 330_000,  # $/MW/year (240,000 + 90,000)
     },
 
     # Operational Parameters
     "operational_parameters": {
         "typical_capacity_factor": 0.90,      # 90% capacity factor
         "hours_per_year": 8760,               # Hours in a year
-        "typical_annual_generation_factor": 7884, # hours/year * capacity_factor
+        "typical_annual_generation_factor": 7884,  # hours/year * capacity_factor
     },
 
     # Nuclear Plant Replacement/Refurbishment Costs (for existing plants)
@@ -257,7 +262,6 @@ NUCLEAR_COST_PARAMETERS = {
         "additional_costs": 0.025,  # 2.5% for additional costs
     },
 }
-
 
 
 # Nuclear Plant Major Refurbishments/Replacements
@@ -334,7 +338,8 @@ TAX_INCENTIVE_POLICIES = {
 
     # 45Y Production Tax Credit for New Nuclear Plants
     "45y_ptc": {
-        "credit_rate_per_mwh": 30.0,              # $/MWh credit rate (up to $30/MWh)
+        # $/MWh credit rate (up to $30/MWh)
+        "credit_rate_per_mwh": 30.0,
         "credit_duration_years": 10,              # Duration of credit eligibility
         "applies_to_new_plants": True,            # For new nuclear construction
         "description": "45Y Production Tax Credit for new nuclear power facilities"
@@ -343,17 +348,22 @@ TAX_INCENTIVE_POLICIES = {
     # 48E Investment Tax Credit for Nuclear Plants
     "48e_itc": {
         "credit_rate": 0.50,                      # 50% ITC rate (up to 50%)
-        "depreciation_basis_reduction_rate": 0.50, # 50% of ITC amount reduces depreciation basis
+        # 50% of ITC amount reduces depreciation basis
+        "depreciation_basis_reduction_rate": 0.50,
         "applies_to_nuclear_only": True,          # Only nuclear equipment qualifies
         "description": "48E Investment Tax Credit for nuclear power facilities"
     },
 
     # Policy sensitivity analysis parameters
     "sensitivity_analysis": {
-        "45u_rate_range": [10.0, 15.0, 20.0],    # $/MWh range for sensitivity analysis
-        "45y_rate_range": [20.0, 30.0, 40.0],    # $/MWh range for sensitivity analysis
-        "48e_rate_range": [0.30, 0.50, 0.60],    # ITC rate range for sensitivity analysis
-        "duration_range": [5, 10, 15],           # Years range for PTC duration analysis
+        # $/MWh range for sensitivity analysis
+        "45u_rate_range": [10.0, 15.0, 20.0],
+        # $/MWh range for sensitivity analysis
+        "45y_rate_range": [20.0, 30.0, 40.0],
+        # ITC rate range for sensitivity analysis
+        "48e_rate_range": [0.30, 0.50, 0.60],
+        # Years range for PTC duration analysis
+        "duration_range": [5, 10, 15],
     }
 }
 
@@ -365,41 +375,49 @@ SYSTEM_COST_PARAMETERS = {
         "lte_capex_usd_per_mw": 1_000_000,        # LTE: $1,000/kW = $1M/MW
         "hte_capex_usd_per_mw": 1_500_000,        # HTE: $1,500/kW = $1.5M/MW
         "lifetime_years": 20,                     # Equipment lifetime
-        "discount_rate": 0.08,                    # Discount rate for annualization
+        "discount_rate": 0.06,                    # Discount rate for annualization
 
         # Annualized costs (for reference, calculated from original costs)
-        "lte_capex_usd_per_mw_year": 203_704.42,  # LTE annualized
-        "hte_capex_usd_per_mw_year": 254_630.52,  # HTE annualized
+        "lte_capex_usd_per_mw_year": 87_275,  # LTE annualized
+        "hte_capex_usd_per_mw_year": 130_912.5,  # HTE annualized
 
         # Operating costs
-        "lte_vom_usd_per_mwh": 8.0,               # LTE variable O&M
-        "hte_vom_usd_per_mwh": 10.0,              # HTE variable O&M
+        "lte_vom_usd_per_mwh": 6.0,               # LTE variable O&M
+        "hte_vom_usd_per_mwh": 6.9,              # HTE variable O&M
         "water_cost_usd_per_kg_h2": 0.03,         # Water cost
         "aux_power_per_kg_h2": 0.0005,            # Auxiliary power consumption
 
         # Efficiency parameters
-        "lte_efficiency_kwh_per_kg": [57.0, 56.0, 55.0, 54.0],  # LTE efficiency curve
-        "hte_efficiency_kwh_per_kg": [42.0, 41.0, 40.0, 39.0],  # HTE efficiency curve
+        # LTE efficiency curve
+        "lte_efficiency_kwh_per_kg": [57.0, 56.0, 55.0, 54.0],
+        # HTE efficiency curve
+        "hte_efficiency_kwh_per_kg": [44.0, 43.0, 42.0, 41.0],
     },
 
-    # Battery Parameters (from data_gen.py original costs)
+    # Battery Parameters (MODIFIED for power-only costing strategy)
     "battery": {
-        # Original CAPEX costs (not annualized)
-        "energy_capex_usd_per_mwh": 236_000,      # $236/kWh = $236k/MWh
-        "power_capex_usd_per_mw": 944_000,        # $236/kWh * 4h = $944k/MW
-        "lifetime_years": 15,                     # Equipment lifetime
-        "discount_rate": 0.08,                    # Discount rate for annualization
+        # Original CAPEX costs (not annualized) - ENERGY COST DISABLED
+        "energy_capex_usd_per_mwh": 0,            # No energy capacity cost
+        # NOTE: power_capex_usd_per_mw includes 4-hour duration cost ($2.1M/MW for 4h storage)
+        "power_capex_usd_per_mw": 2_100_000,
+        "lifetime_years": 20,                     # Equipment lifetime
+        "discount_rate": 0.06,                    # Discount rate for annualization
 
         # Annualized costs (for reference, calculated from original costs)
-        "energy_capex_usd_per_mwh_year": 27_571.77,  # Energy capacity annualized
-        "power_capex_usd_per_mw_year": 110_287.09,   # Power capacity annualized
+        "energy_capex_usd_per_mwh_year": 0,       # No energy capacity cost
+        # Power capacity annualized (includes 4h duration, no double-counting)
+        "power_capex_usd_per_mw_year": 183_277.5,
 
         # Operating costs
-        "fixed_om_usd_per_mwh_year": 2_360.0,        # Fixed O&M (1% of energy CAPEX)
+        # No energy-based O&M
+        "fixed_om_usd_per_mwh_year": 0,
+        # Power-based O&M (1% of power CAPEX, includes 4h duration consideration)
+        "fixed_om_usd_per_mw_year": 48_168.0,
 
         # Technical parameters
         "duration_hours": 4.0,                       # Battery duration
-        "power_ratio_mw_per_mwh": 0.25,              # Power to energy ratio (1/4h)
+        # Power to energy ratio (1/4h)
+        "power_ratio_mw_per_mwh": 0.25,
         "charge_efficiency": 0.92,                   # Charge efficiency
         "discharge_efficiency": 0.92,                # Discharge efficiency
         "min_soc_fraction": 0.1,                     # Minimum state of charge
@@ -416,7 +434,7 @@ SYSTEM_COST_PARAMETERS = {
 
     # Turbine Parameters (from sys_data_advanced.csv)
     "turbine": {
-        "vom_usd_per_mwh": 2.0,                      # Variable O&M
+        "vom_usd_per_mwh": 1.0,                      # Variable O&M
         "thermal_efficiency": 0.38,                  # Thermal to electric efficiency
         "ramp_up_rate_percent_per_min": 2.0,         # Ramp up rate
         "ramp_down_rate_percent_per_min": 2.0,       # Ramp down rate

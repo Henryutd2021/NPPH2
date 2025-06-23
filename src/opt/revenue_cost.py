@@ -540,10 +540,27 @@ def opex_cost_rule(m):
                 "delT_minutes must result in a positive time_factor.")
 
         cost_vom_turbine_expr = 0.0
+        cost_fixed_om_npp_expr = 0.0
+        cost_fuel_npp_expr = 0.0
         if enable_npp and hasattr(m, "vom_turbine") and hasattr(m, "pTurbine"):
             cost_vom_turbine_expr = sum(
                 m.vom_turbine * m.pTurbine[t] * time_factor for t in m.TimePeriods
             )
+
+            # Add nuclear power plant fixed O&M cost (annual cost distributed over simulation period)
+            if hasattr(m, "npp_fixed_om_cost") and hasattr(m, "pTurbine_max"):
+                # Convert annual fixed O&M cost ($/MW/year) to hourly cost
+                # npp_fixed_om_cost is in $/MW/year, pTurbine_max is the nuclear capacity in MW
+                annual_fixed_om_total = m.npp_fixed_om_cost * m.pTurbine_max
+                # Convert to hourly cost for the simulation period
+                hours_in_simulation = len(m.TimePeriods) * time_factor
+                cost_fixed_om_npp_expr = annual_fixed_om_total * hours_in_simulation / 8760.0
+
+            # Add nuclear fuel cost (variable cost based on generation)
+            if hasattr(m, "npp_fuel_cost"):
+                cost_fuel_npp_expr = sum(
+                    m.npp_fuel_cost * m.pTurbine[t] * time_factor for t in m.TimePeriods
+                )
 
         cost_vom_electrolyzer_expr = 0.0
         if (
@@ -623,6 +640,8 @@ def opex_cost_rule(m):
 
         total_opex_expr = (
             cost_vom_turbine_expr
+            + cost_fixed_om_npp_expr
+            + cost_fuel_npp_expr
             + cost_vom_electrolyzer_expr
             + cost_vom_battery_expr
             + cost_water_expr

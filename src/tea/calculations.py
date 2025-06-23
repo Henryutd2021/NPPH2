@@ -130,7 +130,8 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         # Use actual hourly data cumulative values, not annualization factor
         # This represents the actual production from the optimization results
         metrics["H2_Production_kg_annual"] = df["mHydrogenProduced_kg_hr"].sum()
-        logger.info(f"H2 production calculated from hourly data: {metrics['H2_Production_kg_annual']:,.0f} kg/year")
+        logger.info(
+            f"H2 production calculated from hourly data: {metrics['H2_Production_kg_annual']:,.0f} kg/year")
 
         degradation_cols = [
             col for col in df.columns if "degradation" in col.lower()]
@@ -349,18 +350,22 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             # Use actual hourly data cumulative values for battery charging
             battery_charge_mwh_annual = df[battery_charge_col].sum()
             metrics["Annual_Battery_Charge_MWh"] = battery_charge_mwh_annual
-            logger.info(f"Battery charging from hourly data: {battery_charge_mwh_annual:,.0f} MWh/year")
+            logger.info(
+                f"Battery charging from hourly data: {battery_charge_mwh_annual:,.0f} MWh/year")
 
             # Calculate battery discharge if column exists
             if battery_discharge_col is not None:
                 battery_discharge_mwh_annual = df[battery_discharge_col].sum()
                 metrics["Annual_Battery_Discharge_MWh"] = battery_discharge_mwh_annual
-                logger.info(f"Battery discharging from hourly data: {battery_discharge_mwh_annual:,.0f} MWh/year")
+                logger.info(
+                    f"Battery discharging from hourly data: {battery_discharge_mwh_annual:,.0f} MWh/year")
             else:
                 # Estimate discharge from charge with round-trip efficiency
-                battery_discharge_mwh_annual = battery_charge_mwh_annual * 0.85  # 85% round-trip efficiency
+                battery_discharge_mwh_annual = battery_charge_mwh_annual * \
+                    0.85  # 85% round-trip efficiency
                 metrics["Annual_Battery_Discharge_MWh"] = battery_discharge_mwh_annual
-                logger.info(f"Battery discharging estimated from charging: {battery_discharge_mwh_annual:,.0f} MWh/year (85% efficiency)")
+                logger.info(
+                    f"Battery discharging estimated from charging: {battery_discharge_mwh_annual:,.0f} MWh/year (85% efficiency)")
 
             grid_purchase_col = None
             possible_grid_purchase_cols = [
@@ -373,10 +378,12 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                 # Use actual hourly data for battery charging breakdown
                 battery_grid_charge_mask = (df[battery_charge_col] > 0) & (
                     df[grid_purchase_col] > 0)
-                battery_charge_from_grid_mwh = df.loc[battery_grid_charge_mask, battery_charge_col].sum()
+                battery_charge_from_grid_mwh = df.loc[battery_grid_charge_mask, battery_charge_col].sum(
+                )
                 battery_npp_charge_mask = (df[battery_charge_col] > 0) & (
                     df[grid_purchase_col] <= 1e-6)
-                battery_charge_from_npp_mwh = df.loc[battery_npp_charge_mask, battery_charge_col].sum()
+                battery_charge_from_npp_mwh = df.loc[battery_npp_charge_mask, battery_charge_col].sum(
+                )
                 metrics["Annual_Battery_Charge_From_Grid_MWh"] = battery_charge_from_grid_mwh
                 metrics["Annual_Battery_Charge_From_NPP_MWh"] = battery_charge_from_npp_mwh
                 logger.info(
@@ -444,10 +451,12 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         # Use actual hourly data for electrolyzer electricity consumption
         if "pElectrolyzer_MW" in df.columns:
             metrics["Annual_Electrolyzer_MWh"] = df["pElectrolyzer_MW"].sum()
-            logger.info(f"Electrolyzer electricity consumption from hourly data: {metrics['Annual_Electrolyzer_MWh']:,.0f} MWh/year")
+            logger.info(
+                f"Electrolyzer electricity consumption from hourly data: {metrics['Annual_Electrolyzer_MWh']:,.0f} MWh/year")
         else:
             metrics["Annual_Electrolyzer_MWh"] = 0
-            logger.warning("No electrolyzer power data found in hourly results")
+            logger.warning(
+                "No electrolyzer power data found in hourly results")
         if ("pElectrolyzer_MW" in df.columns and metrics["Electrolyzer_Capacity_MW"] > 1e-6):
             metrics["Electrolyzer_CF_percent"] = (
                 df["pElectrolyzer_MW"].mean() / metrics["Electrolyzer_Capacity_MW"]) * 100
@@ -550,10 +559,13 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
                 total_deployed_energy += service_deployed_total
                 service_name = deployed_col.replace("_Deployed_MW", "")
                 metrics[f"AS_Total_Deployed_{service_name}_MWh"] = service_deployed_total
-                metrics[f"AS_Avg_Deployed_{service_name}_MW"] = df[deployed_col].mean()
-                logger.debug(f"  {service_name}: {service_deployed_total:,.1f} MWh/year deployed")
+                metrics[f"AS_Avg_Deployed_{service_name}_MW"] = df[deployed_col].mean(
+                )
+                logger.debug(
+                    f"  {service_name}: {service_deployed_total:,.1f} MWh/year deployed")
             metrics["AS_Total_Deployed_Energy_MWh"] = total_deployed_energy
-            logger.info(f"Total AS deployment energy from hourly data: {total_deployed_energy:,.1f} MWh/year")
+            logger.info(
+                f"Total AS deployment energy from hourly data: {total_deployed_energy:,.1f} MWh/year")
             for deployed_col in as_deployed_columns:
                 service_base = deployed_col.replace("_Deployed_MW", "")
                 corresponding_bid_col = f"Total_{service_base}_Bid_MW"
@@ -571,24 +583,30 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             steam_consumption_hourly = df["qSteam_Electrolyzer_MWth"]
             # Use actual hourly data cumulative values for HTE steam consumption
             total_steam_consumption_annual = steam_consumption_hourly.sum()
-            logger.info(f"HTE steam consumption from hourly data: {total_steam_consumption_annual:,.1f} MWth/year")
+            logger.info(
+                f"HTE steam consumption from hourly data: {total_steam_consumption_annual:,.1f} MWth/year")
             if total_steam_consumption_annual > 1.0:
                 metrics["HTE_Mode_Detected"] = True
                 metrics["HTE_Steam_Consumption_Annual_MWth"] = total_steam_consumption_annual
                 thermal_efficiency = metrics.get("thermal_efficiency", 0.0)
                 # Get electricity price from metrics (calculated from hourly data) or system data
-                avg_electricity_price = metrics.get("Avg_Electricity_Price_USD_per_MWh")
+                avg_electricity_price = metrics.get(
+                    "Avg_Electricity_Price_USD_per_MWh")
                 if avg_electricity_price is None or avg_electricity_price <= 0:
                     # Try from system parameters if not in metrics
-                    avg_electricity_price = tea_sys_params.get("Avg_Electricity_Price_USD_per_MWh")
+                    avg_electricity_price = tea_sys_params.get(
+                        "Avg_Electricity_Price_USD_per_MWh")
                     if avg_electricity_price is None:
-                        avg_electricity_price = tea_sys_params.get("avg_electricity_price_usd_per_mwh")
+                        avg_electricity_price = tea_sys_params.get(
+                            "avg_electricity_price_usd_per_mwh")
 
                 if avg_electricity_price is None or avg_electricity_price <= 0:
-                    logger.warning("Electricity price not found in hourly data or system data. Using fallback value.")
+                    logger.warning(
+                        "Electricity price not found in hourly data or system data. Using fallback value.")
                     avg_electricity_price = 40.0  # Fallback only if absolutely necessary
                 else:
-                    logger.info(f"Using electricity price for HTE calculation: ${avg_electricity_price:.2f}/MWh")
+                    logger.info(
+                        f"Using electricity price for HTE calculation: ${avg_electricity_price:.2f}/MWh")
                 if thermal_efficiency > 0:
                     lost_electricity_generation_mwh = total_steam_consumption_annual * thermal_efficiency
                     heat_opportunity_cost_annual = lost_electricity_generation_mwh * avg_electricity_price
@@ -627,14 +645,16 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
         # Calculate annual nuclear generation from hourly data
         if "pTurbine_MW" in df.columns:
             annual_nuclear_generation_mwh = df["pTurbine_MW"].sum()
-            logger.info(f"Nuclear generation from hourly data: {annual_nuclear_generation_mwh:,.0f} MWh/year")
+            logger.info(
+                f"Nuclear generation from hourly data: {annual_nuclear_generation_mwh:,.0f} MWh/year")
         else:
             # Fallback calculation if pTurbine_MW not available
             if nuclear_capacity_mw > 0:
                 # Use capacity factor from metrics if available, otherwise assume 90%
                 capacity_factor = metrics.get("Turbine_CF_percent", 90) / 100
                 annual_nuclear_generation_mwh = nuclear_capacity_mw * 8760 * capacity_factor
-                logger.warning(f"pTurbine_MW not found. Using estimated nuclear generation: {annual_nuclear_generation_mwh:,.0f} MWh/year")
+                logger.warning(
+                    f"pTurbine_MW not found. Using estimated nuclear generation: {annual_nuclear_generation_mwh:,.0f} MWh/year")
 
         metrics["Annual_Nuclear_Generation_MWh"] = annual_nuclear_generation_mwh
 
@@ -661,7 +681,7 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
 
             # Total nuclear OPEX
             total_nuclear_opex = (annual_nuclear_fixed_om + annual_nuclear_variable_om +
-                                 annual_nuclear_fuel_cost + annual_nuclear_additional_costs)
+                                  annual_nuclear_fuel_cost + annual_nuclear_additional_costs)
 
             # Store nuclear cost metrics for consistency with other sections
             metrics["Nuclear_Fixed_OM_Annual_USD"] = annual_nuclear_fixed_om
@@ -677,13 +697,19 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             metrics["Nuclear_Additional_Costs_USD_per_MW_year"] = additional_costs_per_mw_year
 
             logger.info(f"Standardized nuclear costs calculated:")
-            logger.info(f"  Fixed O&M: ${annual_nuclear_fixed_om:,.0f}/year (${fixed_om_per_mw_month:,.0f}/MW/month)")
-            logger.info(f"  Variable O&M: ${annual_nuclear_variable_om:,.0f}/year (${variable_om_per_mwh:.1f}/MWh)")
-            logger.info(f"  Fuel costs: ${annual_nuclear_fuel_cost:,.0f}/year (${nuclear_fuel_cost_per_mwh:.1f}/MWh)")
-            logger.info(f"  Additional costs: ${annual_nuclear_additional_costs:,.0f}/year (${additional_costs_per_mw_year:,.0f}/MW/year)")
-            logger.info(f"  Total nuclear OPEX: ${total_nuclear_opex:,.0f}/year")
+            logger.info(
+                f"  Fixed O&M: ${annual_nuclear_fixed_om:,.0f}/year (${fixed_om_per_mw_month:,.0f}/MW/month)")
+            logger.info(
+                f"  Variable O&M: ${annual_nuclear_variable_om:,.0f}/year (${variable_om_per_mwh:.1f}/MWh)")
+            logger.info(
+                f"  Fuel costs: ${annual_nuclear_fuel_cost:,.0f}/year (${nuclear_fuel_cost_per_mwh:.1f}/MWh)")
+            logger.info(
+                f"  Additional costs: ${annual_nuclear_additional_costs:,.0f}/year (${additional_costs_per_mw_year:,.0f}/MW/year)")
+            logger.info(
+                f"  Total nuclear OPEX: ${total_nuclear_opex:,.0f}/year")
         else:
-            logger.warning("Nuclear capacity or generation is zero. Nuclear cost calculations skipped.")
+            logger.warning(
+                "Nuclear capacity or generation is zero. Nuclear cost calculations skipped.")
             # Set zero values for consistency
             metrics["Nuclear_Fixed_OM_Annual_USD"] = 0
             metrics["Nuclear_Variable_OM_Annual_USD"] = 0
@@ -708,7 +734,8 @@ def calculate_lcoh_breakdown(
     construction_period_years: int,
     discount_rate: float,
     annual_h2_production_kg: float,
-    annual_hydrogen_as_revenue: float = 0.0,  # New parameter for H2 system AS revenue
+    # New parameter for H2 system AS revenue
+    annual_hydrogen_as_revenue: float = 0.0,
 ) -> dict:
     logger.info("Calculating detailed LCOH breakdown by cost factors")
     if annual_h2_production_kg <= 0:
@@ -733,8 +760,10 @@ def calculate_lcoh_breakdown(
 
     # Log AS revenue information
     if annual_hydrogen_as_revenue > 0:
-        logger.info(f"Hydrogen system AS revenue: ${annual_hydrogen_as_revenue:,.0f}/year")
-        logger.info(f"PV of hydrogen system AS revenue: ${pv_total_hydrogen_as_revenue:,.0f}")
+        logger.info(
+            f"Hydrogen system AS revenue: ${annual_hydrogen_as_revenue:,.0f}/year")
+        logger.info(
+            f"PV of hydrogen system AS revenue: ${pv_total_hydrogen_as_revenue:,.0f}")
     else:
         logger.debug("No hydrogen system AS revenue to deduct from LCOH")
 
@@ -849,24 +878,28 @@ def calculate_lcoh_breakdown(
     total_cost_before_as = sum(lcoh_breakdown.values())
 
     # Calculate AS revenue deduction per kg H2
-    as_revenue_deduction_per_kg = pv_total_hydrogen_as_revenue / pv_total_h2_production if pv_total_h2_production > 0 else 0
+    as_revenue_deduction_per_kg = pv_total_hydrogen_as_revenue / \
+        pv_total_h2_production if pv_total_h2_production > 0 else 0
 
     # Apply AS revenue deduction to get final LCOH
     total_lcoh = total_cost_before_as - as_revenue_deduction_per_kg
 
     # Ensure LCOH is not negative
     if total_lcoh < 0:
-        logger.warning(f"LCOH calculation resulted in negative value (${total_lcoh:.3f}/kg). Setting to 0.")
+        logger.warning(
+            f"LCOH calculation resulted in negative value (${total_lcoh:.3f}/kg). Setting to 0.")
         total_lcoh = 0
 
     # Calculate percentages based on adjusted total LCOH
     # Note: AS revenue deduction is shown as negative contribution
     lcoh_breakdown_with_as = lcoh_breakdown.copy()
     if as_revenue_deduction_per_kg > 0:
-        lcoh_breakdown_with_as["AS_Revenue_Deduction"] = -as_revenue_deduction_per_kg
+        lcoh_breakdown_with_as["AS_Revenue_Deduction"] = - \
+            as_revenue_deduction_per_kg
 
     # Calculate percentages based on absolute values for meaningful representation
-    total_absolute_impact = sum(abs(cost) for cost in lcoh_breakdown_with_as.values())
+    total_absolute_impact = sum(abs(cost)
+                                for cost in lcoh_breakdown_with_as.values())
     lcoh_percentages = {comp: (abs(cost) / total_absolute_impact) * 100 for comp,
                         cost in lcoh_breakdown_with_as.items()} if total_absolute_impact > 0 else {}
 
@@ -883,8 +916,10 @@ def calculate_lcoh_breakdown(
     logger.info(
         f"LCOH Breakdown: Total ${total_lcoh:.3f}/kg H2 (after AS revenue deduction). Components: {len(lcoh_breakdown_with_as)}")
     if as_revenue_deduction_per_kg > 0:
-        logger.info(f"   Cost before AS revenue: ${total_cost_before_as:.3f}/kg H2")
-        logger.info(f"   AS revenue deduction: ${as_revenue_deduction_per_kg:.3f}/kg H2")
+        logger.info(
+            f"   Cost before AS revenue: ${total_cost_before_as:.3f}/kg H2")
+        logger.info(
+            f"   AS revenue deduction: ${as_revenue_deduction_per_kg:.3f}/kg H2")
 
     sorted_components = sorted(
         lcoh_breakdown_with_as.items(), key=lambda x: abs(x[1]), reverse=True)
@@ -897,7 +932,8 @@ def calculate_lcoh_breakdown(
     sensitivity_range = 0.20
     sensitivity_analysis = {}
     # Only perform sensitivity analysis on cost components (positive values), not revenue deductions
-    cost_components = [(comp, cost) for comp, cost in sorted_components[:5] if cost > 0]
+    cost_components = [(comp, cost)
+                       for comp, cost in sorted_components[:5] if cost > 0]
 
     for component, base_cost in cost_components:  # Sensitivity for top 5 cost components
         comp_sensitivity = {}
@@ -924,7 +960,8 @@ def calculate_lcos_breakdown(
     construction_period_years: int,
     discount_rate: float,
     annual_battery_throughput_mwh: float,
-    annual_battery_as_revenue: float = 0.0,  # New parameter for battery system AS revenue
+    # New parameter for battery system AS revenue
+    annual_battery_as_revenue: float = 0.0,
 ) -> dict:
     """
     Calculate detailed LCOS (Levelized Cost of Storage) breakdown by cost factors for Case 2/3 battery systems.
@@ -953,8 +990,10 @@ def calculate_lcos_breakdown(
 
     # Log AS revenue information
     if annual_battery_as_revenue > 0:
-        logger.info(f"Battery system AS revenue: ${annual_battery_as_revenue:,.0f}/year")
-        logger.info(f"PV of battery system AS revenue: ${pv_total_battery_as_revenue:,.0f}")
+        logger.info(
+            f"Battery system AS revenue: ${annual_battery_as_revenue:,.0f}/year")
+        logger.info(
+            f"PV of battery system AS revenue: ${pv_total_battery_as_revenue:,.0f}")
     else:
         logger.debug("No battery system AS revenue to deduct from LCOS")
 
@@ -981,48 +1020,58 @@ def calculate_lcos_breakdown(
         # Allocate fixed O&M to battery based on battery capacity ratio
         battery_capacity_mwh = annual_metrics.get("Battery_Capacity_MWh", 0)
         total_capex = annual_metrics.get("total_capex", 0)
-        battery_capex = sum(cost for comp, cost in capex_breakdown.items() if "Battery" in comp)
+        battery_capex = sum(
+            cost for comp, cost in capex_breakdown.items() if "Battery" in comp)
 
         if total_capex > 0 and battery_capex > 0:
             battery_om_ratio = battery_capex / total_capex
             pv_battery_fixed_om_total = sum(cost * battery_om_ratio / (1 + discount_rate)**(idx + construction_period_years)
-                                          for idx, cost in enumerate(annual_fixed_om_costs))
+                                            for idx, cost in enumerate(annual_fixed_om_costs))
             if pv_battery_fixed_om_total > 0:
-                lcos_breakdown["Fixed_OM"] = pv_battery_fixed_om_total / pv_total_battery_throughput
+                lcos_breakdown["Fixed_OM"] = pv_battery_fixed_om_total / \
+                    pv_total_battery_throughput
                 logger.debug(
                     f"   Battery Fixed O&M: PV ${pv_battery_fixed_om_total:,.0f} -> ${lcos_breakdown['Fixed_OM']:.3f}/MWh")
 
     # Battery Variable O&M
     battery_vom_cost = annual_metrics.get("VOM_Battery_Cost", 0)
     if battery_vom_cost > 0:
-        lcos_breakdown["VOM_Battery"] = battery_vom_cost / annual_battery_throughput_mwh
+        lcos_breakdown["VOM_Battery"] = battery_vom_cost / \
+            annual_battery_throughput_mwh
         logger.debug(
             f"   Battery VOM: ${battery_vom_cost:,.0f}/year -> ${lcos_breakdown['VOM_Battery']:.3f}/MWh")
 
     # Battery electricity costs
-    battery_npp_charge_mwh = annual_metrics.get("Annual_Battery_Charge_From_NPP_MWh", 0)
-    battery_grid_charge_mwh = annual_metrics.get("Annual_Battery_Charge_From_Grid_MWh", 0)
-    avg_electricity_price = annual_metrics.get("Avg_Electricity_Price_USD_per_MWh", 40.0)
+    battery_npp_charge_mwh = annual_metrics.get(
+        "Annual_Battery_Charge_From_NPP_MWh", 0)
+    battery_grid_charge_mwh = annual_metrics.get(
+        "Annual_Battery_Charge_From_Grid_MWh", 0)
+    avg_electricity_price = annual_metrics.get(
+        "Avg_Electricity_Price_USD_per_MWh", 40.0)
 
     if battery_npp_charge_mwh > 0:
         battery_npp_opportunity_cost = battery_npp_charge_mwh * avg_electricity_price
-        lcos_breakdown["Electricity_Opportunity_Cost_NPP"] = battery_npp_opportunity_cost / annual_battery_throughput_mwh
+        lcos_breakdown["Electricity_Opportunity_Cost_NPP"] = battery_npp_opportunity_cost / \
+            annual_battery_throughput_mwh
         logger.debug(
             f"   Battery NPP Elec Opp Cost: ${battery_npp_opportunity_cost:,.0f}/yr -> ${lcos_breakdown['Electricity_Opportunity_Cost_NPP']:.3f}/MWh")
 
     if battery_grid_charge_mwh > 0:
         battery_grid_direct_cost = battery_grid_charge_mwh * avg_electricity_price
-        lcos_breakdown["Electricity_Direct_Cost_Grid"] = battery_grid_direct_cost / annual_battery_throughput_mwh
+        lcos_breakdown["Electricity_Direct_Cost_Grid"] = battery_grid_direct_cost / \
+            annual_battery_throughput_mwh
         logger.debug(
             f"   Battery Grid Elec Cost: ${battery_grid_direct_cost:,.0f}/yr -> ${lcos_breakdown['Electricity_Direct_Cost_Grid']:.3f}/MWh")
 
     # Battery replacement costs
-    annual_other_replacement_costs = annual_metrics.get("annual_other_replacement_costs", [])
+    annual_other_replacement_costs = annual_metrics.get(
+        "annual_other_replacement_costs", [])
     if annual_other_replacement_costs:
         pv_battery_replacement_total = sum(cost / (1 + discount_rate)**(idx + construction_period_years)
-                                         for idx, cost in enumerate(annual_other_replacement_costs) if cost > 0)
+                                           for idx, cost in enumerate(annual_other_replacement_costs) if cost > 0)
         if pv_battery_replacement_total > 0:
-            lcos_breakdown["Battery_Replacements"] = pv_battery_replacement_total / pv_total_battery_throughput
+            lcos_breakdown["Battery_Replacements"] = pv_battery_replacement_total / \
+                pv_total_battery_throughput
             logger.debug(
                 f"   Battery Replacements: PV ${pv_battery_replacement_total:,.0f} -> ${lcos_breakdown['Battery_Replacements']:.3f}/MWh")
 
@@ -1032,23 +1081,27 @@ def calculate_lcos_breakdown(
     total_cost_before_as = sum(lcos_breakdown.values())
 
     # Calculate AS revenue deduction per MWh
-    as_revenue_deduction_per_mwh = pv_total_battery_as_revenue / pv_total_battery_throughput if pv_total_battery_throughput > 0 else 0
+    as_revenue_deduction_per_mwh = pv_total_battery_as_revenue / \
+        pv_total_battery_throughput if pv_total_battery_throughput > 0 else 0
 
     # Apply AS revenue deduction to get final LCOS
     total_lcos = total_cost_before_as - as_revenue_deduction_per_mwh
 
     # Ensure LCOS is not negative
     if total_lcos < 0:
-        logger.warning(f"LCOS calculation resulted in negative value (${total_lcos:.3f}/MWh). Setting to 0.")
+        logger.warning(
+            f"LCOS calculation resulted in negative value (${total_lcos:.3f}/MWh). Setting to 0.")
         total_lcos = 0
 
     # Calculate percentages based on adjusted total LCOS
     lcos_breakdown_with_as = lcos_breakdown.copy()
     if as_revenue_deduction_per_mwh > 0:
-        lcos_breakdown_with_as["AS_Revenue_Deduction"] = -as_revenue_deduction_per_mwh
+        lcos_breakdown_with_as["AS_Revenue_Deduction"] = - \
+            as_revenue_deduction_per_mwh
 
     # Calculate percentages based on absolute values for meaningful representation
-    total_absolute_impact = sum(abs(cost) for cost in lcos_breakdown_with_as.values())
+    total_absolute_impact = sum(abs(cost)
+                                for cost in lcos_breakdown_with_as.values())
     lcos_percentages = {comp: (abs(cost) / total_absolute_impact) * 100 for comp,
                         cost in lcos_breakdown_with_as.items()} if total_absolute_impact > 0 else {}
 
@@ -1065,8 +1118,10 @@ def calculate_lcos_breakdown(
     logger.info(
         f"LCOS Breakdown: Total ${total_lcos:.3f}/MWh (after AS revenue deduction). Components: {len(lcos_breakdown_with_as)}")
     if as_revenue_deduction_per_mwh > 0:
-        logger.info(f"   Cost before AS revenue: ${total_cost_before_as:.3f}/MWh")
-        logger.info(f"   AS revenue deduction: ${as_revenue_deduction_per_mwh:.3f}/MWh")
+        logger.info(
+            f"   Cost before AS revenue: ${total_cost_before_as:.3f}/MWh")
+        logger.info(
+            f"   AS revenue deduction: ${as_revenue_deduction_per_mwh:.3f}/MWh")
 
     sorted_components = sorted(
         lcos_breakdown_with_as.items(), key=lambda x: abs(x[1]), reverse=True)
@@ -1100,7 +1155,8 @@ def calculate_cash_flows(
     if macrs_config is None:
         macrs_config = MACRS_CONFIG
 
-    cash_flows_array = np.zeros(project_lifetime_years + construction_period_years)
+    cash_flows_array = np.zeros(
+        project_lifetime_years + construction_period_years)
     total_capex_sum_after_learning = 0
     initial_battery_capex_energy = 0
     initial_battery_capex_power = 0
@@ -1132,6 +1188,7 @@ def calculate_cash_flows(
 
         capex_breakdown[comp_name.replace("_", " ")] = adj_total_comp_cost
         if comp_name == "Battery_System_Energy":
+            # Should be 0 for power-only costing
             initial_battery_capex_energy = adj_total_comp_cost
         if comp_name == "Battery_System_Power":
             initial_battery_capex_power = adj_total_comp_cost
@@ -1171,18 +1228,25 @@ def calculate_cash_flows(
 
     # Calculate base annual profit including nuclear operating costs
     annual_revenue = annual_metrics.get("Annual_Revenue", 0)
-    annual_h2_battery_opex = annual_metrics.get("Annual_Opex_Cost_from_Opt", 0)  # H2 and battery OPEX from optimization
-    annual_nuclear_opex = annual_metrics.get("Nuclear_Total_OPEX_Annual_USD", 0)  # Standardized nuclear OPEX
+    annual_h2_battery_opex = annual_metrics.get(
+        "Annual_Opex_Cost_from_Opt", 0)  # H2 and battery OPEX from optimization
+    annual_nuclear_opex = annual_metrics.get(
+        "Nuclear_Total_OPEX_Annual_USD", 0)  # Standardized nuclear OPEX
 
     # Total system OPEX includes both H2/battery and nuclear operating costs
     total_annual_opex = annual_h2_battery_opex + annual_nuclear_opex
     base_annual_profit = annual_revenue - total_annual_opex
 
-    logger.info(f"Cash flow calculation - Annual revenue: ${annual_revenue:,.0f}")
-    logger.info(f"Cash flow calculation - H2/Battery OPEX: ${annual_h2_battery_opex:,.0f}")
-    logger.info(f"Cash flow calculation - Nuclear OPEX: ${annual_nuclear_opex:,.0f}")
-    logger.info(f"Cash flow calculation - Total OPEX: ${total_annual_opex:,.0f}")
-    logger.info(f"Cash flow calculation - Base annual profit: ${base_annual_profit:,.0f}")
+    logger.info(
+        f"Cash flow calculation - Annual revenue: ${annual_revenue:,.0f}")
+    logger.info(
+        f"Cash flow calculation - H2/Battery OPEX: ${annual_h2_battery_opex:,.0f}")
+    logger.info(
+        f"Cash flow calculation - Nuclear OPEX: ${annual_nuclear_opex:,.0f}")
+    logger.info(
+        f"Cash flow calculation - Total OPEX: ${total_annual_opex:,.0f}")
+    logger.info(
+        f"Cash flow calculation - Base annual profit: ${base_annual_profit:,.0f}")
 
     # Update annual metrics to include total system OPEX for consistency
     annual_metrics["Total_System_OPEX_Annual_USD"] = total_annual_opex
@@ -1222,6 +1286,7 @@ def calculate_cash_flows(
         # Use ENABLE_BATTERY from config
         enable_battery_flag = ENABLE_BATTERY
         if enable_battery_flag and optimized_capacities.get("Battery_Capacity_MWh", 0) > 0:
+            # MODIFIED: Power-only battery O&M costing
             batt_fixed_om_mw = om_details.get(
                 "Fixed_OM_Battery", {}).get("base_cost_per_mw_year", 0)
             batt_fixed_om_mwh = om_details.get(
@@ -1229,10 +1294,9 @@ def calculate_cash_flows(
             batt_inflation = om_details.get(
                 "Fixed_OM_Battery", {}).get("inflation_rate", 0)
             batt_power_mw_opt = optimized_capacities.get("Battery_Power_MW", 0)
-            batt_cap_mwh_opt = optimized_capacities.get(
-                "Battery_Capacity_MWh", 0)
-            batt_fixed_om_cost_yr = (batt_power_mw_opt * batt_fixed_om_mw +
-                                     batt_cap_mwh_opt * batt_fixed_om_mwh) * ((1 + batt_inflation)**op_yr_idx)
+            # Only use power-based O&M cost (energy-based should be 0)
+            batt_fixed_om_cost_yr = batt_power_mw_opt * \
+                batt_fixed_om_mw * ((1 + batt_inflation)**op_yr_idx)
             current_fixed_om_total_for_year += batt_fixed_om_cost_yr
             curr_yr_profit_pre_fixed_om_tax -= batt_fixed_om_cost_yr
 
@@ -1266,7 +1330,8 @@ def calculate_cash_flows(
         taxable_income_before_depreciation = curr_yr_profit_pre_fixed_om_tax
 
         # Apply MACRS depreciation to reduce taxable income
-        macrs_depreciation_this_year = total_macrs_depreciation[curr_proj_yr_idx] if curr_proj_yr_idx < len(total_macrs_depreciation) else 0
+        macrs_depreciation_this_year = total_macrs_depreciation[curr_proj_yr_idx] if curr_proj_yr_idx < len(
+            total_macrs_depreciation) else 0
         taxable_income = taxable_income_before_depreciation - macrs_depreciation_this_year
 
         # Calculate tax on taxable income (after depreciation)
@@ -1277,8 +1342,9 @@ def calculate_cash_flows(
 
         if macrs_depreciation_this_year > 0:
             logger.debug(f"Year {curr_proj_yr_idx}: MACRS depreciation ${macrs_depreciation_this_year:,.0f} "
-                        f"reduced taxable income from ${taxable_income_before_depreciation:,.0f} to ${taxable_income:,.0f}")
-            logger.debug(f"Year {curr_proj_yr_idx}: Tax savings from MACRS: ${macrs_depreciation_this_year * tax_rate:,.0f}")
+                         f"reduced taxable income from ${taxable_income_before_depreciation:,.0f} to ${taxable_income:,.0f}")
+            logger.debug(
+                f"Year {curr_proj_yr_idx}: Tax savings from MACRS: ${macrs_depreciation_this_year * tax_rate:,.0f}")
 
     annual_metrics["annual_fixed_om_costs"] = annual_fixed_om_costs
     annual_metrics["annual_stack_replacement_costs"] = annual_stack_replacement_costs
@@ -1400,15 +1466,19 @@ def calculate_incremental_metrics(
             pr = 1 - lr
             b = math.log(pr) / math.log(2) if 0 < pr < 1 else 0
             adj_cost_inc = base_cost * ((actual_opt_cap_inc / ref_cap)**b)
-            logger.debug(f"  -> adj_cost_inc = ${adj_cost_inc:,.0f} (with learning rate)")
+            logger.debug(
+                f"  -> adj_cost_inc = ${adj_cost_inc:,.0f} (with learning rate)")
         elif actual_opt_cap_inc > 0 and ref_cap > 0 and cap_key:
             adj_cost_inc = base_cost * (actual_opt_cap_inc / ref_cap)
-            logger.debug(f"  -> adj_cost_inc = ${adj_cost_inc:,.0f} (linear scaling)")
+            logger.debug(
+                f"  -> adj_cost_inc = ${adj_cost_inc:,.0f} (linear scaling)")
         elif not cap_key:
             adj_cost_inc = base_cost
-            logger.debug(f"  -> adj_cost_inc = ${adj_cost_inc:,.0f} (fixed cost, no capacity key)")
+            logger.debug(
+                f"  -> adj_cost_inc = ${adj_cost_inc:,.0f} (fixed cost, no capacity key)")
 
         if comp_name == "Battery_System_Energy":
+            # Should be 0 for power-only costing
             initial_inc_battery_capex_energy = adj_cost_inc
         if comp_name == "Battery_System_Power":
             initial_inc_battery_capex_power = adj_cost_inc
@@ -1429,7 +1499,8 @@ def calculate_incremental_metrics(
         initial_inc_battery_capex_power
 
     # Calculate MACRS depreciation for incremental CAPEX
-    logger.info("Calculating MACRS depreciation for incremental CAPEX components")
+    logger.info(
+        "Calculating MACRS depreciation for incremental CAPEX components")
     incremental_macrs_depreciation, incremental_component_macrs_depreciation = calculate_total_macrs_depreciation(
         capex_breakdown=incremental_capex_breakdown,
         construction_period_years=construction_period_years,
@@ -1440,11 +1511,15 @@ def calculate_incremental_metrics(
     # Store incremental MACRS information in metrics
     inc_metrics["incremental_macrs_total_depreciation"] = incremental_macrs_depreciation
     inc_metrics["incremental_macrs_component_depreciation"] = incremental_component_macrs_depreciation
-    inc_metrics["incremental_macrs_enabled"] = macrs_config.get("enabled", True)
+    inc_metrics["incremental_macrs_enabled"] = macrs_config.get(
+        "enabled", True)
 
-    total_incremental_macrs_depreciation = np.sum(incremental_macrs_depreciation)
-    logger.info(f"Total incremental MACRS depreciation: ${total_incremental_macrs_depreciation:,.0f}")
-    logger.info(f"Incremental MACRS tax shield value: ${total_incremental_macrs_depreciation * tax_rate:,.0f}")
+    total_incremental_macrs_depreciation = np.sum(
+        incremental_macrs_depreciation)
+    logger.info(
+        f"Total incremental MACRS depreciation: ${total_incremental_macrs_depreciation:,.0f}")
+    logger.info(
+        f"Incremental MACRS tax shield value: ${total_incremental_macrs_depreciation * tax_rate:,.0f}")
 
     h2_rev_annual = annual_metrics_optimized.get("H2_Total_Revenue", 0)
     # Make sure this is AS_Revenue_Total from annual_metrics
@@ -1504,7 +1579,8 @@ def calculate_incremental_metrics(
     logger.info(
         f"HTE thermal opportunity cost for incremental analysis: ${hte_thermal_opp_cost_annual:,.2f}/year")
 
-    total_opportunity_cost_annual = opp_cost_elec_annual + as_opportunity_cost_annual + hte_thermal_opp_cost_annual
+    total_opportunity_cost_annual = opp_cost_elec_annual + \
+        as_opportunity_cost_annual + hte_thermal_opp_cost_annual
 
     # Track annual incremental revenue and costs for reporting
     annual_incremental_revenue = 0
@@ -1523,9 +1599,11 @@ def calculate_incremental_metrics(
         # Track for first operating year (representative annual values)
         if op_idx == 0:
             # Net incremental revenue (after opportunity costs)
-            annual_incremental_revenue = rev_inc  # This is cur_h2_rev + as_rev_annual - as_opportunity_cost_annual
+            # This is cur_h2_rev + as_rev_annual - as_opportunity_cost_annual
+            annual_incremental_revenue = rev_inc
             # Base incremental costs (before fixed O&M additions)
-            annual_incremental_costs = costs_inc  # This is vom_annual_inc + opp_cost_elec_annual + hte_thermal_opp_cost_annual
+            # This is vom_annual_inc + opp_cost_elec_annual + hte_thermal_opp_cost_annual
+            annual_incremental_costs = costs_inc
 
         fixed_om_inc_general_base = om_components_incremental.get(
             "Fixed_OM_General", {}).get("base_cost", 0)
@@ -1537,23 +1615,22 @@ def calculate_incremental_metrics(
 
         battery_fixed_om_cost = 0
         if enable_battery_flag and optimized_capacities_inc.get("Battery_Capacity_MWh", 0) > 0:
+            # MODIFIED: Power-only battery O&M costing for incremental analysis
             batt_fixed_om_per_mw_inc = om_components_incremental.get(
                 "Fixed_OM_Battery", {}).get("base_cost_per_mw_year", 0)
-            batt_fixed_om_per_mwh_inc = om_components_incremental.get(
-                "Fixed_OM_Battery", {}).get("base_cost_per_mwh_year", 0)
             batt_inflation_inc = om_components_incremental.get(
                 "Fixed_OM_Battery", {}).get("inflation_rate", 0)
             batt_power_inc = optimized_capacities_inc.get(
                 "Battery_Power_MW", 0)
-            batt_capacity_inc = optimized_capacities_inc.get(
-                "Battery_Capacity_MWh", 0)
-            battery_fixed_om_cost = (batt_power_inc * batt_fixed_om_per_mw_inc + batt_capacity_inc *
-                          batt_fixed_om_per_mwh_inc) * ((1 + batt_inflation_inc)**op_idx)
+            # Only use power-based O&M cost (energy-based should be 0)
+            battery_fixed_om_cost = batt_power_inc * \
+                batt_fixed_om_per_mw_inc * ((1 + batt_inflation_inc)**op_idx)
             costs_inc += battery_fixed_om_cost
 
         # Update incremental costs tracking for first year to include fixed O&M
         if op_idx == 0:
-            annual_incremental_costs = costs_inc  # Now includes all costs including fixed O&M
+            # Now includes all costs including fixed O&M
+            annual_incremental_costs = costs_inc
 
         for rep_comp_name_inc, rep_data_inc in replacement_schedule_incremental.items():
             if op_yr_num in rep_data_inc.get("years", []):
@@ -1566,8 +1643,10 @@ def calculate_incremental_metrics(
         profit_inc_pre_tax = rev_inc - costs_inc
 
         # Apply MACRS depreciation to reduce taxable income for incremental analysis
-        incremental_macrs_depreciation_this_year = incremental_macrs_depreciation[proj_yr_idx] if proj_yr_idx < len(incremental_macrs_depreciation) else 0
-        taxable_income_inc = profit_inc_pre_tax - incremental_macrs_depreciation_this_year
+        incremental_macrs_depreciation_this_year = incremental_macrs_depreciation[proj_yr_idx] if proj_yr_idx < len(
+            incremental_macrs_depreciation) else 0
+        taxable_income_inc = profit_inc_pre_tax - \
+            incremental_macrs_depreciation_this_year
 
         # Calculate tax on taxable income (after MACRS depreciation)
         tax_inc = taxable_income_inc * tax_rate if taxable_income_inc > 0 else 0
@@ -1577,8 +1656,9 @@ def calculate_incremental_metrics(
 
         if incremental_macrs_depreciation_this_year > 0:
             logger.debug(f"Incremental Year {proj_yr_idx}: MACRS depreciation ${incremental_macrs_depreciation_this_year:,.0f} "
-                        f"reduced taxable income from ${profit_inc_pre_tax:,.0f} to ${taxable_income_inc:,.0f}")
-            logger.debug(f"Incremental Year {proj_yr_idx}: Tax savings from MACRS: ${incremental_macrs_depreciation_this_year * tax_rate:,.0f}")
+                         f"reduced taxable income from ${profit_inc_pre_tax:,.0f} to ${taxable_income_inc:,.0f}")
+            logger.debug(
+                f"Incremental Year {proj_yr_idx}: Tax savings from MACRS: ${incremental_macrs_depreciation_this_year * tax_rate:,.0f}")
 
     incremental_npv = npf.npv(discount_rate, pure_incremental_cf)
     inc_metrics["NPV_USD"] = incremental_npv
@@ -1618,38 +1698,47 @@ def calculate_incremental_metrics(
 
     # Add incremental MACRS tax benefits summary
     incremental_macrs_tax_benefits = incremental_macrs_depreciation * tax_rate
-    total_incremental_macrs_tax_benefit = np.sum(incremental_macrs_tax_benefits)
+    total_incremental_macrs_tax_benefit = np.sum(
+        incremental_macrs_tax_benefits)
     inc_metrics["Incremental_MACRS_Total_Tax_Benefit_USD"] = total_incremental_macrs_tax_benefit
     inc_metrics["Incremental_MACRS_Annual_Tax_Benefits"] = incremental_macrs_tax_benefits
     inc_metrics["incremental_capex_breakdown"] = incremental_capex_breakdown
 
-    logger.info(f"Incremental MACRS total tax benefit: ${total_incremental_macrs_tax_benefit:,.0f}")
+    logger.info(
+        f"Incremental MACRS total tax benefit: ${total_incremental_macrs_tax_benefit:,.0f}")
 
     # Calculate incremental LCOH with AS revenue deduction
-    annual_h2_production = annual_metrics_optimized.get("H2_Production_kg_annual", 0)
+    annual_h2_production = annual_metrics_optimized.get(
+        "H2_Production_kg_annual", 0)
     if annual_h2_production > 0:
         # Calculate incremental hydrogen system AS revenue
         total_as_revenue = annual_metrics_optimized.get("AS_Revenue_Total", 0)
-        electrolyzer_as_revenue = annual_metrics_optimized.get("AS_Revenue_Electrolyzer", 0)
-        battery_as_revenue = annual_metrics_optimized.get("AS_Revenue_Battery", 0)
+        electrolyzer_as_revenue = annual_metrics_optimized.get(
+            "AS_Revenue_Electrolyzer", 0)
+        battery_as_revenue = annual_metrics_optimized.get(
+            "AS_Revenue_Battery", 0)
 
         # Use component-specific AS revenue if available, otherwise allocate based on capacity
         if electrolyzer_as_revenue > 0 or battery_as_revenue > 0:
             incremental_hydrogen_as_revenue = electrolyzer_as_revenue + battery_as_revenue
         else:
             # Fallback: allocate total AS revenue based on hydrogen system capacity
-            electrolyzer_capacity = annual_metrics_optimized.get("Electrolyzer_Capacity_MW", 0)
+            electrolyzer_capacity = annual_metrics_optimized.get(
+                "Electrolyzer_Capacity_MW", 0)
             battery_power = annual_metrics_optimized.get("Battery_Power_MW", 0)
-            turbine_capacity = annual_metrics_optimized.get("Turbine_Capacity_MW", 0)
+            turbine_capacity = annual_metrics_optimized.get(
+                "Turbine_Capacity_MW", 0)
 
             total_capacity = electrolyzer_capacity + battery_power + turbine_capacity
             if total_capacity > 0:
                 h2_system_capacity = electrolyzer_capacity + battery_power
-                incremental_hydrogen_as_revenue = total_as_revenue * (h2_system_capacity / total_capacity)
+                incremental_hydrogen_as_revenue = total_as_revenue * \
+                    (h2_system_capacity / total_capacity)
             else:
                 incremental_hydrogen_as_revenue = 0
 
-        logger.info(f"Incremental hydrogen system AS revenue: ${incremental_hydrogen_as_revenue:,.0f}/year")
+        logger.info(
+            f"Incremental hydrogen system AS revenue: ${incremental_hydrogen_as_revenue:,.0f}/year")
 
         # Calculate incremental LCOH breakdown
         try:
@@ -1665,25 +1754,35 @@ def calculate_incremental_metrics(
 
             if incremental_lcoh_breakdown:
                 inc_metrics["incremental_lcoh_breakdown_analysis"] = incremental_lcoh_breakdown
-                inc_metrics["Incremental_LCOH_USD_per_kg"] = incremental_lcoh_breakdown.get("total_lcoh_usd_per_kg", np.nan)
-                logger.info(f"Incremental LCOH calculated: ${inc_metrics.get('Incremental_LCOH_USD_per_kg', float('nan')):.3f}/kg H2")
+                inc_metrics["Incremental_LCOH_USD_per_kg"] = incremental_lcoh_breakdown.get(
+                    "total_lcoh_usd_per_kg", np.nan)
+                logger.info(
+                    f"Incremental LCOH calculated: ${inc_metrics.get('Incremental_LCOH_USD_per_kg', float('nan')):.3f}/kg H2")
             else:
                 inc_metrics["Incremental_LCOH_USD_per_kg"] = np.nan
-                logger.warning("Failed to calculate incremental LCOH breakdown")
+                logger.warning(
+                    "Failed to calculate incremental LCOH breakdown")
         except Exception as e:
             logger.error(f"Error calculating incremental LCOH breakdown: {e}")
             inc_metrics["Incremental_LCOH_USD_per_kg"] = np.nan
     else:
         inc_metrics["Incremental_LCOH_USD_per_kg"] = np.nan
-        logger.warning("No H2 production data available for incremental LCOH calculation")
+        logger.warning(
+            "No H2 production data available for incremental LCOH calculation")
 
     logger.info(f"Incremental financial metrics calculated successfully:")
-    logger.info(f"  Total Incremental CAPEX: ${inc_metrics.get('Total_Incremental_CAPEX_Learned_USD', 0):,.0f}")
+    logger.info(
+        f"  Total Incremental CAPEX: ${inc_metrics.get('Total_Incremental_CAPEX_Learned_USD', 0):,.0f}")
     logger.info(f"  Incremental NPV: ${inc_metrics.get('NPV_USD', 0):,.0f}")
-    logger.info(f"  Incremental IRR: {inc_metrics.get('IRR_percent', 'N/A'):.2f}%")
-    logger.info(f"  Payback Period: {inc_metrics.get('Payback_Period_Years', 'N/A'):.1f} years")
-    logger.info(f"  Incremental LCOH: ${inc_metrics.get('Incremental_LCOH_USD_per_kg', 'N/A'):.3f}/kg H2")
-    logger.info(f"  Annual Incremental Revenue: ${annual_incremental_revenue:,.0f}")
-    logger.info(f"  Annual Incremental Costs: ${annual_incremental_costs:,.0f}")
+    logger.info(
+        f"  Incremental IRR: {inc_metrics.get('IRR_percent', 'N/A'):.2f}%")
+    logger.info(
+        f"  Payback Period: {inc_metrics.get('Payback_Period_Years', 'N/A'):.1f} years")
+    logger.info(
+        f"  Incremental LCOH: ${inc_metrics.get('Incremental_LCOH_USD_per_kg', 'N/A'):.3f}/kg H2")
+    logger.info(
+        f"  Annual Incremental Revenue: ${annual_incremental_revenue:,.0f}")
+    logger.info(
+        f"  Annual Incremental Costs: ${annual_incremental_costs:,.0f}")
 
     return inc_metrics

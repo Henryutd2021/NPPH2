@@ -526,6 +526,15 @@ def create_model(
                 within=pyo.NonNegativeReals,
                 initialize=get_sys_param("vom_turbine_USD_per_MWh", 0),
             )
+            # Nuclear Power Plant Fixed O&M and Fuel Cost Parameters
+            model.npp_fixed_om_cost = pyo.Param(
+                within=pyo.NonNegativeReals,
+                initialize=get_sys_param("npp_fixed_om_cost", 0.0),
+            )
+            model.npp_fuel_cost = pyo.Param(
+                within=pyo.NonNegativeReals,
+                initialize=get_sys_param("npp_fuel_cost", 0.0),
+            )
             model.convertTtE_const = pyo.Param(
                 within=pyo.NonNegativeReals,
                 initialize=get_sys_param(
@@ -1026,6 +1035,11 @@ def create_model(
                 within=pyo.NonNegativeReals,
                 initialize=get_sys_param(
                     "BatteryFixedOM_USD_per_MWh_year", 0.0),
+            )
+            model.BatteryFixedOM_USD_per_MW_year = pyo.Param(
+                within=pyo.NonNegativeReals,
+                initialize=get_sys_param(
+                    "BatteryFixedOM_USD_per_MW_year", 0.0),
             )
             vom_batt_val = get_sys_param("vom_battery_per_mwh_cycled", None)
             model.vom_battery_per_mwh_cycled = pyo.Param(
@@ -2262,14 +2276,24 @@ def create_model(
                 and hasattr(m, "BatteryCapacity_MWh")
                 and hasattr(m, "BatteryPower_MW")
             ):
-                batt_cap_cost_param_per_year = m.BatteryCapex_USD_per_MWh_year
+                # MODIFIED: Power-only battery costing strategy
+                # NOTE: BatteryCapex_USD_per_MW_year already includes 4-hour duration cost
+                # No separate energy capacity cost to avoid double-counting duration
                 batt_pow_cost_param_per_year = m.BatteryCapex_USD_per_MW_year
-                batt_fom_cost_param_per_year = m.BatteryFixedOM_USD_per_MWh_year
-                battery_annual_cost = (
-                    m.BatteryCapacity_MWh * batt_cap_cost_param_per_year
-                    + m.BatteryPower_MW * batt_pow_cost_param_per_year
-                    + m.BatteryCapacity_MWh * batt_fom_cost_param_per_year
-                )
+                # Use power-based fixed O&M if available, otherwise use energy-based as fallback
+                if hasattr(m, "BatteryFixedOM_USD_per_MW_year"):
+                    batt_fom_cost_param_per_year = m.BatteryFixedOM_USD_per_MW_year
+                    battery_annual_cost = (
+                        m.BatteryPower_MW * batt_pow_cost_param_per_year
+                        + m.BatteryPower_MW * batt_fom_cost_param_per_year
+                    )
+                else:
+                    # Fallback to energy-based O&M if power-based not available
+                    batt_fom_cost_param_per_year = m.BatteryFixedOM_USD_per_MWh_year
+                    battery_annual_cost = (
+                        m.BatteryPower_MW * batt_pow_cost_param_per_year
+                        + m.BatteryCapacity_MWh * batt_fom_cost_param_per_year
+                    )
                 total_annual_capex_expr += (
                     battery_annual_cost * scaling_factor_for_period
                 )
