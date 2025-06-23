@@ -30,11 +30,11 @@ except ImportError:
 # Get the absolute path to the workspace root (parent of opt directory)
 workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 src_opt_path = os.path.join(workspace_root, 'src', 'opt')
-src_logging_path = os.path.join(workspace_root, 'src', 'logging')
+src_logger_utils_path = os.path.join(workspace_root, 'src', 'logger_utils')
 src_root_path = os.path.join(workspace_root, 'src')
 
 # Add all necessary paths to sys.path, including workspace root for absolute 'src' imports
-for path in [workspace_root, src_opt_path, src_logging_path, src_root_path]:
+for path in [workspace_root, src_opt_path, src_logger_utils_path, src_root_path]:
     if path not in sys.path:
         sys.path.insert(0, path)
 
@@ -42,7 +42,7 @@ for path in [workspace_root, src_opt_path, src_logging_path, src_root_path]:
 print(f"Added paths to sys.path:")
 print(f"  - {workspace_root} (for 'src' absolute imports)")
 print(f"  - {src_opt_path}")
-print(f"  - {src_logging_path}")
+print(f"  - {src_logger_utils_path}")
 print(f"  - {src_root_path}")
 
 # Try to import the optimization framework modules

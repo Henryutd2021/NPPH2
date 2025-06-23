@@ -2309,20 +2309,32 @@ def create_model(
                 if hasattr(m, "H2_storage_capacity_optimal"):
                     # Optimized storage capacity case
                     h2_storage_capacity = m.H2_storage_capacity_optimal
-                elif hasattr(m, "H2_storage_capacity_max"):
-                    # Fixed storage capacity case
-                    h2_storage_capacity = m.H2_storage_capacity_max
-                else:
-                    # Fallback to 0 if no storage capacity is defined
-                    h2_storage_capacity = 0
-
-                if h2_storage_capacity != 0:
                     h2_storage_annual_cost = (
                         h2_storage_capacity * h2_storage_cost_param_per_year
                     )
                     total_annual_capex_expr += (
                         h2_storage_annual_cost * scaling_factor_for_period
                     )
+                elif hasattr(m, "H2_storage_capacity_max"):
+                    # Fixed storage capacity case - check if it's non-zero
+                    h2_storage_capacity = m.H2_storage_capacity_max
+                    try:
+                        # For fixed parameters, we can check the value
+                        if pyo.value(h2_storage_capacity) != 0:
+                            h2_storage_annual_cost = (
+                                h2_storage_capacity * h2_storage_cost_param_per_year
+                            )
+                            total_annual_capex_expr += (
+                                h2_storage_annual_cost * scaling_factor_for_period
+                            )
+                    except ValueError:
+                        # If we can't get the value, assume it's non-zero and include it
+                        h2_storage_annual_cost = (
+                            h2_storage_capacity * h2_storage_cost_param_per_year
+                        )
+                        total_annual_capex_expr += (
+                            h2_storage_annual_cost * scaling_factor_for_period
+                        )
 
             return total_annual_capex_expr
 
