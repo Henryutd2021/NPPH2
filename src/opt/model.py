@@ -959,6 +959,11 @@ def create_model(
                     initialize=get_sys_param(
                         "vom_storage_cycle_USD_per_kg_cycled", 0),
                 )
+                model.cost_h2_storage_capex = pyo.Param(
+                    within=pyo.NonNegativeReals,
+                    initialize=get_sys_param(
+                        "cost_h2_storage_capex_USD_per_kg_year", 0),
+                )
 
         if model.ENABLE_BATTERY:
             logger.info("Configuring battery storage parameters...")
@@ -2268,6 +2273,33 @@ def create_model(
                 total_annual_capex_expr += (
                     battery_annual_cost * scaling_factor_for_period
                 )
+
+            # H2 Storage CAPEX
+            if (
+                m.ENABLE_H2_STORAGE
+                and hasattr(m, "cost_h2_storage_capex")
+            ):
+                h2_storage_cost_param_per_year = m.cost_h2_storage_capex
+
+                # Determine H2 storage capacity (variable or parameter)
+                if hasattr(m, "H2_storage_capacity_optimal"):
+                    # Optimized storage capacity case
+                    h2_storage_capacity = m.H2_storage_capacity_optimal
+                elif hasattr(m, "H2_storage_capacity_max"):
+                    # Fixed storage capacity case
+                    h2_storage_capacity = m.H2_storage_capacity_max
+                else:
+                    # Fallback to 0 if no storage capacity is defined
+                    h2_storage_capacity = 0
+
+                if h2_storage_capacity != 0:
+                    h2_storage_annual_cost = (
+                        h2_storage_capacity * h2_storage_cost_param_per_year
+                    )
+                    total_annual_capex_expr += (
+                        h2_storage_annual_cost * scaling_factor_for_period
+                    )
+
             return total_annual_capex_expr
 
         model.AnnualizedCapexExpr = pyo.Expression(rule=AnnualizedCapex_rule)

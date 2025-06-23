@@ -9,22 +9,22 @@ EXECUTIVE SUMMARY
 Best Performing Scenario: 48E Investment Tax Credit
 
 Net Present Value (NPV) Summary:
-  Baseline Scenario:        $-13,954,735,275
-  45Y PTC Scenario:         $-12,674,565,845 ($ +1,280,169,430)
-  48E ITC Scenario:         $-10,160,824,655 ($ +3,793,910,621)
+  Baseline Scenario:        $-14,066,094,656
+  45Y PTC Scenario:         $-12,785,925,226 ($ +1,280,169,430)
+  48E ITC Scenario:         $-10,272,184,035 ($ +3,793,910,621)
 
 Key Financial Metrics Comparison:
 ----------------------------------------
 Metric                         Baseline        45Y PTC         48E ITC        
 ---------------------------------------------------------------------------
-NPV (Million USD)              $-13954.7       $-12674.6       $-10160.8      
+NPV (Million USD)              $-14066.1       $-12785.9       $-10272.2      
 IRR                            N/A             N/A             N/A            
 Payback Period (years)         N/A             N/A             N/A            
 
 PROJECT PARAMETERS
 --------------------------------------------------
 
-Project Lifetime:           60 years
+Project Lifetime:           80 years
 Construction Period:        8 years
 Discount Rate:              8.0%
 Corporate Tax Rate:         21.0%
@@ -40,12 +40,12 @@ BASELINE SCENARIO (No Tax Incentives)
 Description: Baseline scenario without federal tax incentives
 
 Financial Metrics:
-  Net Present Value:        $-13,954,735,275
+  Net Present Value:        $-14,066,094,656
   Internal Rate of Return:  N/A
   Payback Period:           N/A
   Return on Investment:     -100.00%
-  LCOH:                     $48.56/kg
-  Total Investment:         $21,781,200,603
+  LCOH:                     $48.57/kg
+  Total Investment:         $23,959,310,659
   Total Returns:            $0
   Incremental Value:        $0
 
@@ -55,13 +55,13 @@ Financial Metrics:
 Description: 45Y Production Tax Credit scenario ($30/MWh for 10 years)
 
 Financial Metrics:
-  Net Present Value:        $-12,674,565,845
+  Net Present Value:        $-12,785,925,226
   Internal Rate of Return:  N/A
   Payback Period:           N/A
-  Return on Investment:     -86.95%
-  LCOH:                     $44.11/kg
-  Total Investment:         $21,288,854,695
-  Total Returns:            $2,777,339,371
+  Return on Investment:     -88.73%
+  LCOH:                     $44.15/kg
+  Total Investment:         $23,317,787,471
+  Total Returns:            $2,628,162,091
   Incremental Value:        $3,269,685,279
 
 48E INVESTMENT TAX CREDIT SCENARIO
@@ -70,13 +70,13 @@ Financial Metrics:
 Description: 48E Investment Tax Credit scenario (50% of qualified CAPEX)
 
 Financial Metrics:
-  Net Present Value:        $-10,160,824,655
+  Net Present Value:        $-10,272,184,035
   Internal Rate of Return:  N/A
   Payback Period:           N/A
-  Return on Investment:     -66.96%
-  LCOH:                     $35.36/kg
-  Total Investment:         $22,481,391,233
-  Total Returns:            $7,427,504,872
+  Return on Investment:     -69.92%
+  LCOH:                     $35.47/kg
+  Total Investment:         $24,644,583,561
+  Total Returns:            $7,412,587,144
   Incremental Value:        $6,727,314,242
 
 TAX INCENTIVE VALUE ANALYSIS
@@ -122,18 +122,18 @@ Year   Baseline     45Y PTC      48E ITC      PTC Delta    ITC Delta
 5          -2699.6     -2699.6     -2699.6        +0.0        +0.0
 6          -1966.8     -1966.8     -1966.8        +0.0        +0.0
 7          -1172.4     -1172.4     -1172.4        +0.0        +0.0
-8            -49.2       277.7      7427.5      +327.0     +7476.7
-9            -49.2       277.7      -124.2      +327.0       -75.0
-10           -49.2       277.7      -116.7      +327.0       -67.5
-11           -49.2       277.7      -110.0      +327.0       -60.8
-12           -49.2       277.7      -103.9      +327.0       -54.7
-13           -49.2       277.7       -98.4      +327.0       -49.2
-14           -49.2       277.7       -95.8      +327.0       -46.6
-15           -49.2       277.7       -95.8      +327.0       -46.6
-16           -49.2       277.7       -95.8      +327.0       -46.6
-17           -49.2       277.7       -95.8      +327.0       -46.6
-18           -49.2       -49.2       -95.8        +0.0       -46.6
-19           -49.2       -49.2       -95.8        +0.0       -46.6
+8            -64.2       262.8      7412.6      +327.0     +7476.7
+9            -64.2       262.8      -139.1      +327.0       -75.0
+10           -64.2       262.8      -131.6      +327.0       -67.5
+11           -64.2       262.8      -124.9      +327.0       -60.8
+12           -64.2       262.8      -118.8      +327.0       -54.7
+13           -64.2       262.8      -113.3      +327.0       -49.2
+14           -64.2       262.8      -110.7      +327.0       -46.6
+15           -64.2       262.8      -110.7      +327.0       -46.6
+16           -64.2       262.8      -110.7      +327.0       -46.6
+17           -64.2       262.8      -110.7      +327.0       -46.6
+18           -64.2       -64.2      -110.7        +0.0       -46.6
+19           -64.2       -64.2      -110.7        +0.0       -46.6
 
 RECOMMENDATIONS
 ==================================================

@@ -24,7 +24,7 @@ BASE_INPUT_DIR_DEFAULT = SCRIPT_DIR_PATH.parent.parent / "input"
 
 # TEA Parameters
 PROJECT_LIFETIME_YEARS = 30
-DISCOUNT_RATE = 0.08
+DISCOUNT_RATE = 0.06
 CONSTRUCTION_YEARS = 2
 TAX_RATE = 0.21
 HOURS_IN_YEAR = 8760
@@ -66,11 +66,11 @@ LOG_LEVEL = "DEBUG"  # Changed from INFO to DEBUG for troubleshooting
 # CAPEX Components (updated with sys_data_advanced.csv data)
 CAPEX_COMPONENTS = {
     "Electrolyzer_System": {
-        # Based on data_gen.py original costs: HTE = $2,500/kW = $2,500,000/MW
+        # Based on data_gen.py original costs: HTE = $1,500/kW = $1,500,000/MW
         # HTE (High Temperature Electrolysis) is more suitable for nuclear-hydrogen integration
         # due to thermal integration capabilities and higher efficiency
-        # Total cost for 50MW reference: 50 * $2,500,000 = $125,000,000
-        "total_base_cost_for_ref_size": 125_000_000,  # HTE original CAPEX from data_gen.py
+        # Total cost for 50MW reference: 50 * $1,500,000 = $75,000,000
+        "total_base_cost_for_ref_size": 75_000_000,  # HTE original CAPEX from data_gen.py
         "reference_total_capacity_mw": 50,
         "applies_to_component_capacity_key": "Electrolyzer_Capacity_MW",
         "learning_rate_decimal": 0.0,
@@ -78,8 +78,8 @@ CAPEX_COMPONENTS = {
     },
     "H2_Storage_System": {
         # Estimated based on industry standards: ~$1000-1500/kg storage capacity
-        # For 100,000kg reference capacity: 100,000 * $1,200 = $120M
-        "total_base_cost_for_ref_size": 120_000_000,  # Updated estimate
+        # For 100,000kg reference capacity: 100,000 * $160 = $16M
+        "total_base_cost_for_ref_size": 16_000_000,  # Updated estimate
         "reference_total_capacity_mw": 100000,  # kg capacity
         "applies_to_component_capacity_key": "H2_Storage_Capacity_kg",
         "learning_rate_decimal": 0.0,
@@ -180,8 +180,8 @@ NUCLEAR_INTEGRATED_CONFIG = {
 # Nuclear Plant CAPEX Components (separate from existing components)
 NUCLEAR_CAPEX_COMPONENTS = {
     "Nuclear_Power_Plant": {
-        # $10B for 1000MW plant (more realistic)
-        "total_base_cost_for_ref_size": 10_000_000_000,
+        # $8B for 1000MW plant (more realistic)
+        "total_base_cost_for_ref_size": 6_000_000_000,
         "reference_total_capacity_mw": 1000,  # Reference capacity in MW
         "applies_to_component_capacity_key": "Nuclear_Plant_Capacity_MW",
         "learning_rate_decimal": 0.05,  # 5% learning rate for nuclear construction
@@ -214,7 +214,7 @@ NUCLEAR_CAPEX_COMPONENTS = {
 # Centralized Nuclear Cost Parameters (for standardized calculations across all modules)
 NUCLEAR_COST_PARAMETERS = {
     # CAPEX Parameters ($/MW, industry standard for new nuclear plants)
-    "nuclear_capex_per_mw": 11_958_860,  # $/MW (standardized from industry data)
+    "nuclear_capex_per_mw": 8_000_000,  # $/MW (standardized from industry data)
 
     # CAPEX Breakdown Percentages (for detailed analysis)
     "capex_breakdown_percentages": {
@@ -228,10 +228,10 @@ NUCLEAR_COST_PARAMETERS = {
     "opex_parameters": {
         "fixed_om_per_mw_month": 15_000,      # $/MW/month (industry standard)
         "fixed_om_per_mw_year": 180_000,      # $/MW/year (15,000 * 12)
-        "variable_om_per_mwh": 3.5,           # $/MWh (operations & maintenance)
-        "fuel_cost_per_mwh": 7.0,             # $/MWh (nuclear fuel costs)
-        "additional_costs_per_mw_year": 50_000, # $/MW/year (insurance, regulatory, waste, security)
-        "total_fixed_costs_per_mw_year": 230_000, # $/MW/year (180,000 + 50,000)
+        "variable_om_per_mwh": 3.0,           # $/MWh (operations & maintenance)
+        "fuel_cost_per_mwh": 10.0,             # $/MWh (nuclear fuel costs)
+        "additional_costs_per_mw_year": 0.0, # $/MW/year (insurance, regulatory, waste, security)
+        "total_fixed_costs_per_mw_year": 180_000, # $/MW/year (180,000 + 0)
     },
 
     # Operational Parameters
@@ -362,8 +362,8 @@ SYSTEM_COST_PARAMETERS = {
     # Electrolyzer Parameters (from data_gen.py original costs)
     "electrolyzer": {
         # Original CAPEX costs (not annualized)
-        "lte_capex_usd_per_mw": 2_000_000,        # LTE: $2,000/kW = $2M/MW
-        "hte_capex_usd_per_mw": 2_500_000,        # HTE: $2,500/kW = $2.5M/MW
+        "lte_capex_usd_per_mw": 1_000_000,        # LTE: $1,000/kW = $1M/MW
+        "hte_capex_usd_per_mw": 1_500_000,        # HTE: $1,500/kW = $1.5M/MW
         "lifetime_years": 20,                     # Equipment lifetime
         "discount_rate": 0.08,                    # Discount rate for annualization
 
@@ -427,7 +427,7 @@ SYSTEM_COST_PARAMETERS = {
         "h2_value_usd_per_kg": 3.0,                  # Hydrogen market value
         "hydrogen_subsidy_usd_per_kg": 3.0,          # Hydrogen subsidy
         "hydrogen_subsidy_duration_years": 10,       # Subsidy duration
-        "discount_rate": 0.08,                       # Discount rate
+        "discount_rate": 0.06,                       # Discount rate
     },
 }
 

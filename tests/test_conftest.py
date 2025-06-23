@@ -125,6 +125,7 @@ def sample_system_data():
         'H2_storage_capacity_max_kg', 'H2_storage_capacity_min_kg', 'H2_storage_level_initial_kg',
         'H2_storage_charge_rate_max_kg_per_hr', 'H2_storage_discharge_rate_max_kg_per_hr',
         'storage_charge_eff_fraction', 'storage_discharge_eff_fraction', 'vom_storage_cycle_USD_per_kg_cycled',
+        'cost_h2_storage_capex_USD_per_kg_year',
         # Battery
         'BatteryCapacity_max_MWh', 'BatteryCapacity_min_MWh', 'BatteryPowerRatio_MW_per_MWh',
         'BatteryChargeEff', 'BatteryDischargeEff', 'BatterySOC_min_fraction', 'BatterySOC_initial_fraction',
@@ -164,6 +165,7 @@ def sample_system_data():
         '10000', '500', '2000',  # H2_store capacity, min, initial
         '1000', '1000',  # H2_store charge/discharge rate
         '0.98', '0.95', '0.01',  # H2_store eff_charge, eff_discharge, vom_cycle
+        '160.0',  # H2_store capex_per_kg_year
         # Battery
         '400', '0', '0.25',  # Batt_cap_max, min, power_ratio
         '0.95', '0.95', '0.1', '0.5',  # Batt eff_charge, eff_discharge, soc_min, soc_initial

@@ -28,6 +28,7 @@ ENV/
 *.bak
 *.json
 *.png
+*.txt
 
 # ========== System Files ==========
 .DS_Store
