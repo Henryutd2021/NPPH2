@@ -30,13 +30,14 @@ LCA_DATA_DIR = LCA_OUTPUT_DIR / "data"
 # =================================================================
 
 
-def setup_lca_logging(log_level=logging.INFO, log_to_file=True):
+def setup_lca_logging(log_level=logging.INFO, log_to_file=True, analysis_type: str = "analysis"):
     """
     Setup LCA-specific logging configuration
 
     Args:
         log_level: Logging level (default: INFO)
         log_to_file: Whether to log to file (default: True)
+        analysis_type: Type of LCA analysis (for filename)
     """
     import os
     from datetime import datetime
@@ -66,9 +67,9 @@ def setup_lca_logging(log_level=logging.INFO, log_to_file=True):
     root_logger.addHandler(console_handler)
 
     if log_to_file:
-        # Add file handler for detailed logging
+        # Add file handler for detailed logging with better categorization
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = LCA_LOG_DIR / f"lca_analysis_{timestamp}.log"
+        log_file = LCA_LOG_DIR / f"lca_{analysis_type}_{timestamp}.log"
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(file_formatter)
@@ -77,6 +78,86 @@ def setup_lca_logging(log_level=logging.INFO, log_to_file=True):
         print(f"📋 Detailed logs will be saved to: {log_file}")
 
     return root_logger
+
+
+def setup_lca_module_logger(plant_name: str = None,
+                            reactor_name: str = None,
+                            iso_region: str = None,
+                            analysis_type: str = "lca",
+                            add_timestamp: bool = False,
+                            log_level=logging.INFO) -> logging.Logger:
+    """
+    Setup logger specifically for LCA module with proper categorization.
+
+    Args:
+        plant_name: Name of the plant being analyzed
+        reactor_name: Reactor name (preferred identifier)
+        iso_region: ISO region
+        analysis_type: Type of analysis
+        add_timestamp: Whether to add timestamp to filename
+        log_level: Logging level
+
+    Returns:
+        Configured logger instance
+    """
+    from datetime import datetime
+
+    # Create log directory if it doesn't exist
+    LCA_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Create log filename - prefer reactor_name, then plant_name, then iso_region
+    filename_parts = ["lca"]
+    if analysis_type and analysis_type != "lca":
+        filename_parts.append(analysis_type)
+
+    if reactor_name:
+        filename_parts.append(reactor_name.replace(" ", "_"))
+    elif plant_name:
+        filename_parts.append(plant_name.replace(" ", "_"))
+    elif iso_region:
+        filename_parts.append(iso_region)
+    else:
+        filename_parts.append("general")
+
+    if add_timestamp:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename_parts.append(timestamp)
+
+    log_filename = "_".join(filename_parts) + ".log"
+    log_file_path = LCA_LOG_DIR / log_filename
+
+    # Create logger name
+    logger_name = "_".join(
+        filename_parts[:-1]) if add_timestamp else "_".join(filename_parts[:-1])
+
+    # Create logger
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level)
+
+    # Clear existing handlers to avoid duplicates
+    logger.handlers.clear()
+
+    # File handler - use overwrite mode by default
+    file_handler = logging.FileHandler(
+        log_file_path, mode='w', encoding='utf-8')
+    file_handler.setLevel(log_level)
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+
+    # Console handler (only for errors)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.ERROR)
+    console_formatter = logging.Formatter("LCA %(levelname)s: %(message)s")
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+
+    # Log initial message
+    logger.info(f"LCA logging initialized. Log file: {log_file_path}")
+
+    return logger
 
 
 @dataclass

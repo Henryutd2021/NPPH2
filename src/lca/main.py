@@ -18,7 +18,7 @@ from .nuclear_hydrogen_analysis import (
     NuclearHydrogenSystemConfig,
     NuclearHydrogenLCAResults
 )
-from .config import setup_lca_logging
+from .config import setup_lca_logging, setup_lca_module_logger
 import logging
 from pathlib import Path
 from typing import List, Optional

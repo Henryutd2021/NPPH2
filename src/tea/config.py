@@ -9,7 +9,8 @@ from pathlib import Path
 SCRIPT_DIR_PATH = Path(__file__).resolve().parent
 # Updated: Point to new output/logs directory structure
 LOG_DIR = SCRIPT_DIR_PATH.parent.parent / "output" / "logs"
-os.makedirs(LOG_DIR, exist_ok=True)  # Ensure log directory exists
+TEA_LOG_DIR = LOG_DIR / "tea"
+os.makedirs(TEA_LOG_DIR, exist_ok=True)  # Ensure TEA log directory exists
 
 # Add src directory to Python path (though this might be better handled at runtime in main script)
 SRC_PATH = SCRIPT_DIR_PATH.parent / "src"
@@ -236,7 +237,8 @@ NUCLEAR_COST_PARAMETERS = {
         "fuel_cost_per_mwh": 10.0,             # $/MWh (nuclear fuel costs)
         # $/MW/year (insurance, regulatory, waste, security)
         "additional_costs_per_mw_year": 50_000.0,
-        "total_fixed_costs_per_mw_year": 230_000,  # $/MW/year (240,000 + 90,000)
+        # $/MW/year (240,000 + 90,000)
+        "total_fixed_costs_per_mw_year": 230_000,
     },
 
     # Operational Parameters

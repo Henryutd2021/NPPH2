@@ -23,6 +23,30 @@ logger = logging.getLogger(__name__)
 HOURS_IN_YEAR = 8760
 
 
+def get_value_with_fallback(source_dict: dict, key: str, default_value: float, units: str = "", context: str = "") -> float:
+    """
+    Safely retrieve a value from a dictionary with fallback to default and logging.
+
+    Args:
+        source_dict: Dictionary to retrieve value from
+        key: Key to look up
+        default_value: Default value if key not found
+        units: Units string for logging (e.g., "USD/MWh")
+        context: Additional context for logging
+
+    Returns:
+        Retrieved value or default
+    """
+    if key in source_dict and source_dict[key] is not None:
+        return float(source_dict[key])
+    else:
+        context_str = f" in {context}" if context else ""
+        logger.warning(
+            f"{key} not found{context_str} – using default value: {default_value} {units}"
+        )
+        return default_value
+
+
 def calculate_45u_nuclear_ptc_benefits(
     annual_generation_mwh: float,
     project_start_year: int = 2024,
@@ -763,8 +787,9 @@ def calculate_greenfield_nuclear_hydrogen_system(
         "HTE_Heat_Opportunity_Cost_Annual_USD", 0)
 
     # Get average electricity price
-    avg_electricity_price = annual_metrics.get(
-        "Avg_Electricity_Price_USD_per_MWh", 60.0)
+    avg_electricity_price = get_value_with_fallback(
+        annual_metrics, "Avg_Electricity_Price_USD_per_MWh", 60.0, "USD/MWh",
+        "greenfield 60-year analysis")
 
     # Hydrogen subsidy revenue
     h2_subsidy_revenue = annual_h2_production * \
@@ -870,13 +895,14 @@ def calculate_greenfield_nuclear_hydrogen_system(
 
     # 2. LCOH: H2 system costs + H2 opex + electricity costs + HTE thermal costs - H2 system AS revenue) / H2 production
     # Calculate electricity consumption for H2 production using actual hourly data
-    electrolyzer_electricity_consumption_annual = annual_metrics.get(
-        "Annual_Electrolyzer_MWh", 0)
+    electrolyzer_electricity_consumption_annual = get_value_with_fallback(
+        annual_metrics, "Annual_Electrolyzer_MWh", 0, "MWh",
+        "electrolyzer consumption data")
     if electrolyzer_electricity_consumption_annual == 0:
         # Estimate from H2 production (50 kWh/kg H2 typical)
         electrolyzer_electricity_consumption_annual = annual_h2_production * 50 / 1000
         logger.warning(
-            "Using estimated electrolyzer electricity consumption. Actual hourly data preferred.")
+            f"Annual_Electrolyzer_MWh is zero – estimating from H2 production: {electrolyzer_electricity_consumption_annual:.0f} MWh/year (50 kWh/kg H2). Actual hourly data preferred.")
     else:
         logger.info(
             f"Using actual electrolyzer electricity consumption from hourly data: {electrolyzer_electricity_consumption_annual:,.0f} MWh/year")
@@ -884,7 +910,9 @@ def calculate_greenfield_nuclear_hydrogen_system(
     # Add HTE thermal energy consumption and opportunity cost
     hte_steam_consumption_annual = annual_metrics.get(
         "HTE_Steam_Consumption_Annual_MWth", 0)
-    thermal_efficiency = annual_metrics.get("thermal_efficiency", 0.335)
+    thermal_efficiency = get_value_with_fallback(
+        annual_metrics, "thermal_efficiency", 0.335, "",
+        "thermal efficiency")
 
     # Calculate thermal energy opportunity cost in electricity terms
     if hte_steam_consumption_annual > 0 and thermal_efficiency > 0:
@@ -962,12 +990,15 @@ def calculate_greenfield_nuclear_hydrogen_system(
             battery_power_replacement_cost
 
         # Battery system OPEX using actual data from config
-        battery_fixed_om_annual = annual_metrics.get(
-            "Battery_Fixed_OM_Annual", 0)
+        battery_fixed_om_annual = get_value_with_fallback(
+            annual_metrics, "Battery_Fixed_OM_Annual", 0, "USD/year",
+            "battery fixed O&M")
         if battery_fixed_om_annual == 0:
             # Fallback: estimate from capacity
             battery_fixed_om_annual = (
                 battery_power_mw * 10000 + battery_capacity_mwh * 5000)  # $10k/MW + $5k/MWh
+            logger.warning(
+                f"Battery_Fixed_OM_Annual is zero – estimating from capacity: ${battery_fixed_om_annual:,.0f}/year")
 
         battery_vom_annual = annual_metrics.get("VOM_Battery_Cost", 0)
 
@@ -1848,7 +1879,9 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
         # Add HTE thermal energy consumption and opportunity cost
         hte_steam_consumption_annual = annual_metrics.get(
             "HTE_Steam_Consumption_Annual_MWth", 0)
-        thermal_efficiency = annual_metrics.get("thermal_efficiency", 0.335)
+        thermal_efficiency = get_value_with_fallback(
+            annual_metrics, "thermal_efficiency", 0.335, "",
+            "80-year analysis thermal efficiency")
 
         # Calculate thermal energy opportunity cost in electricity terms
         if hte_steam_consumption_annual > 0 and thermal_efficiency > 0:
@@ -1874,8 +1907,8 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
         if battery_charge_annual == 0 and battery_capacity_mwh > 0:
             battery_charge_annual = 5915.64  # Use same value as 60-year for consistency
             battery_charge_from_npp = 5915.64  # Assume all from NPP
-            logger.info(
-                f"Using fallback battery charge data for consistency: {battery_charge_annual:,.0f} MWh/year")
+            logger.warning(
+                f"Battery charge data not found – using fallback value: {battery_charge_annual:,.0f} MWh/year for consistency with 60-year scenario")
 
         # Battery discharge for LCOS calculation (consistent with 60-year)
         battery_discharge_annual = annual_metrics.get(
@@ -1894,8 +1927,8 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
         elif battery_discharge_annual == 0:
             # Use same value as 60-year for consistency as last resort
             battery_discharge_annual = 3473  # From 60-year scenario
-            logger.info(
-                f"Using fallback battery discharge data for consistency: {battery_discharge_annual:,.0f} MWh/year")
+            logger.warning(
+                f"Battery discharge data not found – using fallback value: {battery_discharge_annual:,.0f} MWh/year from 60-year scenario")
 
         logger.info(f"Battery charging breakdown:")
         logger.info(
@@ -1925,8 +1958,9 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
         total_h2_production_pv = 0
 
         # Get average electricity price for grid purchases
-        avg_electricity_price = annual_metrics.get(
-            "Avg_Electricity_Price_USD_per_MWh", 60.0)
+        avg_electricity_price = get_value_with_fallback(
+            annual_metrics, "Avg_Electricity_Price_USD_per_MWh", 60.0, "USD/MWh",
+            "80-year analysis grid electricity")
 
         for year in range(1, project_lifetime + 1):
             discount_factor = (1 + discount_rate) ** year
@@ -1989,12 +2023,18 @@ def calculate_greenfield_nuclear_hydrogen_system_80yr(
 
             # CRITICAL FIX: Include battery electricity costs using same methodology as 60-year
             # The 60-year scenario uses nuclear LCOE for NPP charging, so we should too
-            avg_electricity_price = annual_metrics.get(
-                "Avg_Electricity_Price_USD_per_MWh", 31.23)
+            avg_electricity_price = get_value_with_fallback(
+                annual_metrics, "Avg_Electricity_Price_USD_per_MWh", 31.23, "USD/MWh",
+                "80-year battery electricity cost")
 
             # For consistency with 60-year, use nuclear LCOE for NPP charging
             # This ensures both scenarios use the same electricity pricing methodology
-            nuclear_lcoe_for_battery = nuclear_lcoe if 'nuclear_lcoe' in locals() else 132.87  # Fallback
+            if 'nuclear_lcoe' in locals() and nuclear_lcoe is not None and not (isinstance(nuclear_lcoe, float) and (math.isnan(nuclear_lcoe) or math.isinf(nuclear_lcoe))):
+                nuclear_lcoe_for_battery = nuclear_lcoe
+            else:
+                nuclear_lcoe_for_battery = 132.87
+                logger.warning(
+                    "nuclear_lcoe unavailable or invalid – using fallback value 132.87 USD/MWh for battery electricity cost in 80-year analysis")
             battery_electricity_cost_annual = battery_charge_annual * nuclear_lcoe_for_battery
 
             logger.info(f"Battery electricity cost calculation (CORRECTED):")
@@ -2278,8 +2318,9 @@ def calculate_nuclear_integrated_financial_metrics(
     annual_nuclear_generation = nuclear_capacity_mw * HOURS_IN_YEAR * capacity_factor
 
     # Get electricity price from annual metrics or use default
-    avg_electricity_price = annual_metrics.get(
-        "Avg_Electricity_Price_USD_per_MWh", 35.0)
+    avg_electricity_price = get_value_with_fallback(
+        annual_metrics, "Avg_Electricity_Price_USD_per_MWh", 35.0, "USD/MWh",
+        "existing plant retrofit analysis")
     annual_nuclear_revenue = annual_nuclear_generation * avg_electricity_price
 
     # Calculate nuclear operating costs
@@ -2345,6 +2386,9 @@ def calculate_nuclear_integrated_financial_metrics(
         f"  Net Revenue (before tax): ${annual_net_revenue_before_tax:,.0f}")
 
     # Calculate 45U Nuclear PTC benefits if enabled
+    electricity_prices_usd_per_mwh = annual_metrics.get(
+        "Hourly_Electricity_Prices_USD_per_MWh", None
+    )
     nuclear_45u_benefits = None
     if enable_45u_policy:
         nuclear_45u_benefits = calculate_45u_nuclear_ptc_benefits(
@@ -3113,7 +3157,7 @@ def calculate_nuclear_baseline_financial_analysis(
         electricity_prices_usd_per_mwh = np.full(8760, avg_electricity_price)
         logger.warning(f"Electricity price data source: Default fallback")
         logger.warning(
-            f"  No hourly price data available, using default: ${avg_electricity_price:.2f}/MWh")
+            f"  EnergyPrice_LMP_USDperMWh not found in hourly results – using default value: ${avg_electricity_price:.2f}/MWh")
 
     # Nuclear plant operational parameters
     # Use nameplate power factor as capacity factor

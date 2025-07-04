@@ -25,7 +25,7 @@ from .models import (
     HydrogenProductionData, ReactorType
 )
 from .calculator import NuclearLCACalculator
-from .config import NuclearLCAConfig
+from .config import NuclearLCAConfig, setup_lca_module_logger
 
 logger = logging.getLogger(__name__)
 

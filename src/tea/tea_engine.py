@@ -27,7 +27,7 @@ from .nuclear_calculations import (
 )
 from .reporting import plot_results, generate_report
 from .summary_reporting import generate_comprehensive_tea_summary_report
-from .utils import setup_logging
+from .utils import setup_logging, setup_tea_module_logger
 from . import config
 
 
@@ -70,7 +70,8 @@ class TEAEngine:
         else:
             log_message = "🚀 Starting TEA analysis..."
 
-        self.logger = setup_logging(log_dir, log_name)
+        # Use improved logging without timestamp by default for reactor-based logging
+        self.logger = setup_logging(log_dir, log_name, add_timestamp=False)
         self.logger.info(log_message)
 
         # Reduce verbose logging for cleaner console output
@@ -175,7 +176,8 @@ class TEAEngine:
         self.logger.info(
             f"Using Construction Years: {config.CONSTRUCTION_YEARS} years")
         self.logger.info(f"Using Tax Rate: {config.TAX_RATE*100:.1f}%")
-        self.logger.info(f"Loaded tax incentive policies: {list(loaded_tax_policies.keys())}")
+        self.logger.info(
+            f"Loaded tax incentive policies: {list(loaded_tax_policies.keys())}")
 
         # Load hourly results
         self.logger.info(
@@ -314,17 +316,20 @@ class TEAEngine:
                     is_new_construction = True
 
             if is_new_construction:
-                self.logger.info("Running comprehensive tax incentive analysis for new construction project...")
+                self.logger.info(
+                    "Running comprehensive tax incentive analysis for new construction project...")
                 try:
                     # Determine project lifetime based on case type
                     if self.case_type and "case5" in self.case_type.lower():
                         project_lifetime_for_analysis = 80
                         construction_period_for_analysis = 8
-                        self.logger.info("Using 80-year lifecycle for Case 5 analysis")
+                        self.logger.info(
+                            "Using 80-year lifecycle for Case 5 analysis")
                     else:
                         project_lifetime_for_analysis = 60
                         construction_period_for_analysis = 8
-                        self.logger.info("Using 60-year lifecycle for Case 4 analysis")
+                        self.logger.info(
+                            "Using 60-year lifecycle for Case 4 analysis")
 
                     comprehensive_tax_incentive_results = calculate_greenfield_nuclear_hydrogen_with_tax_incentives(
                         annual_metrics=annual_metrics_results,
@@ -354,10 +359,10 @@ class TEAEngine:
                     self.logger.error(
                         f"Error in comprehensive tax incentive analysis: {e}")
             else:
-                self.logger.info("Skipping comprehensive tax incentive analysis for existing project (Case 1-3)")
-                self.logger.info("Tax incentive analysis for existing projects is handled in nuclear integrated analysis")
-
-
+                self.logger.info(
+                    "Skipping comprehensive tax incentive analysis for existing project (Case 1-3)")
+                self.logger.info(
+                    "Tax incentive analysis for existing projects is handled in nuclear integrated analysis")
 
         # LCOH Breakdown
         h2_prod_annual_lcoh = annual_metrics_results.get(
@@ -365,27 +370,35 @@ class TEAEngine:
         if h2_prod_annual_lcoh > 0 and "capex_breakdown" in annual_metrics_results:
             # Calculate hydrogen system AS revenue for LCOH deduction
             # This includes AS revenue from electrolyzer and battery systems
-            total_as_revenue = annual_metrics_results.get("AS_Revenue_Total", 0)
-            electrolyzer_as_revenue = annual_metrics_results.get("AS_Revenue_Electrolyzer", 0)
-            battery_as_revenue = annual_metrics_results.get("AS_Revenue_Battery", 0)
+            total_as_revenue = annual_metrics_results.get(
+                "AS_Revenue_Total", 0)
+            electrolyzer_as_revenue = annual_metrics_results.get(
+                "AS_Revenue_Electrolyzer", 0)
+            battery_as_revenue = annual_metrics_results.get(
+                "AS_Revenue_Battery", 0)
 
             # Use component-specific AS revenue if available, otherwise allocate based on capacity
             if electrolyzer_as_revenue > 0 or battery_as_revenue > 0:
                 hydrogen_system_as_revenue = electrolyzer_as_revenue + battery_as_revenue
             else:
                 # Fallback: allocate total AS revenue based on hydrogen system capacity
-                electrolyzer_capacity = annual_metrics_results.get("Electrolyzer_Capacity_MW", 0)
-                battery_power = annual_metrics_results.get("Battery_Power_MW", 0)
-                turbine_capacity = annual_metrics_results.get("Turbine_Capacity_MW", 0)
+                electrolyzer_capacity = annual_metrics_results.get(
+                    "Electrolyzer_Capacity_MW", 0)
+                battery_power = annual_metrics_results.get(
+                    "Battery_Power_MW", 0)
+                turbine_capacity = annual_metrics_results.get(
+                    "Turbine_Capacity_MW", 0)
 
                 total_capacity = electrolyzer_capacity + battery_power + turbine_capacity
                 if total_capacity > 0:
                     h2_system_capacity = electrolyzer_capacity + battery_power
-                    hydrogen_system_as_revenue = total_as_revenue * (h2_system_capacity / total_capacity)
+                    hydrogen_system_as_revenue = total_as_revenue * \
+                        (h2_system_capacity / total_capacity)
                 else:
                     hydrogen_system_as_revenue = 0
 
-            self.logger.info(f"Hydrogen system AS revenue for LCOH calculation: ${hydrogen_system_as_revenue:,.0f}/year")
+            self.logger.info(
+                f"Hydrogen system AS revenue for LCOH calculation: ${hydrogen_system_as_revenue:,.0f}/year")
 
             lcoh_breakdown_results = calculate_lcoh_breakdown(
                 annual_metrics=annual_metrics_results,
@@ -408,29 +421,39 @@ class TEAEngine:
                 "Skipping LCOH breakdown: No H2 production or CAPEX breakdown missing.")
 
         # LCOS Breakdown (for battery systems)
-        battery_capacity_mwh = annual_metrics_results.get("Battery_Capacity_MWh", 0)
+        battery_capacity_mwh = annual_metrics_results.get(
+            "Battery_Capacity_MWh", 0)
         if battery_capacity_mwh > 0 and "capex_breakdown" in annual_metrics_results:
             # Calculate annual battery throughput (charge + discharge)
-            annual_battery_charge = annual_metrics_results.get("Annual_Battery_Charge_MWh", 0)
-            annual_battery_discharge = annual_metrics_results.get("Annual_Battery_Discharge_MWh", 0)
+            annual_battery_charge = annual_metrics_results.get(
+                "Annual_Battery_Charge_MWh", 0)
+            annual_battery_discharge = annual_metrics_results.get(
+                "Annual_Battery_Discharge_MWh", 0)
             annual_battery_throughput = annual_battery_charge + annual_battery_discharge
 
             if annual_battery_throughput > 0:
                 # Calculate battery system AS revenue for LCOS deduction
-                battery_as_revenue = annual_metrics_results.get("AS_Revenue_Battery", 0)
+                battery_as_revenue = annual_metrics_results.get(
+                    "AS_Revenue_Battery", 0)
 
                 # If component-specific AS revenue not available, allocate based on capacity
                 if battery_as_revenue == 0:
-                    total_as_revenue = annual_metrics_results.get("AS_Revenue_Total", 0)
-                    battery_power = annual_metrics_results.get("Battery_Power_MW", 0)
-                    electrolyzer_capacity = annual_metrics_results.get("Electrolyzer_Capacity_MW", 0)
-                    turbine_capacity = annual_metrics_results.get("Turbine_Capacity_MW", 0)
+                    total_as_revenue = annual_metrics_results.get(
+                        "AS_Revenue_Total", 0)
+                    battery_power = annual_metrics_results.get(
+                        "Battery_Power_MW", 0)
+                    electrolyzer_capacity = annual_metrics_results.get(
+                        "Electrolyzer_Capacity_MW", 0)
+                    turbine_capacity = annual_metrics_results.get(
+                        "Turbine_Capacity_MW", 0)
 
                     total_capacity = battery_power + electrolyzer_capacity + turbine_capacity
                     if total_capacity > 0:
-                        battery_as_revenue = total_as_revenue * (battery_power / total_capacity)
+                        battery_as_revenue = total_as_revenue * \
+                            (battery_power / total_capacity)
 
-                self.logger.info(f"Battery system AS revenue for LCOS calculation: ${battery_as_revenue:,.0f}/year")
+                self.logger.info(
+                    f"Battery system AS revenue for LCOS calculation: ${battery_as_revenue:,.0f}/year")
 
                 try:
                     from .calculations import calculate_lcos_breakdown
@@ -452,16 +475,19 @@ class TEAEngine:
                             f"LCOS breakdown calculated. Total LCOS: ${financial_metrics_results.get('LCOS_USD_per_MWh', float('nan')):.3f}/MWh")
                     else:
                         financial_metrics_results["LCOS_USD_per_MWh"] = np.nan
-                        self.logger.warning("Failed to calculate LCOS breakdown")
+                        self.logger.warning(
+                            "Failed to calculate LCOS breakdown")
                 except Exception as e:
                     self.logger.error(f"Error calculating LCOS breakdown: {e}")
                     financial_metrics_results["LCOS_USD_per_MWh"] = np.nan
             else:
                 financial_metrics_results["LCOS_USD_per_MWh"] = np.nan
-                self.logger.warning("No battery throughput data available for LCOS calculation")
+                self.logger.warning(
+                    "No battery throughput data available for LCOS calculation")
         else:
             financial_metrics_results["LCOS_USD_per_MWh"] = np.nan
-            self.logger.debug("Skipping LCOS breakdown: No battery capacity or CAPEX breakdown missing.")
+            self.logger.debug(
+                "Skipping LCOS breakdown: No battery capacity or CAPEX breakdown missing.")
 
         # Nuclear Power Plant Baseline Financial Analysis
         self.logger.info(
@@ -550,8 +576,10 @@ class TEAEngine:
         # This analysis compares new nuclear-hydrogen projects with 60-year vs 80-year lifecycles
         # It runs independently when greenfield analysis is enabled, regardless of current case type
         if enable_greenfield:
-            self.logger.info(f"Lifecycle comparison check: enable_greenfield={enable_greenfield}")
-            self.logger.info("Starting Lifecycle Comparison Analysis (60-year vs 80-year) for greenfield nuclear-hydrogen projects...")
+            self.logger.info(
+                f"Lifecycle comparison check: enable_greenfield={enable_greenfield}")
+            self.logger.info(
+                "Starting Lifecycle Comparison Analysis (60-year vs 80-year) for greenfield nuclear-hydrogen projects...")
 
             try:
                 lifecycle_comparison_results = calculate_lifecycle_comparison_analysis(
@@ -574,16 +602,25 @@ class TEAEngine:
                         "Lifecycle comparison analysis (60-year vs 80-year) completed successfully.")
 
                     # Log key comparison metrics
-                    comparison_summary = lifecycle_comparison_results.get("comparison_summary", {})
-                    baseline_npv_diff = comparison_summary.get("baseline_npv_difference_usd", 0)
-                    baseline_lcoh_diff = comparison_summary.get("baseline_lcoh_difference_usd_per_kg", 0)
-                    best_60yr = comparison_summary.get("best_scenario_60yr", "N/A")
-                    best_80yr = comparison_summary.get("best_scenario_80yr", "N/A")
+                    comparison_summary = lifecycle_comparison_results.get(
+                        "comparison_summary", {})
+                    baseline_npv_diff = comparison_summary.get(
+                        "baseline_npv_difference_usd", 0)
+                    baseline_lcoh_diff = comparison_summary.get(
+                        "baseline_lcoh_difference_usd_per_kg", 0)
+                    best_60yr = comparison_summary.get(
+                        "best_scenario_60yr", "N/A")
+                    best_80yr = comparison_summary.get(
+                        "best_scenario_80yr", "N/A")
 
-                    self.logger.info(f"Baseline NPV difference (80yr-60yr): ${baseline_npv_diff:,.0f}")
-                    self.logger.info(f"Baseline LCOH difference (80yr-60yr): ${baseline_lcoh_diff:.3f} USD/kg")
-                    self.logger.info(f"Best tax scenario for 60-year: {best_60yr}")
-                    self.logger.info(f"Best tax scenario for 80-year: {best_80yr}")
+                    self.logger.info(
+                        f"Baseline NPV difference (80yr-60yr): ${baseline_npv_diff:,.0f}")
+                    self.logger.info(
+                        f"Baseline LCOH difference (80yr-60yr): ${baseline_lcoh_diff:.3f} USD/kg")
+                    self.logger.info(
+                        f"Best tax scenario for 60-year: {best_60yr}")
+                    self.logger.info(
+                        f"Best tax scenario for 80-year: {best_80yr}")
                 else:
                     self.logger.warning(
                         "Lifecycle comparison analysis failed or returned no results.")
@@ -595,7 +632,8 @@ class TEAEngine:
                 import traceback
                 self.logger.error(f"Full traceback: {traceback.format_exc()}")
         else:
-            self.logger.info("Skipping lifecycle comparison analysis - greenfield analysis not enabled")
+            self.logger.info(
+                "Skipping lifecycle comparison analysis - greenfield analysis not enabled")
 
         # Incremental Analysis
         if enable_incremental:
@@ -609,12 +647,16 @@ class TEAEngine:
                 sub in k for sub in inc_capex_keys)}
 
             # Log incremental CAPEX components for verification
-            self.logger.debug(f"Incremental CAPEX filter keys: {inc_capex_keys}")
-            self.logger.debug(f"Filtered incremental CAPEX components: {list(inc_capex.keys())}")
+            self.logger.debug(
+                f"Incremental CAPEX filter keys: {inc_capex_keys}")
+            self.logger.debug(
+                f"Filtered incremental CAPEX components: {list(inc_capex.keys())}")
             for comp_name, comp_data in inc_capex.items():
-                capacity_key = comp_data.get("applies_to_component_capacity_key")
+                capacity_key = comp_data.get(
+                    "applies_to_component_capacity_key")
                 base_cost = comp_data.get("total_base_cost_for_ref_size", 0)
-                self.logger.debug(f"  {comp_name}: capacity_key={capacity_key}, base_cost=${base_cost:,.0f}")
+                self.logger.debug(
+                    f"  {comp_name}: capacity_key={capacity_key}, base_cost=${base_cost:,.0f}")
 
             inc_om = {"Fixed_OM_General": config.OM_COMPONENTS.get(
                 "Fixed_OM_General", {})}
@@ -650,7 +692,8 @@ class TEAEngine:
                 }
 
                 # Log optimized capacities for incremental analysis
-                self.logger.debug(f"Optimized capacities for incremental analysis: {optimized_caps}")
+                self.logger.debug(
+                    f"Optimized capacities for incremental analysis: {optimized_caps}")
 
                 try:
                     incremental_fin_metrics = calculate_incremental_metrics(
@@ -733,7 +776,8 @@ class TEAEngine:
             self.logger.info("Detailed report generated successfully.")
 
             # Generate comprehensive summary report (NEW)
-            comprehensive_report_file = output_dir / f"{target_iso}_Comprehensive_TEA_Summary.txt"
+            comprehensive_report_file = output_dir / \
+                f"{target_iso}_Comprehensive_TEA_Summary.txt"
             self.logger.info("Generating comprehensive TEA summary report...")
             try:
                 generate_comprehensive_tea_summary_report(
@@ -751,9 +795,11 @@ class TEAEngine:
                     tax_rate_rpt=config.TAX_RATE,
                     incremental_metrics_rpt=incremental_metrics,
                 )
-                self.logger.info("Comprehensive summary report generated successfully.")
+                self.logger.info(
+                    "Comprehensive summary report generated successfully.")
             except Exception as e:
-                self.logger.warning(f"Failed to generate comprehensive summary report: {e}")
+                self.logger.warning(
+                    f"Failed to generate comprehensive summary report: {e}")
                 self.logger.info("Continuing with original report only...")
 
             self.logger.info("Report generation finished.")
@@ -762,7 +808,8 @@ class TEAEngine:
                 f"--- Technical Economic Analysis completed successfully for {target_iso} ---")
             self.logger.info(f"Detailed Report: {report_file}")
             if comprehensive_report_file.exists():
-                self.logger.info(f"Comprehensive Summary: {comprehensive_report_file}")
+                self.logger.info(
+                    f"Comprehensive Summary: {comprehensive_report_file}")
             self.logger.info(f"Plots: {plot_output_dir}")
 
             return True
