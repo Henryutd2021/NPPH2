@@ -4,7 +4,7 @@
 
 This project models and optimizes the economic operation of integrated nuclear power and hydrogen production systems. It employs a Pyomo-based optimization framework to maximize profits by optimizing the allocation of electricity between grid sales and hydrogen production, while considering ancillary services participation.
 
-The primary focus is on enhancing nuclear power plant flexibility through the integration of electrolyzers and/or battery storage systems, enabling participation in grid ancillary services markets. The project performs detailed techno-economic feasibility analyses of these hybrid systems and explores how new technologies and strategic investments can increase nuclear power plant revenue streams.
+The primary focus is on enhancing nuclear power plant flexibility through the integration of electrolyzers and/or battery storage systems, enabling participation in grid ancillary services markets. The project performs detailed techno-economic feasibility analyses and life cycle assessments of these hybrid systems and explores how new technologies and strategic investments can increase nuclear power plant revenue streams.
 
 ## Key Features
 
@@ -32,6 +32,10 @@ The primary focus is on enhancing nuclear power plant flexibility through the in
   - Non-spinning reserves
   - Responsive reserves (ECRS)
   - Ramping products
+- **Life Cycle Assessment (LCA)**:
+  - Before/after retrofit carbon footprint analysis
+  - Monte Carlo uncertainty analysis
+  - Detailed reporting of carbon emissions from the entire lifecycle
 
 ## Business Case Analysis
 
@@ -74,9 +78,8 @@ For the complete list of dependencies, see `requirements.txt`.
     - `calculations.py`: Economic calculations
     - `data_loader.py`: TEA data loading utilities
     - `config.py`: TEA configuration parameters
-  - `logging/`: Unified logging system
-    - `enhanced_logging.py`: Enhanced logging capabilities
-    - `progress_indicators.py`: Progress tracking utilities
+  - `lca/`: Life Cycle Assessment framework
+  - `logger_utils/`: Unified logging system
 - `input/`: Input data files
   - `hourly_data/`: ISO-specific hourly market data
 - `output/`: All output results organized by category
@@ -85,12 +88,14 @@ For the complete list of dependencies, see `requirements.txt`.
     - `Results_Standardized/`: Standardized optimization results
   - `tea/`: Techno-economic analysis results
     - `cs1/`: Case study 1 TEA results
+  - `lca/`: Life Cycle Assessment results
   - `sa/`: Sensitivity analysis results
   - `logs/`: All system logs
 - `run/`: Execution scripts
   - `opt_main.py`: Main optimization runner
   - `opt_cs1.py`: Case study 1 optimization
   - `tea_cs1.py`: TEA analysis for case study 1
+  - `run_lca.py`: LCA analysis runner
   - `sa.py`: Sensitivity analysis runner
 - `tests/`: Test cases
 - `flex/`: Flexibility analysis tools
@@ -106,12 +111,10 @@ For the complete list of dependencies, see `requirements.txt`.
 3. Run the optimization model with:
 
    ```bash
-   python run/optimization_main.py
+   python run/opt_main.py
    ```
 
-4. Use `src/opt/result_processing.py` for automated result processing and analysis
-
-5. The techno-economic analysis (TEA) mode performs detailed financial assessment including:
+4. The techno-economic analysis (TEA) mode performs detailed financial assessment including:
 
     ```bash
     python run/tea_cs1.py
@@ -123,10 +126,16 @@ For the complete list of dependencies, see `requirements.txt`.
     - Levelized cost metrics (LCOH, LCOS)
     - Annual cash flow projections
 
-6. The sensitivity analysis (SA) mode evaluates system performance across:
+5. The life cycle assessment (LCA) mode evaluates the environmental impact:
 
     ```bash
-    python run/sensitivity_analysis.py
+    python run/run_lca.py
+    ```
+
+6. The sensitivity analysis (SA) mode evaluates system performance across parameter variations:
+
+    ```bash
+    python run/sa.py
     ```
 
     - Parameter variations (capital costs, efficiencies, etc.)
@@ -134,6 +143,8 @@ For the complete list of dependencies, see `requirements.txt`.
     - Technology combinations
     - Operating strategies
     - Policy scenarios (subsidies, carbon pricing)
+
+7. Use `src/opt/result_processing.py` for automated result processing and analysis
 
 ## Configuration Options
 
@@ -182,6 +193,19 @@ The project includes comprehensive models for hydrogen cost analysis:
 - Water consumption costs
 - Compression and storage costs
 - Capital recovery factor calculations
+
+## Life Cycle Assessment (LCA)
+
+The project includes a comprehensive Life Cycle Assessment (LCA) framework to evaluate the environmental impact of nuclear-hydrogen systems.
+
+- **Before/After Retrofit Analysis**: Compares the carbon footprint of the nuclear plant before and after the integration of hydrogen production and/or battery storage.
+- **Comprehensive Scope**: The analysis covers the entire lifecycle, including:
+  - Nuclear fuel cycle (mining, milling, enrichment, fabrication)
+  - Plant construction, operation, and decommissioning
+  - Electrolyzer manufacturing
+  - Grid electricity displacement effects
+- **Uncertainty Analysis**: Employs Monte Carlo simulations to account for uncertainties in LCA parameters.
+- **Detailed Reporting**: Generates detailed reports for each plant, quantifying carbon intensity (gCO₂-eq/kWh) and total emissions.
 
 ## Sensitivity Analysis
 
