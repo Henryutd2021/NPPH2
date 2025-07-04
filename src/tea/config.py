@@ -229,14 +229,14 @@ NUCLEAR_COST_PARAMETERS = {
 
     # OPEX Parameters (standardized across all calculations)
     "opex_parameters": {
-        "fixed_om_per_mw_month": 20_000,      # $/MW/month (industry standard)
-        "fixed_om_per_mw_year": 240_000,      # $/MW/year (20,000 * 12)
+        "fixed_om_per_mw_month": 15_000,      # $/MW/month (industry standard)
+        "fixed_om_per_mw_year": 180_000,      # $/MW/year (20,000 * 12)
         # $/MWh (operations & maintenance)
         "variable_om_per_mwh": 1.0,
         "fuel_cost_per_mwh": 10.0,             # $/MWh (nuclear fuel costs)
         # $/MW/year (insurance, regulatory, waste, security)
-        "additional_costs_per_mw_year": 90_000.0,
-        "total_fixed_costs_per_mw_year": 330_000,  # $/MW/year (240,000 + 90,000)
+        "additional_costs_per_mw_year": 50_000.0,
+        "total_fixed_costs_per_mw_year": 230_000,  # $/MW/year (240,000 + 90,000)
     },
 
     # Operational Parameters

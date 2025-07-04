@@ -30,6 +30,9 @@ def _get_regulation_revenue_component_results(
     Calculates revenue for a single regulation service component (Up or Down) post-
         solve.
     Uses numerical values from the solved model.
+
+    UPDATED: Both regulation and reserve services now use actual deploy_factor values
+    for deployed amount calculations in dispatch simulation mode.
     """
     revenue = 0.0
     bid_var_component = getattr(m, f"Total_{internal_service_name}", None)
@@ -52,19 +55,24 @@ def _get_regulation_revenue_component_results(
     energy_perf_payment = 0.0
 
     if simulate_dispatch:
-        # get_total_deployed_as sums deployed amounts from all components for the internal_service_name
+        # UPDATED: In dispatch mode, use actual deployed amounts
+        # These now include deploy_factor effects for both regulation and reserve services
         deployed_amount_val = get_total_deployed_as(
             m, t, internal_service_name)
         energy_perf_payment = deployed_amount_val * lmp
     else:
-        # Standardized calculation for all ISOs.
-        # Assumes model.py loaded parameters like 'mileage_factor_RegUp_PJM' and others
+        # UPDATED: In bidding strategy mode, regulation services now also use deploy_factor
+        # Previously regulation services used deploy_factor = 1.0 implicitly
         mileage_val = get_param(
             m, f"mileage_factor_{iso_service_name}", t, default=1.0)
         perf_val = get_param(
             m, f"performance_factor_{iso_service_name}", t, default=1.0
         )
-        energy_perf_payment = bid_value * win_rate_val * mileage_val * perf_val * lmp
+        # Note: In bidding mode, deploy_factor is used for estimating energy payments
+        deploy_factor_val = get_param(
+            m, f"deploy_factor_{iso_service_name}", t, default=1.0)
+        energy_perf_payment = bid_value * win_rate_val * \
+            mileage_val * perf_val * deploy_factor_val * lmp
 
     revenue = cap_payment + energy_perf_payment + adder_val
     return revenue
@@ -453,17 +461,64 @@ def extract_results(
             hourly_data[col_name] = [default_val] * len(hours)
 
     logger.info("Extracting AS bids...")
-    as_service_list_internal = [
-        "RegUp",
-        "RegDown",
-        "SR",
-        "NSR",
-        "ECRS",
-        "ThirtyMin",
-        "RampUp",
-        "RampDown",
-        "UncU",
-    ]
+    # Define a map to get the internal service names for the target ISO
+    # This ensures we only create columns for relevant ancillary services.
+    reserve_map_by_iso = {
+        "SPP": {
+            "Spin": "SR",
+            "Sup": "NSR",
+            "RamU": "RampUp",
+            "RamD": "RampDown",
+            "UncU": "UncU",
+        },
+        "CAISO": {
+            "Spin": "SR",
+            "NSpin": "NSR",
+            "RMU": "RampUp",
+            "RMD": "RampDown",
+        },
+        "ERCOT": {"Spin": "SR", "NSpin": "NSR", "ECRS": "ECRS"},
+        "PJM": {"Syn": "SR", "Rse": "NSR", "TMR": "ThirtyMin"},
+        "NYISO": {
+            "Spin10": "SR",
+            "NSpin10": "NSR",
+            "Res30": "ThirtyMin",
+        },
+        "ISONE": {
+            "Spin10": "SR",
+            "NSpin10": "NSR",
+            "OR30": "ThirtyMin",
+        },
+        "MISO": {
+            "Spin": "SR",
+            "Sup": "NSR",
+            "STR": "ThirtyMin",
+            "RamU": "RampUp",
+            "RamD": "RampDown",
+        },
+    }
+    # ISOs with standard Regulation Up/Down services
+    isos_with_reg = ["PJM", "NYISO", "MISO", "SPP", "CAISO", "ERCOT"]
+
+    as_service_list_internal = []
+    if target_iso_local in reserve_map_by_iso:
+        as_service_list_internal.extend(
+            reserve_map_by_iso[target_iso_local].values())
+    if target_iso_local in isos_with_reg:
+        as_service_list_internal.extend(["RegUp", "RegDown"])
+
+    # Remove duplicates and sort for consistent column order
+    as_service_list_internal = sorted(list(set(as_service_list_internal)))
+
+    if as_service_list_internal:
+        logger.info(
+            f"Extracting AS bids for {target_iso_local} services: {as_service_list_internal}"
+        )
+    else:
+        logger.info(
+            f"No ancillary services defined for {target_iso_local} in this script. Skipping AS bid extraction."
+        )
+
     components_providing_as = []
     if enable_electrolyzer:
         components_providing_as.append("Electrolyzer")
@@ -539,7 +594,11 @@ def extract_results(
                 )
                 if is_regulation_service:
                     param_configs.extend(
-                        [("mileage_factor", 1.0), ("performance_factor", 1.0)]
+                        [
+                            ("mileage_factor", 1.0),
+                            ("performance_factor", 1.0),
+                            ("deploy_factor", 0.0),
+                        ]  # Also extract deploy_factor for regulation services
                     )
                 else:  # Reserve service
                     param_configs.append(("deploy_factor", 0.0))

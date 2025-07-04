@@ -30,7 +30,9 @@ def calculate_45u_nuclear_ptc_benefits(
     credit_start_year: int = None,
     credit_end_year: int = None,
     project_lifetime_years: int = 40,
-    tax_policies: dict = None
+    tax_policies: dict = None,
+    hourly_prices_usd_per_mwh=None,
+    hourly_generation_profile_mwh=None,
 ) -> dict:
     """
     Calculate 45U Production Tax Credit benefits for existing nuclear power plants.
@@ -48,6 +50,8 @@ def calculate_45u_nuclear_ptc_benefits(
         credit_end_year: Year when 45U credit ends (if None, uses config default)
         project_lifetime_years: Total project lifetime for analysis
         tax_policies: Tax incentive policies configuration dictionary
+        hourly_prices_usd_per_mwh: Array of hourly electricity prices in USD/MWh
+        hourly_generation_profile_mwh: Array of hourly generation profiles in MWh
 
     Returns:
         Dictionary containing 45U benefits calculation results
@@ -84,22 +88,64 @@ def calculate_45u_nuclear_ptc_benefits(
     logger.info(f"  Credit rate: ${credit_rate_per_mwh}/MWh")
     logger.info(f"  Credit period: {credit_start_year}-{credit_end_year}")
 
-    # Initialize annual credit array
+    # ----------------------------------------------------------------------------------
+    # Dynamic credit calculation based on hourly market price
+    # ----------------------------------------------------------------------------------
+    dynamic_credit_used = False
+    if hourly_prices_usd_per_mwh is not None and len(hourly_prices_usd_per_mwh) > 0:
+        hourly_prices = np.array(hourly_prices_usd_per_mwh, dtype=float)
+
+        # Define piece-wise credit function vectorised
+        def _calc_credit(price_array):
+            # credit = 15 if p<25; 0 if p>43.75; else linear interpolation
+            credit = np.where(price_array < 25.0, 15.0, 0.0)
+            mid_mask = (price_array >= 25.0) & (price_array <= 43.75)
+            credit[mid_mask] = 15.0 - 15.0 / \
+                (43.75 - 25.0) * (price_array[mid_mask] - 25.0)
+            return credit
+
+        credit_rate_hourly = _calc_credit(hourly_prices)
+
+        # Hourly generation profile
+        if hourly_generation_profile_mwh is not None and len(hourly_generation_profile_mwh) == len(hourly_prices):
+            generation_hourly = np.array(
+                hourly_generation_profile_mwh, dtype=float)
+        else:
+            generation_per_hour = annual_generation_mwh / len(hourly_prices)
+            generation_hourly = np.full(
+                len(hourly_prices), generation_per_hour)
+
+        # Annual credit value is the dot product of hourly credit rate and generation
+        annual_credit_value_dynamic = np.sum(
+            credit_rate_hourly * generation_hourly)
+        dynamic_credit_used = True
+
+        logger.info(
+            "  Using dynamic 45U PTC calculation based on hourly prices")
+        logger.info(
+            f"  Dynamic annual credit value: ${annual_credit_value_dynamic:,.0f}")
+
+    # ----------------------------------------------------------------------------------
+    # Initialize annual credit array for project lifetime
     annual_45u_credits = np.zeros(project_lifetime_years)
 
-    # Calculate eligible years
+    # Calculate eligible years and credit per year
     eligible_years = []
     for year in range(project_lifetime_years):
         project_year = project_start_year + year
         if credit_start_year <= project_year <= credit_end_year:
             eligible_years.append(year)
-            annual_credit = annual_generation_mwh * credit_rate_per_mwh
-            annual_45u_credits[year] = annual_credit
+            if dynamic_credit_used:
+                annual_45u_credits[year] = annual_credit_value_dynamic
+            else:
+                annual_45u_credits[year] = annual_generation_mwh * \
+                    credit_rate_per_mwh
 
     # Summary calculations
     total_eligible_years = len(eligible_years)
     total_45u_credits = np.sum(annual_45u_credits)
-    annual_credit_value = annual_generation_mwh * credit_rate_per_mwh
+    annual_credit_value = annual_45u_credits[eligible_years[0]
+                                             ] if eligible_years else 0
 
     logger.info(f"  Eligible years: {total_eligible_years} years")
     logger.info(f"  Annual credit value: ${annual_credit_value:,.0f}")
@@ -116,7 +162,8 @@ def calculate_45u_nuclear_ptc_benefits(
         "annual_credit_value": annual_credit_value,
         "annual_45u_credits": annual_45u_credits,
         "total_45u_credits": total_45u_credits,
-        "applies_to_existing_plants_only": True
+        "applies_to_existing_plants_only": True,
+        "dynamic_credit_used": dynamic_credit_used
     }
 
 
@@ -2304,7 +2351,8 @@ def calculate_nuclear_integrated_financial_metrics(
             annual_generation_mwh=annual_nuclear_generation,
             project_start_year=2024,
             project_lifetime_years=project_lifetime_config,
-            tax_policies=tax_policies
+            tax_policies=tax_policies,
+            hourly_prices_usd_per_mwh=electricity_prices_usd_per_mwh
         )
         logger.info(f"45U Policy Benefits:")
         logger.info(
@@ -2475,10 +2523,14 @@ def calculate_irr(cash_flows: np.ndarray, is_baseline_analysis: bool = False) ->
         IRR percentage or None if not applicable/calculable
     """
 
-    # For existing nuclear plant baseline analysis, IRR is not applicable
+    # For existing nuclear plant baseline analysis, IRR is not applicable unless the cash
+    # flow series already contains both positive and negative values (e.g. retrofit case).
     if is_baseline_analysis:
+        # has_positive_baseline = any(cf > 0 for cf in cash_flows)
+        # has_negative_baseline = any(cf < 0 for cf in cash_flows)
+        # if not (has_positive_baseline and has_negative_baseline):
         logger.debug(
-            "IRR calculation skipped for baseline analysis - not applicable for existing plant operations")
+            "IRR calculation skipped for baseline analysis – cash flows do not contain both positive and negative values")
         return None
 
     try:
@@ -2496,7 +2548,7 @@ def calculate_irr(cash_flows: np.ndarray, is_baseline_analysis: bool = False) ->
 
         if not (has_positive and has_negative):
             logger.warning(
-                "IRR calculation requires both positive and negative cash flows")
+                "IRR calculation requires both positive and negative cash flows – returning N/A")
             return None
 
         # Calculate IRR using numpy_financial
@@ -2540,7 +2592,9 @@ def calculate_payback_period(cash_flows: np.ndarray) -> float:
     cumulative_cash_flows = np.cumsum(cash_flows)
     for year, cum_cf in enumerate(cumulative_cash_flows):
         if cum_cf > 0:
-            return year + 1
+            # If the very first period (year 0) is already positive, the payback is instant
+            # and should be reported as 0 rather than 1.
+            return 0 if year == 0 else year
     return None
 
 
@@ -3147,7 +3201,8 @@ def calculate_nuclear_baseline_financial_analysis(
         annual_generation_mwh=annual_generation_mwh,
         project_start_year=2024,
         project_lifetime_years=actual_project_lifetime,
-        tax_policies=tax_policies
+        tax_policies=tax_policies,
+        hourly_prices_usd_per_mwh=electricity_prices_usd_per_mwh
     )
 
     logger.info(f"45U Policy Benefits for Nuclear Plant:")

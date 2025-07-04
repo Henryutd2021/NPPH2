@@ -1299,6 +1299,8 @@ def link_deployed_to_bid_rule(m, t, internal_service_name, component_name):
     a warning is logged and the deployed amount for that service at that time is constrained to 0.
     If the service is not defined for the ISO (per ACTUAL_ISO_SERVICES_PROVIDED),
     missing parameters are expected, and deployed amount is constrained to 0 without a warning.
+    
+    UPDATED: Both regulation and reserve services now use actual deploy_factor values.
     """
     if not getattr(m, "SIMULATE_AS_DISPATCH_EXECUTION", False) or not getattr(
         m, "CAN_PROVIDE_ANCILLARY_SERVICES", False
@@ -1412,23 +1414,16 @@ def link_deployed_to_bid_rule(m, t, internal_service_name, component_name):
         params_on_model_sufficient = False
         required_params_missing_log_msg = ""
 
-        if is_regulation_service_flag:
-            # Regulation services primarily need winning_rate for this rule.
-            # Deploy_factor is effectively 1.0 for them in dispatch mode.
-            if hasattr(m, win_rate_param_name):
-                params_on_model_sufficient = True
-            else:
-                required_params_missing_log_msg = f"'{win_rate_param_name}'"
-        else:  # Reserve services
-            if hasattr(m, win_rate_param_name) and hasattr(m, deploy_factor_param_name):
-                params_on_model_sufficient = True
-            else:
-                missing = []
-                if not hasattr(m, win_rate_param_name):
-                    missing.append(f"'{win_rate_param_name}'")
-                if not hasattr(m, deploy_factor_param_name):
-                    missing.append(f"'{deploy_factor_param_name}'")
-                required_params_missing_log_msg = " or ".join(missing)
+        # UPDATED: Both regulation and reserve services now require winning_rate AND deploy_factor
+        if hasattr(m, win_rate_param_name) and hasattr(m, deploy_factor_param_name):
+            params_on_model_sufficient = True
+        else:
+            missing = []
+            if not hasattr(m, win_rate_param_name):
+                missing.append(f"'{win_rate_param_name}'")
+            if not hasattr(m, deploy_factor_param_name):
+                missing.append(f"'{deploy_factor_param_name}'")
+            required_params_missing_log_msg = " and ".join(missing)
 
         if not params_on_model_sufficient:
             if is_service_actually_provided:
@@ -1447,14 +1442,18 @@ def link_deployed_to_bid_rule(m, t, internal_service_name, component_name):
                 )
             return deployed_var == 0.0
 
-        # If parameters exist on the model, proceed with the linking
+        # UPDATED: All services (regulation and reserve) now use actual deploy_factor
         win_rate_param_val = getattr(m, win_rate_param_name)[t]
+        deploy_factor_param_val = getattr(m, deploy_factor_param_name)[t]
 
-        effective_deploy_factor = 1.0  # Default for regulation
-        if not is_regulation_service_flag:  # For reserves, get the deploy_factor
-            effective_deploy_factor = getattr(m, deploy_factor_param_name)[t]
+        # Log the actual values being used for debugging
+        logger.debug(
+            f"Service {internal_service_name}_{component_name} @t={t}: "
+            f"bid={bid_var.value if hasattr(bid_var, 'value') else 'var'}, "
+            f"win_rate={win_rate_param_val}, deploy_factor={deploy_factor_param_val}"
+        )
 
-        return deployed_var == bid_var * win_rate_param_val * effective_deploy_factor
+        return deployed_var == bid_var * win_rate_param_val * deploy_factor_param_val
     except Exception as e:
         logger.error(
             f"Error in link_deployed_to_bid_rule for {internal_service_name} of {component_name} @t={t}: {e}",

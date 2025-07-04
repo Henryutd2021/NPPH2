@@ -164,22 +164,37 @@ class NuclearHydrogenLCAResults:
 
             # Calculate integrated system carbon intensity if hydrogen is produced
             if self.annual_hydrogen_production_kg > 0 and self.hydrogen_system_emissions:
-                # Use energy allocation method
-                electricity_for_h2_mwh = self.annual_hydrogen_production_kg * 50.0 / 1000  # ~50 kWh/kg
+                # ---- 修正：剔除制氢占用的核电量，避免"双重计入" ----
+                electricity_for_h2_mwh = self.annual_hydrogen_production_kg * 50.0 / 1000  # ≈50 kWh/kg
 
-                # Check for valid generation data
-                if self.annual_electricity_generation_mwh > 0:
+                # 可售电量（送出电量）
+                net_electricity_to_grid_mwh = max(
+                    self.annual_electricity_generation_mwh - electricity_for_h2_mwh, 0.0)
 
-                    total_nuclear_emissions_kg = self.nuclear_only_carbon_intensity * \
-                        self.annual_electricity_generation_mwh
-                    total_h2_emissions_kg = self.hydrogen_system_emissions.total_hydrogen_emissions * \
-                        self.annual_hydrogen_production_kg / 1000
+                # 1) 核电排放（仅针对送出电量）
+                nuclear_emissions_for_grid_kg = self.nuclear_only_carbon_intensity * \
+                    net_electricity_to_grid_mwh
 
-                    # Total emissions from the integrated system
-                    total_integrated_emissions_kg = total_nuclear_emissions_kg + total_h2_emissions_kg
+                # 2) 制氢过程排放（已在 hydrogen_system_emissions 中包含其用电排放）
+                total_h2_emissions_kg = self.hydrogen_system_emissions.total_hydrogen_emissions * \
+                    self.annual_hydrogen_production_kg / 1000
 
+                # 3) 综合系统年度排放
+                total_integrated_emissions_kg = nuclear_emissions_for_grid_kg + total_h2_emissions_kg
+
+                # 若送出电量为 0，则无法定义 g/kWh，保持与核电基准相同以避免除零
+                if net_electricity_to_grid_mwh > 0:
                     self.integrated_carbon_intensity = total_integrated_emissions_kg / \
-                        self.annual_electricity_generation_mwh
+                        net_electricity_to_grid_mwh
+                else:
+                    self.integrated_carbon_intensity = self.nuclear_only_carbon_intensity
+
+                # 保存年度综合排放便于后续使用
+                self.annual_carbon_footprint_integrated_kg = total_integrated_emissions_kg
+            else:
+                # 无制氢时仍使用纯核电逻辑
+                self.annual_carbon_footprint_integrated_kg = self.nuclear_only_carbon_intensity * \
+                    self.annual_electricity_generation_mwh
 
             self.carbon_intensity_reduction = self.nuclear_only_carbon_intensity - \
                 self.integrated_carbon_intensity
@@ -187,11 +202,11 @@ class NuclearHydrogenLCAResults:
                 self.carbon_reduction_percentage = (
                     self.carbon_intensity_reduction / self.nuclear_only_carbon_intensity) * 100
 
-            # Annual footprint calculations
+            # Annual footprint calculations（核电基准仍按满发电量，综合排放已在上方计算得到）
             self.annual_carbon_footprint_nuclear_kg = (
                 self.nuclear_only_carbon_intensity * self.annual_electricity_generation_mwh)
-            self.annual_carbon_footprint_integrated_kg = (
-                self.integrated_carbon_intensity * self.annual_electricity_generation_mwh)
+
+            # 综合系统年排放已在前面计算，二者差值得到年度排放变化
             self.annual_carbon_reduction_kg = self.annual_carbon_footprint_nuclear_kg - \
                 self.annual_carbon_footprint_integrated_kg
 
@@ -203,13 +218,12 @@ class NuclearHydrogenLCAResults:
 
         direct_emissions_kg = self.annual_carbon_footprint_integrated_kg
 
-        # Calculate avoided emissions from displacing conventional hydrogen
-        h2_avoided_emissions_kg = 0
+        # Calculate avoided emissions from displacing conventional hydrogen (净避免 = SMR - 实际制氢排放)
+        h2_avoided_emissions_kg = 0.0
         if self.hydrogen_system_emissions and self.annual_hydrogen_production_kg > 0:
-            # This represents the emissions that WOULD have happened using SMR
-            conventional_h2_emissions_factor = 9500.0  # g/kg H2, from config
+            per_kg_avoided = self.hydrogen_system_emissions.avoided_conventional_h2  # gCO2-eq/kg
             h2_avoided_emissions_kg = (
-                self.annual_hydrogen_production_kg * conventional_h2_emissions_factor) / 1000
+                self.annual_hydrogen_production_kg * per_kg_avoided) / 1000
 
         # Get avoided emissions from ancillary services
         as_avoided_emissions_kg = 0
@@ -221,12 +235,17 @@ class NuclearHydrogenLCAResults:
         # Net impact is the direct footprint minus the benefits (avoided emissions)
         self.net_annual_carbon_impact_kg = direct_emissions_kg - total_avoided_emissions_kg
 
-        # Convert net annual impact to an equivalent intensity for comparison
-        if self.annual_electricity_generation_mwh > 0:
+        # Convert net annual impact to an equivalent intensity (基于送出电量)
+        electricity_for_h2_mwh = self.annual_hydrogen_production_kg * \
+            50.0 / 1000 if self.annual_hydrogen_production_kg > 0 else 0.0
+        net_electricity_to_grid_mwh = max(
+            self.annual_electricity_generation_mwh - electricity_for_h2_mwh, 0.0)
+
+        if net_electricity_to_grid_mwh > 0:
             self.net_equivalent_carbon_intensity = self.net_annual_carbon_impact_kg / \
-                self.annual_electricity_generation_mwh
+                net_electricity_to_grid_mwh
         else:
-            self.net_equivalent_carbon_intensity = 0
+            self.net_equivalent_carbon_intensity = 0.0
 
 
 class NuclearHydrogenLCAAnalyzer:
@@ -592,18 +611,32 @@ class NuclearHydrogenLCAAnalyzer:
                 'thirty_min_reserve_mwh': thirty_min_total,
                 'ramp_up_mwh': ramp_up_total,
                 'ramp_down_mwh': ramp_down_total,
-                'total_ancillary_services_mwh': (reg_up_total + reg_down_total + sr_total +
+                # Only count services that contribute to carbon reduction
+                # Exclude down services (reg_down, ramp_down) as they reduce fuel input
+                'total_ancillary_services_mwh': (reg_up_total + sr_total +
                                                  nsr_total + ecrs_total + thirty_min_total +
-                                                 ramp_up_total + ramp_down_total)
+                                                 ramp_up_total),
+                # Total deployed including down services for reporting
+                'total_deployed_all_services_mwh': (reg_up_total + reg_down_total + sr_total +
+                                                    nsr_total + ecrs_total + thirty_min_total +
+                                                    ramp_up_total + ramp_down_total)
             }
 
             logger.info(f"Loaded ancillary services for {plant_name}:")
             logger.info(f"  Regulation Up: {reg_up_total:.1f} MWh")
-            logger.info(f"  Regulation Down: {reg_down_total:.1f} MWh")
+            logger.info(
+                f"  Regulation Down: {reg_down_total:.1f} MWh (excluded from carbon calc)")
             logger.info(f"  Spinning Reserve: {sr_total:.1f} MWh")
             logger.info(f"  Non-Spinning Reserve: {nsr_total:.1f} MWh")
+            logger.info(f"  Ramp Up: {ramp_up_total:.1f} MWh")
             logger.info(
-                f"  Total: {ancillary_services['total_ancillary_services_mwh']:.1f} MWh")
+                f"  Ramp Down: {ramp_down_total:.1f} MWh (excluded from carbon calc)")
+            logger.info(f"  ECRS: {ecrs_total:.1f} MWh")
+            logger.info(f"  30-min Reserve: {thirty_min_total:.1f} MWh")
+            logger.info(
+                f"  Total for carbon reduction: {ancillary_services['total_ancillary_services_mwh']:.1f} MWh")
+            logger.info(
+                f"  Total deployed (all services): {ancillary_services['total_deployed_all_services_mwh']:.1f} MWh")
 
             return ancillary_services
 
@@ -617,6 +650,11 @@ class NuclearHydrogenLCAAnalyzer:
                                                iso_region: str) -> AncillaryServicesEmissions:
         """
         Calculate carbon benefits from ancillary services using actual optimization results
+
+        IMPORTANT: Only "up" services (reg_up, ramp_up, spinning reserves) contribute to carbon reduction
+        because they represent actual electricity generation that displaces fossil fuels.
+        "Down" services (reg_down, ramp_down) reduce fuel input rather than displacing generation,
+        so they should be excluded from carbon reduction calculations.
 
         Args:
             plant_name: Name of nuclear plant  
@@ -634,7 +672,7 @@ class NuclearHydrogenLCAAnalyzer:
             logger.info(f"No ancillary services found for {plant_name}")
             return as_emissions
 
-        # Fill in detailed service breakdown
+        # Fill in detailed service breakdown (for reporting purposes)
         as_emissions.regulation_up_mwh = opt_as_data['regulation_up_mwh']
         as_emissions.regulation_down_mwh = opt_as_data['regulation_down_mwh']
         as_emissions.spinning_reserve_actual_mwh = opt_as_data['spinning_reserve_mwh']
@@ -644,51 +682,91 @@ class NuclearHydrogenLCAAnalyzer:
         as_emissions.ecrs_mwh = opt_as_data['ecrs_mwh']
         as_emissions.thirty_min_reserve_mwh = opt_as_data['thirty_min_reserve_mwh']
 
-        # Use actual deployed amounts from optimization for aggregated values
-        as_emissions.regulation_service_mwh = (opt_as_data['regulation_up_mwh'] +
-                                               opt_as_data['regulation_down_mwh'])
-        as_emissions.spinning_reserve_mwh = (opt_as_data['spinning_reserve_mwh'] +
+        # Calculate aggregated values for carbon reduction calculations
+        # CRITICAL: Only include "up" services that actually displace fossil generation
+        # Exclude "down" services as they reduce fuel input rather than displace generation
+
+        # Only regulation UP contributes to carbon reduction (not regulation down)
+        regulation_up_for_carbon_calc = opt_as_data['regulation_up_mwh']
+        as_emissions.regulation_service_mwh = regulation_up_for_carbon_calc
+
+        # Spinning and non-spinning reserves provide backup generation capacity
+        # These services can displace fossil backup generation
+        spinning_reserves_for_carbon_calc = (opt_as_data['spinning_reserve_mwh'] +
                                              opt_as_data['non_spinning_reserve_mwh'])
-        as_emissions.load_following_mwh = (opt_as_data['ramp_up_mwh'] +
-                                           opt_as_data['ramp_down_mwh'])
+        as_emissions.spinning_reserve_mwh = spinning_reserves_for_carbon_calc
+
+        # Only ramp UP contributes to carbon reduction (not ramp down)
+        ramp_up_for_carbon_calc = opt_as_data['ramp_up_mwh']
+        as_emissions.load_following_mwh = ramp_up_for_carbon_calc
 
         # Calculate avoided emissions based on actual service provision
         # Nuclear flexibility displaces fast-ramping fossil units
 
-        # Regulation services typically displace gas turbines (fast response)
-        regulation_avoided = (as_emissions.regulation_service_mwh *
+        # Regulation UP services typically displace gas turbines (fast response)
+        # Only count regulation UP, not regulation DOWN
+        regulation_avoided = (regulation_up_for_carbon_calc *
                               self.config.gas_turbine_emission_factor / 1000)  # Convert g to kg
 
-        # Spinning reserves may displace mix of gas and coal units
-        spinning_avoided = (as_emissions.spinning_reserve_mwh *
+        # Spinning reserves may displace mix of gas and coal backup units
+        # These are actual generation services that provide backup capacity
+        spinning_avoided = (spinning_reserves_for_carbon_calc *
                             (self.config.gas_turbine_emission_factor + self.config.coal_plant_emission_factor) / 2 / 1000)
 
-        # Load following (ramping) displaces mix of generation based on grid
+        # Ramp UP services (load following) displace ramping fossil generation
+        # Only count ramp UP, not ramp DOWN
         grid_factor = self.config.iso_grid_emission_factors.get(
             iso_region, 450.0)
-        load_following_avoided = as_emissions.load_following_mwh * \
+        load_following_avoided = ramp_up_for_carbon_calc * \
             grid_factor / 1000  # Convert g to kg
+
+        # Additional services that provide generation capacity
+        # ECRS (Emergency Contingency Reserve Service) and 30-min reserves
+        # These also displace fossil backup generation
+        ecrs_avoided = opt_as_data['ecrs_mwh'] * grid_factor / 1000
+        thirty_min_avoided = opt_as_data['thirty_min_reserve_mwh'] * \
+            grid_factor / 1000
 
         as_emissions.avoided_gas_turbine_emissions = regulation_avoided
         as_emissions.avoided_coal_emissions = spinning_avoided
-        as_emissions.avoided_grid_emissions = load_following_avoided
+        as_emissions.avoided_grid_emissions = load_following_avoided + \
+            ecrs_avoided + thirty_min_avoided
         as_emissions.total_avoided_emissions = (regulation_avoided +
                                                 spinning_avoided +
-                                                load_following_avoided)
+                                                load_following_avoided +
+                                                ecrs_avoided +
+                                                thirty_min_avoided)
 
-        # Calculate specific emission rate
-        total_as_mwh = opt_as_data['total_ancillary_services_mwh']
-        if total_as_mwh > 0:
-            as_emissions.avoided_emissions_per_mwh = as_emissions.total_avoided_emissions / total_as_mwh
+        # Calculate specific emission rate based on actual carbon-reducing services
+        # Only count services that actually contribute to carbon reduction
+        total_carbon_reducing_as_mwh = (regulation_up_for_carbon_calc +
+                                        spinning_reserves_for_carbon_calc +
+                                        ramp_up_for_carbon_calc +
+                                        opt_as_data['ecrs_mwh'] +
+                                        opt_as_data['thirty_min_reserve_mwh'])
+
+        if total_carbon_reducing_as_mwh > 0:
+            as_emissions.avoided_emissions_per_mwh = as_emissions.total_avoided_emissions / \
+                total_carbon_reducing_as_mwh
 
         logger.info(
             f"Ancillary services avoided emissions for {plant_name}: {as_emissions.total_avoided_emissions:,.0f} kg CO2-eq/year")
+        logger.info(f"  Carbon reduction breakdown:")
         logger.info(
-            f"  From regulation services: {regulation_avoided:,.0f} kg CO2-eq/year")
+            f"  - Regulation UP services: {regulation_avoided:,.0f} kg CO2-eq/year ({regulation_up_for_carbon_calc:,.0f} MWh)")
         logger.info(
-            f"  From spinning reserves: {spinning_avoided:,.0f} kg CO2-eq/year")
+            f"  - Spinning reserves: {spinning_avoided:,.0f} kg CO2-eq/year ({spinning_reserves_for_carbon_calc:,.0f} MWh)")
         logger.info(
-            f"  From load following: {load_following_avoided:,.0f} kg CO2-eq/year")
+            f"  - Ramp UP services: {load_following_avoided:,.0f} kg CO2-eq/year ({ramp_up_for_carbon_calc:,.0f} MWh)")
+        logger.info(
+            f"  - ECRS services: {ecrs_avoided:,.0f} kg CO2-eq/year ({opt_as_data['ecrs_mwh']:,.0f} MWh)")
+        logger.info(
+            f"  - 30-min reserves: {thirty_min_avoided:,.0f} kg CO2-eq/year ({opt_as_data['thirty_min_reserve_mwh']:,.0f} MWh)")
+        logger.info(f"  EXCLUDED from carbon reduction:")
+        logger.info(
+            f"  - Regulation DOWN: {opt_as_data['regulation_down_mwh']:,.0f} MWh (reduces fuel input, not displacement)")
+        logger.info(
+            f"  - Ramp DOWN: {opt_as_data['ramp_down_mwh']:,.0f} MWh (reduces fuel input, not displacement)")
 
         return as_emissions
 

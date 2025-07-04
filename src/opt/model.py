@@ -1254,6 +1254,25 @@ def create_model(
                             within=pyo.NonNegativeReals,
                         ),
                     )
+                    # Also add deploy factor for regulation services, if present
+                    deploy_col_name_in_csv = f"deploy_factor_{csv_col_base}"
+                    param_dict_deploy_reg = {
+                        t: get_hourly_param_from_df_model(
+                            t,
+                            df_ANSdeploy,
+                            deploy_col_name_in_csv,
+                            default=0.0,
+                        )
+                        for t in model.TimePeriods
+                    }
+                    model.add_component(
+                        f"deploy_factor_{param_name_base_on_model}_{target_iso}",
+                        pyo.Param(
+                            model.TimePeriods,
+                            initialize=param_dict_deploy_reg,
+                            within=pyo.PercentFraction,
+                        ),
+                    )
                 else:  # Reserve service
                     # Deploy Factor (deploy_factor_*)
                     deploy_col_name_in_csv = f"deploy_factor_{csv_col_base}"

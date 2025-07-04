@@ -1423,7 +1423,14 @@ def calculate_incremental_metrics(
     inc_metrics = {}
     total_project_years = len(optimized_cash_flows)
     baseline_cash_flows = np.zeros(total_project_years)
-    baseline_annual_opex = annual_metrics_optimized.get("VOM_Turbine_Cost", 0)
+    baseline_annual_opex = annual_metrics_optimized.get(
+        "Nuclear_Total_OPEX_Annual_USD")
+    if not baseline_annual_opex:
+        baseline_annual_opex = annual_metrics_optimized.get(
+            "Total_Annual_OPEX")
+    if not baseline_annual_opex:
+        baseline_annual_opex = annual_metrics_optimized.get(
+            "VOM_Turbine_Cost", 0)
     baseline_annual_profit_before_tax = baseline_annual_revenue - baseline_annual_opex
     logger.info(
         f"Baseline revenue: ${baseline_annual_revenue:,.2f}, OPEX: ${baseline_annual_opex:,.2f}, Profit: ${baseline_annual_profit_before_tax:,.2f}")
