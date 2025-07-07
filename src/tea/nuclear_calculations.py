@@ -3037,7 +3037,8 @@ def calculate_nuclear_baseline_financial_analysis(
     tax_rate_config: float,
     target_iso: str,
     npps_info_path: str = None,
-    tax_policies: dict = None
+    tax_policies: dict = None,
+    hourly_results_file_path: str = None
 ) -> dict:
     """
     Calculate financial analysis for nuclear power plant baseline operation (no modifications).
@@ -3063,51 +3064,202 @@ def calculate_nuclear_baseline_financial_analysis(
 
     # Load NPPs info if path provided and extract actual remaining years
     npp_info = None
-    actual_project_lifetime = project_lifetime_config  # Default fallback
+    actual_project_lifetime = project_lifetime_config
+
+    # PRIORITY 1: Extract remaining years from hourly results filename
+    remaining_years_from_filename = None
+    if hourly_results_file_path:
+        from .data_loader import extract_remaining_years_from_file_path
+        from pathlib import Path
+        remaining_years_from_filename = extract_remaining_years_from_file_path(
+            hourly_results_file_path)
+        if remaining_years_from_filename is not None:
+            actual_project_lifetime = remaining_years_from_filename
+            logger.info(
+                f"NUCLEAR BASELINE: Using remaining lifetime from filename: {actual_project_lifetime} years")
+            logger.info(
+                f"  (Extracted from {Path(hourly_results_file_path).name})")
+
+    # Initialize data sources tracking
+    plant_data_sources = {
+        "plant_capacity_source": "optimization results",
+        "plant_lifetime_source": "filename extraction" if remaining_years_from_filename is not None else "default values",
+        "plant_identification_method": "fallback"
+    }  # Default fallback
 
     if npps_info_path:
         try:
             import pandas as pd
             npp_info_df = pd.read_csv(npps_info_path)
-            # Filter for the target ISO
-            iso_plants = npp_info_df[npp_info_df['ISO'] == target_iso]
-            if not iso_plants.empty:
-                # Use the first plant or an average if multiple plants
-                npp_info = iso_plants.iloc[0].to_dict()
-                plant_name = npp_info.get('Plant Name', 'Unknown')
 
-                # Extract actual remaining years from NPP data
-                remaining_years = npp_info.get('remaining', None)
-                if remaining_years is not None and pd.notna(remaining_years):
-                    try:
-                        actual_project_lifetime = int(float(remaining_years))
+            # Try to extract plant name from hourly results or tea_sys_params
+            specific_plant_name = None
+
+            # Check if plant name is available in tea_sys_params
+            if 'matched_plant_name' in tea_sys_params:
+                specific_plant_name = tea_sys_params['matched_plant_name']
+                logger.info(
+                    f"Using matched plant name from tea_sys_params: {specific_plant_name}")
+
+            # Try to match specific plant first, then fall back to ISO filtering
+            if specific_plant_name:
+                # Try to find exact plant match by name
+                plant_matches = npp_info_df[
+                    npp_info_df['Plant Name'].str.contains(
+                        specific_plant_name, case=False, na=False)
+                ]
+
+                if not plant_matches.empty:
+                    # CRITICAL FIX: Also check for Generator ID if available
+                    final_matches = plant_matches
+                    specific_generator_id = tea_sys_params.get(
+                        'matched_generator_id', None)
+
+                    if specific_generator_id is not None and specific_generator_id != 'Unknown':
+                        try:
+                            generator_id_int = int(
+                                float(specific_generator_id))
+                            generator_matches = plant_matches[plant_matches['Generator ID']
+                                                              == generator_id_int]
+                            if not generator_matches.empty:
+                                final_matches = generator_matches
+                                logger.info(
+                                    f"🎯 Found Generator ID {generator_id_int} match for plant '{specific_plant_name}' in baseline analysis")
+                            else:
+                                logger.warning(
+                                    f"⚠️  No Generator ID {generator_id_int} found for plant '{specific_plant_name}' in baseline analysis, using first available unit")
+                        except (ValueError, TypeError):
+                            logger.warning(
+                                f"⚠️  Invalid Generator ID '{specific_generator_id}' in baseline analysis, using plant name match only")
+
+                    # If multiple matches, prioritize by ISO region
+                    iso_matches = final_matches[final_matches['ISO']
+                                                == target_iso]
+                    if not iso_matches.empty:
+                        npp_info = iso_matches.iloc[0].to_dict()
+                        plant_name = npp_info.get(
+                            'Plant Name', specific_plant_name)
+                        generator_id = npp_info.get('Generator ID', 'Unknown')
                         logger.info(
-                            f"Using actual remaining plant lifetime: {actual_project_lifetime} years")
+                            f"✅ Matched specific plant in baseline analysis: {plant_name} Unit {generator_id} in {target_iso}")
+                    else:
+                        npp_info = final_matches.iloc[0].to_dict()
+                        plant_name = npp_info.get(
+                            'Plant Name', specific_plant_name)
+                        generator_id = npp_info.get('Generator ID', 'Unknown')
+                        actual_iso = npp_info.get('ISO', 'Unknown')
                         logger.info(
-                            f"  (Override from NPPs info file for {plant_name})")
-                    except (ValueError, TypeError):
-                        logger.warning(
-                            f"Invalid remaining years value: {remaining_years}, using default: {project_lifetime_config}")
-                else:
+                            f"⚠️  Matched plant by name and Generator ID but different ISO in baseline analysis: {plant_name} Unit {generator_id} in {actual_iso}")
+
+            # Fallback: Filter for the target ISO and use first plant (original logic)
+            if npp_info is None:
+                iso_plants = npp_info_df[npp_info_df['ISO'] == target_iso]
+                if not iso_plants.empty:
+                    npp_info = iso_plants.iloc[0].to_dict()
+                    plant_name = npp_info.get('Plant Name', 'Unknown')
+                    generator_id = npp_info.get('Generator ID', 'Unknown')
                     logger.warning(
-                        f"No remaining years data available for {plant_name}, using default: {project_lifetime_config}")
+                        f"No specific plant match found in baseline analysis, using first plant in {target_iso}: {plant_name} Unit {generator_id}")
+
+                    # List all plants in this ISO for transparency
+                    all_plants_in_iso = iso_plants['Plant Name'].tolist()
+                    all_generator_ids_in_iso = iso_plants['Generator ID'].tolist(
+                    )
+                    remaining_years_in_iso = iso_plants['remaining'].tolist()
+                    logger.info(
+                        f"Available plants in {target_iso} for baseline analysis:")
+                    for i, (p_name, p_gen_id, p_remaining) in enumerate(zip(all_plants_in_iso, all_generator_ids_in_iso, remaining_years_in_iso)):
+                        prefix = "→ SELECTED: " if i == 0 else "           "
+                        logger.info(
+                            f"  {prefix}{p_name} Unit {p_gen_id} ({p_remaining} years remaining)")
+                else:
+                    logger.warning(f"No NPP info found for ISO: {target_iso}")
+
+            if npp_info:
+                # Only use NPPs info for remaining years if filename extraction failed
+                if remaining_years_from_filename is None:
+                    remaining_years = npp_info.get('remaining', None)
+                    if remaining_years is not None and pd.notna(remaining_years):
+                        try:
+                            actual_project_lifetime = int(
+                                float(remaining_years))
+                            logger.info(
+                                f"Using remaining plant lifetime from NPPs info as fallback: {actual_project_lifetime} years")
+                            logger.info(
+                                f"  (Fallback from NPPs info file for {plant_name})")
+                            plant_data_sources[
+                                "plant_lifetime_source"] = "NPPs info file (fallback)"
+                        except (ValueError, TypeError):
+                            logger.warning(
+                                f"Invalid remaining years value: {remaining_years}, using default: {project_lifetime_config}")
+                    else:
+                        logger.warning(
+                            f"No remaining years data available for {plant_name}, using default: {project_lifetime_config}")
+                else:
+                    logger.info(
+                        f"Skipping NPPs info remaining years since filename extraction succeeded")
 
                 logger.info(f"Using NPP info for plant: {plant_name}")
-            else:
-                logger.warning(f"No NPP info found for ISO: {target_iso}")
+
+                # Store plant data sources for later use
+                specific_generator_id = tea_sys_params.get(
+                    'matched_generator_id', None)
+                plant_data_sources.update({
+                    "plant_capacity_source": "NPPs info file",
+                    "matched_generator_id": specific_generator_id if specific_generator_id != 'Unknown' else None,
+                    "plant_identification_method": "specific_name_and_generator_id" if (specific_plant_name and specific_generator_id and specific_generator_id != 'Unknown') else ("specific_name" if specific_plant_name else "iso_first")
+                })
+
         except Exception as e:
             logger.error(f"Error loading NPPs info: {e}")
+            plant_data_sources = {
+                "plant_capacity_source": "optimization results",
+                "plant_lifetime_source": "default values",
+                "plant_identification_method": "fallback"
+            }
 
     logger.info(
         f"Project lifetime for analysis: {actual_project_lifetime} years")
 
     # Get nuclear plant parameters from hourly results or use defaults
     plant_name_from_hourly = 'Unknown'
+
+    # CRITICAL FIX: For Case 1 baseline analysis, prioritize NPPs info nameplate capacity over optimization results
+    # This ensures Case 1 uses actual plant specifications rather than optimization results
+    nameplate_capacity_mw = None
+    thermal_capacity_mwt = None
+
+    # First priority: Extract nameplate capacity from NPPs info if available
+    if npp_info:
+        try:
+            # Try to get nameplate capacity from NPPs info
+            if 'Nameplate Capacity (MW)' in npp_info:
+                nameplate_capacity_mw = float(
+                    str(npp_info['Nameplate Capacity (MW)']).replace(',', ''))
+                logger.info(
+                    f"Using Nameplate Capacity from NPPs info: {nameplate_capacity_mw:.2f} MW")
+                plant_data_sources["plant_capacity_source"] = "NPPs info file"
+
+            # Also get thermal capacity if available
+            if 'Licensed Power (MWt)' in npp_info:
+                thermal_capacity_mwt = float(
+                    str(npp_info['Licensed Power (MWt)']).replace(',', ''))
+                logger.info(
+                    f"Using Licensed Power from NPPs info: {thermal_capacity_mwt:.2f} MWt")
+
+        except (ValueError, TypeError, KeyError) as e:
+            logger.warning(
+                f"Error extracting nameplate capacity from NPPs info: {e}")
+            nameplate_capacity_mw = None
+            thermal_capacity_mwt = None
+
+    # Second priority: Use hourly results as fallback only if NPPs info not available
+    turbine_capacity_from_hourly = None
     if len(hourly_results_df) > 0:
-        # Get plant capacity from hourly results (turbine capacity)
-        turbine_capacity_mw = hourly_results_df['pTurbine_MW'].max()
+        # Get plant capacity from hourly results (turbine capacity) - only as fallback
+        turbine_capacity_from_hourly = hourly_results_df['pTurbine_MW'].max()
         logger.info(
-            f"Nuclear turbine capacity from hourly results: {turbine_capacity_mw:.2f} MW")
+            f"Nuclear turbine capacity from hourly results: {turbine_capacity_from_hourly:.2f} MW")
 
         # Try to get plant name from hourly results
         if 'Plant_Name' in hourly_results_df.columns:
@@ -3118,10 +3270,25 @@ def calculate_nuclear_baseline_financial_analysis(
         if plant_name_from_hourly != 'Unknown':
             logger.info(
                 f"Plant name from hourly results: {plant_name_from_hourly}")
-    else:
-        turbine_capacity_mw = 1000.0  # Default fallback
+
+    # Determine final capacity to use for Case 1 analysis
+    if nameplate_capacity_mw is not None:
+        # Use nameplate capacity from NPPs info (preferred for Case 1)
+        turbine_capacity_mw = nameplate_capacity_mw
+        logger.info(
+            f"CASE 1 ANALYSIS: Using nameplate capacity from NPPs info: {turbine_capacity_mw:.2f} MW")
+    elif turbine_capacity_from_hourly is not None:
+        # Fallback to hourly results if NPPs info not available
+        turbine_capacity_mw = turbine_capacity_from_hourly
         logger.warning(
-            "No hourly results available, using default capacity: 1000 MW")
+            f"CASE 1 ANALYSIS: NPPs info not available, using turbine capacity from hourly results: {turbine_capacity_mw:.2f} MW")
+        plant_data_sources["plant_capacity_source"] = "optimization results"
+    else:
+        # Default fallback
+        turbine_capacity_mw = 1000.0
+        logger.warning(
+            "CASE 1 ANALYSIS: No capacity data available, using default: 1000 MW")
+        plant_data_sources["plant_capacity_source"] = "default fallback"
 
     # Use Nameplate Power Factor from NPPs info if available
     nameplate_power_factor = 0.90  # Default
@@ -3158,6 +3325,21 @@ def calculate_nuclear_baseline_financial_analysis(
         logger.warning(f"Electricity price data source: Default fallback")
         logger.warning(
             f"  EnergyPrice_LMP_USDperMWh not found in hourly results – using default value: ${avg_electricity_price:.2f}/MWh")
+
+    # Calculate thermal efficiency if we have both thermal and electric capacity
+    thermal_efficiency = None
+    if thermal_capacity_mwt is not None and nameplate_capacity_mw is not None and thermal_capacity_mwt > 0:
+        thermal_efficiency = nameplate_capacity_mw / thermal_capacity_mwt
+        logger.info(
+            f"Calculated thermal efficiency from NPPs info: {thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)")
+    elif thermal_capacity_mwt is not None and turbine_capacity_mw > 0:
+        thermal_efficiency = turbine_capacity_mw / thermal_capacity_mwt
+        logger.info(
+            f"Calculated thermal efficiency: {thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)")
+    else:
+        thermal_efficiency = 0.33  # Default nuclear efficiency
+        logger.info(
+            f"Using default thermal efficiency: {thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)")
 
     # Nuclear plant operational parameters
     # Use nameplate power factor as capacity factor
@@ -3393,10 +3575,16 @@ def calculate_nuclear_baseline_financial_analysis(
 
         "plant_parameters": {
             "turbine_capacity_mw": turbine_capacity_mw,
+            # FIXED: Include nameplate capacity
+            "nameplate_capacity_mw": nameplate_capacity_mw if nameplate_capacity_mw is not None else turbine_capacity_mw,
+            # Estimate if not available
+            "thermal_capacity_mwt": thermal_capacity_mwt if thermal_capacity_mwt is not None else (turbine_capacity_mw / 0.33 if turbine_capacity_mw else None),
+            "thermal_efficiency": thermal_efficiency,  # FIXED: Include thermal efficiency
             "nameplate_power_factor": nameplate_power_factor,
             "capacity_factor": capacity_factor,
             "plant_name": npp_info.get('Plant Name', plant_name_from_hourly) if npp_info else plant_name_from_hourly,
-            "iso_region": target_iso
+            "iso_region": target_iso,
+            "remaining_plant_life_years": actual_project_lifetime
         },
 
         "annual_performance": {
@@ -3457,12 +3645,13 @@ def calculate_nuclear_baseline_financial_analysis(
             "tax_rate_percent": tax_rate_config * 100
         },
 
-        "data_sources": {
+        "data_sources": plant_data_sources if 'plant_data_sources' in locals() else {
             "project_lifetime_source": "NPPs info file" if actual_project_lifetime != project_lifetime_config else "Config default",
             "electricity_price_source": "Hourly results file" if len(electricity_prices_usd_per_mwh) == 8760 else "Default fallback",
             "plant_capacity_source": "Hourly results file" if len(hourly_results_df) > 0 else "Default fallback",
             "nameplate_power_factor_source": "NPPs info file" if npp_info and 'Nameplate Power Factor' in npp_info else "Default fallback",
-            "plant_name_source": "NPPs info file" if npp_info and 'Plant Name' in npp_info else ("Hourly results file" if plant_name_from_hourly != 'Unknown' else "Default fallback")
+            "plant_name_source": "NPPs info file" if npp_info and 'Plant Name' in npp_info else ("Hourly results file" if plant_name_from_hourly != 'Unknown' else "Default fallback"),
+            "plant_identification_method": "fallback"
         },
 
         "lifecycle_totals": {

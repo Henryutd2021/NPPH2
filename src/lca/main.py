@@ -21,12 +21,12 @@ from .nuclear_hydrogen_analysis import (
 from .config import setup_lca_logging, setup_lca_module_logger
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 import numpy as np
 from datetime import datetime
 
 
-def discover_reactors_from_results(tea_dir: Path, opt_dir: Path) -> List[str]:
+def discover_reactors_from_results(tea_dir: Path, opt_dir: Path) -> List[Dict[str, str]]:
     """
     Discover all reactors with available TEA and OPT results
 
@@ -35,23 +35,32 @@ def discover_reactors_from_results(tea_dir: Path, opt_dir: Path) -> List[str]:
         opt_dir: Path to OPT results directory
 
     Returns:
-        List of reactor names that have both TEA and OPT data
+        List of dictionaries containing reactor info: [{'name': str, 'iso': str, 'lifetime': str, 'full_id': str}]
     """
-    # Find reactors in TEA results
-    tea_reactors = set()
+    # Find reactors in TEA results with full information
+    tea_reactors = {}
     cs1_dir = tea_dir / "cs1"
     if cs1_dir.exists():
         for reactor_dir in cs1_dir.iterdir():
             if reactor_dir.is_dir():
                 # TEA directory format: Arkansas Nuclear One_2_SPP_15
-                # Extract: Arkansas Nuclear One_2
+                # Extract: Arkansas Nuclear One_2, SPP, 15
                 parts = reactor_dir.name.split('_')
                 if len(parts) >= 3:  # At least reactor_name_number_ISO_number
-                    # Remove last 2 parts (ISO_number)
-                    reactor_name = '_'.join(parts[:-2])
-                    tea_reactors.add(reactor_name)
+                    # Extract components
+                    reactor_name = '_'.join(parts[:-2])  # reactor_name_number
+                    iso_region = parts[-2]  # ISO
+                    remaining_years = parts[-1]  # remaining years
+                    full_id = reactor_dir.name  # Full directory name
 
-        # Find reactors in OPT results
+                    tea_reactors[reactor_name] = {
+                        'name': reactor_name,
+                        'iso': iso_region,
+                        'lifetime': remaining_years,
+                        'full_id': full_id
+                    }
+
+    # Find reactors in OPT results and match with TEA data
     opt_reactors = set()
     opt_cs1_dir = opt_dir / "cs1"
     if opt_cs1_dir.exists():
@@ -61,20 +70,27 @@ def discover_reactors_from_results(tea_dir: Path, opt_dir: Path) -> List[str]:
                 # Format: Arkansas Nuclear One_2_SPP_15_hourly_results.csv
                 filename = file.stem
                 if '_hourly_results' in filename:
-                    # Remove '_hourly_results' suffix and the last 3 parts (number_ISO_number)
-                    parts = filename.split('_')
-                    if len(parts) >= 4:  # At least reactor_name_number_ISO_number_hourly_results
-                        # Remove last 3 parts (number_ISO_number)
-                        reactor_name = '_'.join(parts[:-3])
+                    # Remove '_hourly_results' suffix and extract reactor name
+                    base_name = filename.replace('_hourly_results', '')
+                    parts = base_name.split('_')
+                    if len(parts) >= 3:  # At least reactor_name_number_ISO_number
+                        # Remove last 2 parts (ISO_number)
+                        reactor_name = '_'.join(parts[:-2])
                         # Special handling for 'enhanced_' prefix
                         if reactor_name.startswith('enhanced_'):
                             # Remove 'enhanced_' prefix
                             reactor_name = reactor_name[9:]
                         opt_reactors.add(reactor_name)
 
-    # Return reactors that have both TEA and OPT data
-    common_reactors = tea_reactors.intersection(opt_reactors)
-    return sorted(list(common_reactors))
+    # Return reactors that have both TEA and OPT data, with full information
+    common_reactors = []
+    for reactor_name in tea_reactors:
+        if reactor_name in opt_reactors:
+            common_reactors.append(tea_reactors[reactor_name])
+
+    # Sort by reactor name
+    common_reactors.sort(key=lambda x: x['name'])
+    return common_reactors
 
 
 def analyze_reactor_comprehensive(reactor_name: str,
@@ -492,7 +508,8 @@ def main(monte_carlo_runs: int = 1000,
 
     print(f"🎯 Found {len(reactors)} reactors for analysis:")
     for i, reactor in enumerate(reactors, 1):
-        print(f"   {i:2d}. {reactor}")
+        print(
+            f"   {i:2d}. {reactor['name']} - {reactor['iso']} - {reactor['lifetime']} - {reactor['full_id']}")
 
     # Initialize LCA analyzer
     print("\n⚙️  Initializing LCA analyzer...")
@@ -510,11 +527,11 @@ def main(monte_carlo_runs: int = 1000,
     successful_results = []
     failed_count = 0
 
-    for i, reactor_name in enumerate(reactors, 1):
+    for i, reactor in enumerate(reactors, 1):
         print(f"\n[{i:2d}/{len(reactors)}] ", end="")
 
         result = analyze_reactor_comprehensive(
-            reactor_name, analyzer, monte_carlo_runs)
+            reactor['name'], analyzer, monte_carlo_runs)
 
         if result:
             # Generate individual reactor report

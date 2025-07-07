@@ -4,8 +4,11 @@ Data loading functions for the TEA module.
 
 import logging
 import pandas as pd
+import numpy as np
 from pathlib import Path
 import src.tea.config as config
+from typing import Any, Union, Dict, Tuple
+from datetime import datetime
 
 # Detailed logging setup
 logger = logging.getLogger(__name__)
@@ -133,11 +136,13 @@ def load_tax_incentive_policies(params: dict) -> dict:
                 float, logger
             )
 
-        logger.info("Successfully loaded and updated tax incentive policies from CSV parameters")
+        logger.info(
+            "Successfully loaded and updated tax incentive policies from CSV parameters")
         return tax_policies
 
     except ImportError as e:
-        logger.warning(f"Could not import TAX_INCENTIVE_POLICIES from config: {e}")
+        logger.warning(
+            f"Could not import TAX_INCENTIVE_POLICIES from config: {e}")
         # Return default policies if config import fails
         return {
             "45u_ptc": {"credit_rate_per_mwh": 15.0, "credit_start_year": 2024, "credit_end_year": 2032},
@@ -146,7 +151,168 @@ def load_tax_incentive_policies(params: dict) -> dict:
         }
 
 
-def load_tea_sys_params(iso_target: str, input_base_dir: Path, npps_info_path: str = None, case_type: str = None) -> tuple[dict, int, float, int, float, dict, dict, dict]:
+def extract_plant_name_from_file_path(file_path: Union[str, Path]) -> str:
+    """
+    Extract plant name from hourly results file path.
+
+    Expected format: {Plant_Name}_{Unit_ID}_{ISO}_{Remaining_Years}_hourly_results.csv
+
+    Args:
+        file_path: Path to the hourly results file
+
+    Returns:
+        Plant name extracted from file path, or None if not found
+    """
+    try:
+        if isinstance(file_path, str):
+            file_path = Path(file_path)
+
+        filename = file_path.stem  # Get filename without extension
+
+        # Remove '_hourly_results' suffix if present
+        if filename.endswith('_hourly_results'):
+            filename = filename[:-len('_hourly_results')]
+
+        # Split by underscore and reconstruct plant name
+        # Format: {Plant_Name}_{Unit_ID}_{ISO}_{Remaining_Years}
+        parts = filename.split('_')
+
+        if len(parts) >= 4:
+            # Remove last 3 parts (Unit_ID, ISO, Remaining_Years)
+            plant_name_parts = parts[:-3]
+            # FIXED: Join with spaces instead of underscores to match NPPs info.csv format
+            plant_name = ' '.join(plant_name_parts)
+
+            logger.info(f"Extracted plant name from file path: '{plant_name}'")
+            return plant_name
+        else:
+            logger.warning(
+                f"Could not parse plant name from filename: {filename}")
+            return None
+
+    except Exception as e:
+        logger.warning(
+            f"Error extracting plant name from file path {file_path}: {e}")
+        return None
+
+
+def extract_remaining_years_from_file_path(file_path: Union[str, Path]) -> int:
+    """
+    Extract remaining years from hourly results file path.
+
+    Expected format: {Plant_Name}_{Unit_ID}_{ISO}_{Remaining_Years}_hourly_results.csv
+    Example: Comanche Peak_2_ERCOT_28_hourly_results.csv -> 28
+
+    Args:
+        file_path: Path to the hourly results file
+
+    Returns:
+        Remaining years extracted from file path, or None if not found
+    """
+    try:
+        if isinstance(file_path, str):
+            file_path = Path(file_path)
+
+        filename = file_path.stem  # Get filename without extension
+
+        # Remove '_hourly_results' suffix if present
+        if filename.endswith('_hourly_results'):
+            filename = filename[:-len('_hourly_results')]
+
+        # Split by underscore and get remaining years
+        # Format: {Plant_Name}_{Unit_ID}_{ISO}_{Remaining_Years}
+        parts = filename.split('_')
+
+        if len(parts) >= 4:
+            # The last part should be the remaining years
+            remaining_years_str = parts[-1]
+            try:
+                remaining_years = int(remaining_years_str)
+                logger.info(
+                    f"Extracted remaining years from file path: {remaining_years} years")
+                return remaining_years
+            except ValueError:
+                logger.warning(
+                    f"Could not parse remaining years as integer: {remaining_years_str}")
+                return None
+        else:
+            logger.warning(
+                f"Could not parse remaining years from filename: {filename}")
+            return None
+
+    except Exception as e:
+        logger.warning(
+            f"Error extracting remaining years from file path {file_path}: {e}")
+        return None
+
+
+def extract_plant_info_from_file_path(file_path: Union[str, Path]) -> dict:
+    """
+    Extract comprehensive plant information from hourly results file path.
+
+    Expected format: {Plant_Name}_{Unit_ID}_{ISO}_{Remaining_Years}_hourly_results.csv
+    Example: Comanche Peak_2_ERCOT_28_hourly_results.csv
+
+    Args:
+        file_path: Path to the hourly results file
+
+    Returns:
+        Dictionary containing extracted plant information
+    """
+    try:
+        if isinstance(file_path, str):
+            file_path = Path(file_path)
+
+        filename = file_path.stem  # Get filename without extension
+
+        # Remove '_hourly_results' suffix if present
+        if filename.endswith('_hourly_results'):
+            filename = filename[:-len('_hourly_results')]
+
+        # Split by underscore
+        # Format: {Plant_Name}_{Unit_ID}_{ISO}_{Remaining_Years}
+        parts = filename.split('_')
+
+        if len(parts) >= 4:
+            # Extract all components
+            plant_name_parts = parts[:-3]
+            unit_id = parts[-3]
+            iso_region = parts[-2]
+            remaining_years_str = parts[-1]
+
+            plant_name = ' '.join(plant_name_parts)
+
+            try:
+                remaining_years = int(remaining_years_str)
+            except ValueError:
+                logger.warning(
+                    f"Could not parse remaining years as integer: {remaining_years_str}")
+                remaining_years = None
+
+            plant_info = {
+                'plant_name': plant_name,
+                'unit_id': unit_id,
+                'iso_region': iso_region,
+                'remaining_years': remaining_years,
+                'filename': filename,
+                'file_path': str(file_path)
+            }
+
+            logger.info(
+                f"Extracted plant info from file path: {plant_name} Unit {unit_id}, {iso_region}, {remaining_years} years remaining")
+            return plant_info
+        else:
+            logger.warning(
+                f"Could not parse plant info from filename: {filename}")
+            return None
+
+    except Exception as e:
+        logger.warning(
+            f"Error extracting plant info from file path {file_path}: {e}")
+        return None
+
+
+def load_tea_sys_params(iso_target: str, input_base_dir: Path, npps_info_path: str = None, case_type: str = None, hourly_results_file_path: str = None) -> tuple[dict, int, float, int, float, dict, dict, dict]:
     """
     Loads TEA-relevant system parameters.
 
@@ -154,6 +320,8 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path, npps_info_path: s
         iso_target: Target ISO region
         input_base_dir: Base input directory path
         npps_info_path: Optional path to NPPs info file for extracting actual remaining years
+        case_type: Optional case type for determining project lifetime
+        hourly_results_file_path: Optional path to hourly results file for extracting plant name
 
     Returns a tuple containing:
     - params (dict): The raw parameters loaded from CSV.
@@ -265,61 +433,278 @@ def load_tea_sys_params(iso_target: str, input_base_dir: Path, npps_info_path: s
         elif any(case in case_lower for case in ["case1", "case2", "case3", "existing", "retrofit"]):
             is_existing_project = True
 
-    logger.info(f"Case type: {case_type}, Existing project: {is_existing_project}")
+    logger.info(
+        f"Case type: {case_type}, Existing project: {is_existing_project}")
 
-    # For existing projects (case1-3), try to get actual remaining years from NPPs info
+    # For existing projects (case1-3), try to get actual remaining years from hourly results filename FIRST
+    remaining_years_from_filename = None
+    if is_existing_project and hourly_results_file_path:
+        # PRIORITY 1: Extract remaining years directly from filename (more reliable)
+        remaining_years_from_filename = extract_remaining_years_from_file_path(
+            hourly_results_file_path)
+        if remaining_years_from_filename is not None:
+            logger.info(
+                f"EXISTING PROJECT: Using remaining lifetime from filename: {remaining_years_from_filename} years")
+            logger.info(
+                f"  (Extracted from hourly results filename: {Path(hourly_results_file_path).name})")
+            project_lifetime_years = remaining_years_from_filename
+
+    # PRIORITY 2: Always try NPPs info matching for plant identification (but only use remaining years if filename extraction failed)
     if is_existing_project and npps_info_path:
         try:
             npps_path = Path(npps_info_path)
             if npps_path.exists():
                 npp_info_df = pd.read_csv(npps_path)
-                # Filter for the target ISO
-                iso_plants = npp_info_df[npp_info_df['ISO'] == iso_target]
-                if not iso_plants.empty:
-                    # Use the first plant or an average if multiple plants
-                    npp_info = iso_plants.iloc[0].to_dict()
-                    plant_name = npp_info.get('Plant Name', 'Unknown')
 
-                    # Extract actual remaining years from NPP data
-                    remaining_years = npp_info.get('remaining', None)
-                    if remaining_years is not None and pd.notna(remaining_years):
-                        try:
-                            actual_remaining_years = int(float(remaining_years))
+                # Extract plant name AND generator ID from multiple sources
+                specific_plant_name = None
+                specific_generator_id = None
+
+                # First priority: Extract from hourly results file path
+                if hourly_results_file_path:
+                    plant_info = extract_plant_info_from_file_path(
+                        hourly_results_file_path)
+                    if plant_info and plant_info.get('plant_name') and plant_info.get('unit_id'):
+                        specific_plant_name = plant_info['plant_name']
+                        specific_generator_id = plant_info['unit_id']
+                        logger.info(
+                            f"Found specific plant info from hourly results file path: {specific_plant_name} Unit {specific_generator_id}")
+
+                # Fallback to old extraction method if new method fails
+                if not specific_plant_name and hourly_results_file_path:
+                    specific_plant_name = extract_plant_name_from_file_path(
+                        hourly_results_file_path)
+                    if specific_plant_name:
+                        logger.info(
+                            f"Found specific plant name from hourly results file path: {specific_plant_name} (Generator ID not extracted)")
+
+                # Second priority: Extract from tea_sys_params if file path extraction failed
+                if not specific_plant_name:
+                    plant_identification_keys = [
+                        'plant_name', 'Plant_Name', 'original_plant_name', 'Original_Plant_Name',
+                        'turbine_name', 'reactor_name'
+                    ]
+                    for key in plant_identification_keys:
+                        if key in params and params[key]:
+                            specific_plant_name = str(params[key]).strip()
                             logger.info(
-                                f"EXISTING PROJECT: Using actual remaining plant lifetime: {actual_remaining_years} years")
+                                f"Found specific plant name from params[{key}]: {specific_plant_name}")
+                            break
+
+                # Try to match specific plant first, then fall back to ISO filtering
+                npp_info = None
+                plant_name = 'Unknown'
+
+                if specific_plant_name:
+                    # ENHANCED PLANT MATCHING: Try multiple strategies to find the best match
+                    logger.info(
+                        f"Attempting to match plant: '{specific_plant_name}' in ISO: {iso_target}")
+
+                    # Strategy 1: Exact match (case-insensitive)
+                    exact_matches = npp_info_df[
+                        npp_info_df['Plant Name'].str.lower(
+                        ) == specific_plant_name.lower()
+                    ]
+
+                    # Strategy 2: Contains match (original logic)
+                    contains_matches = npp_info_df[
+                        npp_info_df['Plant Name'].str.contains(
+                            specific_plant_name, case=False, na=False)
+                    ]
+
+                    # Strategy 3: Reverse contains match (plant name contains database name)
+                    reverse_contains_matches = npp_info_df[
+                        npp_info_df['Plant Name'].str.lower().apply(
+                            lambda x: x in specific_plant_name.lower() if pd.notna(x) else False
+                        )
+                    ]
+
+                    # Strategy 4: Fuzzy matching for common variations
+                    def normalize_plant_name(name):
+                        """Normalize plant name for fuzzy matching"""
+                        if pd.isna(name):
+                            return ""
+                        normalized = str(name).lower()
+                        # Remove common words and punctuation that might cause mismatches
+                        normalized = normalized.replace(
+                            'nuclear power plant', '').replace('power plant', '')
+                        normalized = normalized.replace(
+                            'generating station', '').replace('generation station', '')
+                        normalized = normalized.replace(
+                            'nuclear station', '').replace('station', '')
+                        normalized = normalized.replace(
+                            'nuclear', '').replace('plant', '')
+                        # Remove extra spaces and punctuation
+                        import re
+                        normalized = re.sub(r'[^\w\s]', ' ', normalized)
+                        # Remove extra whitespace
+                        normalized = ' '.join(normalized.split())
+                        return normalized.strip()
+
+                    normalized_target = normalize_plant_name(
+                        specific_plant_name)
+
+                    fuzzy_matches = pd.DataFrame()
+                    if normalized_target:
+                        fuzzy_condition = npp_info_df['Plant Name'].apply(
+                            lambda x: normalize_plant_name(x) in normalized_target or
+                            normalized_target in normalize_plant_name(x)
+                        )
+                        fuzzy_matches = npp_info_df[fuzzy_condition]
+
+                    # Prioritize matches: exact > contains > reverse contains > fuzzy
+                    plant_matches = pd.DataFrame()
+                    match_type = "none"
+
+                    if not exact_matches.empty:
+                        plant_matches = exact_matches
+                        match_type = "exact"
+                        logger.info(
+                            f"Found exact match for '{specific_plant_name}'")
+                    elif not contains_matches.empty:
+                        plant_matches = contains_matches
+                        match_type = "contains"
+                        logger.info(
+                            f"Found contains match for '{specific_plant_name}'")
+                    elif not reverse_contains_matches.empty:
+                        plant_matches = reverse_contains_matches
+                        match_type = "reverse_contains"
+                        logger.info(
+                            f"Found reverse contains match for '{specific_plant_name}'")
+                    elif not fuzzy_matches.empty:
+                        plant_matches = fuzzy_matches
+                        match_type = "fuzzy"
+                        logger.info(
+                            f"Found fuzzy match for '{specific_plant_name}' (normalized: '{normalized_target}')")
+
+                    if not plant_matches.empty:
+                        # CRITICAL FIX: Match by Generator ID if available
+                        final_matches = plant_matches
+
+                        # First filter by Generator ID if we have it
+                        if specific_generator_id is not None:
+                            try:
+                                generator_id_int = int(specific_generator_id)
+                                generator_matches = plant_matches[plant_matches['Generator ID']
+                                                                  == generator_id_int]
+                                if not generator_matches.empty:
+                                    final_matches = generator_matches
+                                    logger.info(
+                                        f"🎯 Found Generator ID {generator_id_int} match for plant '{specific_plant_name}'")
+                                else:
+                                    logger.warning(
+                                        f"⚠️  No Generator ID {generator_id_int} found for plant '{specific_plant_name}', using first available unit")
+                            except (ValueError, TypeError):
+                                logger.warning(
+                                    f"⚠️  Invalid Generator ID '{specific_generator_id}', using plant name match only")
+
+                        # Then filter by ISO region
+                        iso_matches = final_matches[final_matches['ISO']
+                                                    == iso_target]
+                        if not iso_matches.empty:
+                            npp_info = iso_matches.iloc[0].to_dict()
+                            plant_name = npp_info.get(
+                                'Plant Name', specific_plant_name)
+                            generator_id = npp_info.get(
+                                'Generator ID', 'Unknown')
                             logger.info(
-                                f"  (Override from NPPs info file for {plant_name})")
+                                f"✅ Successfully matched plant: '{plant_name}' Unit {generator_id} in {iso_target} (method: {match_type})")
+                        else:
+                            npp_info = final_matches.iloc[0].to_dict()
+                            plant_name = npp_info.get(
+                                'Plant Name', specific_plant_name)
+                            generator_id = npp_info.get(
+                                'Generator ID', 'Unknown')
+                            actual_iso = npp_info.get('ISO', 'Unknown')
                             logger.info(
-                                f"  (Previous value from CSV/config: {project_lifetime_years} years)")
-                            project_lifetime_years = actual_remaining_years
-                        except (ValueError, TypeError):
-                            logger.warning(
-                                f"Invalid remaining years value: {remaining_years}, using CSV/config value: {project_lifetime_years}")
+                                f"⚠️  Matched plant by name and Generator ID but different ISO: '{plant_name}' Unit {generator_id} in {actual_iso} (method: {match_type})")
                     else:
                         logger.warning(
-                            f"No remaining years data available for {plant_name}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
-                        project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
+                            f"❌ No matches found for plant: '{specific_plant_name}' using any matching strategy")
+
+                # Fallback: Filter by ISO and use first plant (original logic)
+                if npp_info is None:
+                    iso_plants = npp_info_df[npp_info_df['ISO'] == iso_target]
+                    if not iso_plants.empty:
+                        npp_info = iso_plants.iloc[0].to_dict()
+                        plant_name = npp_info.get('Plant Name', 'Unknown')
+                        generator_id = npp_info.get('Generator ID', 'Unknown')
+                        logger.warning(
+                            f"No specific plant match found, using first plant in {iso_target}: {plant_name} Unit {generator_id}")
+
+                        # List all plants in this ISO for transparency
+                        all_plants_in_iso = iso_plants['Plant Name'].tolist()
+                        all_generator_ids_in_iso = iso_plants['Generator ID'].tolist(
+                        )
+                        remaining_years_in_iso = iso_plants['remaining'].tolist(
+                        )
+                        logger.info(f"Available plants in {iso_target}:")
+                        for i, (p_name, p_gen_id, p_remaining) in enumerate(zip(all_plants_in_iso, all_generator_ids_in_iso, remaining_years_in_iso)):
+                            prefix = "→ SELECTED: " if i == 0 else "           "
+                            logger.info(
+                                f"  {prefix}{p_name} Unit {p_gen_id} ({p_remaining} years remaining)")
+
+                if npp_info:
+                    # Always store plant identification info for later use (for baseline analysis)
+                    params['matched_plant_name'] = plant_name
+                    params['matched_generator_id'] = npp_info.get(
+                        'Generator ID', 'Unknown')
+                    params['plant_capacity_source'] = "NPPs info file"
+                    params['plant_identification_method'] = "specific_name_and_generator_id" if (
+                        specific_plant_name and specific_generator_id) else ("specific_name" if specific_plant_name else "iso_first")
+
+                    # Only use NPPs info for remaining years if filename extraction failed
+                    if remaining_years_from_filename is None:
+                        remaining_years = npp_info.get('remaining', None)
+                        if remaining_years is not None and pd.notna(remaining_years):
+                            try:
+                                actual_remaining_years = int(
+                                    float(remaining_years))
+                                logger.info(
+                                    f"EXISTING PROJECT: Using remaining plant lifetime from NPPs info as fallback: {actual_remaining_years} years")
+                                logger.info(
+                                    f"  (Fallback from NPPs info file for {plant_name})")
+                                logger.info(
+                                    f"  (Previous value from CSV/config: {project_lifetime_years} years)")
+                                project_lifetime_years = actual_remaining_years
+                            except (ValueError, TypeError):
+                                logger.warning(
+                                    f"Invalid remaining years value: {remaining_years}, using CSV/config value: {project_lifetime_years}")
+                        else:
+                            logger.warning(
+                                f"No remaining years data available for {plant_name}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
+                            project_lifetime_years = config.CASE_CLASSIFICATION[
+                                'existing_projects']['default_lifetime']
+                    else:
+                        logger.info(
+                            f"Using remaining years from filename ({remaining_years_from_filename} years), NPPs info used only for plant identification")
                 else:
                     logger.warning(
                         f"No plants found for ISO {iso_target} in NPPs info file, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
-                    project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
+                    project_lifetime_years = config.CASE_CLASSIFICATION[
+                        'existing_projects']['default_lifetime']
             else:
                 logger.warning(
                     f"NPPs info file not found at {npps_path}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
-                project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
+                project_lifetime_years = config.CASE_CLASSIFICATION[
+                    'existing_projects']['default_lifetime']
         except Exception as e:
-            logger.error(f"Error loading NPPs info: {e}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
+            logger.error(
+                f"Error loading NPPs info: {e}, using default for existing projects: {config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']} years")
             project_lifetime_years = config.CASE_CLASSIFICATION['existing_projects']['default_lifetime']
     elif not is_existing_project:
         # For new construction projects (case4-5), use full lifecycle
         if case_type and "case5" in case_type.lower():
             project_lifetime_years = config.CASE_CLASSIFICATION['new_construction']['case5_lifetime']
-            logger.info(f"NEW CONSTRUCTION (Case 5): Using 80-year lifecycle: {project_lifetime_years} years")
+            logger.info(
+                f"NEW CONSTRUCTION (Case 5): Using 80-year lifecycle: {project_lifetime_years} years")
         else:
             project_lifetime_years = config.CASE_CLASSIFICATION['new_construction']['case4_lifetime']
-            logger.info(f"NEW CONSTRUCTION (Case 4): Using 60-year lifecycle: {project_lifetime_years} years")
+            logger.info(
+                f"NEW CONSTRUCTION (Case 4): Using 60-year lifecycle: {project_lifetime_years} years")
     else:
-        logger.debug(f"No NPPs info path provided for existing project, using CSV/config value: {project_lifetime_years}")
+        logger.debug(
+            f"No NPPs info path provided for existing project, using CSV/config value: {project_lifetime_years}")
     discount_rate = _get_param_value(
         params, "discount_rate_fraction", discount_rate, float, logger  # Default from config
     )

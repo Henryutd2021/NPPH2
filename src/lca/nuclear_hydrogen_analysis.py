@@ -19,6 +19,7 @@ import logging
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
+import re
 
 from .models import (
     NuclearPlantParameters, LCAResults, LifecycleEmissions,
@@ -121,6 +122,7 @@ class NuclearHydrogenLCAResults:
     plant_name: str
     iso_region: str
     analysis_timestamp: datetime
+    remaining_lifetime_years: float
 
     # System configuration
     nuclear_capacity_mw: float
@@ -342,6 +344,10 @@ class NuclearHydrogenLCAAnalyzer:
 
             # Parse TEA summary file
             tea_data = self._parse_tea_summary_file(summary_file)
+
+            # Add plant name to tea_data for later use
+            tea_data['plant_name'] = plant_name
+
             return tea_data
 
         except Exception as e:
@@ -351,6 +357,7 @@ class NuclearHydrogenLCAAnalyzer:
     def _parse_tea_summary_file(self, file_path: Path) -> Dict:
         """Parse TEA summary text file and extract key metrics"""
         tea_data = {}
+        lifecycle_found = False  # Flag to track if we've found Project Lifecycle
 
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -372,6 +379,33 @@ class NuclearHydrogenLCAAnalyzer:
                             tea_data['nuclear_capacity_mw'] = float(value_str)
                         except ValueError:
                             pass
+
+                # Extract project lifecycle (remaining lifetime) - only the first occurrence
+                if "Project Lifecycle" in line and not lifecycle_found:
+                    parts = line.split(':')
+                    if len(parts) > 1:
+                        # Extract number before "years"
+                        value_str = parts[1].strip()
+                        # Look for pattern like "15 years" at the beginning
+                        match = re.search(r'(\d+)\s*years?',
+                                          value_str, re.IGNORECASE)
+                        if match:
+                            try:
+                                tea_data['remaining_lifetime_years'] = int(
+                                    match.group(1))
+                                logger.info(
+                                    f"Extracted remaining lifetime: {tea_data['remaining_lifetime_years']} years from line: {line}")
+                                lifecycle_found = True  # Set flag to prevent overwriting
+                            except ValueError:
+                                pass
+
+                # Extract ISO region if found in the file
+                if "ISO Region" in line:
+                    parts = line.split(':')
+                    if len(parts) > 1:
+                        iso_region = parts[1].strip()
+                        tea_data['iso_region'] = iso_region
+                        logger.info(f"Extracted ISO region: {iso_region}")
 
                 # Extract electrolyzer capacity
                 if "Electrolyzer Capacity" in line:
@@ -432,11 +466,32 @@ class NuclearHydrogenLCAAnalyzer:
                         except ValueError:
                             pass
 
-            return tea_data
+            # Also extract from directory name as backup for both lifetime and ISO
+            if 'remaining_lifetime_years' not in tea_data or 'iso_region' not in tea_data:
+                # Extract from file path if available - format: reactor_name_unit_ISO_years
+                parent_dir = file_path.parent.name
+                parts = parent_dir.split('_')
+                if len(parts) >= 3:
+                    # Extract remaining lifetime from directory name (last part)
+                    if 'remaining_lifetime_years' not in tea_data:
+                        try:
+                            tea_data['remaining_lifetime_years'] = int(
+                                parts[-1])
+                            logger.info(
+                                f"Extracted remaining lifetime from directory: {tea_data['remaining_lifetime_years']} years")
+                        except ValueError:
+                            pass
+
+                    # Extract ISO region from directory name (second to last part)
+                    if 'iso_region' not in tea_data and len(parts) >= 2:
+                        tea_data['iso_region'] = parts[-2]
+                        logger.info(
+                            f"Extracted ISO region from directory: {tea_data['iso_region']}")
 
         except Exception as e:
-            logger.error(f"Error parsing TEA file {file_path}: {e}")
-            return {}
+            logger.error(f"Error parsing TEA summary file {file_path}: {e}")
+
+        return tea_data
 
     def calculate_hydrogen_system_emissions(self,
                                             tea_data: Dict,
@@ -782,20 +837,38 @@ class NuclearHydrogenLCAAnalyzer:
             NuclearHydrogenLCAResults object or None
         """
         try:
-            # Extract ISO region from plant name if not provided
-            if not iso_region:
-                iso_region = self._extract_iso_from_plant_name(plant_name)
+            logger.info(f"Starting LCA analysis for {plant_name}")
 
-            logger.info(
-                f"Starting LCA analysis for {plant_name} in {iso_region}")
-
-            # Load TEA results
+            # Load TEA results first to get ISO region and other data
             tea_data = self.load_tea_results(plant_name)
             if not tea_data:
                 logger.error(f"Failed to load TEA data for {plant_name}")
                 return None
 
-            # Create results object
+            # Use ISO region from TEA data if available, otherwise extract from plant name
+            if not iso_region:
+                if 'iso_region' in tea_data:
+                    iso_region = tea_data['iso_region']
+                    logger.info(
+                        f"Using ISO region from TEA data: {iso_region}")
+                else:
+                    iso_region = self._extract_iso_from_plant_name(plant_name)
+                    logger.info(
+                        f"Using ISO region from plant name extraction: {iso_region}")
+
+            logger.info(f"Analyzing {plant_name} in {iso_region}")
+
+            # Extract remaining lifetime from TEA data
+            remaining_lifetime = tea_data.get(
+                'remaining_lifetime_years', 60)  # Default to 60 if not found
+            if remaining_lifetime != 60:
+                logger.info(
+                    f"Using remaining lifetime from TEA results: {remaining_lifetime} years")
+            else:
+                logger.warning(
+                    f"Remaining lifetime not found in TEA data, using default: {remaining_lifetime} years")
+
+            # Create results object with actual remaining lifetime
             results = NuclearHydrogenLCAResults(
                 plant_name=plant_name,
                 iso_region=iso_region,
@@ -807,11 +880,17 @@ class NuclearHydrogenLCAAnalyzer:
                 annual_hydrogen_production_kg=tea_data.get(
                     'annual_h2_production_kg', 0.0),
                 annual_electricity_generation_mwh=tea_data.get(
-                    'annual_electricity_generation_mwh', 0.0)
+                    'annual_electricity_generation_mwh', 0.0),
+                remaining_lifetime_years=remaining_lifetime  # Use extracted value
             )
 
-            # Calculate nuclear baseline emissions
-            results.nuclear_baseline_emissions = self._calculate_nuclear_baseline_emissions()
+            # Create nuclear plant parameters for LCA calculations using remaining lifetime
+            nuclear_plant_params = self._create_nuclear_plant_parameters_for_lca(
+                tea_data, remaining_lifetime, iso_region)
+
+            # Calculate nuclear baseline emissions using correct lifetime
+            results.nuclear_baseline_emissions = self._calculate_nuclear_baseline_emissions_with_params(
+                nuclear_plant_params)
 
             # Calculate hydrogen system emissions
             if results.annual_hydrogen_production_kg > 0:
@@ -826,6 +905,7 @@ class NuclearHydrogenLCAAnalyzer:
             results.calculate_summary_metrics()
 
             logger.info(f"LCA analysis completed for {plant_name}")
+            logger.info(f"Used remaining lifetime: {remaining_lifetime} years")
             logger.info(
                 f"Nuclear-only carbon intensity: {results.nuclear_only_carbon_intensity:.1f} gCO2-eq/kWh")
             logger.info(
@@ -840,7 +920,8 @@ class NuclearHydrogenLCAAnalyzer:
             return None
 
     def _extract_iso_from_plant_name(self, plant_name: str) -> str:
-        """Extract ISO region from plant name"""
+        """Extract ISO region from plant name or find it from file structure"""
+        # First try the old method of looking for ISO keywords in plant name
         iso_mapping = {
             'PJM': ['PJM'],
             'ERCOT': ['ERCOT'],
@@ -856,26 +937,130 @@ class NuclearHydrogenLCAAnalyzer:
                 if keyword in plant_name.upper():
                     return iso
 
+        # If not found in plant name, search through file directories to find the correct ISO
+        logger.warning(
+            f"ISO not found in plant name '{plant_name}', searching file structure...")
+
+        try:
+            # Search in TEA results directory structure
+            cs1_dir = self.tea_results_dir / "cs1"
+            if cs1_dir.exists():
+                for reactor_dir in cs1_dir.iterdir():
+                    if reactor_dir.is_dir():
+                        # Directory format: reactor_name_unit_ISO_years
+                        parts = reactor_dir.name.split('_')
+                        if len(parts) >= 3:
+                            # Extract reactor name from directory (remove last 2 parts)
+                            dir_reactor_name = '_'.join(parts[:-2])
+                            if dir_reactor_name == plant_name:
+                                # Extract ISO (second to last part)
+                                iso_region = parts[-2]
+                                logger.info(
+                                    f"Found ISO region {iso_region} for {plant_name} from directory structure")
+                                return iso_region
+
+            # Search in OPT results directory structure
+            opt_cs1_dir = self.opt_results_dir / "cs1"
+            if opt_cs1_dir.exists():
+                for file in opt_cs1_dir.glob("*_hourly_results.csv"):
+                    filename = file.stem
+                    if '_hourly_results' in filename:
+                        # Remove '_hourly_results' suffix
+                        base_name = filename.replace('_hourly_results', '')
+
+                        # Handle 'enhanced_' prefix
+                        if base_name.startswith('enhanced_'):
+                            base_name = base_name[9:]
+
+                        # Extract parts
+                        parts = base_name.split('_')
+                        if len(parts) >= 3:
+                            # Extract reactor name (remove last 2 parts)
+                            file_reactor_name = '_'.join(parts[:-2])
+                            if file_reactor_name == plant_name:
+                                # Extract ISO (second to last part)
+                                iso_region = parts[-2]
+                                logger.info(
+                                    f"Found ISO region {iso_region} for {plant_name} from OPT file structure")
+                                return iso_region
+
+        except Exception as e:
+            logger.error(f"Error searching for ISO region: {e}")
+
+        logger.warning(
+            f"Could not determine ISO region for {plant_name}, defaulting to PJM")
         return 'PJM'  # Default
 
-    def _calculate_nuclear_baseline_emissions(self) -> LifecycleEmissions:
-        """Calculate nuclear baseline lifecycle emissions"""
-        # Use IPCC 2014 median values as baseline
-        baseline_factor = self.nuclear_config.get_default_nuclear_emissions()
+    def _create_nuclear_plant_parameters_for_lca(self, tea_data: Dict, remaining_lifetime: int, iso_region: str) -> 'NuclearPlantParameters':
+        """
+        Create nuclear plant parameters for LCA calculations using TEA data
 
-        # Use detailed breakdown from config
-        emissions = LifecycleEmissions(
-            uranium_mining_milling=2.8,
-            uranium_conversion=0.4,
-            uranium_enrichment=0.9,
-            fuel_fabrication=0.3,
-            plant_construction=2.0,
-            plant_operation=0.0,  # Direct operational emissions
-            waste_management=1.0,
-            decommissioning=0.5
+        Args:
+            tea_data: TEA analysis results
+            remaining_lifetime: Remaining plant lifetime in years
+            iso_region: ISO region for the plant
+
+        Returns:
+            NuclearPlantParameters object for LCA calculations
+        """
+        from .models import NuclearPlantParameters, ReactorType
+
+        # Extract parameters from TEA data with defaults
+        nuclear_capacity_mw = tea_data.get('nuclear_capacity_mw', 1000.0)
+
+        # Calculate thermal power assuming typical efficiency
+        thermal_efficiency = 0.33  # Typical for PWR
+        thermal_power_mw = nuclear_capacity_mw / thermal_efficiency
+
+        # Estimate commissioning year based on remaining lifetime
+        current_year = 2024
+        # Assume original 60-year lifetime
+        commissioning_year = current_year - (60 - remaining_lifetime)
+
+        # Create nuclear plant parameters with correct field names
+        plant_params = NuclearPlantParameters(
+            plant_name=tea_data.get('plant_name', 'Unknown'),
+            reactor_type=ReactorType.PWR,  # Default assumption
+            location="Unknown",
+            iso_region=iso_region,  # Use extracted ISO region
+            thermal_power_mw=thermal_power_mw,
+            electric_power_mw=nuclear_capacity_mw,
+            thermal_efficiency=thermal_efficiency,
+            capacity_factor=0.90,  # Typical for nuclear
+            plant_lifetime_years=remaining_lifetime,  # Use actual remaining lifetime
+            construction_time_years=5,  # Typical construction time
+            commissioning_year=commissioning_year,  # Estimated based on remaining life
+            fuel_enrichment_percent=4.2,  # Typical
+            fuel_burnup_mwd_per_kg=45.0,  # Typical
+            fuel_cycle_length_months=18,  # Typical
+            natural_uranium_per_enriched_kg=7.5,  # Typical
+            separative_work_swu_per_kg=4.3,  # Typical
+            concrete_tonnes=150000.0,  # Typical for 1000MW plant
+            steel_tonnes=40000.0  # Typical for 1000MW plant
         )
 
-        return emissions
+        logger.info(
+            f"Created plant parameters for {iso_region} with remaining lifetime: {remaining_lifetime} years")
+        return plant_params
+
+    def _calculate_nuclear_baseline_emissions_with_params(self, plant_params: 'NuclearPlantParameters') -> LifecycleEmissions:
+        """
+        Calculate nuclear baseline emissions using specific plant parameters
+
+        Args:
+            plant_params: Nuclear plant parameters including correct lifetime
+
+        Returns:
+            LifecycleEmissions object
+        """
+        # Use the nuclear LCA calculator with the correct plant parameters
+        nuclear_emissions = self.nuclear_calculator.calculate_nuclear_only_emissions(
+            plant_params)
+
+        logger.info(f"Calculated nuclear emissions with {plant_params.plant_lifetime_years}-year lifetime: "
+                    f"{nuclear_emissions.total_nuclear_only:.2f} gCO2-eq/kWh")
+
+        return nuclear_emissions
 
     def compare_iso_regions(self, plant_results: List[NuclearHydrogenLCAResults]) -> Dict:
         """

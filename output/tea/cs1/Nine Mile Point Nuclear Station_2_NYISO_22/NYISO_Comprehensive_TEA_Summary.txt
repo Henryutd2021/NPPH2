@@ -4,10 +4,10 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
 1. Project Overview & Nuclear Unit Characteristics
 --------------------------------------------------
   ISO Region                               : NYISO
-  Project Lifecycle                        : 11 years (Plant Remaining Lifetime from Case 1 financial_metrics: 11 yrs)
-  Discount Rate                            : 8.0%
+  Project Lifecycle                        : 22 years (Plant Remaining Lifetime from Case 1 financial_metrics: 22 yrs)
+  Discount Rate                            : 6.0%
   Tax Rate                                 : 21.0%
-  Nuclear Unit Capacity (MW)               : 1,253.66
+  Nuclear Unit Capacity (MW)               : 1,259.30 (from NPPs info file)
   Nuclear Unit Thermal Capacity (MWt)      : 3,988.00
   Nuclear Unit Thermal Efficiency          : 0.3158 (31.58%)
   Other Key Configuration Parameters       : Refer to specific case sections and assumptions
@@ -22,31 +22,31 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
     benchmark for comparison with retrofit or integrated system scenarios.
 
   Key Assumptions:
-    Remaining Lifetime                  : 11 years
+    Remaining Lifetime                  : 22 years
     Nameplate Power Factor              : 0.900
 
   Financial Metrics (NPV, IRR, Payback - without 45U):
-    NPV                       : $-279,398,979
+    NPV                       : $-544,699,432
     IRR                       : N/A
     Payback                   : N/A years
 
   LCOE (Levelized Cost of Electricity - OPEX only over remaining lifetime):
-    LCOE (Nuclear OPEX only)  : $39.67/MWh
+    LCOE (Nuclear OPEX only)  : $40.17/MWh
 
   45U PTC Policy Impact:
     Financial Metrics (NPV, IRR, Payback - with 45U):
-      NPV                       : $720,844,039
+      NPV                       : $125,368,897
       IRR                       : N/A
-      Payback                   : 1.0 years
+      Payback                   : 0.0 years
 
     NPV Improvement etc.:
-      NPV Improvement           : $1,000,243,018
-      Total 45U Credits         : $1,334,321,762
+      NPV Improvement           : $670,068,329
+      Total 45U Credits         : $836,447,632
 
   Key Annual Operating Data (Generation, Revenue, OPEX etc.):
-    Annual Generation              : 9,883,865 MWh
-    Annual Revenue                 : $355,884,521
-    Total Annual OPEX              : $392,122,657
+    Annual Generation              : 9,928,321 MWh
+    Annual Revenue                 : $357,485,242
+    Total Annual OPEX              : $398,850,533
 
 3. Case 2: Existing Reactor Retrofit Analysis (Integrated Hydrogen and Battery Systems)
 --------------------------------------------------------------------------------
@@ -58,42 +58,41 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 100,000 kg
-    Battery Energy Capacity             : 10.00 MWh
-    Battery Power Capacity              : 2.50 MW
+    H2 Storage Capacity                 : 20,726 kg
+    Battery Energy Capacity             : 0.00 MWh
+    Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $44,782,639
-    IRR                            : 9.6%
-    Payback                        : 5.4 years
+    NPV                            : $340,874,238
+    IRR                            : -12.8%
+    Payback                        : 2.8 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $431,313,124
-    IRR                            : 21.2%
-    Payback                        : 3.5 years
+    NPV                            : $918,385,392
+    IRR                            : -32.9%
+    Payback                        : 1.7 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $4.411/kg
-      Electrolyzer System                     : $1.616/kg (36.4%)
-      Electricity Opportunity Cost Electrolyzer: $1.446/kg (32.5%)
-      Vom Electrolyzer                        : $0.402/kg (9.0%)
-      H2 Storage System                       : $0.388/kg (8.7%)
-      Fixed Om                                : $0.313/kg (7.1%)
-      Hte Heat Opportunity Cost               : $0.171/kg (3.8%)
-      Water Cost                              : $0.030/kg (0.7%)
-      H2 Storage Cycle Cost                   : $0.020/kg (0.4%)
-      Grid Integration                        : $0.016/kg (0.4%)
-      Battery System Energy                   : $0.008/kg (0.2%)
-      Battery System Power                    : $0.008/kg (0.2%)
-      Npp Modifications                       : $0.006/kg (0.1%)
-      Electricity Opportunity Cost Battery    : $0.003/kg (0.1%)
+    Total LCOH: $2.905/kg
+      Electricity Opportunity Cost Electrolyzer: $1.518/kg (51.8%)
+      Electrolyzer System                     : $0.602/kg (20.5%)
+      Vom Electrolyzer                        : $0.291/kg (9.9%)
+      Fixed Om                                : $0.175/kg (6.0%)
+      Stack Replacement                       : $0.165/kg (5.6%)
+      Hte Heat Opportunity Cost               : $0.091/kg (3.1%)
+      Water Cost                              : $0.030/kg (1.0%)
+      H2 Storage Cycle Cost                   : $0.020/kg (0.7%)
+      Grid Integration                        : $0.010/kg (0.3%)
+      H2 Storage System                       : $0.007/kg (0.2%)
+      Other Replacements                      : $0.004/kg (0.2%)
+      Npp Modifications                       : $0.004/kg (0.1%)
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $588,886,630
-    Total System OPEX                   : $444,526,578
-    Annual H2 Production                : 43,328,612 kg
-    Ancillary Services Revenue          : $5,058,896
+    Total Annual Revenue                : $578,601,345
+    Total System OPEX                   : $445,788,799
+    Annual H2 Production                : 41,386,869 kg
+    Ancillary Services Revenue          : $3,738,844
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -104,29 +103,27 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $626,720,000
+    Total Incremental CAPEX: $305,316,193
     CAPEX Breakdown:
-      Electrolyzer                       : $500,000,000 (79.8%)
-      H2 Storage                         : $120,000,000 (19.1%)
-      Battery Energy                     : $2,360,000 (0.4%)
-      Battery Power                      : $2,360,000 (0.4%)
-      NPP Modifications                  : $2,000,000 (0.3%)
+      Electrolyzer                       : $300,000,000 (98.3%)
+      H2 Storage                         : $3,316,193 (1.1%)
+      NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $336,346,141
-    IRR                            : 18.1%
-    Payback                        : 4.0 years
+    NPV                            : $811,488,457
+    IRR                            : 37.6%
+    Payback                        : 2.1 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $626,188,200
-    Tax Shield Effect (Value)                     : $131,499,522
-    NPV Contribution from MACRS (Approximation)   : $131,499,522
+    Total Incremental MACRS Depreciation          : $305,315,393
+    Tax Shield Effect (Value)                     : $64,116,233
+    NPV Contribution from MACRS (Approximation)   : $64,116,233
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $259,877,423
-    Incremental Costs                   : $89,780,108
-    Electricity Opportunity Cost        : $70,198,955
-    Thermal Energy Opportunity Cost     : $7,389,623
+    Incremental Revenue                 : $247,141,943
+    Incremental Costs                   : $80,700,436
+    Electricity Opportunity Cost        : $66,601,598
+    Thermal Energy Opportunity Cost     : $3,764,516
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -151,12 +148,12 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |   -13961.3 |     N/A |           N/A |  $44.619/kg |  $133.16/MWh |  $332.44/MWh
-  60 years  | 45Y PTC      |   -12689.6 |     N/A |           N/A |  $40.555/kg |  $133.16/MWh |  $332.44/MWh
-  60 years  | 48E ITC      |   -10186.5 |     N/A |           N/A |  $32.555/kg |  $133.16/MWh |  $332.44/MWh
-  80 years  | Baseline     |   -14073.1 |     N/A |           N/A |  $44.627/kg |  $132.29/MWh |  $330.20/MWh
-  80 years  | 45Y PTC      |   -12801.5 |     N/A |           N/A |  $40.594/kg |  $132.29/MWh |  $330.20/MWh
-  80 years  | 48E ITC      |   -10298.4 |     N/A |           N/A |  $32.657/kg |  $132.29/MWh |  $330.20/MWh
+  60 years  | Baseline     |   -10710.0 |     N/A |           N/A |  $24.076/kg |   $81.36/MWh |          N/A
+  60 years  | 45Y PTC      |    -9105.4 |     N/A |           N/A |  $20.469/kg |   $81.36/MWh |          N/A
+  60 years  | 48E ITC      |    -7808.2 |     N/A |           N/A |  $17.553/kg |   $81.36/MWh |          N/A
+  80 years  | Baseline     |   -10801.6 |     N/A |           N/A |  $23.771/kg |   $80.17/MWh |          N/A
+  80 years  | 45Y PTC      |    -9197.1 |     N/A |           N/A |  $20.240/kg |   $80.17/MWh |          N/A
+  80 years  | 48E ITC      |    -7899.8 |     N/A |           N/A |  $17.385/kg |   $80.17/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -180,7 +177,7 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
     IRR Improvement (80yr vs 60yr)      : N/A
 
   C. Existing Plant vs New Construction Comparison:
-    Existing Plant Remaining Life: 11 years
+    Existing Plant Remaining Life: 22 years
     New Construction Options: 60 years (Case 4) or 80 years (Case 5)
     
     Key Insights:
@@ -195,93 +192,88 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 10,826,238 MWh
-    Annual H2 Production                          : 43,328,612 kg
-    Battery Annual Throughput                     : 7,222 MWh
+    Total Nuclear Generation                      : 10,926,917 MWh
+    Annual H2 Production                          : 41,386,869 kg
+    Battery Annual Throughput                     : 0 MWh
     Capacity Factors
-    Electrolyzer Capacity Factor                  : 99.3%
-    Turbine Capacity Factor                       : 98.1%
+    Electrolyzer Capacity Factor                  : 99.6%
+    Turbine Capacity Factor                       : 99.1%
     Battery Capacity Factor                       : 0.0%
     Average Prices
     Average Electricity Price                     : $36.01/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $5,058,896
+    Total AS Revenue                              : $3,738,844
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3158
-    HTE Heat Opportunity Cost                     : $7,389,623
+    HTE Heat Opportunity Cost                     : $3,764,516
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $500,000,000 (79.1%)
-      H2 Storage System                       : $120,000,000 (19.0%)
-      Grid Integration                        : $5,000,000 (0.8%)
-      Battery System Energy                   : $2,360,000 (0.4%)
-      Battery System Power                    : $2,360,000 (0.4%)
-      NPP Modifications                       : $2,000,000 (0.3%)
-      Total CAPEX                             : $631,720,000
+      Electrolyzer System                     : $300,000,000 (96.7%)
+      Grid Integration                        : $5,000,000 (1.6%)
+      H2 Storage System                       : $3,316,193 (1.1%)
+      NPP Modifications                       : $2,000,000 (0.6%)
+      Total CAPEX                             : $310,316,193
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $226,674,000
-      Nuclear Variable O&M                    : $37,891,833
-      Nuclear Fuel Cost                       : $75,783,666
+      Nuclear Variable O&M                    : $10,926,917
+      Nuclear Fuel Cost                       : $109,269,173
       Nuclear Additional Costs                : $62,965,000
-      H2/Battery VOM (Electrolyzer)           : $17,404,147
-      Water Cost (for H2)                     : $1,299,858
-      Ramping Costs                           : $6,195
-      H2 Storage Cycle Cost                   : $849,402
-      Calculated Total Annual OPEX            : $422,874,101
-      Reported Total System OPEX              : $444,526,578
+      H2/Battery VOM (Electrolyzer)           : $12,041,363
+      Water Cost (for H2)                     : $1,241,606
+      Ramping Costs                           : $5,558
+      H2 Storage Cycle Cost                   : $811,347
+      Calculated Total Annual OPEX            : $423,934,964
+      Reported Total System OPEX              : $445,788,799
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $4.411/kg
-        Electrolyzer System                     : $1.616/kg (36.4%)
-        Electricity Opportunity Cost Electrolyzer: $1.446/kg (32.5%)
-        Vom Electrolyzer                        : $0.402/kg (9.0%)
-        H2 Storage System                       : $0.388/kg (8.7%)
-        Fixed Om                                : $0.313/kg (7.1%)
-        Hte Heat Opportunity Cost               : $0.171/kg (3.8%)
-        Water Cost                              : $0.030/kg (0.7%)
-        H2 Storage Cycle Cost                   : $0.020/kg (0.4%)
-        Grid Integration                        : $0.016/kg (0.4%)
-        Battery System Energy                   : $0.008/kg (0.2%)
-        Battery System Power                    : $0.008/kg (0.2%)
-        Npp Modifications                       : $0.006/kg (0.1%)
-        Electricity Opportunity Cost Battery    : $0.003/kg (0.1%)
+      Total LCOH: $2.905/kg
+        Electricity Opportunity Cost Electrolyzer: $1.518/kg (51.8%)
+        Electrolyzer System                     : $0.602/kg (20.5%)
+        Vom Electrolyzer                        : $0.291/kg (9.9%)
+        Fixed Om                                : $0.175/kg (6.0%)
+        Stack Replacement                       : $0.165/kg (5.6%)
+        Hte Heat Opportunity Cost               : $0.091/kg (3.1%)
+        Water Cost                              : $0.030/kg (1.0%)
+        H2 Storage Cycle Cost                   : $0.020/kg (0.7%)
+        Grid Integration                        : $0.010/kg (0.3%)
+        H2 Storage System                       : $0.007/kg (0.2%)
+        Other Replacements                      : $0.004/kg (0.2%)
+        Npp Modifications                       : $0.004/kg (0.1%)
         Ramping Cost                            : $0.000/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $631,720,000
-    Total Tax Shield Value (at current tax rate)  : $132,661,200
+    Total MACRS Depreciation Over Lifetime        : $310,316,193
+    Total Tax Shield Value (at current tax rate)  : $65,166,401
 
     MACRS Depreciation by Asset Type/Component Category:
-      Electrolyzer System                           : $500,000,000
-      H2 Storage System                             : $120,000,000
-      Battery System Energy                         : $2,360,000
-      Battery System Power                          : $2,360,000
+      Electrolyzer System                           : $300,000,000
+      H2 Storage System                             : $3,316,193
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 
 8. Core Economic & Cost Assumptions
 -----------------------------------
   Global Parameters (used unless overridden by specific analysis case):
-    Project Lifetime (General)               : 11 years
+    Project Lifetime (General)               : 22 years
     Construction Period (General)            : 2 years
-    Discount Rate                            : 8.0%
+    Discount Rate                            : 6.0%
     Corporate Tax Rate                       : 21.0%
 
   Main Equipment CAPEX Cost Parameters (from `config.CAPEX_COMPONENTS`):
-    Electrolyzer System                      : $125,000,000 for 50 MW
-    H2 Storage System                        : $120,000,000 for 100,000 kg
-    Battery System Energy                    : $23,600,000 for 100 MWh
+    Electrolyzer System                      : $75,000,000 for 50 MW
+    H2 Storage System                        : $16,000,000 for 100,000 kg
+    Battery System Energy                    : $0 for 100 MWh
     Battery System Power                     : $23,600,000 for 25 MW
     Grid Integration                         : $5,000,000 for 0 units
     NPP Modifications                        : $2,000,000 for 0 units
 
   Main Operations & Maintenance Cost Parameters (from `config.OM_COMPONENTS`):
     Fixed OM General                         : 2.0% of CAPEX (Inflation: 2.0%)
-    Fixed OM Battery                         : $2,360/MWh/year (Inflation: 2.0%)
-    Variable OM Electrolyzer                 : $10.00/MWh (Inflation: 2.0%)
+    Fixed OM Battery                         : $48,168/MW/year (Inflation: 2.0%)
+    Variable OM Electrolyzer                 : $6.90/MWh (Inflation: 2.0%)
     Variable OM H2 Storage                   : $0.01/kg cycled (Inflation: 2.0%)
 
   Main Replacement Cost Parameters (from `config.REPLACEMENT_SCHEDULE`):
@@ -291,8 +283,8 @@ Techno-Economic Analysis Report - Nine Mile Point Nuclear Station_2_NYISO_22
 
   Nuclear Cost Parameters (from `config.NUCLEAR_COST_PARAMETERS` or calculation outputs):
     Nuclear Fixed O&M                        : $15,000/MW/month
-    Nuclear Variable O&M                     : 3.50/MWh
-    Nuclear Fuel Cost                        : 7.00/MWh
+    Nuclear Variable O&M                     : 1.00/MWh
+    Nuclear Fuel Cost                        : 10.00/MWh
     Nuclear Additional Costs                 : $50,000/MW/year
     Nuclear CAPEX (if greenfield)            : N/A/MW
 

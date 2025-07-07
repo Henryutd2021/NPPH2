@@ -139,6 +139,7 @@ class TEAEngine:
             self.logger.info(f"Found NPPs info file: {npps_info_path}")
 
         # Load system parameters with NPPs info path for actual remaining years
+        # and hourly results file path for plant identification
         (tea_sys_params,
          loaded_project_lifetime,
          loaded_discount_rate,
@@ -146,7 +147,14 @@ class TEAEngine:
          loaded_tax_rate,
          loaded_om_components,
          loaded_nuclear_config,
-         loaded_tax_policies) = load_tea_sys_params(target_iso, input_sys_data_dir, str(npps_info_path) if npps_info_path else None, case_type)
+         loaded_tax_policies) = load_tea_sys_params(
+            target_iso,
+            input_sys_data_dir,
+            str(npps_info_path) if npps_info_path else None,
+            case_type,
+            # Pass hourly results file path for plant identification
+            str(input_hourly_results_file)
+        )
 
         # Add plant-specific parameters if provided
         if plant_specific_params:
@@ -186,6 +194,9 @@ class TEAEngine:
             self.logger.error(
                 f"Optimization results file not found: {input_hourly_results_file}")
             return None, None, False
+
+        # Store the hourly results file path for remaining years extraction
+        self.hourly_results_file_path = str(input_hourly_results_file)
 
         hourly_res_df = load_hourly_results(input_hourly_results_file)
         if hourly_res_df is None:
@@ -510,7 +521,9 @@ class TEAEngine:
                 tax_rate_config=config.TAX_RATE,
                 target_iso=target_iso,
                 npps_info_path=str(npps_info_path) if npps_info_path else None,
-                tax_policies=config.TAX_INCENTIVE_POLICIES
+                tax_policies=config.TAX_INCENTIVE_POLICIES,
+                hourly_results_file_path=getattr(
+                    self, 'hourly_results_file_path', None)
             )
 
             if baseline_nuclear_analysis:
@@ -547,10 +560,23 @@ class TEAEngine:
             self.logger.info(
                 f"Using actual nuclear reactor capacity for retrofit analysis: {actual_nuclear_capacity:.1f} MW")
 
+            # Use actual remaining years from tea_sys_params (extracted from filename or NPPs info)
+            # This ensures Case 2 uses the correct plant lifetime for existing reactor retrofit
+            actual_project_lifetime = tea_sys_params.get(
+                'project_lifetime_years', config.PROJECT_LIFETIME_YEARS)
+            if actual_project_lifetime != config.PROJECT_LIFETIME_YEARS:
+                self.logger.info(
+                    f"Case 2 Retrofit: Using actual remaining lifetime: {actual_project_lifetime} years")
+                self.logger.info(
+                    f"  (Override from filename/NPPs info, config default was: {config.PROJECT_LIFETIME_YEARS} years)")
+            else:
+                self.logger.info(
+                    f"Case 2 Retrofit: Using config default lifetime: {actual_project_lifetime} years")
+
             integrated_nuclear_analysis = calculate_nuclear_integrated_financial_metrics(
                 annual_metrics=annual_metrics_results,
                 nuclear_capacity_mw=actual_nuclear_capacity,
-                project_lifetime_config=config.PROJECT_LIFETIME_YEARS,
+                project_lifetime_config=actual_project_lifetime,  # Use actual remaining years
                 construction_period_config=config.CONSTRUCTION_YEARS,
                 discount_rate_config=config.DISCOUNT_RATE,
                 tax_rate_config=config.TAX_RATE,

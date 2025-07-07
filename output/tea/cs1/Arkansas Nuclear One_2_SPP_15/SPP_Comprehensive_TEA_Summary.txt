@@ -4,10 +4,10 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
 1. Project Overview & Nuclear Unit Characteristics
 --------------------------------------------------
   ISO Region                               : SPP
-  Project Lifecycle                        : 9 years (Plant Remaining Lifetime from Case 1 financial_metrics: 9 yrs)
-  Discount Rate                            : 8.0%
+  Project Lifecycle                        : 15 years (Plant Remaining Lifetime from Case 1 financial_metrics: 15 yrs)
+  Discount Rate                            : 6.0%
   Tax Rate                                 : 21.0%
-  Nuclear Unit Capacity (MW)               : 928.14
+  Nuclear Unit Capacity (MW)               : 942.50 (from NPPs info file)
   Nuclear Unit Thermal Capacity (MWt)      : 3,026.00
   Nuclear Unit Thermal Efficiency          : 0.3115 (31.15%)
   Other Key Configuration Parameters       : Refer to specific case sections and assumptions
@@ -22,31 +22,31 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
     benchmark for comparison with retrofit or integrated system scenarios.
 
   Key Assumptions:
-    Remaining Lifetime                  : 9 years
-    Nameplate Power Factor              : 0.900
+    Remaining Lifetime                  : 15 years
+    Nameplate Power Factor              : 0.950
 
   Financial Metrics (NPV, IRR, Payback - without 45U):
-    NPV                       : $-690,900,913
+    NPV                       : $-1,058,964,167
     IRR                       : N/A
     Payback                   : N/A years
 
   LCOE (Levelized Cost of Electricity - OPEX only over remaining lifetime):
-    LCOE (Nuclear OPEX only)  : $39.67/MWh
+    LCOE (Nuclear OPEX only)  : $38.64/MWh
 
   45U PTC Policy Impact:
     Financial Metrics (NPV, IRR, Payback - with 45U):
-      NPV                       : $49,620,492
+      NPV                       : $-372,575,695
       IRR                       : N/A
-      Payback                   : 1.0 years
+      Payback                   : N/A years
 
     NPV Improvement etc.:
-      NPV Improvement           : $740,521,406
-      Total 45U Credits         : $987,853,760
+      NPV Improvement           : $686,388,472
+      Total 45U Credits         : $856,820,099
 
   Key Annual Operating Data (Generation, Revenue, OPEX etc.):
-    Annual Generation              : 7,317,435 MWh
-    Annual Revenue                 : $187,897,990
-    Total Annual OPEX              : $290,304,672
+    Annual Generation              : 7,843,485 MWh
+    Annual Revenue                 : $201,405,959
+    Total Annual OPEX              : $303,053,335
 
 3. Case 2: Existing Reactor Retrofit Analysis (Integrated Hydrogen and Battery Systems)
 --------------------------------------------------------------------------------
@@ -58,42 +58,40 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 100,000 kg
-    Battery Energy Capacity             : 10.00 MWh
-    Battery Power Capacity              : 2.50 MW
+    H2 Storage Capacity                 : 30,873 kg
+    Battery Energy Capacity             : 0.00 MWh
+    Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $-213,115,941
-    IRR                            : -2.3%
-    Payback                        : N/A years
+    NPV                            : $17,880,699
+    IRR                            : 8.0%
+    Payback                        : 4.7 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $-24,216,763
-    IRR                            : 7.1%
-    Payback                        : 6.4 years
+    NPV                            : $182,970,621
+    IRR                            : 19.5%
+    Payback                        : 3.5 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $4.230/kg
-      Electrolyzer System                     : $1.903/kg (43.0%)
-      Electricity Opportunity Cost Electrolyzer: $1.032/kg (23.3%)
-      H2 Storage System                       : $0.457/kg (10.3%)
-      Vom Electrolyzer                        : $0.402/kg (9.1%)
-      Fixed Om                                : $0.318/kg (7.2%)
-      Hte Heat Opportunity Cost               : $0.120/kg (2.7%)
-      Water Cost                              : $0.030/kg (0.7%)
-      H2 Storage Cycle Cost                   : $0.020/kg (0.4%)
-      Grid Integration                        : $0.019/kg (0.4%)
-      Battery System Energy                   : $0.009/kg (0.2%)
-      Battery System Power                    : $0.009/kg (0.2%)
-      Npp Modifications                       : $0.008/kg (0.2%)
-      Electricity Opportunity Cost Battery    : $0.003/kg (0.1%)
-      Ramping Cost                            : $0.001/kg (0.0%)
+    Total LCOH: $2.547/kg
+      Electricity Opportunity Cost Electrolyzer: $1.083/kg (41.4%)
+      Electrolyzer System                     : $0.754/kg (28.9%)
+      Vom Electrolyzer                        : $0.291/kg (11.1%)
+      Fixed Om                                : $0.169/kg (6.5%)
+      Stack Replacement                       : $0.139/kg (5.3%)
+      Hte Heat Opportunity Cost               : $0.064/kg (2.4%)
+      Water Cost                              : $0.030/kg (1.1%)
+      H2 Storage Cycle Cost                   : $0.020/kg (0.8%)
+      Grid Integration                        : $0.013/kg (0.5%)
+      H2 Storage System                       : $0.012/kg (0.5%)
+      Npp Modifications                       : $0.005/kg (0.2%)
+      Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $439,097,156
-    Total System OPEX                   : $336,539,786
-    Annual H2 Production                : 42,055,450 kg
-    Ancillary Services Revenue          : $23,747,229
+    Total Annual Revenue                : $416,577,143
+    Total System OPEX                   : $336,747,628
+    Annual H2 Production                : 40,958,396 kg
+    Ancillary Services Revenue          : $7,779,420
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -104,29 +102,27 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $626,720,000
+    Total Incremental CAPEX: $306,939,733
     CAPEX Breakdown:
-      Electrolyzer                       : $500,000,000 (79.8%)
-      H2 Storage                         : $120,000,000 (19.1%)
-      Battery Energy                     : $2,360,000 (0.4%)
-      Battery Power                      : $2,360,000 (0.4%)
-      NPP Modifications                  : $2,000,000 (0.3%)
+      Electrolyzer                       : $300,000,000 (97.7%)
+      H2 Storage                         : $4,939,733 (1.6%)
+      NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $380,333,496
-    IRR                            : 20.2%
-    Payback                        : 3.5 years
+    NPV                            : $880,146,875
+    IRR                            : 41.3%
+    Payback                        : 1.9 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $625,952,200
-    Tax Shield Effect (Value)                     : $131,449,962
-    NPV Contribution from MACRS (Approximation)   : $131,449,962
+    Total Incremental MACRS Depreciation          : $306,879,933
+    Tax Shield Effect (Value)                     : $64,444,786
+    NPV Contribution from MACRS (Approximation)   : $64,444,786
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $262,497,289
-    Incremental Costs                   : $67,613,620
-    Electricity Opportunity Cost        : $57,148,058
-    Thermal Energy Opportunity Cost     : $5,045,325
+    Incremental Revenue                 : $246,883,124
+    Incremental Costs                   : $60,944,825
+    Electricity Opportunity Cost        : $48,737,758
+    Thermal Energy Opportunity Cost     : $2,620,649
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -151,12 +147,12 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |   -10516.6 |   -6.0% |           N/A |  $34.628/kg |  $134.21/MWh |  $298.64/MWh
-  60 years  | 45Y PTC      |    -9570.0 |   -5.4% |           N/A |  $31.510/kg |  $134.21/MWh |  $298.64/MWh
-  60 years  | 48E ITC      |    -7653.4 |   -5.1% |           N/A |  $25.200/kg |  $134.21/MWh |  $298.64/MWh
-  80 years  | Baseline     |   -10623.5 |   -5.0% |           N/A |  $34.708/kg |  $133.32/MWh |  $296.60/MWh
-  80 years  | 45Y PTC      |    -9676.8 |   -4.6% |           N/A |  $31.615/kg |  $133.32/MWh |  $296.60/MWh
-  80 years  | 48E ITC      |    -7760.3 |   -4.3% |           N/A |  $25.353/kg |  $133.32/MWh |  $296.60/MWh
+  60 years  | Baseline     |    -7817.8 |   -5.0% |           N/A |  $17.758/kg |   $81.82/MWh |          N/A
+  60 years  | 45Y PTC      |    -6620.3 |   -4.2% |           N/A |  $15.038/kg |   $81.82/MWh |          N/A
+  60 years  | 48E ITC      |    -5617.9 |   -4.1% |           N/A |  $12.761/kg |   $81.82/MWh |          N/A
+  80 years  | Baseline     |    -7890.7 |   -3.7% |           N/A |  $17.547/kg |   $80.61/MWh |          N/A
+  80 years  | 45Y PTC      |    -6693.3 |   -3.1% |           N/A |  $14.884/kg |   $80.61/MWh |          N/A
+  80 years  | 48E ITC      |    -5690.9 |   -3.0% |           N/A |  $12.655/kg |   $80.61/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -180,7 +176,7 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
     IRR Improvement (80yr vs 60yr)      : N/A
 
   C. Existing Plant vs New Construction Comparison:
-    Existing Plant Remaining Life: 9 years
+    Existing Plant Remaining Life: 15 years
     New Construction Options: 60 years (Case 4) or 80 years (Case 5)
     
     Key Insights:
@@ -195,93 +191,87 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 8,059,816 MWh
-    Annual H2 Production                          : 42,055,450 kg
-    Battery Annual Throughput                     : 8,830 MWh
+    Total Nuclear Generation                      : 8,154,243 MWh
+    Annual H2 Production                          : 40,958,396 kg
+    Battery Annual Throughput                     : 0 MWh
     Capacity Factors
-    Electrolyzer Capacity Factor                  : 96.5%
-    Turbine Capacity Factor                       : 97.6%
+    Electrolyzer Capacity Factor                  : 98.6%
+    Turbine Capacity Factor                       : 98.8%
     Battery Capacity Factor                       : 0.0%
     Average Prices
     Average Electricity Price                     : $25.68/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $23,747,229
+    Total AS Revenue                              : $7,779,420
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3115
-    HTE Heat Opportunity Cost                     : $5,045,325
+    HTE Heat Opportunity Cost                     : $2,620,649
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $500,000,000 (79.1%)
-      H2 Storage System                       : $120,000,000 (19.0%)
-      Grid Integration                        : $5,000,000 (0.8%)
-      Battery System Energy                   : $2,360,000 (0.4%)
-      Battery System Power                    : $2,360,000 (0.4%)
-      NPP Modifications                       : $2,000,000 (0.3%)
-      Total CAPEX                             : $631,720,000
+      Electrolyzer System                     : $300,000,000 (96.2%)
+      Grid Integration                        : $5,000,000 (1.6%)
+      H2 Storage System                       : $4,939,733 (1.6%)
+      NPP Modifications                       : $2,000,000 (0.6%)
+      Total CAPEX                             : $311,939,733
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $169,650,000
-      Nuclear Variable O&M                    : $28,209,358
-      Nuclear Fuel Cost                       : $56,418,715
+      Nuclear Variable O&M                    : $8,154,243
+      Nuclear Fuel Cost                       : $81,542,427
       Nuclear Additional Costs                : $47,125,000
-      H2/Battery VOM (Electrolyzer)           : $16,903,425
-      Water Cost (for H2)                     : $1,261,663
-      Ramping Costs                           : $27,574
-      H2 Storage Cycle Cost                   : $824,418
-      Calculated Total Annual OPEX            : $320,420,153
-      Reported Total System OPEX              : $336,539,786
+      H2/Battery VOM (Electrolyzer)           : $11,919,145
+      Water Cost (for H2)                     : $1,228,752
+      Ramping Costs                           : $16,697
+      H2 Storage Cycle Cost                   : $802,881
+      Calculated Total Annual OPEX            : $320,439,144
+      Reported Total System OPEX              : $336,747,628
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $4.230/kg
-        Electrolyzer System                     : $1.903/kg (43.0%)
-        Electricity Opportunity Cost Electrolyzer: $1.032/kg (23.3%)
-        H2 Storage System                       : $0.457/kg (10.3%)
-        Vom Electrolyzer                        : $0.402/kg (9.1%)
-        Fixed Om                                : $0.318/kg (7.2%)
-        Hte Heat Opportunity Cost               : $0.120/kg (2.7%)
-        Water Cost                              : $0.030/kg (0.7%)
-        H2 Storage Cycle Cost                   : $0.020/kg (0.4%)
-        Grid Integration                        : $0.019/kg (0.4%)
-        Battery System Energy                   : $0.009/kg (0.2%)
-        Battery System Power                    : $0.009/kg (0.2%)
-        Npp Modifications                       : $0.008/kg (0.2%)
-        Electricity Opportunity Cost Battery    : $0.003/kg (0.1%)
-        Ramping Cost                            : $0.001/kg (0.0%)
+      Total LCOH: $2.547/kg
+        Electricity Opportunity Cost Electrolyzer: $1.083/kg (41.4%)
+        Electrolyzer System                     : $0.754/kg (28.9%)
+        Vom Electrolyzer                        : $0.291/kg (11.1%)
+        Fixed Om                                : $0.169/kg (6.5%)
+        Stack Replacement                       : $0.139/kg (5.3%)
+        Hte Heat Opportunity Cost               : $0.064/kg (2.4%)
+        Water Cost                              : $0.030/kg (1.1%)
+        H2 Storage Cycle Cost                   : $0.020/kg (0.8%)
+        Grid Integration                        : $0.013/kg (0.5%)
+        H2 Storage System                       : $0.012/kg (0.5%)
+        Npp Modifications                       : $0.005/kg (0.2%)
+        Ramping Cost                            : $0.000/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $631,720,000
-    Total Tax Shield Value (at current tax rate)  : $132,661,200
+    Total MACRS Depreciation Over Lifetime        : $311,939,733
+    Total Tax Shield Value (at current tax rate)  : $65,507,344
 
     MACRS Depreciation by Asset Type/Component Category:
-      Electrolyzer System                           : $500,000,000
-      H2 Storage System                             : $120,000,000
-      Battery System Energy                         : $2,360,000
-      Battery System Power                          : $2,360,000
+      Electrolyzer System                           : $300,000,000
+      H2 Storage System                             : $4,939,733
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 
 8. Core Economic & Cost Assumptions
 -----------------------------------
   Global Parameters (used unless overridden by specific analysis case):
-    Project Lifetime (General)               : 9 years
+    Project Lifetime (General)               : 15 years
     Construction Period (General)            : 2 years
-    Discount Rate                            : 8.0%
+    Discount Rate                            : 6.0%
     Corporate Tax Rate                       : 21.0%
 
   Main Equipment CAPEX Cost Parameters (from `config.CAPEX_COMPONENTS`):
-    Electrolyzer System                      : $125,000,000 for 50 MW
-    H2 Storage System                        : $120,000,000 for 100,000 kg
-    Battery System Energy                    : $23,600,000 for 100 MWh
+    Electrolyzer System                      : $75,000,000 for 50 MW
+    H2 Storage System                        : $16,000,000 for 100,000 kg
+    Battery System Energy                    : $0 for 100 MWh
     Battery System Power                     : $23,600,000 for 25 MW
     Grid Integration                         : $5,000,000 for 0 units
     NPP Modifications                        : $2,000,000 for 0 units
 
   Main Operations & Maintenance Cost Parameters (from `config.OM_COMPONENTS`):
     Fixed OM General                         : 2.0% of CAPEX (Inflation: 2.0%)
-    Fixed OM Battery                         : $2,360/MWh/year (Inflation: 2.0%)
-    Variable OM Electrolyzer                 : $10.00/MWh (Inflation: 2.0%)
+    Fixed OM Battery                         : $48,168/MW/year (Inflation: 2.0%)
+    Variable OM Electrolyzer                 : $6.90/MWh (Inflation: 2.0%)
     Variable OM H2 Storage                   : $0.01/kg cycled (Inflation: 2.0%)
 
   Main Replacement Cost Parameters (from `config.REPLACEMENT_SCHEDULE`):
@@ -291,8 +281,8 @@ Techno-Economic Analysis Report - Arkansas Nuclear One_2_SPP_15
 
   Nuclear Cost Parameters (from `config.NUCLEAR_COST_PARAMETERS` or calculation outputs):
     Nuclear Fixed O&M                        : $15,000/MW/month
-    Nuclear Variable O&M                     : 3.50/MWh
-    Nuclear Fuel Cost                        : 7.00/MWh
+    Nuclear Variable O&M                     : 1.00/MWh
+    Nuclear Fuel Cost                        : 10.00/MWh
     Nuclear Additional Costs                 : $50,000/MW/year
     Nuclear CAPEX (if greenfield)            : N/A/MW
 
