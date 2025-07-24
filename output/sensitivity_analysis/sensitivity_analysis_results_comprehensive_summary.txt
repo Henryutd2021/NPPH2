@@ -1,0 +1,147 @@
+=== Sensitivity Analysis Comprehensive Summary ===
+
+Total Cases Analyzed: 13
+Parameter Types: turbine_ramp, electrolyzer_capacity, electrolyzer_ramp
+
+=== Turbine Ramp Sensitivity ===
+Parameter Range: 0.5 - 2.0
+Number of Cases: 4
+
+Capacity Factor Analysis:
+  H2 Storage Capacity Factor:
+    Range: 0.621 - 0.621
+    Average: 0.621
+    Std Dev: 0.000
+  Turbine Capacity Factor:
+    Range: 0.979 - 0.979
+    Average: 0.979
+    Std Dev: 0.000
+  Electrolyzer Capacity Factor:
+    Range: 0.989 - 0.989
+    Average: 0.989
+    Std Dev: 0.000
+
+Performance Metrics:
+  H2 Production Total Kg:
+    Range: 41094011.749 - 41094011.749
+    Average: 41094011.749
+  Grid Output Mean Mw:
+    Range: 165.560 - 165.560
+    Average: 165.560
+  Electrolyzer Operating Frequency:
+    Range: 1.000 - 1.000
+    Average: 1.000
+
+==================================================
+=== Electrolyzer Capacity Sensitivity ===
+Parameter Range: 100.0 - 300.0
+Number of Cases: 5
+
+Capacity Factor Analysis:
+  H2 Storage Capacity Factor:
+    Range: 0.621 - 0.724
+    Average: 0.650
+    Std Dev: 0.043
+  Turbine Capacity Factor:
+    Range: 0.979 - 0.993
+    Average: 0.983
+    Std Dev: 0.006
+  Electrolyzer Capacity Factor:
+    Range: 0.696 - 0.993
+    Average: 0.901
+    Std Dev: 0.133
+
+Performance Metrics:
+  H2 Production Total Kg:
+    Range: 20221667.461 - 43427475.139
+    Average: 35756079.509
+  Grid Output Mean Mw:
+    Range: 153.599 - 272.550
+    Average: 192.922
+  Electrolyzer Operating Frequency:
+    Range: 1.000 - 1.000
+    Average: 1.000
+
+==================================================
+=== Electrolyzer Ramp Sensitivity ===
+Parameter Range: 0.5 - 2.0
+Number of Cases: 4
+
+Capacity Factor Analysis:
+  H2 Storage Capacity Factor:
+    Range: 0.595 - 0.621
+    Average: 0.612
+    Std Dev: 0.012
+  Turbine Capacity Factor:
+    Range: 0.976 - 0.979
+    Average: 0.978
+    Std Dev: 0.001
+  Electrolyzer Capacity Factor:
+    Range: 0.987 - 0.989
+    Average: 0.989
+    Std Dev: 0.001
+
+Performance Metrics:
+  H2 Production Total Kg:
+    Range: 41007517.003 - 41094011.749
+    Average: 41068635.044
+  Grid Output Mean Mw:
+    Range: 165.560 - 166.003
+    Average: 165.690
+  Electrolyzer Operating Frequency:
+    Range: 1.000 - 1.000
+    Average: 1.000
+
+==================================================
+
+=== Overall Summary Statistics ===
+
+H2 Storage Capacity Factor:
+  Overall Range: 0.595 - 0.724
+  Overall Average: 0.630
+  Overall Std Dev: 0.031
+
+Turbine Capacity Factor:
+  Overall Range: 0.976 - 0.993
+  Overall Average: 0.980
+  Overall Std Dev: 0.004
+
+Turbine Max Output Mw:
+  Overall Range: 372.930 - 375.537
+  Overall Average: 373.751
+  Overall Std Dev: 0.727
+
+Turbine Avg Output Mw:
+  Overall Range: 364.929 - 372.982
+  Overall Average: 366.454
+  Overall Std Dev: 2.240
+
+Turbine Min Output Mw:
+  Overall Range: 364.800 - 372.930
+  Overall Average: 366.308
+  Overall Std Dev: 2.270
+
+Electrolyzer Capacity Factor:
+  Overall Range: 0.696 - 0.993
+  Overall Average: 0.955
+  Overall Std Dev: 0.089
+
+Electrolyzer Avg Output Mw:
+  Overall Range: 99.278 - 208.852
+  Overall Average: 188.103
+  Overall Std Dev: 30.477
+
+Grid Output Mean Mw:
+  Overall Range: 153.599 - 272.550
+  Overall Average: 176.123
+  Overall Std Dev: 33.085
+
+Grid Output Std Mw:
+  Overall Range: 5.241 - 16.006
+  Overall Average: 14.072
+  Overall Std Dev: 3.134
+
+Grid Output Max Mw:
+  Overall Range: 271.767 - 310.857
+  Overall Average: 284.076
+  Overall Std Dev: 10.907

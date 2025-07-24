@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "GrandGulf",
+    "unit_id": "1",
+    "iso_region": "MISO",
+    "standardized_name": "GrandGulf_Unit1_MISO"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:16:27.578308",
+    "end_time": "2025-07-14T12:16:35.424242",
+    "duration_seconds": 7.845934,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/GrandGulf_Unit1_MISO_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/GrandGulf_Unit1_MISO_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/GrandGulf_Unit1_MISO_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for GrandGulf",
+      "description": "",
+      "start_time": "2025-07-14T12:16:27.579057",
+      "end_time": "2025-07-14T12:16:35.424141",
+      "duration": 7.8454554080963135,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Grand Gulf Unit 1",
+      "start_time": "2025-07-14T12:16:27.579285",
+      "end_time": "2025-07-14T12:16:27.581787",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:16:27.581834",
+      "end_time": "2025-07-14T12:16:28.301947",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:16:28.302092",
+      "end_time": "2025-07-14T12:16:35.334811",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:16:35.336278",
+      "end_time": "2025-07-14T12:16:35.336489",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "6579.6",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:16:27.579241",
+      "phase": "Enhanced TEA for GrandGulf"
+    },
+    "Thermal Capacity": {
+      "value": "4,408.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:16:27.581669",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,440.0",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:16:27.581718",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3267",
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:27.581758",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:28.301818",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:35.336436",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:35.336463",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

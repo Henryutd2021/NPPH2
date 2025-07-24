@@ -63,14 +63,14 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $-128,777,128
-    IRR                            : N/A
-    Payback                        : 4.9 years
+    NPV                            : $27,023,010
+    IRR                            : 1.1%
+    Payback                        : 4.0 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $188,663,973
-    IRR                            : -8.3%
-    Payback                        : 3.1 years
+    NPV                            : $377,402,367
+    IRR                            : -21.4%
+    Payback                        : 2.6 years
 
   LCOH (Detailed Composition):
     Total LCOH: $2.453/kg
@@ -89,10 +89,10 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $446,247,437
-    Total System OPEX                   : $368,846,674
-    Annual H2 Production                : 41,251,975 kg
-    Ancillary Services Revenue          : $6,959,901
+    Total Annual Revenue                : $446,248,668
+    Total System OPEX                   : $352,024,656
+    Annual H2 Production                : 41,251,021 kg
+    Ancillary Services Revenue          : $6,961,610
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -110,7 +110,7 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $953,533,348
+    NPV                            : $953,545,285
     IRR                            : 41.1%
     Payback                        : 1.9 years
 
@@ -120,10 +120,10 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
     NPV Contribution from MACRS (Approximation)   : $63,990,908
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $247,553,864
-    Incremental Costs                   : $64,120,448
-    Electricity Opportunity Cost        : $52,070,869
-    Thermal Energy Opportunity Cost     : $2,992,583
+    Incremental Revenue                 : $247,552,762
+    Incremental Costs                   : $64,119,056
+    Electricity Opportunity Cost        : $52,069,669
+    Thermal Energy Opportunity Cost     : $2,992,514
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -149,11 +149,11 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
   60 years  | Baseline     |    -8654.0 |  -10.5% |           N/A |  $19.518/kg |   $81.63/MWh |          N/A
-  60 years  | 45Y PTC      |    -7337.7 |   -9.8% |           N/A |  $16.549/kg |   $81.63/MWh |          N/A
+  60 years  | 45Y PTC      |    -7337.7 |   -9.8% |           N/A |  $16.550/kg |   $81.63/MWh |          N/A
   60 years  | 48E ITC      |    -6246.3 |  -10.0% |           N/A |  $14.088/kg |   $81.63/MWh |          N/A
-  80 years  | Baseline     |    -8731.6 |     N/A |           N/A |  $19.278/kg |   $80.43/MWh |          N/A
-  80 years  | 45Y PTC      |    -7415.3 |     N/A |           N/A |  $16.372/kg |   $80.43/MWh |          N/A
-  80 years  | 48E ITC      |    -6323.9 |     N/A |           N/A |  $13.962/kg |   $80.43/MWh |          N/A
+  80 years  | Baseline     |    -8731.7 |     N/A |           N/A |  $19.279/kg |   $80.43/MWh |          N/A
+  80 years  | 45Y PTC      |    -7415.4 |     N/A |           N/A |  $16.372/kg |   $80.43/MWh |          N/A
+  80 years  | 48E ITC      |    -6323.9 |     N/A |           N/A |  $13.963/kg |   $80.43/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,8 +192,8 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 8,963,885 MWh
-    Annual H2 Production                          : 41,251,975 kg
+    Total Nuclear Generation                      : 8,963,887 MWh
+    Annual H2 Production                          : 41,251,021 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
     Electrolyzer Capacity Factor                  : 99.3%
@@ -203,10 +203,10 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
     Average Electricity Price                     : $27.06/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $6,959,901
+    Total AS Revenue                              : $6,961,610
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3351
-    HTE Heat Opportunity Cost                     : $2,992,583
+    HTE Heat Opportunity Cost                     : $2,992,514
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
@@ -218,15 +218,15 @@ Techno-Economic Analysis Report - River Bend_1_MISO_21
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $186,462,000
-      Nuclear Variable O&M                    : $8,963,885
-      Nuclear Fuel Cost                       : $89,638,847
+      Nuclear Variable O&M                    : $8,963,887
+      Nuclear Fuel Cost                       : $90,744,840
       Nuclear Additional Costs                : $51,795,000
-      H2/Battery VOM (Electrolyzer)           : $12,002,970
-      Water Cost (for H2)                     : $1,237,559
-      Ramping Costs                           : $9,965
-      H2 Storage Cycle Cost                   : $808,678
-      Calculated Total Annual OPEX            : $350,918,904
-      Reported Total System OPEX              : $368,846,674
+      H2/Battery VOM (Electrolyzer)           : $12,002,695
+      Water Cost (for H2)                     : $1,237,530
+      Ramping Costs                           : $10,034
+      H2 Storage Cycle Cost                   : $808,669
+      Calculated Total Annual OPEX            : $352,024,655
+      Reported Total System OPEX              : $352,024,656
 
     LCOH Detailed Composition (if H2 produced):
       Total LCOH: $2.453/kg

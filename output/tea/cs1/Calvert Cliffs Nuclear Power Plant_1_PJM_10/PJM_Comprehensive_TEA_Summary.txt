@@ -58,26 +58,26 @@ Techno-Economic Analysis Report - Calvert Cliffs Nuclear Power Plant_1_PJM_10
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 49,094 kg
+    H2 Storage Capacity                 : 50,132 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $275,378,724
-    IRR                            : 23.2%
-    Payback                        : 3.1 years
+    NPV                            : $343,488,810
+    IRR                            : 26.7%
+    Payback                        : 2.7 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $567,665,064
-    IRR                            : 35.0%
-    Payback                        : 2.3 years
+    NPV                            : $650,178,907
+    IRR                            : 38.6%
+    Payback                        : 2.0 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $2.895/kg
-      Electricity Opportunity Cost Electrolyzer: $1.318/kg (42.9%)
-      Electrolyzer System                     : $1.023/kg (33.2%)
+    Total LCOH: $2.896/kg
+      Electricity Opportunity Cost Electrolyzer: $1.318/kg (42.8%)
+      Electrolyzer System                     : $1.023/kg (33.3%)
       Vom Electrolyzer                        : $0.291/kg (9.5%)
-      Fixed Om                                : $0.168/kg (5.5%)
+      Fixed Om                                : $0.169/kg (5.5%)
       Hte Heat Opportunity Cost               : $0.084/kg (2.7%)
       Water Cost                              : $0.030/kg (1.0%)
       H2 Storage System                       : $0.027/kg (0.9%)
@@ -87,10 +87,10 @@ Techno-Economic Analysis Report - Calvert Cliffs Nuclear Power Plant_1_PJM_10
       Ramping Cost                            : $0.001/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $452,578,732
-    Total System OPEX                   : $327,924,374
-    Annual H2 Production                : 39,863,074 kg
-    Ancillary Services Revenue          : $20,130,986
+    Total Annual Revenue                : $452,515,472
+    Total System OPEX                   : $313,114,494
+    Annual H2 Production                : 39,829,863 kg
+    Ancillary Services Revenue          : $20,178,828
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -101,27 +101,27 @@ Techno-Economic Analysis Report - Calvert Cliffs Nuclear Power Plant_1_PJM_10
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $309,855,101
+    Total Incremental CAPEX: $310,021,187
     CAPEX Breakdown:
       Electrolyzer                       : $300,000,000 (96.8%)
-      H2 Storage                         : $7,855,101 (2.5%)
+      H2 Storage                         : $8,021,187 (2.6%)
       NPP Modifications                  : $2,000,000 (0.6%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $751,595,107
+    NPV                            : $751,002,293
     IRR                            : 40.0%
     Payback                        : 2.0 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $309,205,301
-    Tax Shield Effect (Value)                     : $64,933,113
-    NPV Contribution from MACRS (Approximation)   : $64,933,113
+    Total Incremental MACRS Depreciation          : $309,371,387
+    Tax Shield Effect (Value)                     : $64,967,991
+    NPV Contribution from MACRS (Approximation)   : $64,967,991
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $252,325,029
-    Incremental Costs                   : $69,511,156
-    Electricity Opportunity Cost        : $58,112,005
-    Thermal Energy Opportunity Cost     : $3,340,786
+    Incremental Revenue                 : $252,185,750
+    Incremental Costs                   : $69,455,420
+    Electricity Opportunity Cost        : $58,064,510
+    Thermal Energy Opportunity Cost     : $3,338,002
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -146,12 +146,12 @@ Techno-Economic Analysis Report - Calvert Cliffs Nuclear Power Plant_1_PJM_10
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |    -7581.1 |   -4.4% |           N/A |  $17.694/kg |   $81.36/MWh |          N/A
-  60 years  | 45Y PTC      |    -6415.9 |   -3.5% |           N/A |  $14.974/kg |   $81.36/MWh |          N/A
-  60 years  | 48E ITC      |    -5435.9 |   -3.4% |           N/A |  $12.687/kg |   $81.36/MWh |          N/A
-  80 years  | Baseline     |    -7653.0 |   -3.1% |           N/A |  $17.486/kg |   $80.14/MWh |          N/A
-  80 years  | 45Y PTC      |    -6487.9 |   -2.5% |           N/A |  $14.823/kg |   $80.14/MWh |          N/A
-  80 years  | 48E ITC      |    -5507.9 |   -2.4% |           N/A |  $12.584/kg |   $80.14/MWh |          N/A
+  60 years  | Baseline     |    -7583.3 |   -4.4% |           N/A |  $17.714/kg |   $81.36/MWh |          N/A
+  60 years  | 45Y PTC      |    -6418.1 |   -3.5% |           N/A |  $14.992/kg |   $81.36/MWh |          N/A
+  60 years  | 48E ITC      |    -5438.2 |   -3.4% |           N/A |  $12.703/kg |   $81.36/MWh |          N/A
+  80 years  | Baseline     |    -7655.4 |   -3.1% |           N/A |  $17.505/kg |   $80.15/MWh |          N/A
+  80 years  | 45Y PTC      |    -6490.2 |   -2.5% |           N/A |  $14.841/kg |   $80.15/MWh |          N/A
+  80 years  | 48E ITC      |    -5510.2 |   -2.4% |           N/A |  $12.600/kg |   $80.15/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -190,48 +190,48 @@ Techno-Economic Analysis Report - Calvert Cliffs Nuclear Power Plant_1_PJM_10
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 7,934,718 MWh
-    Annual H2 Production                          : 39,863,074 kg
+    Total Nuclear Generation                      : 7,934,807 MWh
+    Annual H2 Production                          : 39,829,863 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
-    Electrolyzer Capacity Factor                  : 96.0%
+    Electrolyzer Capacity Factor                  : 95.9%
     Turbine Capacity Factor                       : 98.7%
     Battery Capacity Factor                       : 0.0%
     Average Prices
     Average Electricity Price                     : $31.23/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $20,130,986
+    Total AS Revenue                              : $20,178,828
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3354
-    HTE Heat Opportunity Cost                     : $3,340,786
+    HTE Heat Opportunity Cost                     : $3,338,002
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $300,000,000 (95.3%)
-      H2 Storage System                       : $7,855,101 (2.5%)
+      Electrolyzer System                     : $300,000,000 (95.2%)
+      H2 Storage System                       : $8,021,187 (2.5%)
       Grid Integration                        : $5,000,000 (1.6%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $314,855,101
+      Total CAPEX                             : $315,021,187
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $165,240,000
-      Nuclear Variable O&M                    : $7,934,718
-      Nuclear Fuel Cost                       : $79,347,179
+      Nuclear Variable O&M                    : $7,934,807
+      Nuclear Fuel Cost                       : $80,416,800
       Nuclear Additional Costs                : $45,900,000
-      H2/Battery VOM (Electrolyzer)           : $11,606,395
-      Water Cost (for H2)                     : $1,195,892
-      Ramping Costs                           : $49,328
-      H2 Storage Cycle Cost                   : $781,426
-      Calculated Total Annual OPEX            : $312,054,937
-      Reported Total System OPEX              : $327,924,374
+      H2/Battery VOM (Electrolyzer)           : $11,596,940
+      Water Cost (for H2)                     : $1,194,896
+      Ramping Costs                           : $50,255
+      H2 Storage Cycle Cost                   : $780,796
+      Calculated Total Annual OPEX            : $313,114,493
+      Reported Total System OPEX              : $313,114,494
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $2.895/kg
-        Electricity Opportunity Cost Electrolyzer: $1.318/kg (42.9%)
-        Electrolyzer System                     : $1.023/kg (33.2%)
+      Total LCOH: $2.896/kg
+        Electricity Opportunity Cost Electrolyzer: $1.318/kg (42.8%)
+        Electrolyzer System                     : $1.023/kg (33.3%)
         Vom Electrolyzer                        : $0.291/kg (9.5%)
-        Fixed Om                                : $0.168/kg (5.5%)
+        Fixed Om                                : $0.169/kg (5.5%)
         Hte Heat Opportunity Cost               : $0.084/kg (2.7%)
         Water Cost                              : $0.030/kg (1.0%)
         H2 Storage System                       : $0.027/kg (0.9%)
@@ -241,12 +241,12 @@ Techno-Economic Analysis Report - Calvert Cliffs Nuclear Power Plant_1_PJM_10
         Ramping Cost                            : $0.001/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $314,855,101
-    Total Tax Shield Value (at current tax rate)  : $66,119,571
+    Total MACRS Depreciation Over Lifetime        : $315,021,187
+    Total Tax Shield Value (at current tax rate)  : $66,154,449
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $7,855,101
+      H2 Storage System                             : $8,021,187
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "PsegHopeCreek",
+    "unit_id": "1",
+    "iso_region": "PJM",
+    "standardized_name": "PsegHopeCreek_Unit1_PJM"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:19:25.689827",
+    "end_time": "2025-07-14T12:19:33.458519",
+    "duration_seconds": 7.768692,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/PsegHopeCreek_Unit1_PJM_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/PsegHopeCreek_Unit1_PJM_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/PsegHopeCreek_Unit1_PJM_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for PsegHopeCreek",
+      "description": "",
+      "start_time": "2025-07-14T12:19:25.690593",
+      "end_time": "2025-07-14T12:19:33.458422",
+      "duration": 7.76823878288269,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up PSEG Hope Creek Generating Station Unit 1",
+      "start_time": "2025-07-14T12:19:25.690703",
+      "end_time": "2025-07-14T12:19:25.693239",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:19:25.693285",
+      "end_time": "2025-07-14T12:19:26.336937",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:19:26.337101",
+      "end_time": "2025-07-14T12:19:33.420739",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:19:33.422041",
+      "end_time": "2025-07-14T12:19:33.422273",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "5765.0",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:19:25.690667",
+      "phase": "Enhanced TEA for PsegHopeCreek"
+    },
+    "Thermal Capacity": {
+      "value": "3,902.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:19:25.693112",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,290.7",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:19:25.693169",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3308",
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:25.693208",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:26.336803",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:33.422213",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:33.422248",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

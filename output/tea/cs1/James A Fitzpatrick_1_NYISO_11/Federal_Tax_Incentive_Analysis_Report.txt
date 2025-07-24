@@ -9,15 +9,15 @@ EXECUTIVE SUMMARY
 Best Performing Scenario: 48E Investment Tax Credit
 
 Net Present Value (NPV) Summary:
-  Baseline Scenario:        $ -7,356,124,364
-  45Y PTC Scenario:         $ -6,236,806,327 ($ +1,119,318,037)
-  48E ITC Scenario:         $ -5,288,501,135 ($ +2,067,623,229)
+  Baseline Scenario:        $ -7,356,228,973
+  45Y PTC Scenario:         $ -6,236,910,936 ($ +1,119,318,037)
+  48E ITC Scenario:         $ -5,288,605,743 ($ +2,067,623,229)
 
 Key Financial Metrics Comparison:
 ----------------------------------------
 Metric                         Baseline        45Y PTC         48E ITC        
 ---------------------------------------------------------------------------
-NPV (Million USD)              $-7356.1        $-6236.8        $-5288.5       
+NPV (Million USD)              $-7356.2        $-6236.9        $-5288.6       
 IRR                            -2.7%           -2.1%           -1.9%          
 Payback Period (years)         N/A             N/A             N/A            
 
@@ -40,13 +40,13 @@ BASELINE SCENARIO (No Tax Incentives)
 Description: Baseline scenario without federal tax incentives
 
 Financial Metrics:
-  Net Present Value:        $-7,356,124,364
+  Net Present Value:        $-7,356,228,973
   Internal Rate of Return:  -2.67%
   Payback Period:           N/A
-  Return on Investment:     -72.86%
+  Return on Investment:     -72.87%
   LCOH:                     $16.19/kg
-  Total Investment:         $9,932,091,532
-  Total Returns:            $2,695,404,002
+  Total Investment:         $9,932,110,587
+  Total Returns:            $2,694,660,848
   Incremental Value:        $0
 
 45Y PRODUCTION TAX CREDIT SCENARIO
@@ -55,13 +55,13 @@ Financial Metrics:
 Description: 45Y Production Tax Credit scenario ($30/MWh for 10 years)
 
 Financial Metrics:
-  Net Present Value:        $-6,236,806,327
+  Net Present Value:        $-6,236,910,936
   Internal Rate of Return:  -2.10%
   Payback Period:           N/A
-  Return on Investment:     -49.84%
+  Return on Investment:     -49.85%
   LCOH:                     $13.72/kg
-  Total Investment:         $9,932,091,532
-  Total Returns:            $4,982,116,725
+  Total Investment:         $9,932,110,587
+  Total Returns:            $4,981,373,570
   Incremental Value:        $2,286,712,722
 
 48E INVESTMENT TAX CREDIT SCENARIO
@@ -70,13 +70,13 @@ Financial Metrics:
 Description: 48E Investment Tax Credit scenario (50% of qualified CAPEX)
 
 Financial Metrics:
-  Net Present Value:        $-5,288,501,135
+  Net Present Value:        $-5,288,605,743
   Internal Rate of Return:  -1.93%
   Payback Period:           N/A
   Return on Investment:     -40.83%
   LCOH:                     $11.64/kg
-  Total Investment:         $9,932,948,097
-  Total Returns:            $5,877,680,646
+  Total Investment:         $9,932,976,680
+  Total Returns:            $5,876,947,019
   Incremental Value:        $3,181,420,078
 
 TAX INCENTIVE VALUE ANALYSIS

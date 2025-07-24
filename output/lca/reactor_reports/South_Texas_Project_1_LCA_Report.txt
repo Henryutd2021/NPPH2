@@ -1,0 +1,114 @@
+================================================================================
+NUCLEAR-HYDROGEN INTEGRATED SYSTEM LCA ANALYSIS REPORT
+================================================================================
+
+Reactor: South Texas Project_1
+ISO Region: ERCOT
+Analysis Date: 2025-07-07 17:38:37
+Monte Carlo Iterations: 1000
+
+SYSTEM CONFIGURATION
+----------------------------------------
+Nuclear Capacity: 1354.3 MW
+Electrolyzer Capacity: 200.0 MW
+Annual Electricity Generation: 10,677,301 MWh
+Annual Hydrogen Production: 41,096,080 kg
+
+CARBON INTENSITY ANALYSIS
+----------------------------------------
+Nuclear-Only Carbon Intensity: 6.27 gCO₂-eq/kWh
+Integrated System Carbon Intensity: 7.60 gCO₂-eq/kWh
+Carbon Intensity Reduction: -1.33 gCO₂-eq/kWh
+Carbon Reduction Percentage: -21.25%
+
+NUCLEAR BASELINE LIFECYCLE EMISSIONS
+----------------------------------------
+Uranium Mining & Milling: 2.80 gCO₂-eq/kWh
+Uranium Conversion: 0.40 gCO₂-eq/kWh
+Uranium Enrichment: 0.90 gCO₂-eq/kWh
+Fuel Fabrication: 0.30 gCO₂-eq/kWh
+Plant Construction: 0.78 gCO₂-eq/kWh
+Plant Operation: 0.30 gCO₂-eq/kWh
+Waste Management: 0.60 gCO₂-eq/kWh
+Decommissioning: 0.19 gCO₂-eq/kWh
+Total Nuclear Baseline: 6.27 gCO₂-eq/kWh
+
+HYDROGEN SYSTEM EMISSIONS ANALYSIS
+----------------------------------------
+Electricity Emissions: 255.00 gCO₂-eq/kg H₂
+Thermal Energy Emissions: -25.50 gCO₂-eq/kg H₂
+Electrolyzer Manufacturing: 0.08 gCO₂-eq/kg H₂
+Water Treatment: 50.00 gCO₂-eq/kg H₂
+Grid Displacement: 0.00 gCO₂-eq/kg H₂
+Total Hydrogen Emissions: 279.58 gCO₂-eq/kg H₂
+
+HYDROGEN EMISSIONS BENEFITS
+------------------------------
+Avoided Conventional H₂: 9220.42 gCO₂-eq/kg H₂
+Avoided Grid Electrolysis: 19720.50 gCO₂-eq/kg H₂
+
+ANCILLARY SERVICES CARBON BENEFITS
+----------------------------------------
+Regulation Service: 67,182 MWh/year
+Spinning Reserve: 32 MWh/year
+Load Following: 0 MWh/year
+
+Detailed Service Breakdown:
+  • Regulation Up: 67,182 MWh/year
+  • Regulation Down: 19,011 MWh/year
+  • Spinning Reserve (Actual): 32 MWh/year
+  • Non-Spinning Reserve: 0 MWh/year
+  • Ramp Up: 0 MWh/year
+  • Ramp Down: 0 MWh/year
+  • ECRS: 329 MWh/year
+  • 30-min Reserve: 0 MWh/year
+
+Avoided Emissions from Services:
+  • Gas Turbine Displacement: 30,232 kg CO₂-eq/year
+  • Coal Displacement: 20 kg CO₂-eq/year
+  • Grid Displacement: 132 kg CO₂-eq/year
+  • Total Avoided Emissions: 30,384 kg CO₂-eq/year
+  • Specific Rate: 0.45 kg CO₂-eq/MWh
+
+ANNUAL CARBON FOOTPRINT ANALYSIS
+----------------------------------------
+Nuclear-Only Annual Footprint: 66,948,031 kg CO₂-eq/year
+Integrated System Annual Footprint: 65,553,704 kg CO₂-eq/year
+Annual Carbon Reduction: 1,394,327 kg CO₂-eq/year
+
+NET SYSTEM CARBON IMPACT
+----------------------------------------
+Net Annual Carbon Impact: -313,399,886 kg CO₂-eq/year
+Net Equivalent Carbon Intensity: -36.35 gCO₂-eq/kWh
+
+BEFORE/AFTER RETROFIT COMPARISON
+----------------------------------------
+BEFORE RETROFIT (Nuclear-Only Operation):
+  • Carbon Intensity: 6.27 gCO₂-eq/kWh
+  • Annual Footprint: 66,948,031 kg CO₂-eq/year
+  • Primary Function: Electricity generation only
+
+AFTER RETROFIT (Integrated Nuclear-Hydrogen System):
+  • Carbon Intensity: 7.60 gCO₂-eq/kWh
+  • Annual Footprint: 65,553,704 kg CO₂-eq/year
+  • Primary Function: Electricity + 41,096,080 kg H₂/year
+  • Ancillary Services: Grid flexibility and stability
+
+RETROFIT BENEFITS:
+  ⚠️  Carbon Intensity Increased by 21.25%
+  ⚠️  Additional Annual Emissions: 1,394,327 kg CO₂-eq/year
+  🔄 Added Hydrogen Production: 41,096,080 kg/year
+  📈 Enhanced Grid Services: Multiple ancillary services
+  💰 Additional Revenue Streams: Hydrogen sales + grid services
+
+SUMMARY AND CONCLUSIONS
+----------------------------------------
+⚠️  The retrofit increases direct carbon intensity due to hydrogen production.
+ℹ️  However, system benefits include hydrogen production and grid services.
+📊 The integrated system provides 41,096,080 kg of clean hydrogen annually.
+🔌 Enhanced grid flexibility through multiple ancillary services.
+🌍 Net system impact: -313,399,886 kg CO₂-eq/year considering all benefits.
+
+================================================================================
+END OF REPORT
+================================================================================

@@ -780,9 +780,117 @@ def extract_results(
             results_df[cost_col] = 0.0
     if "Cost_Ramping_USD" in results_df.columns and not results_df.empty:
         results_df.loc[results_df.index.min(), "Cost_Ramping_USD"] = 0.0
+
+    # Add calculation for NPP Fuel Cost and Fixed O&M Cost if NPP is enabled
+    if enable_npp:
+        # NPP Fuel Cost - Use total thermal energy output for accurate fuel cost calculation
+        npp_fuel_cost_param = get_param(model, "npp_fuel_cost", default=0.0)
+        if npp_fuel_cost_param > 0:
+            # Check if thermal energy data is available for more accurate calculation
+            if "qSteam_Turbine_MWth" in results_df.columns:
+                # Calculate fuel cost based on total thermal energy output
+                total_thermal_energy_mwth = results_df["qSteam_Turbine_MWth"].copy(
+                )
+
+                # Add thermal energy for electrolyzer (HTE mode only)
+                if ("qSteam_Electrolyzer_MWth" in results_df.columns and
+                        not enable_lte):
+                    total_thermal_energy_mwth += results_df["qSteam_Electrolyzer_MWth"]
+
+                # Convert electrical fuel cost ($/MWh_elec) to thermal fuel cost ($/MWh_th)
+                thermal_efficiency = get_param(
+                    model, "convertTtE_const", default=0.4)
+                if thermal_efficiency > 0:
+                    fuel_cost_per_mwh_thermal = npp_fuel_cost_param * thermal_efficiency
+                    results_df["Cost_Fuel_NPP_USD"] = (
+                        total_thermal_energy_mwth * fuel_cost_per_mwh_thermal * time_factor
+                    )
+                else:
+                    # Fallback to original calculation if thermal efficiency not available
+                    if "pTurbine_MW" in results_df.columns:
+                        results_df["Cost_Fuel_NPP_USD"] = (
+                            results_df["pTurbine_MW"] *
+                            npp_fuel_cost_param * time_factor
+                        )
+                    else:
+                        results_df["Cost_Fuel_NPP_USD"] = 0.0
+            elif "pTurbine_MW" in results_df.columns:
+                # Fallback to original calculation if thermal data not available
+                results_df["Cost_Fuel_NPP_USD"] = (
+                    results_df["pTurbine_MW"] *
+                    npp_fuel_cost_param * time_factor
+                )
+            else:
+                results_df["Cost_Fuel_NPP_USD"] = 0.0
+
+            if results_df["Cost_Fuel_NPP_USD"].sum() > 0:
+                cost_cols_for_total.append("Cost_Fuel_NPP_USD")
+        else:
+            results_df["Cost_Fuel_NPP_USD"] = 0.0
+
+        # NPP Fixed O&M Cost
+        npp_fixed_om_cost_param = get_param(
+            model, "npp_fixed_om_cost", default=0.0)
+
+        # Use nameplate capacity if available, otherwise fallback to pTurbine_max
+        npp_nameplate_capacity = get_param(
+            model, "npp_nameplate_capacity_mw", default=0.0)
+        if npp_nameplate_capacity <= 0:
+            # Fallback to pTurbine_max if nameplate capacity not available
+            npp_nameplate_capacity = get_param(
+                model, "pTurbine_max", default=0.0)
+
+        if npp_fixed_om_cost_param > 0 and npp_nameplate_capacity > 0:
+            # This is an annual cost, so we need to scale it to the simulation period
+            # The cost is per hour of the simulation
+            # Use actual nameplate capacity for fixed O&M calculation
+            annual_total_fom = npp_fixed_om_cost_param * npp_nameplate_capacity
+            hourly_fom = annual_total_fom / \
+                get_param(model, "HOURS_IN_YEAR", default=8760.0)
+            results_df["Cost_Fixed_OM_NPP_USD"] = hourly_fom * time_factor
+            cost_cols_for_total.append("Cost_Fixed_OM_NPP_USD")
+        else:
+            results_df["Cost_Fixed_OM_NPP_USD"] = 0.0
+    else:
+        results_df["Cost_Fuel_NPP_USD"] = 0.0
+        results_df["Cost_Fixed_OM_NPP_USD"] = 0.0
+
+    # Define NPP OPEX components
+    npp_opex_components = [
+        "Cost_VOM_Turbine_USD",
+        "Cost_Fuel_NPP_USD",
+        "Cost_Fixed_OM_NPP_USD"
+    ]
+
+    # Define H2 and Battery OPEX components
+    h2_battery_opex_components = [
+        "Cost_VOM_Electrolyzer_USD",
+        "Cost_VOM_Battery_USD",
+        "Cost_Water_USD",
+        "Cost_Ramping_USD",
+        "Cost_Storage_Cycle_USD",
+        "Cost_Startup_USD"
+    ]
+
+    # Calculate NPP OPEX total
+    npp_opex_cols = [
+        col for col in npp_opex_components if col in results_df.columns]
+    results_df["Cost_HourlyOpex_NPP_USD"] = (
+        results_df[npp_opex_cols].sum(axis=1) if npp_opex_cols else 0.0
+    )
+
+    # Calculate H2 and Battery OPEX total
+    h2_battery_opex_cols = [
+        col for col in h2_battery_opex_components if col in results_df.columns]
+    results_df["Cost_HourlyOpex_H2_Battery_USD"] = (
+        results_df[h2_battery_opex_cols].sum(
+            axis=1) if h2_battery_opex_cols else 0.0
+    )
+
+    # Calculate total OPEX (sum of both categories)
     results_df["Cost_HourlyOpex_Total_USD"] = (
-        results_df[cost_cols_for_total].sum(
-            axis=1) if cost_cols_for_total else 0.0
+        results_df["Cost_HourlyOpex_NPP_USD"] +
+        results_df["Cost_HourlyOpex_H2_Battery_USD"]
     )
 
     logger.info("Calculating hourly profit...")
@@ -811,6 +919,23 @@ def extract_results(
     summary_results["Total_Hourly_Opex_USD"] = results_df[
         "Cost_HourlyOpex_Total_USD"
     ].sum()
+    # Add NPP OPEX and H2/Battery OPEX breakdown
+    summary_results["Total_NPP_Opex_USD"] = results_df[
+        "Cost_HourlyOpex_NPP_USD"
+    ].sum()
+    summary_results["Total_H2_Battery_Opex_USD"] = results_df[
+        "Cost_HourlyOpex_H2_Battery_USD"
+    ].sum()
+
+    # Verify OPEX breakdown consistency
+    breakdown_total = summary_results["Total_NPP_Opex_USD"] + \
+        summary_results["Total_H2_Battery_Opex_USD"]
+    original_total = summary_results["Total_Hourly_Opex_USD"]
+    if abs(breakdown_total - original_total) > 0.01:
+        logger.warning(
+            f"OPEX breakdown inconsistency: NPP+H2/Battery={breakdown_total:.2f} vs Total={original_total:.2f}"
+        )
+
     summary_results["Total_VOM_Cost_USD"] = sum(
         results_df[col].sum()
         for col in [
@@ -840,10 +965,22 @@ def extract_results(
         if "Cost_Startup_USD" in results_df.columns
         else 0.0
     )
+    # Add NPP costs to summary
+    summary_results["Total_Fuel_NPP_Cost_USD"] = (
+        results_df["Cost_Fuel_NPP_USD"].sum()
+        if "Cost_Fuel_NPP_USD" in results_df.columns
+        else 0.0
+    )
+    summary_results["Total_Fixed_OM_NPP_Cost_USD"] = (
+        results_df["Cost_Fixed_OM_NPP_USD"].sum()
+        if "Cost_Fixed_OM_NPP_USD" in results_df.columns
+        else 0.0
+    )
 
     total_annualized_capex = 0.0
     electrolyzer_annual_capex = 0.0
     battery_annual_capex = 0.0
+    h2_storage_annual_capex = 0.0  # Add H2 storage CAPEX tracking
     total_hours_sim = len(hours) * time_factor
     scaling_factor = (
         total_hours_sim / get_param(model, "HOURS_IN_YEAR", default=8760.0)
@@ -874,9 +1011,22 @@ def extract_results(
             + batt_capacity_val * cost_batt_fom_mwh_yr
         ) * scaling_factor
         total_annualized_capex += battery_annual_capex
+
+    # Add H2 Storage CAPEX calculation (matching the model's AnnualizedCapex_rule logic)
+    if enable_h2_storage:
+        cost_h2_storage_capex_param = get_param(
+            model, "cost_h2_storage_capex", default=0.0
+        )
+        h2_storage_annual_capex = (
+            h2_storage_capacity_val * cost_h2_storage_capex_param * scaling_factor
+        )
+        total_annualized_capex += h2_storage_annual_capex
+
     summary_results["Total_Annualized_Capex_USD"] = total_annualized_capex
     summary_results["Electrolyzer_Annualized_Capex_USD"] = electrolyzer_annual_capex
     summary_results["Battery_Annualized_Capex_USD"] = battery_annual_capex
+    # Add H2 storage CAPEX to summary
+    summary_results["H2_Storage_Annualized_Capex_USD"] = h2_storage_annual_capex
     summary_results["Total_Profit_Calculated_USD"] = (
         summary_results["Total_Revenue_USD"]
         - summary_results["Total_Hourly_Opex_USD"]

@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "WolfCreek",
+    "unit_id": "1",
+    "iso_region": "SPP",
+    "standardized_name": "WolfCreek_Unit1_SPP"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:16:11.763119",
+    "end_time": "2025-07-14T12:16:19.723080",
+    "duration_seconds": 7.959961,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/WolfCreek_Unit1_SPP_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/WolfCreek_Unit1_SPP_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/WolfCreek_Unit1_SPP_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for WolfCreek",
+      "description": "",
+      "start_time": "2025-07-14T12:16:11.763812",
+      "end_time": "2025-07-14T12:16:19.722981",
+      "duration": 7.959561824798584,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Wolf Creek Generating Station Unit 1",
+      "start_time": "2025-07-14T12:16:11.764029",
+      "end_time": "2025-07-14T12:16:11.766344",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:16:11.766392",
+      "end_time": "2025-07-14T12:16:12.451675",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:16:12.451823",
+      "end_time": "2025-07-14T12:16:19.683613",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:16:19.685181",
+      "end_time": "2025-07-14T12:16:19.685397",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "6643.8",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:16:11.763987",
+      "phase": "Enhanced TEA for WolfCreek"
+    },
+    "Thermal Capacity": {
+      "value": "3,565.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:16:11.766235",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,296.3",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:16:11.766283",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3636",
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:11.766315",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:12.451552",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:19.685342",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:19.685371",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

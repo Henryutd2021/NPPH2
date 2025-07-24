@@ -58,22 +58,22 @@ Techno-Economic Analysis Report - Grand Gulf_1_MISO_20
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 20,168 kg
+    H2 Storage Capacity                 : 18,940 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $-512,990,834
+    NPV                            : $-286,358,232
     IRR                            : N/A
-    Payback                        : N/A years
+    Payback                        : 6.7 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $2,890,569
-    IRR                            : 5.8%
-    Payback                        : 3.1 years
+    NPV                            : $256,906,073
+    IRR                            : -6.0%
+    Payback                        : 2.5 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $2.479/kg
+    Total LCOH: $2.480/kg
       Electricity Opportunity Cost Electrolyzer: $1.141/kg (45.3%)
       Electrolyzer System                     : $0.635/kg (25.2%)
       Vom Electrolyzer                        : $0.291/kg (11.5%)
@@ -83,16 +83,16 @@ Techno-Economic Analysis Report - Grand Gulf_1_MISO_20
       Water Cost                              : $0.030/kg (1.2%)
       H2 Storage Cycle Cost                   : $0.020/kg (0.8%)
       Grid Integration                        : $0.011/kg (0.4%)
-      H2 Storage System                       : $0.007/kg (0.3%)
+      H2 Storage System                       : $0.006/kg (0.3%)
       Other Replacements                      : $0.005/kg (0.2%)
       Npp Modifications                       : $0.004/kg (0.2%)
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $542,006,049
-    Total System OPEX                   : $507,831,655
-    Annual H2 Production                : 41,203,962 kg
-    Ancillary Services Revenue          : $6,961,419
+    Total Annual Revenue                : $541,839,725
+    Total System OPEX                   : $483,888,069
+    Annual H2 Production                : 41,180,468 kg
+    Ancillary Services Revenue          : $6,848,493
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -103,27 +103,27 @@ Techno-Economic Analysis Report - Grand Gulf_1_MISO_20
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $305,226,900
+    Total Incremental CAPEX: $305,030,322
     CAPEX Breakdown:
-      Electrolyzer                       : $300,000,000 (98.3%)
-      H2 Storage                         : $3,226,900 (1.1%)
+      Electrolyzer                       : $300,000,000 (98.4%)
+      H2 Storage                         : $3,030,322 (1.0%)
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $939,783,088
+    NPV                            : $938,347,391
     IRR                            : 41.0%
     Payback                        : 1.9 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $305,226,100
-    Tax Shield Effect (Value)                     : $64,097,481
-    NPV Contribution from MACRS (Approximation)   : $64,097,481
+    Total Incremental MACRS Depreciation          : $305,029,522
+    Tax Shield Effect (Value)                     : $64,056,200
+    NPV Contribution from MACRS (Approximation)   : $64,056,200
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $247,324,816
-    Incremental Costs                   : $63,972,969
-    Electricity Opportunity Cost        : $51,885,188
-    Thermal Energy Opportunity Cost     : $2,913,685
+    Incremental Revenue                 : $247,077,647
+    Incremental Costs                   : $63,937,634
+    Electricity Opportunity Cost        : $51,855,805
+    Thermal Energy Opportunity Cost     : $2,912,024
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ Techno-Economic Analysis Report - Grand Gulf_1_MISO_20
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |   -12325.1 |     N/A |           N/A |  $27.830/kg |   $80.68/MWh |          N/A
-  60 years  | 45Y PTC      |   -10488.5 |     N/A |           N/A |  $23.683/kg |   $80.68/MWh |          N/A
-  60 years  | 48E ITC      |    -9026.5 |     N/A |           N/A |  $20.382/kg |   $80.68/MWh |          N/A
-  80 years  | Baseline     |   -12427.1 |     N/A |           N/A |  $27.469/kg |   $79.50/MWh |          N/A
-  80 years  | 45Y PTC      |   -10590.5 |     N/A |           N/A |  $23.410/kg |   $79.50/MWh |          N/A
-  80 years  | 48E ITC      |    -9128.5 |     N/A |           N/A |  $20.178/kg |   $79.50/MWh |          N/A
+  60 years  | Baseline     |   -12327.6 |     N/A |           N/A |  $27.851/kg |   $80.68/MWh |          N/A
+  60 years  | 45Y PTC      |   -10491.0 |     N/A |           N/A |  $23.702/kg |   $80.68/MWh |          N/A
+  60 years  | 48E ITC      |    -9029.0 |     N/A |           N/A |  $20.399/kg |   $80.68/MWh |          N/A
+  80 years  | Baseline     |   -12429.5 |     N/A |           N/A |  $27.490/kg |   $79.50/MWh |          N/A
+  80 years  | 45Y PTC      |   -10592.9 |     N/A |           N/A |  $23.428/kg |   $79.50/MWh |          N/A
+  80 years  | 48E ITC      |    -9130.9 |     N/A |           N/A |  $20.195/kg |   $79.50/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,44 +192,44 @@ Techno-Economic Analysis Report - Grand Gulf_1_MISO_20
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 12,506,717 MWh
-    Annual H2 Production                          : 41,203,962 kg
+    Total Nuclear Generation                      : 12,506,778 MWh
+    Annual H2 Production                          : 41,180,468 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
-    Electrolyzer Capacity Factor                  : 99.2%
+    Electrolyzer Capacity Factor                  : 99.1%
     Turbine Capacity Factor                       : 99.1%
     Battery Capacity Factor                       : 0.0%
     Average Prices
     Average Electricity Price                     : $27.06/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $6,961,419
+    Total AS Revenue                              : $6,848,493
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3267
-    HTE Heat Opportunity Cost                     : $2,913,685
+    HTE Heat Opportunity Cost                     : $2,912,024
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $300,000,000 (96.7%)
+      Electrolyzer System                     : $300,000,000 (96.8%)
       Grid Integration                        : $5,000,000 (1.6%)
-      H2 Storage System                       : $3,226,900 (1.0%)
+      H2 Storage System                       : $3,030,322 (1.0%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $310,226,900
+      Total CAPEX                             : $310,030,322
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $259,200,000
-      Nuclear Variable O&M                    : $12,506,717
-      Nuclear Fuel Cost                       : $125,067,169
+      Nuclear Variable O&M                    : $12,506,778
+      Nuclear Fuel Cost                       : $126,144,000
       Nuclear Additional Costs                : $72,000,000
-      H2/Battery VOM (Electrolyzer)           : $11,989,265
-      Water Cost (for H2)                     : $1,236,119
-      Ramping Costs                           : $11,219
-      H2 Storage Cycle Cost                   : $807,733
-      Calculated Total Annual OPEX            : $482,818,221
-      Reported Total System OPEX              : $507,831,655
+      H2/Battery VOM (Electrolyzer)           : $11,982,474
+      Water Cost (for H2)                     : $1,235,414
+      Ramping Costs                           : $12,120
+      H2 Storage Cycle Cost                   : $807,282
+      Calculated Total Annual OPEX            : $483,888,068
+      Reported Total System OPEX              : $483,888,069
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $2.479/kg
+      Total LCOH: $2.480/kg
         Electricity Opportunity Cost Electrolyzer: $1.141/kg (45.3%)
         Electrolyzer System                     : $0.635/kg (25.2%)
         Vom Electrolyzer                        : $0.291/kg (11.5%)
@@ -239,18 +239,18 @@ Techno-Economic Analysis Report - Grand Gulf_1_MISO_20
         Water Cost                              : $0.030/kg (1.2%)
         H2 Storage Cycle Cost                   : $0.020/kg (0.8%)
         Grid Integration                        : $0.011/kg (0.4%)
-        H2 Storage System                       : $0.007/kg (0.3%)
+        H2 Storage System                       : $0.006/kg (0.3%)
         Other Replacements                      : $0.005/kg (0.2%)
         Npp Modifications                       : $0.004/kg (0.2%)
         Ramping Cost                            : $0.000/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $310,226,900
-    Total Tax Shield Value (at current tax rate)  : $65,147,649
+    Total MACRS Depreciation Over Lifetime        : $310,030,322
+    Total Tax Shield Value (at current tax rate)  : $65,106,368
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $3,226,900
+      H2 Storage System                             : $3,030,322
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

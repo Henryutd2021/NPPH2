@@ -237,7 +237,7 @@ NUCLEAR_COST_PARAMETERS = {
         "fuel_cost_per_mwh": 10.0,             # $/MWh (nuclear fuel costs)
         # $/MW/year (insurance, regulatory, waste, security)
         "additional_costs_per_mw_year": 50_000.0,
-        # $/MW/year (240,000 + 90,000)
+        # $/MW/year (240,000 + 90,000) - DEFAULT VALUE for sensitivity analysis
         "total_fixed_costs_per_mw_year": 230_000,
     },
 
@@ -263,6 +263,104 @@ NUCLEAR_COST_PARAMETERS = {
         "fuel_costs": 0.02,         # 2.0% for fuel costs
         "additional_costs": 0.025,  # 2.5% for additional costs
     },
+}
+
+# Global configuration overrides for sensitivity analysis
+_CONFIG_OVERRIDES = {}
+
+
+def apply_config_overrides(config_overrides=None):
+    """
+    Apply configuration overrides for sensitivity analysis
+
+    Args:
+        config_overrides (dict): Dictionary of configuration overrides
+    """
+    global _CONFIG_OVERRIDES
+    if config_overrides:
+        _CONFIG_OVERRIDES.update(config_overrides)
+
+        # Apply overrides to NUCLEAR_COST_PARAMETERS
+        if 'total_fixed_costs_per_mw_year' in config_overrides:
+            new_total_fixed_costs = config_overrides['total_fixed_costs_per_mw_year']
+
+            # Update the total_fixed_costs_per_mw_year parameter
+            NUCLEAR_COST_PARAMETERS['opex_parameters']['total_fixed_costs_per_mw_year'] = new_total_fixed_costs
+
+            # Calculate the breakdown: keep the same ratio as the default values
+            # Default: fixed_om_per_mw_year = 180,000, additional_costs_per_mw_year = 50,000
+            # Default ratio: 180,000 / 230,000 = 0.7826 for fixed O&M, 0.2174 for additional costs
+            default_total = 230_000  # Default total from config
+            default_fixed_om_ratio = 180_000 / default_total  # 0.7826
+            default_additional_ratio = 50_000 / default_total  # 0.2174
+
+            # Calculate new breakdown values
+            new_fixed_om_per_mw_year = new_total_fixed_costs * default_fixed_om_ratio
+            new_additional_costs_per_mw_year = new_total_fixed_costs * default_additional_ratio
+            new_fixed_om_per_mw_month = new_fixed_om_per_mw_year / 12
+
+            # Update all related parameters to ensure consistency
+            NUCLEAR_COST_PARAMETERS['opex_parameters']['fixed_om_per_mw_year'] = new_fixed_om_per_mw_year
+            NUCLEAR_COST_PARAMETERS['opex_parameters']['fixed_om_per_mw_month'] = new_fixed_om_per_mw_month
+            NUCLEAR_COST_PARAMETERS['opex_parameters']['additional_costs_per_mw_year'] = new_additional_costs_per_mw_year
+
+            # Log the parameter updates for transparency
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"Sensitivity analysis parameter update:")
+            logger.info(
+                f"  total_fixed_costs_per_mw_year: ${new_total_fixed_costs:,.0f}")
+            logger.info(
+                f"  fixed_om_per_mw_year: ${new_fixed_om_per_mw_year:,.0f}")
+            logger.info(
+                f"  fixed_om_per_mw_month: ${new_fixed_om_per_mw_month:,.0f}")
+            logger.info(
+                f"  additional_costs_per_mw_year: ${new_additional_costs_per_mw_year:,.0f}")
+
+        # Apply other overrides as needed
+        for key, value in config_overrides.items():
+            if key in globals():
+                globals()[key] = value
+
+
+def get_config_value(key, default=None):
+    """
+    Get configuration value with override support
+
+    Args:
+        key (str): Configuration key
+        default: Default value if key not found
+
+    Returns:
+        Configuration value with overrides applied
+    """
+    if key in _CONFIG_OVERRIDES:
+        return _CONFIG_OVERRIDES[key]
+
+    # Special handling for nested parameters
+    if key == 'total_fixed_costs_per_mw_year':
+        return NUCLEAR_COST_PARAMETERS['opex_parameters']['total_fixed_costs_per_mw_year']
+
+    return globals().get(key, default)
+
+
+def reset_config_overrides():
+    """Reset all configuration overrides to default values"""
+    global _CONFIG_OVERRIDES
+    _CONFIG_OVERRIDES = {}
+    # Reset NUCLEAR_COST_PARAMETERS to defaults
+    NUCLEAR_COST_PARAMETERS['opex_parameters']['total_fixed_costs_per_mw_year'] = 230_000
+    NUCLEAR_COST_PARAMETERS['opex_parameters']['fixed_om_per_mw_year'] = 180_000
+    NUCLEAR_COST_PARAMETERS['opex_parameters']['fixed_om_per_mw_month'] = 15_000
+    NUCLEAR_COST_PARAMETERS['opex_parameters']['additional_costs_per_mw_year'] = 50_000
+
+
+# Sensitivity Analysis Configuration
+SENSITIVITY_CONFIG = {
+    'disable_plotting': True,  # Can be overridden
+    'sensitivity_analysis': False,  # Can be overridden
+    'sensitivity_parameter': None,  # Can be overridden
+    'sensitivity_value': None,  # Can be overridden
 }
 
 

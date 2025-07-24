@@ -16,7 +16,7 @@ pTurbine_LTE_setpoint_MW,380.0
 Turbine_Thermal_Elec_Efficiency_Const,0.38
 qSteam_Turbine_Breakpoints_MWth,"100.0, 550.0, 1000.0, 10000.0"
 pTurbine_Outputs_at_Breakpoints_MW,"38.0, 209.0, 380.0, 3800.0"
-vom_turbine_USD_per_MWh,2.0
+vom_turbine_USD_per_MWh,1.0
 pElectrolyzer_max_upper_bound_MW,200.0
 pElectrolyzer_max_lower_bound_MW,0.0
 pElectrolyzer_min_MW,50.0
@@ -47,8 +47,8 @@ MinDownTimeElectrolyzer_hours_LTE,1
 DegradationFactorOperation_Units_per_Hour_at_MaxLoad_LTE,0.0001
 DegradationFactorStartup_Units_per_Startup_LTE,1.0
 pElectrolyzer_min_MW_HTE,50.0
-Electrolyzer_RampUp_Rate_Percent_per_Min_HTE,5.0
-Electrolyzer_RampDown_Rate_Percent_per_Min_HTE,5.0
+Electrolyzer_RampUp_Rate_Percent_per_Min_HTE,2.0
+Electrolyzer_RampDown_Rate_Percent_per_Min_HTE,2.0
 pElectrolyzer_Breakpoints_MW_HTE,"50.0, 100.0, 250.0, 500.0"
 ke_H2_Values_MWh_per_kg_HTE,"0.04400, 0.04300, 0.04200, 0.04100"
 kt_H2_Values_MWth_per_kg_HTE,"0.00800, 0.00800, 0.00800, 0.00800"
@@ -93,5 +93,5 @@ user_specified_battery_energy_MWh,
 48e_itc_rate,0.50
 48e_itc_depreciation_basis_reduction_rate,0.50
 # Nuclear Power Plant Fixed O&M and Fuel Cost Parameters
-npp_fixed_om_cost,330000.0
+npp_fixed_om_cost,230000.0
 npp_fuel_cost,10.0

@@ -1,0 +1,46 @@
+--- Summary Results for ERCOT ---
+Simulation_Mode: Dispatch Execution
+Target_ISO: ERCOT
+Optimal_Electrolyzer_Capacity_MW: 100.0000
+Optimal_Battery_Capacity_MWh: 0.0000
+Optimal_Battery_Power_MW: 0.0000
+Optimal_H2_Storage_Capacity_kg: 12,350.5801
+Optimal_H2_Constant_Sales_Rate_kg_hr: 2,217.2274
+Total_Revenue_USD: 187,150,750.7193
+Total_Energy_Revenue_USD: 64,156,575.9894
+Total_Hydrogen_Revenue_USD: 118,927,425.8904
+Total_Hydrogen_Sales_Revenue_USD: 58,262,423.9492
+Total_Hydrogen_Subsidy_Revenue_USD: 60,665,001.9412
+Total_Ancillary_Revenue_USD: 4,066,748.8395
+Total_Hourly_Opex_USD: 130,963,077.7872
+Total_NPP_Opex_USD: 123,955,326.1315
+Total_H2_Battery_Opex_USD: 7,007,751.6557
+Total_VOM_Cost_USD: 9,268,086.5825
+Total_Water_Cost_USD: 606,650.0194
+Total_Ramping_Cost_USD: 3,916.4323
+Total_Storage_Cycle_Cost_USD: 396,424.7530
+Total_Startup_Cost_USD: 0.0000
+Total_Fuel_NPP_Cost_USD: 33,288,000.0000
+Total_Fixed_OM_NPP_Cost_USD: 87,400,000.0000
+Total_Annualized_Capex_USD: 13,263,713.5003
+Electrolyzer_Annualized_Capex_USD: 13,091,250.0000
+Battery_Annualized_Capex_USD: 0.0000
+H2_Storage_Annualized_Capex_USD: 172,463.5003
+Total_H2_Produced_kg: 20,221,667.3137
+Total_H2_to_Market_Direct_kg: 0.0000
+Total_H2_from_Storage_kg: 19,420,807.9831
+Final_H2_Storage_Level_kg: 5,082.9643
+Electrolyzer_Capacity_Factor_Actual: 0.9928
+Total_Electrolyzer_Startups: 0
+Final_DegradationState_Units: 0.0000
+Total_Deployed_ECRS_MWh: 107.4663
+Total_Deployed_NSR_MWh: 0.0000
+Total_Deployed_RegDown_MWh: 9,736.0734
+Total_Deployed_RegUp_MWh: 34,369.2310
+Total_Deployed_SR_MWh: 10.7208
+
+--- Profitability ---
+Objective_Value_USD: 130,323,959.4317
+Total_Profit_Calculated_USD: 42,923,959.4318
+Objective vs Calculated Profit Diff: -87,400,000.0000
+WARNING: Significant difference between objective and calculated profit!

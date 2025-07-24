@@ -1,0 +1,576 @@
+Technical Economic Analysis Report - Callaway_1_MISO_19_sensitivity_260000
+===================================================================
+
+1. Executive Summary & Configuration
+=====================================
+
+1.1 Project Configuration
+-------------------------
+  ISO Region                     : MISO
+  Project Lifetime               : 19 years
+  Construction Period            : 2 years
+  Discount Rate                  : 6.00%
+  Corporate Tax Rate             : 21.0%
+  Turbine Capacity               : 1,235.80 MW
+  Thermal Capacity               : 3,565.00 MWt
+  Thermal Efficiency             : 0.3466 (34.66%)
+
+1.2 System Capacities
+------------------
+  Electrolyzer Capacity               : 200.00 MW
+  Hydrogen Storage Capacity           : 17,931.35 kg
+  Battery Energy Capacity             : 0.00 MWh
+  Battery Power Capacity              : 0.00 MW
+  Optimal H2 Constant Sales Rate      : 4,519.47 kg/hr
+  Optimal H2 Daily Sales Rate         : 108,467.16 kg/day
+  Optimal H2 Annual Sales Rate        : 39,590,515 kg/year
+
+2. Financial Performance Summary
+================================
+
+2.1 Key Financial Metrics
+-------------------------
+  IRR (%)                                       : nan%
+  LCOH (USD/kg)                                 : $5.361
+  NPV (USD)                                     : $-2,796,668,419.94
+  Payback Period (Years)                        : nan
+
+2.2 Revenue Breakdown
+------------------
+  Total Annual Revenue                          : $124,660,576.50
+  Energy Revenue                                : $61,818,190.65 (49.6%)
+  H2 Sales Revenue                              : $30,031,846.48 (24.1%)
+  H2 Subsidy Revenue                            : $31,298,388.53 (25.1%)
+  Ancillary Services Revenue                    : $1,512,150.89 (1.2%)
+
+3. System Performance Analysis
+==============================
+
+3.1 Production Metrics
+-------------------
+  Annual H2 Production                : 10,432,796 kg/year
+  Daily H2 Production                 : 28,583 kg/day
+  Annual Nuclear Generation           : 2,709,601 MWh/year
+  Annual Electrolyzer Consumption     : 439,944 MWh/year
+  H2 Production Efficiency            : 23.71 kg/MWh
+
+3.2 Capacity Factors & Utilization
+-------------------------------
+  Electrolyzer Capacity Factor        : 99.27%
+  Turbine Capacity Factor             : 98.94%
+  H2 Storage Average SOC              : 67.14%
+
+3.3 Additional Performance Metrics
+-------------------------------
+  AS Bid Utilization vs Electrolyzer            : 381.56
+  AS Revenue Average Hourly                     : $682.38
+  AS Revenue Maximum Hourly                     : $25,421.68
+  AS Revenue Total                              : $1,512,150.89
+  AS Revenue Utilization Rate                   : $100.00
+  AS Revenue per MW Electrolyzer                : $7,560.75
+  AS Total Bid Services                         : 7.00
+  AS Total Max Bid Capacity MW                  : 763.13
+  Annual OPEX Cost from Opt                     : $3,555,919.66
+  Annual Profit                                 : 19,107,611.20
+  Avg Electricity Price USD per MWh             : $27.14
+  H2 Battery OPEX Annual USD                    : $3,555,919.66
+  H2 Constant Sales Rate kg hr                  : 4,519.47
+  H2 Storage Cycle Cost                         : $204,434.05
+  H2 Total Revenue                              : $61,330,235.01
+  HTE Heat Opportunity Cost Annual USD          : $785,101.54
+  HTE Heat Opportunity Cost USD per kg H2       : $0.08
+  HTE Lost Electricity Generation Annual MWh    : 28,932.07
+  HTE Mode Detected                             : 1.00
+  HTE Steam Consumption Annual MWth             : 83,462.41
+  Nuclear Additional Costs Annual USD           : $69,849,565.22
+  Nuclear Additional Costs USD per MW year      : $56,521.74
+  Nuclear Fixed OM Annual USD                   : $251,458,434.78
+  Nuclear Fixed OM USD per MW month             : $16,956.52
+  Nuclear Fuel Cost Annual USD                  : $27,385,328.00
+  Nuclear Fuel Cost USD per MWh                 : $10.00
+  Nuclear Total OPEX Annual USD                 : $351,402,928.85
+  Nuclear Variable OM Annual USD                : $2,709,600.85
+  Nuclear Variable OM USD per MWh               : $1.00
+  Ramping Cost                                  : $2,884.85
+  Total System OPEX Annual USD                  : $354,958,848.52
+  Total Thermal Energy Annual MWth              : 7,900,040.00
+  VOM Electrolyzer Cost                         : $3,035,616.73
+  VOM Turbine Cost                              : $2,709,600.85
+  Water Cost                                    : $312,983.81
+  Weighted Avg Electricity Price USD per MWh    : $26.36
+  macrs enabled                                 : 1.00
+
+4. Cost Analysis
+================
+
+4.1 Capital Expenditure (CAPEX) Breakdown
+------------------------------------------
+  Electrolyzer System           : $300,000,000 (96.8%)
+  Grid Integration              : $5,000,000 (1.6%)
+  H2 Storage System             : $2,869,016 (0.9%)
+  NPP Modifications             : $2,000,000 (0.6%)
+
+  Total CAPEX: $309,869,016
+
+4.2 Operating Expenditure (OPEX) Breakdown
+-------------------------------------------
+  VOM Turbine                         : $2,709,601
+  VOM Electrolyzer                    : $3,035,617
+  Water Cost                          : $312,984
+  Ramping Cost                        : $2,885
+  H2 Storage Cycle Cost               : $204,434
+  Nuclear Plant OPEX                  : $351,402,929
+  Total Annual OPEX                   : $357,668,449
+
+4.3 Cost Assumptions
+-----------------
+  CAPEX Components (Base Cost for Reference Size):
+    Battery_System_Energy                              : $0 (Ref: 100MW, LR: 0.0%)
+    Battery_System_Power                               : $23,600,000 (Ref: 25MW, LR: 0.0%)
+    Electrolyzer_System                                : $75,000,000 (Ref: 50MW, LR: 0.0%)
+    Grid_Integration                                   : $5,000,000 (Ref: 0MW, LR: 0%)
+    H2_Storage_System                                  : $16,000,000 (Ref: 100000MW, LR: 0.0%)
+    NPP_Modifications                                  : $2,000,000 (Ref: 0MW, LR: 0%)
+
+  O&M Components (Annual Base):
+    Fixed_OM_Battery                                   : $48,168.00/MW/yr + $0.00/MWh/yr (Inflation: 2.0%)
+    Fixed_OM_General                                   : $0 (Inflation: 2.0%)
+    Variable_OM_Electrolyzer                           : $0 (Inflation: 2.0%)
+    Variable_OM_H2_Storage                             : $0 (Inflation: 2.0%)
+
+  Major Replacements:
+    Battery_Augmentation_Replacement                   : Cost: 60.00% of Initial CAPEX (Years: [10])
+    Electrolyzer_Stack                                 : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
+    H2_Storage_Components                              : Cost: $5,000,000 (Years: [15])
+
+5. Revenue Analysis
+===================
+
+5.1 Ancillary Services Performance
+-----------------------------------
+  Total Ancillary Services Revenue              : $1,512,150.89
+  AS Revenue as % of Total Revenue              : 1.21%
+
+  System Utilization (affects AS capability):
+    Electrolyzer Capacity Factor                  : 99.27%
+    Turbine Capacity Factor                       : 98.94%
+
+5.2 Battery Performance and Charging Analysis
+-----------------------------------------------
+  No battery system present in this configuration.
+
+6. Advanced Financial Analysis
+==============================
+
+
+6.1. 45U Nuclear PTC Policy Impact Analysis (Existing Plant Retrofit)
+------------------------------------------------------------------------
+Analysis of 45U Nuclear Production Tax Credit impact on existing nuclear
+plant retrofitted with hydrogen production systems. The 45U policy provides
+$15/MWh tax credit for existing nuclear plants from 2024-2032.
+
+45U Policy Configuration:
+  Credit Rate                         : $15.0/MWh
+  Credit Period                       : 2024-2032
+  Eligible Years                      : 9 years
+  Annual Generation                   : 9,743,047 MWh
+  Annual Credit Value                 : $146,145,708
+  Total Credits Over Lifetime         : $1,315,311,372
+
+Financial Impact Comparison:
+  WITHOUT 45U Policy (Baseline Retrofit):
+    NPV                       : $-1,773,610,921
+    IRR                       : nan%
+    Payback Period            : nan years
+
+  WITH 45U Policy (Enhanced Retrofit):
+    NPV                       : $-835,839,097
+    IRR                       : nan%
+    Payback Period            : nan years
+
+  45U Policy Financial Impact:
+    NPV Improvement           : +$937,771,824
+    IRR Improvement           : +nan%
+    Total 45U Credits         : $1,315,311,372
+    Credit Eligible Years     : 9 years
+
+Retrofit Investment Analysis:
+  Nuclear Plant CAPEX                 : $0 (Existing plant)
+  H2 System CAPEX                     : $309,869,016
+  Total Retrofit Investment           : $309,869,016
+  45U Credits as % of Investment      : 424.5%
+
+Economic Benefits:
+  â€¢ The 45U Nuclear PTC policy improves project NPV by $937,771,824
+  â€¢ This represents a 52.9% improvement over baseline
+  â€¢ Total tax credits of $1,315,311,372 over 9 years
+
+Note: This analysis compares existing nuclear plant retrofit scenarios
+with and without the 45U Nuclear Production Tax Credit. The credit applies
+only to existing nuclear facilities and does not affect new construction.
+
+
+6.2. Nuclear Power Plant Operating Costs (Existing Plant)
+----------------------------------------------------------
+Analysis of nuclear power plant operating costs using standardized
+industry parameters. These costs apply to the existing nuclear
+facility and do not include tax incentives (ITC/PTC/MACRS).
+
+Nuclear Plant Configuration:
+  Nuclear Capacity                              : 1,235.8 MW
+  Annual Generation                             : 2,709,601 MWh
+  Capacity Factor                               : 25.0%
+
+Standardized Nuclear Operating Costs:
+  Fixed O&M Rate                                : $16,957/MW/month
+  Variable O&M Rate                             : $1.0/MWh
+  Fuel Cost Rate                                : $10.0/MWh
+  Additional Costs Rate                         : $56,522/MW/year
+
+Annual Nuclear Operating Costs:
+  Fixed O&M                                     : $251,458,435
+  Variable O&M                                  : $2,709,601
+  Fuel Costs                                    : $27,385,328
+  Additional Costs                              : $69,849,565
+  Total Nuclear OPEX                            : $351,402,929
+
+Cost Breakdown by Category:
+  Fixed O&M                                     : 71.6%
+  Variable O&M                                  : 0.8%
+  Fuel Costs                                    : 7.8%
+  Additional Costs                              : 19.9%
+
+Unit Cost Analysis:
+  Total OPEX per MWh                            : $129.69/MWh
+  Total OPEX per MW/year                        : $284,353/MW/year
+
+Total System Operating Costs:
+  Nuclear Plant OPEX                            : $351,402,929
+  H2/Battery System OPEX                        : $3,555,920
+  Total System OPEX                             : $354,958,849
+
+System OPEX Breakdown:
+  Nuclear Plant                                 : 99.0%
+  H2/Battery Systems                            : 1.0%
+
+Note: These costs use standardized industry parameters consistent
+with nuclear baseline analysis (Section 9) and tax incentive
+analysis (Section 11). No tax incentives are applied to existing
+nuclear facilities. Nuclear costs are now included in total system
+financial metrics (IRR, NPV, LCOH) calculations.
+
+6.1. MACRS Depreciation Tax Benefits Analysis
+--------------------------------------------
+  MACRS Depreciation Summary:
+    Total CAPEX Subject to MACRS                  : $309,869,016
+    Total MACRS Depreciation                      : $309,869,016
+    MACRS Coverage                                : 100.0%
+    Corporate Tax Rate                            : 21.0%
+    Total Tax Benefits from MACRS                 : $65,072,493
+    Tax Benefits as % of CAPEX                    : 21.0%
+
+  MACRS Depreciation by Component Category:
+
+    Nuclear Equipment (15-year MACRS):
+      Total Depreciation: $2,000,000
+      Tax Benefits: $420,000
+        NPP Modifications: $2,000,000 (Tax Benefit: $420,000)
+
+    Hydrogen Equipment (7-year MACRS):
+      Total Depreciation: $302,869,016
+      Tax Benefits: $63,602,493
+        Electrolyzer System: $300,000,000 (Tax Benefit: $63,000,000)
+        H2 Storage System: $2,869,016 (Tax Benefit: $602,493)
+
+    Grid Infrastructure (15-year MACRS):
+      Total Depreciation: $5,000,000
+      Tax Benefits: $1,050,000
+        Grid Integration: $5,000,000 (Tax Benefit: $1,050,000)
+
+  Annual MACRS Depreciation Schedule (First 10 Years):
+    Year    Annual Depreciation    Tax Benefit    Cumulative Depreciation
+    ----    ------------------    -----------    ----------------------
+       3    $     44,280,282    $ 9,298,859    $         44,280,282
+       4    $     75,886,922    $15,936,254    $        120,167,204
+       5    $     54,196,091    $11,381,179    $        174,363,295
+       6    $     38,702,640    $ 8,127,554    $        213,065,935
+       7    $     27,671,303    $ 5,810,974    $        240,737,238
+       8    $     27,640,316    $ 5,804,466    $        268,377,555
+       9    $     27,671,303    $ 5,810,974    $        296,048,858
+      10    $     13,820,158    $ 2,902,233    $        309,869,016
+    11+     $              0    $         0    (Years 11-21)
+    Total   $    309,869,016    $65,072,493
+
+  MACRS Impact on Financial Metrics:
+    NPV with MACRS                                : $-2,796,668,420
+    NPV without MACRS                             : $-2,846,733,612
+    MACRS Tax Benefits (Present Value)            : $50,065,192
+    MACRS Improvement in NPV                      : $50,065,192
+    MACRS as % of Total NPV                       : -1.8%
+  Total LCOH: $5.361/kg H2
+
+  LCOH Component Breakdown:
+    Electrolyzer System                : $   2.577/kg ( 47.7%)
+    Electricity Opportunity Cost       : $   1.144/kg ( 21.2%)
+    Fixed Om                           : $   0.680/kg ( 12.6%)
+    Stack Replacement                  : $   0.460/kg (  8.5%)
+    Vom Electrolyzer                   : $   0.291/kg (  5.4%)
+    Hte Heat Opportunity Cost          : $   0.075/kg (  1.4%)
+    Grid Integration                   : $   0.043/kg (  0.8%)
+    Water Cost                         : $   0.030/kg (  0.6%)
+    H2 Storage System                  : $   0.025/kg (  0.5%)
+    H2 Storage Cycle Cost              : $   0.020/kg (  0.4%)
+    Other Replacements                 : $   0.019/kg (  0.4%)
+    NPP Modifications                  : $   0.017/kg (  0.3%)
+
+  Cost Category Analysis:
+    Capital Recovery (CAPEX)           : $   2.662/kg ( 49.6%)
+    Electricity Costs                  : $   1.220/kg ( 22.7%)
+    Fixed O&M                          : $   0.680/kg ( 12.7%)
+    Variable OPEX                      : $   0.341/kg (  6.4%)
+    Equipment Replacements             : $   0.479/kg (  8.9%)
+
+  LCOH Benchmarking:
+    vs DOE 2030 Target               : âœ— Above by $3.361/kg
+    vs Steam Methane Reforming (typical): âœ— Above by $3.861/kg
+    vs Grid Electrolysis (typical)   : âœ— Above by $0.361/kg
+    vs Renewable Electrolysis (typical): âœ— Above by $1.861/kg
+
+  Cost Efficiency Metrics:
+    Daily H2 Production Rate            : 28,583 kg/day
+    Electrolyzer Capacity Factor        : 99.3%
+    LCOH per Capacity Factor Point      : $0.0540/kg per 1%
+    Specific H2 Production              : 52,164 kg/MW/year
+6.1 Incremental Financial Analysis
+-----------------------------------
+Analysis of H2/Battery System vs. Nuclear Baseline
+
+  Incremental Financial Results:
+    NPV (USD)                                     : $39,425,095.14
+    IRR (%)                                       : 8.11%
+    Payback Period (Years)                        : 6.92
+    Total Incremental CAPEX (USD)                 : $304,869,015.71
+    Annual Electricity Opportunity Cost (USD)     : $13,248,103.84
+    Incremental ROI                               : 0.1293
+
+  Baseline Nuclear Plant Analysis:
+    Annual Baseline Revenue (Electricity Sales)   : $290,660,444.32
+    Annual Baseline OPEX (Turbine VOM)            : $2,709,600.85
+    Annual Baseline Profit                        : $287,950,843.47
+    Baseline Profit Margin                        : 99.1%
+
+  Electricity Cost Analysis (Using Nuclear LCOE):
+    Electrolyzer Electricity Consumption: 439,944 MWh/year
+    Electrolyzer Electricity Cost (at market price (incremental analysis)): $11,938,344.56/year
+    Nuclear LCOE: $0.00/MWh
+    Note: Nuclear LCOE is zero in incremental analysis (existing plant)
+    Note: Using market price $27.14/MWh for opportunity cost calculation
+
+  Ancillary Services Opportunity Cost Analysis:
+    AS Revenue: $1,512,150.89/year
+    AS Opportunity Cost (Lost Electricity Sales): $604,860.36/year
+    Net AS Benefit: $907,290.53/year
+    Net AS Margin: 60.0%
+
+  HTE Thermal Energy Opportunity Cost Analysis:
+    HTE Mode Detected: Yes
+    Annual Steam Consumption: 83,462.4 MWth/year
+    Thermal Efficiency: 0.3466 (34.66%)
+    Lost Electricity Generation: 28,932.1 MWh/year
+    Average Electricity Price: $27.14/MWh
+    HTE Thermal Opportunity Cost: $785,101.54/year
+    HTE Thermal Cost per kg H2: $0.075/kg
+    Note: HTE thermal opportunity cost included in LCOH calculation
+
+
+6.2 Detailed Levelized Cost of Hydrogen (LCOH) Analysis
+----------------------------------------------------------
+  Total LCOH: $5.361/kg H2
+
+  LCOH Component Breakdown:
+    Electrolyzer System                 : $2.577/kg (47.7%)
+    Electricity Opportunity Cost        : $1.144/kg (21.2%)
+    Fixed Om                            : $0.680/kg (12.6%)
+    Stack Replacement                   : $0.460/kg (8.5%)
+    Vom Electrolyzer                    : $0.291/kg (5.4%)
+    Hte Heat Opportunity Cost           : $0.075/kg (1.4%)
+    Grid Integration                    : $0.043/kg (0.8%)
+    Water Cost                          : $0.030/kg (0.6%)
+    H2 Storage System                   : $0.025/kg (0.5%)
+    H2 Storage Cycle Cost               : $0.020/kg (0.4%)
+    Other Replacements                  : $0.019/kg (0.4%)
+    NPP Modifications                   : $0.017/kg (0.3%)
+
+  Cost Category Analysis:
+    Capital Recovery (CAPEX)            : $2.662/kg (49.6%)
+    Electricity Costs                   : $1.220/kg (22.7%)
+    Fixed O&M                           : $0.680/kg (12.7%)
+    Variable OPEX                       : $0.341/kg (6.4%)
+    Equipment Replacements              : $0.479/kg (8.9%)
+
+  LCOH Benchmarking:
+    vs DOE 2030 Target                   : ✗ Above by $3.361/kg
+    vs Steam Methane Reforming (typical) : ✗ Above by $3.861/kg
+    vs Grid Electrolysis (typical)       : ✗ Above by $0.361/kg
+    vs Renewable Electrolysis (typical)  : ✗ Above by $1.861/kg
+
+7. Comparative Analysis
+=======================
+
+7.1 Nuclear Power Plant Baseline Analysis
+------------------------------------------
+Analysis of the nuclear power plant's financial performance under
+baseline operation (no modifications for hydrogen production).
+Uses Nameplate Power Factor from NPP specifications and hourly
+electricity prices from market data.
+
+Plant Configuration:
+  Plant Name                          : Callaway
+  ISO Region                          : MISO
+  Turbine Capacity                    : 1235.8 MW
+  Nameplate Power Factor              : 0.900
+  Operational Capacity Factor         : 90.0%
+
+Electricity Market Conditions:
+  Average Electricity Price           : $27.14/MWh
+  Minimum Electricity Price           : $5.69/MWh
+  Maximum Electricity Price           : $466.11/MWh
+  Hourly Price Data Used              : No (Average Price)
+
+Annual Performance Metrics:
+  Annual Generation                             : 9,743,047 MWh
+  Annual Revenue                                : $264,387,592
+  Annual Fixed O&M                              : $251,458,435
+  Annual Variable O&M                           : $9,743,047
+  Annual Fuel Costs                             : $97,430,472
+  Annual Additional Costs                       : $69,849,565
+  Total Annual OPEX                             : $428,481,519
+  Annual Net Cash Flow (Before Tax)             : $-164,093,927
+  Annual Taxes                                  : $0
+  Annual Net Cash Flow (After Tax)              : $-164,093,927
+  Profit Margin                                 : -62.1%
+
+Lifecycle Financial Analysis:
+  Project Lifetime                              : 19 years
+  Discount Rate                                 : 6.0%
+  Tax Rate                                      : 21.0%
+  Net Present Value (NPV)                       : $-1,957,235,774
+  Internal Rate of Return (IRR)                 : N/A
+  Payback Period                                : N/A
+
+Lifecycle Totals:
+  Total Revenue                       : $5,023,364,243
+  Total OPEX                          : $8,141,148,865
+  Total Replacement Costs             : $346,024,000
+  Total Taxes                         : $0
+  Total Net Cash Flow                 : $-3,154,858,622
+
+Major Replacement/Refurbishment Schedule:
+  Year 15: $37,074,000 (Major component replacement/upgrade)
+  Year 25: $61,790,000 (Major component replacement/upgrade)
+  Year 30: $98,864,000 (Major component replacement/upgrade)
+  Year 40: $148,296,000 (Major component replacement/upgrade)
+
+Key Performance Indicators:
+  Revenue per MWh                     : $27.14/MWh
+  OPEX per MWh                        : $43.98/MWh
+  Annual Revenue per MW               : $213,940/MW
+  Capacity Utilization                : 90.0%
+  Economic Efficiency                 : Operating at Loss
+
+45U Nuclear PTC Policy Impact Analysis:
+The following analysis compares nuclear plant baseline operations
+with and without the 45U Nuclear Production Tax Credit.
+
+45U Policy Details:
+  Credit Rate               : $15.0/MWh
+  Credit Period             : 2024-2032
+  Eligible Years            : 9 years
+  Annual Credit Value       : $121,473,397
+  Total Credits             : $1,093,260,569
+
+Comparative Financial Results:
+  WITHOUT 45U Policy (Current Baseline):
+    NPV             : $-1,957,235,774
+    IRR             : N/A
+    Payback         : N/A
+
+  WITH 45U Policy (Enhanced Baseline):
+    NPV             : $-1,081,437,631
+    IRR             : N/A
+    Payback         : N/A
+
+  45U Policy Impact:
+    NPV Improvement           : +$875,798,143
+    IRR Improvement           : N/A
+    Total Tax Credits         : $1,093,260,569
+
+45U Policy Benefits Assessment:
+  â€¢ 45U credits increase annual revenue by 45.9%
+  â€¢ NPV improvement of 44.7% over baseline
+  â€¢ Policy provides $1,093,260,569 in tax benefits over 9 years
+
+Policy Eligibility Note: The 45U Nuclear Production Tax Credit applies
+exclusively to existing nuclear facilities and is available from 2024
+through 2032. New nuclear construction is not eligible for this credit.
+
+
+Note: This baseline analysis represents the nuclear plant's financial
+performance under current market conditions without any modifications
+for hydrogen production or other alternative applications.
+
+7.2 Greenfield Nuclear-Hydrogen System Analysis
+-------------------------------------------------
+7.3 Lifecycle Comparison Analysis
+----------------------------------
+This section compares the financial performance of 60-year vs 80-year project lifecycles
+to evaluate the impact of extending project duration on investment returns.
+
+Financial Performance Comparison:
+Metric                              60-Year              80-Year              Difference     
+------------------------------------------------------------------------------------------
+NPV (USD)                           $              0 $              0 $           0
+IRR (%)                                         0.00%             0.00%          0.00%
+ROI (%)                                         0.00%             0.00%          0.00%
+Payback (Years)                                     0.0                 0.0              0.0
+LCOH (USD/kg)                       $              0 $              0 $           0
+LCOE (USD/MWh)                      $              0 $              0 $           0
+Battery LCOS (USD/MWh)              $              0 $              0 $           0
+7.4 Federal Tax Incentive Analysis
+-----------------------------------
+8. Technical Appendix
+=====================
+
+8.1 Cost Assumptions and Parameters
+------------------------------------
+  CAPEX Components (Base Cost for Reference Size):
+    Battery_System_Energy                              : $0 (Ref: 100MW, LR: 0.0%)
+    Battery_System_Power                               : $23,600,000 (Ref: 25MW, LR: 0.0%)
+    Electrolyzer_System                                : $75,000,000 (Ref: 50MW, LR: 0.0%)
+    Grid_Integration                                   : $5,000,000 (Ref: 0MW, LR: 0%)
+    H2_Storage_System                                  : $16,000,000 (Ref: 100000MW, LR: 0.0%)
+    NPP_Modifications                                  : $2,000,000 (Ref: 0MW, LR: 0%)
+
+  O&M Components (Annual Base):
+    Fixed_OM_Battery                                   : $48,168.00/MW/yr + $0.00/MWh/yr (Inflation: 2.0%)
+    Fixed_OM_General                                   : $0 (Inflation: 2.0%)
+    Variable_OM_Electrolyzer                           : $0 (Inflation: 2.0%)
+    Variable_OM_H2_Storage                             : $0 (Inflation: 2.0%)
+
+  Major Replacements:
+    Battery_Augmentation_Replacement                   : Cost: 60.00% of Initial CAPEX (Years: [10])
+    Electrolyzer_Stack                                 : Cost: 30.00% of Initial CAPEX (Years: [10, 20])
+    H2_Storage_Components                              : Cost: $5,000,000 (Years: [15])
+
+8.2 Methodology Notes
+------------------
+  • Financial calculations use discounted cash flow analysis
+  • LCOH calculations include all system costs and revenues
+  • Capacity factors based on hourly optimization results
+  • Tax incentive analysis uses independent system accounting
+  • Nuclear costs standardized across all analysis sections
+  • Battery LCOS includes full lifecycle costs and throughput
+  • HTE thermal opportunity costs included where applicable
+
+
+Report generated successfully.

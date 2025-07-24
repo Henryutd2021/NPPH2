@@ -1,0 +1,23 @@
+TEA Summary Report - 42 Reactor Analysis
+==================================================
+
+Total reactors analyzed: 42
+Analysis date: 2025-07-14 12:21:19
+
+Reactors with positive NPV: 28 / 42
+Average NPV: $182,403,822
+Median NPV: $267,114,914
+
+Average IRR: 25.60%
+Median IRR: 27.22%
+
+Average LCOH: $2.689/kg
+Median LCOH: $2.674/kg
+Reactors meeting DOE $2/kg target: 0 / 42
+
+Top 5 reactors by NPV:
+  Seabrook_1_ISONE_25: NPV=$814,493,347, IRR=38.41%
+  Millstone_3_ISONE_21: NPV=$813,452,403, IRR=38.78%
+  Nine Mile Point Nuclear Station_2_NYISO_22: NPV=$522,834,022, IRR=nan%
+  Millstone_2_ISONE_10: NPV=$518,178,323, IRR=35.35%
+  Diablo Canyon_2_CAISO_21: NPV=$517,299,017, IRR=31.13%

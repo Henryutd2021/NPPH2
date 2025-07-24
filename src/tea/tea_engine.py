@@ -47,6 +47,7 @@ class TEAEngine:
         self.logger = None
         self.case_type = None
         self.project_lifetime_years = None
+        self.disable_plotting = False  # Track plotting enablement for sensitivity analysis
 
     def safe_float_from_params(self, tea_sys_params: Dict, key: str, default_value: float = 0.0) -> float:
         """Safely convert tea_sys_params value to float with fallback"""
@@ -108,6 +109,29 @@ class TEAEngine:
                 config.ENABLE_BATTERY = value
                 self.logger.info(
                     f"Overridden ENABLE_BATTERY to: {config.ENABLE_BATTERY}")
+            elif key == 'total_fixed_costs_per_mw_year' and value is not None:
+                # Apply the config override through the new config system
+                config.apply_config_overrides(
+                    {'total_fixed_costs_per_mw_year': value})
+                self.logger.info(
+                    f"Overridden total_fixed_costs_per_mw_year to: {value}")
+            elif key == 'disable_plotting' and value is not None:
+                self.disable_plotting = value
+                config.SENSITIVITY_CONFIG['disable_plotting'] = value
+                self.logger.info(
+                    f"Plotting disabled: {value} (sensitivity analysis mode)")
+            elif key == 'sensitivity_analysis' and value is not None:
+                config.SENSITIVITY_CONFIG['sensitivity_analysis'] = value
+                self.logger.info(
+                    f"Sensitivity analysis mode: {value}")
+            elif key == 'sensitivity_parameter' and value is not None:
+                config.SENSITIVITY_CONFIG['sensitivity_parameter'] = value
+                self.logger.info(
+                    f"Sensitivity parameter: {value}")
+            elif key == 'sensitivity_value' and value is not None:
+                config.SENSITIVITY_CONFIG['sensitivity_value'] = value
+                self.logger.info(
+                    f"Sensitivity value: {value}")
 
     def load_and_prepare_data(self,
                               target_iso: str,
@@ -764,22 +788,27 @@ class TEAEngine:
                 "Logger not initialized. Call setup_logging first.")
 
         try:
-            # Generate plots
-            plot_output_dir = output_dir / f"Plots_{target_iso}"
-            plot_output_dir.mkdir(parents=True, exist_ok=True)
+            # Generate plots (only if plotting is enabled)
+            if not self.disable_plotting:
+                plot_output_dir = output_dir / f"Plots_{target_iso}"
+                plot_output_dir.mkdir(parents=True, exist_ok=True)
 
-            self.logger.info("Generating plots...")
-            plot_results(
-                annual_metrics_data=annual_metrics_results,
-                financial_metrics_data=financial_metrics_results,
-                cash_flows_data=cash_flows_results,
-                plot_dir=plot_output_dir,
-                construction_period_years=config.CONSTRUCTION_YEARS,
-                incremental_metrics_data=incremental_metrics,
-                case_type=self.case_type,
-                project_lifetime_years=self.project_lifetime_years,
-            )
-            self.logger.info("Plots generated successfully.")
+                self.logger.info("Generating plots...")
+                plot_results(
+                    annual_metrics_data=annual_metrics_results,
+                    financial_metrics_data=financial_metrics_results,
+                    cash_flows_data=cash_flows_results,
+                    plot_dir=plot_output_dir,
+                    construction_period_years=config.CONSTRUCTION_YEARS,
+                    incremental_metrics_data=incremental_metrics,
+                    case_type=self.case_type,
+                    project_lifetime_years=self.project_lifetime_years,
+                )
+                self.logger.info("Plots generated successfully.")
+            else:
+                self.logger.info(
+                    "Plotting disabled - skipping plot generation for sensitivity analysis")
+                plot_output_dir = None
 
             # Generate original detailed report
             report_file = output_dir / f"{target_iso}_TEA_Summary_Report.txt"
@@ -836,7 +865,10 @@ class TEAEngine:
             if comprehensive_report_file.exists():
                 self.logger.info(
                     f"Comprehensive Summary: {comprehensive_report_file}")
-            self.logger.info(f"Plots: {plot_output_dir}")
+            if plot_output_dir:
+                self.logger.info(f"Plots: {plot_output_dir}")
+            else:
+                self.logger.info("Plots: DISABLED (sensitivity analysis mode)")
 
             return True
 

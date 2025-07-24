@@ -1,0 +1,39 @@
+TEA CS1 Sensitivity Analysis Summary Report
+Generated: 2025-07-14 09:39:02
+
+Parameter: total_fixed_costs_per_mw_year
+Parameter Values Tested: 170000 200000 260000 290000 320000
+
+Results by Parameter Value:
+  170000: SUCCESS
+    - Generated 126 report files
+  200000: SUCCESS
+    - Generated 126 report files
+  260000: SUCCESS
+    - Generated 126 report files
+  290000: SUCCESS
+    - Generated 126 report files
+  320000: SUCCESS
+    - Generated 126 report files
+
+Summary Statistics:
+  Total Parameter Values: 5
+  Successful Analyses: 5
+  Failed Analyses: 0
+  Success Rate: 100.00%
+
+Output Directories:
+  fixed_costs_170000: /home/honglin/NPPH2/output/tea/cs1_sensitivity/fixed_costs_170000
+  fixed_costs_200000: /home/honglin/NPPH2/output/tea/cs1_sensitivity/fixed_costs_200000
+  fixed_costs_260000: /home/honglin/NPPH2/output/tea/cs1_sensitivity/fixed_costs_260000
+  fixed_costs_290000: /home/honglin/NPPH2/output/tea/cs1_sensitivity/fixed_costs_290000
+  fixed_costs_320000: /home/honglin/NPPH2/output/tea/cs1_sensitivity/fixed_costs_320000
+
+Log Files:
+  Main execution log: /home/honglin/NPPH2/output/logs/cs1/sensitivity/parallel_execution_*.log
+  Individual parameter logs: /home/honglin/NPPH2/output/logs/cs1/sensitivity/tea_sensitivity_*.log
+
+Notes:
+  - All plotting functionality was disabled for sensitivity analysis
+  - Results are stored in parameter-specific subdirectories
+  - Each parameter analysis was run independently in parallel

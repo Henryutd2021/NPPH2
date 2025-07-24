@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "BraidwoodGenerationStation",
+    "unit_id": "2",
+    "iso_region": "PJM",
+    "standardized_name": "BraidwoodGenerationStation_Unit2_PJM"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:18:00.703177",
+    "end_time": "2025-07-14T12:18:08.569934",
+    "duration_seconds": 7.866757,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/BraidwoodGenerationStation_Unit2_PJM_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/BraidwoodGenerationStation_Unit2_PJM_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/BraidwoodGenerationStation_Unit2_PJM_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for BraidwoodGenerationStation",
+      "description": "",
+      "start_time": "2025-07-14T12:18:00.703973",
+      "end_time": "2025-07-14T12:18:08.569835",
+      "duration": 7.866258859634399,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Braidwood Generation Station Unit 2",
+      "start_time": "2025-07-14T12:18:00.704075",
+      "end_time": "2025-07-14T12:18:00.706498",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:18:00.706543",
+      "end_time": "2025-07-14T12:18:01.323678",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:18:01.323831",
+      "end_time": "2025-07-14T12:18:08.480430",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:18:08.481900",
+      "end_time": "2025-07-14T12:18:08.482118",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "5786.0",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:18:00.704040",
+      "phase": "Enhanced TEA for BraidwoodGenerationStation"
+    },
+    "Thermal Capacity": {
+      "value": "3,645.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:18:00.706389",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,224.9",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:18:00.706439",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3360",
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:00.706470",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:01.323554",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:08.482053",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:08.482082",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

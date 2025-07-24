@@ -58,19 +58,19 @@ Techno-Economic Analysis Report - Clinton Power Station_1_MISO_22
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 17,033 kg
+    H2 Storage Capacity                 : 17,472 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $-277,936,995
+    NPV                            : $-97,870,068
     IRR                            : N/A
-    Payback                        : 5.7 years
+    Payback                        : 4.4 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $98,103,943
-    IRR                            : 0.2%
-    Payback                        : 3.1 years
+    NPV                            : $311,456,680
+    IRR                            : -7.8%
+    Payback                        : 2.6 years
 
   LCOH (Detailed Composition):
     Total LCOH: $2.497/kg
@@ -83,16 +83,16 @@ Techno-Economic Analysis Report - Clinton Power Station_1_MISO_22
       Water Cost                              : $0.030/kg (1.2%)
       H2 Storage Cycle Cost                   : $0.020/kg (0.8%)
       Grid Integration                        : $0.010/kg (0.4%)
-      H2 Storage System                       : $0.005/kg (0.2%)
+      H2 Storage System                       : $0.006/kg (0.2%)
       Other Replacements                      : $0.004/kg (0.2%)
       Npp Modifications                       : $0.004/kg (0.2%)
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $470,490,623
-    Total System OPEX                   : $404,091,319
-    Annual H2 Production                : 41,250,855 kg
-    Ancillary Services Revenue          : $6,868,927
+    Total Annual Revenue                : $470,491,679
+    Total System OPEX                   : $385,441,901
+    Annual H2 Production                : 41,236,633 kg
+    Ancillary Services Revenue          : $6,900,348
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -103,27 +103,27 @@ Techno-Economic Analysis Report - Clinton Power Station_1_MISO_22
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $304,725,355
+    Total Incremental CAPEX: $304,795,558
     CAPEX Breakdown:
       Electrolyzer                       : $300,000,000 (98.4%)
-      H2 Storage                         : $2,725,355 (0.9%)
+      H2 Storage                         : $2,795,558 (0.9%)
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $966,010,712
+    NPV                            : $965,854,606
     IRR                            : 41.1%
     Payback                        : 1.9 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $304,724,555
-    Tax Shield Effect (Value)                     : $63,992,157
-    NPV Contribution from MACRS (Approximation)   : $63,992,157
+    Total Incremental MACRS Depreciation          : $304,794,758
+    Tax Shield Effect (Value)                     : $64,006,899
+    NPV Contribution from MACRS (Approximation)   : $64,006,899
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $247,500,556
-    Incremental Costs                   : $64,052,880
-    Electricity Opportunity Cost        : $51,959,370
-    Thermal Energy Opportunity Cost     : $2,926,629
+    Incremental Revenue                 : $247,451,597
+    Incremental Costs                   : $64,031,566
+    Electricity Opportunity Cost        : $51,941,721
+    Thermal Energy Opportunity Cost     : $2,925,620
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ Techno-Economic Analysis Report - Clinton Power Station_1_MISO_22
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |    -9586.6 |     N/A |           N/A |  $21.622/kg |   $81.34/MWh |          N/A
-  60 years  | 45Y PTC      |    -8138.2 |     N/A |           N/A |  $18.355/kg |   $81.34/MWh |          N/A
-  60 years  | 48E ITC      |    -6951.9 |     N/A |           N/A |  $15.680/kg |   $81.34/MWh |          N/A
-  80 years  | Baseline     |    -9670.4 |     N/A |           N/A |  $21.352/kg |   $80.15/MWh |          N/A
-  80 years  | 45Y PTC      |    -8222.0 |     N/A |           N/A |  $18.154/kg |   $80.15/MWh |          N/A
-  80 years  | 48E ITC      |    -7035.7 |     N/A |           N/A |  $15.534/kg |   $80.15/MWh |          N/A
+  60 years  | Baseline     |    -9587.5 |     N/A |           N/A |  $21.631/kg |   $81.34/MWh |          N/A
+  60 years  | 45Y PTC      |    -8139.1 |     N/A |           N/A |  $18.363/kg |   $81.34/MWh |          N/A
+  60 years  | 48E ITC      |    -6952.8 |     N/A |           N/A |  $15.687/kg |   $81.34/MWh |          N/A
+  80 years  | Baseline     |    -9671.3 |     N/A |           N/A |  $21.361/kg |   $80.15/MWh |          N/A
+  80 years  | 45Y PTC      |    -8222.9 |     N/A |           N/A |  $18.162/kg |   $80.15/MWh |          N/A
+  80 years  | 48E ITC      |    -7036.6 |     N/A |           N/A |  $15.542/kg |   $80.15/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,8 +192,8 @@ Techno-Economic Analysis Report - Clinton Power Station_1_MISO_22
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 9,863,346 MWh
-    Annual H2 Production                          : 41,250,855 kg
+    Total Nuclear Generation                      : 9,863,383 MWh
+    Annual H2 Production                          : 41,236,633 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
     Electrolyzer Capacity Factor                  : 99.3%
@@ -203,30 +203,30 @@ Techno-Economic Analysis Report - Clinton Power Station_1_MISO_22
     Average Electricity Price                     : $27.06/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $6,868,927
+    Total AS Revenue                              : $6,900,348
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3278
-    HTE Heat Opportunity Cost                     : $2,926,629
+    HTE Heat Opportunity Cost                     : $2,925,620
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $300,000,000 (96.9%)
+      Electrolyzer System                     : $300,000,000 (96.8%)
       Grid Integration                        : $5,000,000 (1.6%)
-      H2 Storage System                       : $2,725,355 (0.9%)
+      H2 Storage System                       : $2,795,558 (0.9%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $309,725,355
+      Total CAPEX                             : $309,795,558
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $204,894,000
-      Nuclear Variable O&M                    : $9,863,346
-      Nuclear Fuel Cost                       : $98,633,458
+      Nuclear Variable O&M                    : $9,863,383
+      Nuclear Fuel Cost                       : $99,715,080
       Nuclear Additional Costs                : $56,915,000
-      H2/Battery VOM (Electrolyzer)           : $12,002,648
-      Water Cost (for H2)                     : $1,237,525
-      Ramping Costs                           : $9,993
-      H2 Storage Cycle Cost                   : $808,656
-      Calculated Total Annual OPEX            : $384,364,626
-      Reported Total System OPEX              : $404,091,319
+      H2/Battery VOM (Electrolyzer)           : $11,998,588
+      Water Cost (for H2)                     : $1,237,099
+      Ramping Costs                           : $10,365
+      H2 Storage Cycle Cost                   : $808,386
+      Calculated Total Annual OPEX            : $385,441,901
+      Reported Total System OPEX              : $385,441,901
 
     LCOH Detailed Composition (if H2 produced):
       Total LCOH: $2.497/kg
@@ -239,18 +239,18 @@ Techno-Economic Analysis Report - Clinton Power Station_1_MISO_22
         Water Cost                              : $0.030/kg (1.2%)
         H2 Storage Cycle Cost                   : $0.020/kg (0.8%)
         Grid Integration                        : $0.010/kg (0.4%)
-        H2 Storage System                       : $0.005/kg (0.2%)
+        H2 Storage System                       : $0.006/kg (0.2%)
         Other Replacements                      : $0.004/kg (0.2%)
         Npp Modifications                       : $0.004/kg (0.2%)
         Ramping Cost                            : $0.000/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $309,725,355
-    Total Tax Shield Value (at current tax rate)  : $65,042,325
+    Total MACRS Depreciation Over Lifetime        : $309,795,558
+    Total Tax Shield Value (at current tax rate)  : $65,057,067
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $2,725,355
+      H2 Storage System                             : $2,795,558
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

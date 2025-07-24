@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "Callaway",
+    "unit_id": "1",
+    "iso_region": "MISO",
+    "standardized_name": "Callaway_Unit1_MISO"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:18:08.570977",
+    "end_time": "2025-07-14T12:18:16.365818",
+    "duration_seconds": 7.794841,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/Callaway_Unit1_MISO_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/Callaway_Unit1_MISO_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/Callaway_Unit1_MISO_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for Callaway",
+      "description": "",
+      "start_time": "2025-07-14T12:18:08.571863",
+      "end_time": "2025-07-14T12:18:16.365717",
+      "duration": 7.794287204742432,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Callaway Unit 1",
+      "start_time": "2025-07-14T12:18:08.572091",
+      "end_time": "2025-07-14T12:18:08.574385",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:18:08.574428",
+      "end_time": "2025-07-14T12:18:09.261032",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:18:09.261189",
+      "end_time": "2025-07-14T12:18:16.265071",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:18:16.266586",
+      "end_time": "2025-07-14T12:18:16.266799",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "6576.7",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:18:08.572051",
+      "phase": "Enhanced TEA for Callaway"
+    },
+    "Thermal Capacity": {
+      "value": "3,565.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:18:08.574272",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,235.8",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:18:08.574327",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3466",
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:08.574358",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:09.260911",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:16.266744",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:16.266773",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

@@ -63,14 +63,14 @@ Techno-Economic Analysis Report - James A Fitzpatrick_1_NYISO_11
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $420,768,406
-    IRR                            : 28.9%
-    Payback                        : 2.6 years
+    NPV                            : $492,136,215
+    IRR                            : 32.1%
+    Payback                        : 2.4 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $688,484,712
-    IRR                            : 40.0%
-    Payback                        : 2.0 years
+    NPV                            : $768,409,526
+    IRR                            : 43.1%
+    Payback                        : 1.8 years
 
   LCOH (Detailed Composition):
     Total LCOH: $3.054/kg
@@ -87,10 +87,10 @@ Techno-Economic Analysis Report - James A Fitzpatrick_1_NYISO_11
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $459,767,747
-    Total System OPEX                   : $316,350,961
+    Total Annual Revenue                : $459,755,046
+    Total System OPEX                   : $302,259,508
     Annual H2 Production                : 41,390,643 kg
-    Ancillary Services Revenue          : $3,868,533
+    Ancillary Services Revenue          : $3,856,470
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -108,7 +108,7 @@ Techno-Economic Analysis Report - James A Fitzpatrick_1_NYISO_11
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $680,609,005
+    NPV                            : $680,538,256
     IRR                            : 37.3%
     Payback                        : 2.1 years
 
@@ -118,8 +118,8 @@ Techno-Economic Analysis Report - James A Fitzpatrick_1_NYISO_11
     NPV Contribution from MACRS (Approximation)   : $64,013,242
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $247,293,731
-    Incremental Costs                   : $81,095,473
+    Incremental Revenue                 : $247,281,670
+    Incremental Costs                   : $81,095,449
     Electricity Opportunity Cost        : $66,995,540
     Thermal Energy Opportunity Cost     : $4,152,730
 
@@ -146,12 +146,12 @@ Techno-Economic Analysis Report - James A Fitzpatrick_1_NYISO_11
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |    -7286.8 |   -3.9% |           N/A |  $16.379/kg |   $82.61/MWh |          N/A
-  60 years  | 45Y PTC      |    -6167.5 |   -3.0% |           N/A |  $13.863/kg |   $82.61/MWh |          N/A
-  60 years  | 48E ITC      |    -5219.2 |   -2.9% |           N/A |  $11.732/kg |   $82.61/MWh |          N/A
-  80 years  | Baseline     |    -7356.1 |   -2.7% |           N/A |  $16.187/kg |   $81.40/MWh |          N/A
-  80 years  | 45Y PTC      |    -6236.8 |   -2.1% |           N/A |  $13.724/kg |   $81.40/MWh |          N/A
-  80 years  | 48E ITC      |    -5288.5 |   -1.9% |           N/A |  $11.637/kg |   $81.40/MWh |          N/A
+  60 years  | Baseline     |    -7287.0 |   -3.9% |           N/A |  $16.380/kg |   $82.61/MWh |          N/A
+  60 years  | 45Y PTC      |    -6167.6 |   -3.0% |           N/A |  $13.864/kg |   $82.61/MWh |          N/A
+  60 years  | 48E ITC      |    -5219.3 |   -2.9% |           N/A |  $11.732/kg |   $82.61/MWh |          N/A
+  80 years  | Baseline     |    -7356.2 |   -2.7% |           N/A |  $16.187/kg |   $81.40/MWh |          N/A
+  80 years  | 45Y PTC      |    -6236.9 |   -2.1% |           N/A |  $13.724/kg |   $81.40/MWh |          N/A
+  80 years  | 48E ITC      |    -5288.6 |   -1.9% |           N/A |  $11.637/kg |   $81.40/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -201,7 +201,7 @@ Techno-Economic Analysis Report - James A Fitzpatrick_1_NYISO_11
     Average Electricity Price                     : $36.01/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $3,868,533
+    Total AS Revenue                              : $3,856,470
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3483
     HTE Heat Opportunity Cost                     : $4,152,730
@@ -217,14 +217,14 @@ Techno-Economic Analysis Report - James A Fitzpatrick_1_NYISO_11
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $158,994,000
       Nuclear Variable O&M                    : $7,622,376
-      Nuclear Fuel Cost                       : $76,223,757
+      Nuclear Fuel Cost                       : $77,377,080
       Nuclear Additional Costs                : $44,165,000
       H2/Battery VOM (Electrolyzer)           : $12,042,440
       Water Cost (for H2)                     : $1,241,719
-      Ramping Costs                           : $5,496
-      H2 Storage Cycle Cost                   : $811,421
-      Calculated Total Annual OPEX            : $301,106,209
-      Reported Total System OPEX              : $316,350,961
+      Ramping Costs                           : $5,471
+      H2 Storage Cycle Cost                   : $811,422
+      Calculated Total Annual OPEX            : $302,259,508
+      Reported Total System OPEX              : $302,259,508
 
     LCOH Detailed Composition (if H2 produced):
       Total LCOH: $3.054/kg

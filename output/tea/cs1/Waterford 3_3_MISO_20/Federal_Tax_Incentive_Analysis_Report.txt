@@ -9,15 +9,15 @@ EXECUTIVE SUMMARY
 Best Performing Scenario: 48E Investment Tax Credit
 
 Net Present Value (NPV) Summary:
-  Baseline Scenario:        $-10,234,664,934
-  45Y PTC Scenario:         $ -8,706,911,939 ($ +1,527,752,995)
-  48E ITC Scenario:         $ -7,464,056,750 ($ +2,770,608,184)
+  Baseline Scenario:        $-10,237,301,073
+  45Y PTC Scenario:         $ -8,709,539,079 ($ +1,527,761,995)
+  48E ITC Scenario:         $ -7,466,692,889 ($ +2,770,608,184)
 
 Key Financial Metrics Comparison:
 ----------------------------------------
 Metric                         Baseline        45Y PTC         48E ITC        
 ---------------------------------------------------------------------------
-NPV (Million USD)              $-10234.7       $-8706.9        $-7464.1       
+NPV (Million USD)              $-10237.3       $-8709.5        $-7466.7       
 IRR                            N/A             N/A             N/A            
 Payback Period (years)         N/A             N/A             N/A            
 
@@ -29,7 +29,7 @@ Construction Period:        8 years
 Discount Rate:              6.0%
 Corporate Tax Rate:         21.0%
 Total Project CAPEX:        $9,854,216,031
-Annual H2 Production:       41,229,632 kg/year
+Annual H2 Production:       41,205,905 kg/year
 
 DETAILED SCENARIO ANALYSIS
 ==================================================
@@ -40,12 +40,12 @@ BASELINE SCENARIO (No Tax Incentives)
 Description: Baseline scenario without federal tax incentives
 
 Financial Metrics:
-  Net Present Value:        $-10,234,664,934
+  Net Present Value:        $-10,237,301,073
   Internal Rate of Return:  N/A
   Payback Period:           N/A
   Return on Investment:     -100.00%
-  LCOH:                     $22.61/kg
-  Total Investment:         $16,046,447,028
+  LCOH:                     $22.63/kg
+  Total Investment:         $16,065,731,514
   Total Returns:            $0
   Incremental Value:        $0
 
@@ -55,14 +55,14 @@ Financial Metrics:
 Description: 45Y Production Tax Credit scenario ($30/MWh for 10 years)
 
 Financial Metrics:
-  Net Present Value:        $-8,706,911,939
+  Net Present Value:        $-8,709,539,079
   Internal Rate of Return:  N/A
   Payback Period:           N/A
-  Return on Investment:     -82.86%
-  LCOH:                     $19.23/kg
-  Total Investment:         $15,598,283,326
-  Total Returns:            $2,672,961,925
-  Incremental Value:        $3,121,125,627
+  Return on Investment:     -82.90%
+  LCOH:                     $19.25/kg
+  Total Investment:         $15,615,152,244
+  Total Returns:            $2,670,564,744
+  Incremental Value:        $3,121,144,013
 
 48E INVESTMENT TAX CREDIT SCENARIO
 ----------------------------------
@@ -70,13 +70,13 @@ Financial Metrics:
 Description: 48E Investment Tax Credit scenario (50% of qualified CAPEX)
 
 Financial Metrics:
-  Net Present Value:        $-7,464,056,750
+  Net Present Value:        $-7,466,692,889
   Internal Rate of Return:  N/A
   Payback Period:           N/A
-  Return on Investment:     -71.52%
-  LCOH:                     $16.49/kg
-  Total Investment:         $16,476,540,661
-  Total Returns:            $4,693,185,853
+  Return on Investment:     -71.55%
+  LCOH:                     $16.50/kg
+  Total Investment:         $16,495,583,590
+  Total Returns:            $4,692,944,297
   Incremental Value:        $4,263,092,220
 
 TAX INCENTIVE VALUE ANALYSIS
@@ -86,10 +86,10 @@ TAX INCENTIVE VALUE ANALYSIS
 ----------------------------------------
 PTC Rate:                   $30.00/MWh
 Eligible Duration:          10 years
-Annual Generation:          10,403,752 MWh
-Annual PTC Benefit:         $312,112,563
-Total PTC Value:            $3,121,125,627
-Total PTC NPV:              $1,222,004,344
+Annual Generation:          10,403,813 MWh
+Annual PTC Benefit:         $312,114,401
+Total PTC Value:            $3,121,144,013
+Total PTC NPV:              $1,222,011,543
 Data Source:                pTurbine_MW
 
 48E Investment Tax Credit Details:
@@ -122,18 +122,18 @@ Year   Baseline     45Y PTC      48E ITC      PTC Delta    ITC Delta
 5          -1874.7     -1874.7     -1874.7        +0.0        +0.0
 6          -1249.6     -1249.6     -1249.6        +0.0        +0.0
 7           -728.5      -728.5      -728.5        +0.0        +0.0
-8            -44.8       267.3      4693.2      +312.1     +4738.0
-9            -44.8       267.3       -92.3      +312.1       -47.5
-10           -44.8       267.3       -87.6      +312.1       -42.8
-11           -44.8       267.3       -83.3      +312.1       -38.5
-12           -44.8       267.3       -79.5      +312.1       -34.7
-13           -44.8       267.3       -76.0      +312.1       -31.2
-14           -44.8       267.3       -74.3      +312.1       -29.5
-15           -44.8       267.3       -74.3      +312.1       -29.5
-16           -44.8       267.3       -74.3      +312.1       -29.5
-17           -44.8       267.3       -74.3      +312.1       -29.5
-18           -44.8       -44.8       -74.3        +0.0       -29.5
-19           -44.8       -44.8       -74.3        +0.0       -29.5
+8            -45.1       267.1      4692.9      +312.1     +4738.0
+9            -45.1       267.1       -92.6      +312.1       -47.5
+10           -45.1       267.1       -87.8      +312.1       -42.8
+11           -45.1       267.1       -83.6      +312.1       -38.5
+12           -45.1       267.1       -79.7      +312.1       -34.7
+13           -45.1       267.1       -76.2      +312.1       -31.2
+14           -45.1       267.1       -74.6      +312.1       -29.5
+15           -45.1       267.1       -74.6      +312.1       -29.5
+16           -45.1       267.1       -74.6      +312.1       -29.5
+17           -45.1       267.1       -74.6      +312.1       -29.5
+18           -45.1       -45.1       -74.6        +0.0       -29.5
+19           -45.1       -45.1       -74.6        +0.0       -29.5
 
 RECOMMENDATIONS
 ==================================================
@@ -142,7 +142,7 @@ RECOMMENDATIONS
    improvement of $2,770,608,184 compared to the baseline scenario.
 
 2. Both tax incentive scenarios improve project economics significantly:
-   - 45Y PTC improves NPV by $1,527,752,995
+   - 45Y PTC improves NPV by $1,527,761,995
    - 48E ITC improves NPV by $2,770,608,184
 
 3. Consider the following factors when choosing between incentives:

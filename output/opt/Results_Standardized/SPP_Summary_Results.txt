@@ -1,0 +1,48 @@
+--- Summary Results for SPP ---
+Simulation_Mode: Dispatch Execution
+Target_ISO: SPP
+Optimal_Electrolyzer_Capacity_MW: 200.0000
+Optimal_Battery_Capacity_MWh: 0.0000
+Optimal_Battery_Power_MW: 0.0000
+Optimal_H2_Storage_Capacity_kg: 39,143.0409
+Optimal_H2_Constant_Sales_Rate_kg_hr: 4,464.9973
+Total_Revenue_USD: 496,187,275.9178
+Total_Energy_Revenue_USD: 247,978,419.5308
+Total_Hydrogen_Revenue_USD: 239,520,615.5503
+Total_Hydrogen_Sales_Revenue_USD: 117,326,733.7642
+Total_Hydrogen_Subsidy_Revenue_USD: 122,193,881.7861
+Total_Ancillary_Revenue_USD: 8,688,240.8367
+Total_Hourly_Opex_USD: 436,838,047.5607
+Total_NPP_Opex_USD: 422,941,982.6139
+Total_H2_Battery_Opex_USD: 13,896,064.9468
+Total_VOM_Cost_USD: 23,091,408.5169
+Total_Water_Cost_USD: 1,221,938.8179
+Total_Ramping_Cost_USD: 21,418.1742
+Total_Storage_Cycle_Cost_USD: 798,402.0518
+Total_Startup_Cost_USD: 0.0000
+Total_Fuel_NPP_Cost_USD: 113,555,880.0000
+Total_Fixed_OM_NPP_Cost_USD: 298,149,000.0000
+Total_Annualized_Capex_USD: 44,138,871.9110
+Electrolyzer_Annualized_Capex_USD: 43,592,278.4884
+Battery_Annualized_Capex_USD: 0.0000
+H2_Storage_Annualized_Capex_USD: 546,593.4225
+Total_H2_Produced_kg: 40,731,293.9287
+Total_H2_to_Market_Direct_kg: 0.0000
+Total_H2_from_Storage_kg: 39,108,911.2547
+Final_H2_Storage_Level_kg: 14,615.7494
+Electrolyzer_Capacity_Factor_Actual: 0.9806
+Total_Electrolyzer_Startups: 0
+Final_DegradationState_Units: 0.0000
+Total_Deployed_NSR_MWh: 0.0000
+Total_Deployed_RampDown_MWh: 0.0000
+Total_Deployed_RampUp_MWh: 0.0000
+Total_Deployed_RegDown_MWh: 21,168.3738
+Total_Deployed_RegUp_MWh: 74,542.0140
+Total_Deployed_SR_MWh: 35.1686
+Total_Deployed_UncU_MWh: 912.6428
+
+--- Profitability ---
+Objective_Value_USD: 313,359,356.4462
+Total_Profit_Calculated_USD: 15,210,356.4461
+Objective vs Calculated Profit Diff: -298,149,000.0001
+WARNING: Significant difference between objective and calculated profit!

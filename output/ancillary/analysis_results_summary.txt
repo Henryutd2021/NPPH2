@@ -1,0 +1,84 @@
+=== Ancillary Services Analysis Summary ===
+
+Total Reactors Analyzed: 44
+ISO Regions: PJM, ERCOT, MISO, SPP, CAISO, NYISO, ISONE
+
+=== Key Flexibility Metrics ===
+turbine_flexibility_factor:
+  Mean: 0.007
+  Max: 0.011
+  Min: 0.005
+  Std: 0.001
+
+service_diversity_count:
+  Mean: 4.886
+  Max: 7.000
+  Min: 3.000
+  Std: 1.083
+
+service_diversity_ratio:
+  Mean: 0.870
+  Max: 1.000
+  Min: 0.800
+  Std: 0.080
+
+ancillary_revenue_share:
+  Mean: 0.025
+  Max: 0.046
+  Min: 0.001
+  Std: 0.014
+
+ramping_cost_total:
+  Mean: 26386.296
+  Max: 56544.855
+  Min: 3301.809
+  Std: 21254.469
+
+ramping_cost_avg_hourly:
+  Mean: 3.012
+  Max: 6.455
+  Min: 0.377
+  Std: 2.426
+
+overall_flexibility_score:
+  Mean: 0.061
+  Max: 0.098
+  Min: 0.047
+  Std: 0.011
+
+=== ISO-Specific Analysis ===
+
+PJM (17 reactors):
+  Avg Service Diversity: 0.800
+  Avg Ancillary Revenue Share: 0.041
+  Avg Flexibility Score: 0.059
+
+ERCOT (4 reactors):
+  Avg Service Diversity: 1.000
+  Avg Ancillary Revenue Share: 0.021
+  Avg Flexibility Score: 0.049
+
+MISO (14 reactors):
+  Avg Service Diversity: 0.857
+  Avg Ancillary Revenue Share: 0.014
+  Avg Flexibility Score: 0.061
+
+SPP (2 reactors):
+  Avg Service Diversity: 1.000
+  Avg Ancillary Revenue Share: 0.018
+  Avg Flexibility Score: 0.059
+
+CAISO (2 reactors):
+  Avg Service Diversity: 0.833
+  Avg Ancillary Revenue Share: 0.023
+  Avg Flexibility Score: 0.055
+
+NYISO (2 reactors):
+  Avg Service Diversity: 1.000
+  Avg Ancillary Revenue Share: 0.007
+  Avg Flexibility Score: 0.082
+
+ISONE (3 reactors):
+  Avg Service Diversity: 1.000
+  Avg Ancillary Revenue Share: 0.001
+  Avg Flexibility Score: 0.075

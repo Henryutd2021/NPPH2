@@ -1,0 +1,46 @@
+--- Summary Results for PJM ---
+Simulation_Mode: Dispatch Execution
+Target_ISO: PJM
+Optimal_Electrolyzer_Capacity_MW: 200.0000
+Optimal_Battery_Capacity_MWh: 0.0000
+Optimal_Battery_Power_MW: 0.0000
+Optimal_H2_Storage_Capacity_kg: 50,580.2940
+Optimal_H2_Constant_Sales_Rate_kg_hr: 4,365.4426
+Total_Revenue_USD: 547,654,383.5659
+Total_Energy_Revenue_USD: 293,486,057.5036
+Total_Hydrogen_Revenue_USD: 234,160,230.1772
+Total_Hydrogen_Sales_Revenue_USD: 114,710,736.3320
+Total_Hydrogen_Subsidy_Revenue_USD: 119,449,493.8452
+Total_Ancillary_Revenue_USD: 20,008,095.8851
+Total_Hourly_Opex_USD: 426,688,381.8191
+Total_NPP_Opex_USD: 413,069,719.9865
+Total_H2_Battery_Opex_USD: 13,618,661.8326
+Total_VOM_Cost_USD: 22,581,217.5281
+Total_Water_Cost_USD: 1,194,494.9385
+Total_Ramping_Cost_USD: 50,535.2520
+Total_Storage_Cycle_Cost_USD: 780,534.1006
+Total_Startup_Cost_USD: 0.0000
+Total_Fuel_NPP_Cost_USD: 110,901,600.0000
+Total_Fixed_OM_NPP_Cost_USD: 291,180,000.0000
+Total_Annualized_Capex_USD: 44,298,581.7143
+Electrolyzer_Annualized_Capex_USD: 43,592,278.4884
+Battery_Annualized_Capex_USD: 0.0000
+H2_Storage_Annualized_Capex_USD: 706,303.2259
+Total_H2_Produced_kg: 39,816,497.9484
+Total_H2_to_Market_Direct_kg: 0.0000
+Total_H2_from_Storage_kg: 38,236,912.1107
+Final_H2_Storage_Level_kg: 7,910.7337
+Electrolyzer_Capacity_Factor_Actual: 0.9590
+Total_Electrolyzer_Startups: 0
+Final_DegradationState_Units: 0.0000
+Total_Deployed_NSR_MWh: 0.0000
+Total_Deployed_RegDown_MWh: 22,748.3075
+Total_Deployed_RegUp_MWh: 80,578.0525
+Total_Deployed_SR_MWh: 6.2856
+Total_Deployed_ThirtyMin_MWh: 0.0000
+
+--- Profitability ---
+Objective_Value_USD: 367,847,420.0322
+Total_Profit_Calculated_USD: 76,667,420.0324
+Objective vs Calculated Profit Diff: -291,179,999.9998
+WARNING: Significant difference between objective and calculated profit!

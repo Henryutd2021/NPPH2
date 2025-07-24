@@ -140,7 +140,8 @@ def plot_results(
     # Create lifecycle comparison plots if data is available
     if annual_metrics_data and "lifecycle_comparison_analysis" in annual_metrics_data:
         lifecycle_comparison_data = annual_metrics_data["lifecycle_comparison_analysis"]
-        create_lifecycle_comparison_cash_flow_plots(lifecycle_comparison_data, plot_dir)
+        create_lifecycle_comparison_cash_flow_plots(
+            lifecycle_comparison_data, plot_dir)
 
 
 def _create_revenue_breakdown_plot(annual_metrics_data: dict, plot_dir: Path):
@@ -417,17 +418,22 @@ def generate_report(
             if turbine_capacity > 0:
                 config_items["Turbine Capacity"] = f"{turbine_capacity:,.2f} MW"
 
-            thermal_capacity = annual_metrics_rpt.get("thermal_capacity_mwt", 0)
+            thermal_capacity = annual_metrics_rpt.get(
+                "thermal_capacity_mwt", 0)
             if thermal_capacity == 0:
-                thermal_capacity = annual_metrics_rpt.get("Thermal_Capacity_MWt", 0)
+                thermal_capacity = annual_metrics_rpt.get(
+                    "Thermal_Capacity_MWt", 0)
             if thermal_capacity > 0:
                 config_items["Thermal Capacity"] = f"{thermal_capacity:,.2f} MWt"
 
-            thermal_efficiency = annual_metrics_rpt.get("thermal_efficiency", 0)
+            thermal_efficiency = annual_metrics_rpt.get(
+                "thermal_efficiency", 0)
             if thermal_efficiency == 0:
-                thermal_efficiency = annual_metrics_rpt.get("Thermal_Efficiency", 0)
+                thermal_efficiency = annual_metrics_rpt.get(
+                    "Thermal_Efficiency", 0)
             if thermal_efficiency > 0:
-                config_items["Thermal Efficiency"] = f"{thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)"
+                config_items[
+                    "Thermal Efficiency"] = f"{thermal_efficiency:.4f} ({thermal_efficiency*100:.2f}%)"
 
         f.write(format_aligned_section(config_items, min_width=30))
         f.write("\n")
@@ -453,9 +459,11 @@ def generate_report(
                 capacity_items[name] = f"{value:,.2f} {unit}"
 
             # Add hydrogen constant sales rate if available
-            h2_constant_sales_rate = annual_metrics_rpt.get("Optimal_H2_Constant_Sales_Rate_kg_hr", 0)
+            h2_constant_sales_rate = annual_metrics_rpt.get(
+                "Optimal_H2_Constant_Sales_Rate_kg_hr", 0)
             if h2_constant_sales_rate == 0:
-                h2_constant_sales_rate = annual_metrics_rpt.get("H2_Constant_Sales_Rate_kg_hr", 0)
+                h2_constant_sales_rate = annual_metrics_rpt.get(
+                    "H2_Constant_Sales_Rate_kg_hr", 0)
 
             if h2_constant_sales_rate > 0:
                 capacity_items["Optimal H2 Constant Sales Rate"] = f"{h2_constant_sales_rate:,.2f} kg/hr"
@@ -477,7 +485,8 @@ def generate_report(
         f.write("2.1 Key Financial Metrics\n" + "-" * 25 + "\n")
         if financial_metrics_rpt:
             financial_items = {}
-            metrics_order = ["IRR_percent", "LCOH_USD_per_kg", "NPV_USD", "Payback_Period_Years", "Roi"]
+            metrics_order = ["IRR_percent", "LCOH_USD_per_kg",
+                             "NPV_USD", "Payback_Period_Years", "Roi"]
 
             for metric in metrics_order:
                 if metric in financial_metrics_rpt:
@@ -503,7 +512,8 @@ def generate_report(
             # Revenue Mix Analysis
             energy_revenue = annual_metrics_rpt.get("Energy_Revenue", 0)
             h2_sales_revenue = annual_metrics_rpt.get("H2_Sales_Revenue", 0)
-            h2_subsidy_revenue = annual_metrics_rpt.get("H2_Subsidy_Revenue", 0)
+            h2_subsidy_revenue = annual_metrics_rpt.get(
+                "H2_Subsidy_Revenue", 0)
             as_revenue = annual_metrics_rpt.get("AS_Revenue", 0)
             total_revenue = annual_metrics_rpt.get("Annual_Revenue", 0)
 
@@ -519,7 +529,8 @@ def generate_report(
 
                 revenue_items["Energy Revenue"] = f"${energy_revenue:,.2f} ({energy_pct:.1f}%)"
                 revenue_items["H2 Sales Revenue"] = f"${h2_sales_revenue:,.2f} ({h2_sales_pct:.1f}%)"
-                revenue_items["H2 Subsidy Revenue"] = f"${h2_subsidy_revenue:,.2f} ({h2_subsidy_pct:.1f}%)"
+                revenue_items[
+                    "H2 Subsidy Revenue"] = f"${h2_subsidy_revenue:,.2f} ({h2_subsidy_pct:.1f}%)"
                 revenue_items["Ancillary Services Revenue"] = f"${as_revenue:,.2f} ({as_pct:.1f}%)"
 
             f.write(format_aligned_section(revenue_items, min_width=45))
@@ -537,9 +548,12 @@ def generate_report(
             production_items = {}
 
             # Key production metrics
-            h2_production = annual_metrics_rpt.get("H2_Production_kg_annual", 0)
-            nuclear_generation = annual_metrics_rpt.get("Annual_Nuclear_Generation_MWh", 0)
-            electrolyzer_mwh = annual_metrics_rpt.get("Annual_Electrolyzer_MWh", 0)
+            h2_production = annual_metrics_rpt.get(
+                "H2_Production_kg_annual", 0)
+            nuclear_generation = annual_metrics_rpt.get(
+                "Annual_Nuclear_Generation_MWh", 0)
+            electrolyzer_mwh = annual_metrics_rpt.get(
+                "Annual_Electrolyzer_MWh", 0)
 
             if h2_production > 0:
                 production_items["Annual H2 Production"] = f"{h2_production:,.0f} kg/year"
@@ -566,10 +580,12 @@ def generate_report(
             cf_items = {}
 
             # Capacity factors
-            electrolyzer_cf = annual_metrics_rpt.get("Electrolyzer_CF_percent", 0)
+            electrolyzer_cf = annual_metrics_rpt.get(
+                "Electrolyzer_CF_percent", 0)
             turbine_cf = annual_metrics_rpt.get("Turbine_CF_percent", 0)
             battery_soc = annual_metrics_rpt.get("Battery_SOC_percent", 0)
-            h2_storage_soc = annual_metrics_rpt.get("H2_Storage_SOC_percent", 0)
+            h2_storage_soc = annual_metrics_rpt.get(
+                "H2_Storage_SOC_percent", 0)
 
             if electrolyzer_cf > 0:
                 cf_items["Electrolyzer Capacity Factor"] = f"{electrolyzer_cf:.2f}%"
@@ -620,7 +636,7 @@ def generate_report(
 
                 # Skip AS-specific detailed metrics
                 if any(x in k for x in ["AS_Max_Bid_", "AS_Avg_Bid_", "AS_Total_Deployed_",
-                                       "AS_Avg_Deployed_", "AS_Deployment_Efficiency_"]):
+                                        "AS_Avg_Deployed_", "AS_Deployment_Efficiency_"]):
                     continue
 
                 # Format and include relevant metrics
@@ -644,7 +660,8 @@ def generate_report(
                     performance_items[display_name] = formatted_value
 
             if performance_items:
-                f.write(format_aligned_section(performance_items, min_width=45))
+                f.write(format_aligned_section(
+                    performance_items, min_width=45))
             else:
                 f.write("  No additional performance metrics available.\n")
         else:
@@ -659,13 +676,16 @@ def generate_report(
         f.write("4.1 Capital Expenditure (CAPEX) Breakdown\n" + "-" * 42 + "\n")
         if annual_metrics_rpt and "capex_breakdown" in annual_metrics_rpt:
             capex_breakdown = annual_metrics_rpt["capex_breakdown"]
-            total_capex = annual_metrics_rpt.get("total_capex", sum(capex_breakdown.values()))
+            total_capex = annual_metrics_rpt.get(
+                "total_capex", sum(capex_breakdown.values()))
 
             # Sort by values in descending order
             for component, cost in sorted(capex_breakdown.items(), key=lambda x: x[1], reverse=True):
                 if cost > 0:
-                    percentage = (cost / total_capex * 100) if total_capex > 0 else 0
-                    f.write(f"  {component:<30}: ${cost:,.0f} ({percentage:.1f}%)\n")
+                    percentage = (cost / total_capex *
+                                  100) if total_capex > 0 else 0
+                    f.write(
+                        f"  {component:<30}: ${cost:,.0f} ({percentage:.1f}%)\n")
 
             f.write(f"\n  Total CAPEX: ${total_capex:,.0f}\n")
         else:
@@ -678,19 +698,22 @@ def generate_report(
 
             # Variable O&M costs
             vom_turbine = annual_metrics_rpt.get("VOM_Turbine_Cost", 0)
-            vom_electrolyzer = annual_metrics_rpt.get("VOM_Electrolyzer_Cost", 0)
+            vom_electrolyzer = annual_metrics_rpt.get(
+                "VOM_Electrolyzer_Cost", 0)
             vom_battery = annual_metrics_rpt.get("VOM_Battery_Cost", 0)
             startup_cost = annual_metrics_rpt.get("Startup_Cost", 0)
             water_cost = annual_metrics_rpt.get("Water_Cost", 0)
             ramping_cost = annual_metrics_rpt.get("Ramping_Cost", 0)
-            h2_storage_cost = annual_metrics_rpt.get("H2_Storage_Cycle_Cost", 0)
+            h2_storage_cost = annual_metrics_rpt.get(
+                "H2_Storage_Cycle_Cost", 0)
 
             # Fixed O&M costs
             fixed_om_general = annual_metrics_rpt.get("Fixed_OM_General", 0)
             fixed_om_battery = annual_metrics_rpt.get("Fixed_OM_Battery", 0)
 
             # Nuclear operating costs
-            nuclear_total_opex = annual_metrics_rpt.get("Nuclear_Total_OPEX_Annual_USD", 0)
+            nuclear_total_opex = annual_metrics_rpt.get(
+                "Nuclear_Total_OPEX_Annual_USD", 0)
 
             if vom_turbine > 0:
                 opex_items["VOM Turbine"] = f"${vom_turbine:,.0f}"
@@ -715,8 +738,8 @@ def generate_report(
 
             # Calculate total
             total_opex = sum([vom_turbine, vom_electrolyzer, vom_battery, startup_cost,
-                            water_cost, ramping_cost, h2_storage_cost, fixed_om_general,
-                            fixed_om_battery, nuclear_total_opex])
+                              water_cost, ramping_cost, h2_storage_cost, fixed_om_general,
+                              fixed_om_battery, nuclear_total_opex])
 
             if total_opex > 0:
                 opex_items["Total Annual OPEX"] = f"${total_opex:,.0f}"
@@ -739,7 +762,8 @@ def generate_report(
             payment_schedule = det.get('payment_schedule_years', {})
             capex_items[comp] = f"${base_cost:,.0f} (Ref: {ref_cap}MW, LR: {learning_rate}%)"
 
-        f.write(format_aligned_section(capex_items, min_width=50, indent="    "))
+        f.write(format_aligned_section(
+            capex_items, min_width=50, indent="    "))
 
         f.write("\n  O&M Components (Annual Base):\n")
         om_items = {}
@@ -748,7 +772,8 @@ def generate_report(
                 base_cost_mw = det.get('base_cost_per_mw_year', 0)
                 base_cost_mwh = det.get('base_cost_per_mwh_year', 0)
                 inflation_rate = det.get('inflation_rate', 0) * 100
-                om_items[comp] = f"${base_cost_mw:,.2f}/MW/yr + ${base_cost_mwh:,.2f}/MWh/yr (Inflation: {inflation_rate:.1f}%)"
+                om_items[
+                    comp] = f"${base_cost_mw:,.2f}/MW/yr + ${base_cost_mwh:,.2f}/MWh/yr (Inflation: {inflation_rate:.1f}%)"
             else:
                 base_cost = det.get('base_cost', 0)
                 inflation_rate = det.get('inflation_rate', 0) * 100
@@ -766,7 +791,8 @@ def generate_report(
             years = det.get('years', [])
             replacement_items[comp] = f"Cost: {cost_info} (Years: {years})"
 
-        f.write(format_aligned_section(replacement_items, min_width=50, indent="    "))
+        f.write(format_aligned_section(
+            replacement_items, min_width=50, indent="    "))
         f.write("\n")
 
         # ========================================
@@ -792,7 +818,8 @@ def generate_report(
             # System utilization that affects AS capability
             f.write("\n  System Utilization (affects AS capability):\n")
             utilization_items = {}
-            electrolyzer_cf = annual_metrics_rpt.get("Electrolyzer_CF_percent", 0)
+            electrolyzer_cf = annual_metrics_rpt.get(
+                "Electrolyzer_CF_percent", 0)
             turbine_cf = annual_metrics_rpt.get("Turbine_CF_percent", 0)
             battery_soc = annual_metrics_rpt.get("Battery_SOC_percent", 0)
 
@@ -803,18 +830,23 @@ def generate_report(
             if battery_soc > 0:
                 utilization_items["Battery SOC"] = f"{battery_soc:.2f}%"
 
-            f.write(format_aligned_section(utilization_items, min_width=45, indent="    "))
+            f.write(format_aligned_section(
+                utilization_items, min_width=45, indent="    "))
         else:
             f.write("  No ancillary services data available.\n")
         f.write("\n")
 
         f.write("5.2 Battery Performance and Charging Analysis\n" + "-" * 47 + "\n")
-        battery_capacity = annual_metrics_rpt.get("Battery_Capacity_MWh", 0) if annual_metrics_rpt else 0
+        battery_capacity = annual_metrics_rpt.get(
+            "Battery_Capacity_MWh", 0) if annual_metrics_rpt else 0
         if battery_capacity > 0:
             # Battery charging breakdown
-            total_charge = annual_metrics_rpt.get("Annual_Battery_Charge_MWh", 0)
-            grid_charge = annual_metrics_rpt.get("Annual_Battery_Charge_From_Grid_MWh", 0)
-            npp_charge = annual_metrics_rpt.get("Annual_Battery_Charge_From_NPP_MWh", 0)
+            total_charge = annual_metrics_rpt.get(
+                "Annual_Battery_Charge_MWh", 0)
+            grid_charge = annual_metrics_rpt.get(
+                "Annual_Battery_Charge_From_Grid_MWh", 0)
+            npp_charge = annual_metrics_rpt.get(
+                "Annual_Battery_Charge_From_NPP_MWh", 0)
 
             f.write("  Battery Charging Electricity Consumption:\n")
             charging_items = {
@@ -824,10 +856,12 @@ def generate_report(
             if total_charge > 0:
                 grid_pct = (grid_charge / total_charge) * 100
                 npp_pct = (npp_charge / total_charge) * 100
-                charging_items["From Grid Purchase"] = f"{grid_charge:,.2f} MWh/year ({grid_pct:.1f}%)"
+                charging_items[
+                    "From Grid Purchase"] = f"{grid_charge:,.2f} MWh/year ({grid_pct:.1f}%)"
                 charging_items["From NPP (Opportunity Cost)"] = f"{npp_charge:,.2f} MWh/year ({npp_pct:.1f}%)"
 
-            f.write(format_aligned_section(charging_items, min_width=40, indent="    "))
+            f.write(format_aligned_section(
+                charging_items, min_width=40, indent="    "))
 
             # Battery utilization metrics
             battery_cf = annual_metrics_rpt.get("Battery_CF_percent", 0)
@@ -838,22 +872,26 @@ def generate_report(
                 "Capacity Factor": f"{battery_cf:.2f}%",
                 "Average State of Charge": f"{battery_soc:.2f}%"
             }
-            f.write(format_aligned_section(utilization_items, min_width=40, indent="    "))
+            f.write(format_aligned_section(
+                utilization_items, min_width=40, indent="    "))
 
             # Economic implications
-            avg_price = annual_metrics_rpt.get("Avg_Electricity_Price_USD_per_MWh", 0)
+            avg_price = annual_metrics_rpt.get(
+                "Avg_Electricity_Price_USD_per_MWh", 0)
             if total_charge > 0 and avg_price > 0:
                 total_charging_cost = total_charge * avg_price
                 grid_cost = grid_charge * avg_price
                 opportunity_cost = npp_charge * avg_price
 
-                f.write(f"\n  Economic Impact (at avg price ${avg_price:.2f}/MWh):\n")
+                f.write(
+                    f"\n  Economic Impact (at avg price ${avg_price:.2f}/MWh):\n")
                 economic_items = {
                     "Total Charging Cost": f"${total_charging_cost:,.2f}/year",
                     "Direct Cost (Grid)": f"${grid_cost:,.2f}/year",
                     "Opportunity Cost (NPP)": f"${opportunity_cost:,.2f}/year"
                 }
-                f.write(format_aligned_section(economic_items, min_width=40, indent="    "))
+                f.write(format_aligned_section(
+                    economic_items, min_width=40, indent="    "))
         else:
             f.write("  No battery system present in this configuration.\n")
         f.write("\n")
@@ -1252,7 +1290,7 @@ def generate_report(
                 lcoh_breakdown.items(), key=lambda x: x[1], reverse=True)
 
             for component, cost in sorted_components:
-                if cost > 0.001:  # Only show significant components
+                if abs(cost) > 0.001:  # Show significant components (including negative values)
                     percentage = lcoh_percentages.get(component, 0)
                     clean_name = component.replace(
                         "CAPEX_", "").replace("_", " ").title()
@@ -1368,41 +1406,54 @@ def generate_report(
 
             # Calculate and show incremental ROI
             inc_npv = incremental_metrics_rpt.get("NPV_USD")
-            inc_total_capex = incremental_metrics_rpt.get("Total_Incremental_CAPEX_Learned_USD")
+            inc_total_capex = incremental_metrics_rpt.get(
+                "Total_Incremental_CAPEX_Learned_USD")
             if inc_npv is not None and inc_total_capex and inc_total_capex > 0:
                 inc_roi = inc_npv / inc_total_capex
                 incremental_items["Incremental ROI"] = f"{inc_roi:.4f}"
 
-            f.write(format_aligned_section(incremental_items, min_width=45, indent="    "))
+            f.write(format_aligned_section(
+                incremental_items, min_width=45, indent="    "))
 
             # Baseline nuclear plant analysis
             f.write("\n  Baseline Nuclear Plant Analysis:\n")
-            baseline_revenue = incremental_metrics_rpt.get("Annual_Electricity_Opportunity_Cost_USD", 0)
+            baseline_revenue = incremental_metrics_rpt.get(
+                "Annual_Electricity_Opportunity_Cost_USD", 0)
             if baseline_revenue > 0:
                 # Estimate baseline values from available data
-                turbine_capacity = annual_metrics_rpt.get("Turbine_Capacity_MW", 0) if annual_metrics_rpt else 0
-                turbine_cf = annual_metrics_rpt.get("Turbine_CF_percent", 0) if annual_metrics_rpt else 0
-                avg_lmp = annual_metrics_rpt.get("Avg_Electricity_Price_USD_per_MWh", 0) if annual_metrics_rpt else 0
+                turbine_capacity = annual_metrics_rpt.get(
+                    "Turbine_Capacity_MW", 0) if annual_metrics_rpt else 0
+                turbine_cf = annual_metrics_rpt.get(
+                    "Turbine_CF_percent", 0) if annual_metrics_rpt else 0
+                avg_lmp = annual_metrics_rpt.get(
+                    "Avg_Electricity_Price_USD_per_MWh", 0) if annual_metrics_rpt else 0
 
                 baseline_items = {}
                 # Calculate baseline generation and revenue
                 if turbine_capacity > 0 and turbine_cf > 0:
-                    baseline_annual_generation = turbine_capacity * 8760 * (turbine_cf / 100)
+                    baseline_annual_generation = turbine_capacity * \
+                        8760 * (turbine_cf / 100)
                     calculated_baseline_revenue = baseline_annual_generation * avg_lmp
-                    baseline_items["Annual Baseline Revenue (Electricity Sales)"] = f"${calculated_baseline_revenue:,.2f}"
+                    baseline_items[
+                        "Annual Baseline Revenue (Electricity Sales)"] = f"${calculated_baseline_revenue:,.2f}"
                 else:
-                    baseline_items["Annual Baseline Revenue (Electricity Sales)"] = f"${baseline_revenue:,.2f}"
+                    baseline_items[
+                        "Annual Baseline Revenue (Electricity Sales)"] = f"${baseline_revenue:,.2f}"
 
                 # Estimate baseline OPEX (mainly VOM)
-                baseline_opex = annual_metrics_rpt.get("VOM_Turbine_Cost", 0) if annual_metrics_rpt else 0
-                baseline_profit = (calculated_baseline_revenue if 'calculated_baseline_revenue' in locals() else baseline_revenue) - baseline_opex
-                baseline_margin = (baseline_profit / (calculated_baseline_revenue if 'calculated_baseline_revenue' in locals() else baseline_revenue) * 100) if (calculated_baseline_revenue if 'calculated_baseline_revenue' in locals() else baseline_revenue) > 0 else 0
+                baseline_opex = annual_metrics_rpt.get(
+                    "VOM_Turbine_Cost", 0) if annual_metrics_rpt else 0
+                baseline_profit = (calculated_baseline_revenue if 'calculated_baseline_revenue' in locals(
+                ) else baseline_revenue) - baseline_opex
+                baseline_margin = (baseline_profit / (calculated_baseline_revenue if 'calculated_baseline_revenue' in locals() else baseline_revenue)
+                                   * 100) if (calculated_baseline_revenue if 'calculated_baseline_revenue' in locals() else baseline_revenue) > 0 else 0
 
                 baseline_items["Annual Baseline OPEX (Turbine VOM)"] = f"${baseline_opex:,.2f}"
                 baseline_items["Annual Baseline Profit"] = f"${baseline_profit:,.2f}"
                 baseline_items["Baseline Profit Margin"] = f"{baseline_margin:.1f}%"
 
-                f.write(format_aligned_section(baseline_items, min_width=45, indent="    "))
+                f.write(format_aligned_section(
+                    baseline_items, min_width=45, indent="    "))
             else:
                 f.write("    Baseline analysis data not available\n")
 
@@ -1574,12 +1625,14 @@ def generate_report(
                     "H2 Sales": f"${h2_revenue:,.2f}",
                     "Ancillary Services": f"${as_revenue:,.2f}"
                 }
-                f.write(format_aligned_section(overview_items, min_width=35, indent="    "))
+                f.write(format_aligned_section(
+                    overview_items, min_width=35, indent="    "))
         f.write("\n")
 
         # LCOH Detailed Analysis
         if annual_metrics_rpt and "lcoh_breakdown_analysis" in annual_metrics_rpt:
-            f.write("6.2 Detailed Levelized Cost of Hydrogen (LCOH) Analysis\n" + "-" * 58 + "\n")
+            f.write(
+                "6.2 Detailed Levelized Cost of Hydrogen (LCOH) Analysis\n" + "-" * 58 + "\n")
 
             lcoh_analysis = annual_metrics_rpt["lcoh_breakdown_analysis"]
             lcoh_breakdown = lcoh_analysis.get("lcoh_breakdown_usd_per_kg", {})
@@ -1590,13 +1643,15 @@ def generate_report(
 
             # LCOH Component Breakdown
             f.write("  LCOH Component Breakdown:\n")
-            sorted_components = sorted(lcoh_breakdown.items(), key=lambda x: x[1], reverse=True)
+            sorted_components = sorted(
+                lcoh_breakdown.items(), key=lambda x: x[1], reverse=True)
 
             lcoh_items = {}
             for component, cost in sorted_components:
-                if cost > 0.001:  # Only show significant components
+                if abs(cost) > 0.001:  # Show significant components (including negative values)
                     percentage = lcoh_percentages.get(component, 0)
-                    clean_name = component.replace("CAPEX_", "").replace("_", " ").title()
+                    clean_name = component.replace(
+                        "CAPEX_", "").replace("_", " ").title()
                     if "Electricity Opportunity Cost" in clean_name:
                         clean_name = "Electricity Opportunity Cost"
                     elif "Npp Modifications" in clean_name:
@@ -1604,15 +1659,21 @@ def generate_report(
 
                     lcoh_items[clean_name] = f"${cost:.3f}/kg ({percentage:.1f}%)"
 
-            f.write(format_aligned_section(lcoh_items, min_width=35, indent="    "))
+            f.write(format_aligned_section(
+                lcoh_items, min_width=35, indent="    "))
 
             # Cost Category Analysis
             f.write("\n  Cost Category Analysis:\n")
-            capex_total = sum(v for k, v in lcoh_breakdown.items() if k.startswith("CAPEX_"))
-            electricity_total = sum(v for k, v in lcoh_breakdown.items() if "Opportunity_Cost" in k or "Direct_Cost" in k)
-            fixed_om_total = sum(v for k, v in lcoh_breakdown.items() if "Fixed_OM" in k)
-            variable_opex_total = sum(v for k, v in lcoh_breakdown.items() if k in ["VOM_Electrolyzer", "VOM_Battery", "Water_Cost", "Startup_Cost", "Ramping_Cost", "H2_Storage_Cycle_Cost"])
-            replacement_total = sum(v for k, v in lcoh_breakdown.items() if "Replacement" in k)
+            capex_total = sum(
+                v for k, v in lcoh_breakdown.items() if k.startswith("CAPEX_"))
+            electricity_total = sum(v for k, v in lcoh_breakdown.items(
+            ) if "Opportunity_Cost" in k or "Direct_Cost" in k)
+            fixed_om_total = sum(
+                v for k, v in lcoh_breakdown.items() if "Fixed_OM" in k)
+            variable_opex_total = sum(v for k, v in lcoh_breakdown.items() if k in [
+                                      "VOM_Electrolyzer", "VOM_Battery", "Water_Cost", "Startup_Cost", "Ramping_Cost", "H2_Storage_Cycle_Cost"])
+            replacement_total = sum(
+                v for k, v in lcoh_breakdown.items() if "Replacement" in k)
 
             category_items = {}
             categories = [
@@ -1625,10 +1686,12 @@ def generate_report(
 
             for cat_name, cat_cost in categories:
                 if cat_cost > 0.001:
-                    cat_percentage = (cat_cost / total_lcoh) * 100 if total_lcoh > 0 else 0
+                    cat_percentage = (cat_cost / total_lcoh) * \
+                        100 if total_lcoh > 0 else 0
                     category_items[cat_name] = f"${cat_cost:.3f}/kg ({cat_percentage:.1f}%)"
 
-            f.write(format_aligned_section(category_items, min_width=35, indent="    "))
+            f.write(format_aligned_section(
+                category_items, min_width=35, indent="    "))
 
             # LCOH Benchmarking
             f.write("\n  LCOH Benchmarking:\n")
@@ -1645,7 +1708,8 @@ def generate_report(
                 difference = abs(total_lcoh - bench_value)
                 benchmark_items[f"vs {bench_name}"] = f"{comparison} by ${difference:.3f}/kg"
 
-            f.write(format_aligned_section(benchmark_items, min_width=35, indent="    "))
+            f.write(format_aligned_section(
+                benchmark_items, min_width=35, indent="    "))
         f.write("\n")
 
         # ========================================
@@ -1656,9 +1720,12 @@ def generate_report(
         f.write("7.1 Nuclear Power Plant Baseline Analysis\n" + "-" * 42 + "\n")
         if annual_metrics_rpt and "nuclear_baseline_analysis" in annual_metrics_rpt:
             baseline_analysis = annual_metrics_rpt["nuclear_baseline_analysis"]
-            f.write("Analysis of the nuclear power plant's financial performance under\n")
-            f.write("baseline operation (no modifications for hydrogen production).\n")
-            f.write("Uses Nameplate Power Factor from NPP specifications and hourly\n")
+            f.write(
+                "Analysis of the nuclear power plant's financial performance under\n")
+            f.write(
+                "baseline operation (no modifications for hydrogen production).\n")
+            f.write(
+                "Uses Nameplate Power Factor from NPP specifications and hourly\n")
             f.write("electricity prices from market data.\n\n")
 
             # Plant Configuration
@@ -1671,7 +1738,8 @@ def generate_report(
                 "Nameplate Power Factor": f"{plant_params.get('nameplate_power_factor', 0):.3f}",
                 "Operational Capacity Factor": f"{plant_params.get('capacity_factor', 0):.1%}"
             }
-            f.write(format_aligned_section(plant_config_items, min_width=35, indent="  "))
+            f.write(format_aligned_section(
+                plant_config_items, min_width=35, indent="  "))
 
             # Market Conditions
             market_data = baseline_analysis.get("electricity_market", {})
@@ -1877,8 +1945,10 @@ def generate_report(
         f.write("7.2 Greenfield Nuclear-Hydrogen System Analysis\n" + "-" * 49 + "\n")
         if annual_metrics_rpt and "greenfield_nuclear_analysis" in annual_metrics_rpt:
             greenfield_results = annual_metrics_rpt["greenfield_nuclear_analysis"]
-            f.write("This analysis calculates the economics of building both nuclear plant\n")
-            f.write("and hydrogen production system from scratch (greenfield development).\n\n")
+            f.write(
+                "This analysis calculates the economics of building both nuclear plant\n")
+            f.write(
+                "and hydrogen production system from scratch (greenfield development).\n\n")
 
             f.write("System Configuration:\n")
             f.write(
@@ -2112,7 +2182,8 @@ def generate_report(
             f.write(
                 "The analysis includes periodic replacement of H2 system components:\n")
             f.write("â€¢ Electrolyzers replaced every 20 years (2 replacements)\n")
-            f.write("â€¢ H2 storage systems replaced every 30 years (1 replacement)\n")
+            f.write(
+                "â€¢ H2 storage systems replaced every 30 years (1 replacement)\n")
             f.write("â€¢ Batteries replaced every 15 years (3 replacements)\n")
             f.write(
                 "â€¢ Enhanced maintenance costs (+20%) for extended lifecycle operation\n")
@@ -2122,8 +2193,10 @@ def generate_report(
         f.write("7.3 Lifecycle Comparison Analysis\n" + "-" * 34 + "\n")
         if annual_metrics_rpt and "lifecycle_comparison_analysis" in annual_metrics_rpt:
             comparison_results = annual_metrics_rpt["lifecycle_comparison_analysis"]
-            f.write("This section compares the financial performance of 60-year vs 80-year project lifecycles\n")
-            f.write("to evaluate the impact of extending project duration on investment returns.\n\n")
+            f.write(
+                "This section compares the financial performance of 60-year vs 80-year project lifecycles\n")
+            f.write(
+                "to evaluate the impact of extending project duration on investment returns.\n\n")
 
             # Extract results for both scenarios
             lifecycle_60 = comparison_results.get("60_year_results", {})
@@ -2189,8 +2262,10 @@ def generate_report(
                 lcos_80 = lifecycle_80.get('battery_lcos_usd_per_mwh', 0)
 
                 # Check if battery systems are present in the scenarios
-                battery_capacity_60 = lifecycle_60.get('battery_capacity_mwh', 0)
-                battery_capacity_80 = lifecycle_80.get('battery_capacity_mwh', 0)
+                battery_capacity_60 = lifecycle_60.get(
+                    'battery_capacity_mwh', 0)
+                battery_capacity_80 = lifecycle_80.get(
+                    'battery_capacity_mwh', 0)
 
                 # Only validate LCOS if battery systems are present
                 if battery_capacity_60 > 0 and lcos_60 <= 0:
@@ -2221,7 +2296,8 @@ def generate_report(
                 else:
                     f.write(
                         f"{'LCOS (USD/MWh)':<35} {'N/A':>20} {'N/A':>20} {'N/A':>15}\n")
-                    logger.debug("LCOS not applicable - no battery systems in lifecycle scenarios")
+                    logger.debug(
+                        "LCOS not applicable - no battery systems in lifecycle scenarios")
 
         f.write("7.4 Federal Tax Incentive Analysis\n" + "-" * 35 + "\n")
         if annual_metrics_rpt and "comprehensive_tax_incentive_analysis" in annual_metrics_rpt:
@@ -2230,7 +2306,8 @@ def generate_report(
             f.write("greenfield nuclear-hydrogen integrated systems including:\n")
             f.write("- Baseline scenario (no tax incentives)\n")
             f.write("- 45Y Production Tax Credit scenario ($30/MWh for 10 years)\n")
-            f.write("- 48E Investment Tax Credit scenario (50% of qualified CAPEX)\n\n")
+            f.write(
+                "- 48E Investment Tax Credit scenario (50% of qualified CAPEX)\n\n")
 
             # Check if analysis was successful or failed
             if tax_incentive_results is None or tax_incentive_results.get("analysis_status") == "failed":
@@ -2317,7 +2394,8 @@ def generate_report(
                             f.write("48E INVESTMENT TAX CREDIT DETAILS:\n")
                             f.write("-" * 40 + "\n")
                             # Get total CAPEX from available data
-                            total_project_capex = annual_metrics_rpt.get("total_capex", 0) if annual_metrics_rpt else 0
+                            total_project_capex = annual_metrics_rpt.get(
+                                "total_capex", 0) if annual_metrics_rpt else 0
                             f.write(
                                 f"Total Project CAPEX:              ${total_project_capex:>15,.0f}\n")
                             f.write(
@@ -2391,9 +2469,12 @@ def generate_report(
             # Greenfield analysis exists but no tax incentive analysis
             if annual_metrics_rpt and ("greenfield_nuclear_analysis" in annual_metrics_rpt or
                                        "comprehensive_tax_incentive_analysis" in annual_metrics_rpt):
-                f.write("STATUS: Tax incentive analysis was not performed for this configuration.\n\n")
-                f.write("Note: Tax incentive analysis is available for greenfield nuclear-hydrogen\n")
-                f.write("systems when both nuclear and hydrogen components are included.\n\n")
+                f.write(
+                    "STATUS: Tax incentive analysis was not performed for this configuration.\n\n")
+                f.write(
+                    "Note: Tax incentive analysis is available for greenfield nuclear-hydrogen\n")
+                f.write(
+                    "systems when both nuclear and hydrogen components are included.\n\n")
 
         # ========================================
         # 8. TECHNICAL APPENDIX
@@ -2409,7 +2490,8 @@ def generate_report(
             learning_rate = det.get('learning_rate_decimal', 0) * 100
             capex_items[comp] = f"${base_cost:,.0f} (Ref: {ref_cap}MW, LR: {learning_rate}%)"
 
-        f.write(format_aligned_section(capex_items, min_width=50, indent="    "))
+        f.write(format_aligned_section(
+            capex_items, min_width=50, indent="    "))
 
         f.write("\n  O&M Components (Annual Base):\n")
         om_items = {}
@@ -2418,7 +2500,8 @@ def generate_report(
                 base_cost_mw = det.get('base_cost_per_mw_year', 0)
                 base_cost_mwh = det.get('base_cost_per_mwh_year', 0)
                 inflation_rate = det.get('inflation_rate', 0) * 100
-                om_items[comp] = f"${base_cost_mw:,.2f}/MW/yr + ${base_cost_mwh:,.2f}/MWh/yr (Inflation: {inflation_rate:.1f}%)"
+                om_items[
+                    comp] = f"${base_cost_mw:,.2f}/MW/yr + ${base_cost_mwh:,.2f}/MWh/yr (Inflation: {inflation_rate:.1f}%)"
             else:
                 base_cost = det.get('base_cost', 0)
                 inflation_rate = det.get('inflation_rate', 0) * 100
@@ -2436,7 +2519,8 @@ def generate_report(
             years = det.get('years', [])
             replacement_items[comp] = f"Cost: {cost_info} (Years: {years})"
 
-        f.write(format_aligned_section(replacement_items, min_width=50, indent="    "))
+        f.write(format_aligned_section(
+            replacement_items, min_width=50, indent="    "))
 
         f.write("\n8.2 Methodology Notes\n" + "-" * 18 + "\n")
         f.write("  • Financial calculations use discounted cash flow analysis\n")

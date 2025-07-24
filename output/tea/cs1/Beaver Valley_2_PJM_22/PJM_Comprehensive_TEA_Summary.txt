@@ -58,41 +58,41 @@ Techno-Economic Analysis Report - Beaver Valley_2_PJM_22
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 49,472 kg
+    H2 Storage Capacity                 : 59,764 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $277,419,534
-    IRR                            : -10.8%
-    Payback                        : 3.1 years
+    NPV                            : $413,020,662
+    IRR                            : -17.7%
+    Payback                        : 2.8 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $610,288,476
-    IRR                            : -28.2%
-    Payback                        : 2.3 years
+    NPV                            : $759,474,989
+    IRR                            : 38.9%
+    Payback                        : 2.0 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $2.668/kg
-      Electricity Opportunity Cost Electrolyzer: $1.318/kg (46.3%)
-      Electrolyzer System                     : $0.625/kg (22.0%)
+    Total LCOH: $2.675/kg
+      Electricity Opportunity Cost Electrolyzer: $1.318/kg (46.1%)
+      Electrolyzer System                     : $0.630/kg (22.0%)
       Vom Electrolyzer                        : $0.291/kg (10.2%)
-      Fixed Om                                : $0.185/kg (6.5%)
-      Stack Replacement                       : $0.171/kg (6.0%)
+      Fixed Om                                : $0.187/kg (6.5%)
+      Stack Replacement                       : $0.173/kg (6.0%)
       Hte Heat Opportunity Cost               : $0.080/kg (2.8%)
-      Water Cost                              : $0.030/kg (1.1%)
+      Water Cost                              : $0.030/kg (1.0%)
+      H2 Storage System                       : $0.020/kg (0.7%)
       H2 Storage Cycle Cost                   : $0.020/kg (0.7%)
-      H2 Storage System                       : $0.016/kg (0.6%)
       Grid Integration                        : $0.010/kg (0.4%)
       Other Replacements                      : $0.005/kg (0.2%)
       Npp Modifications                       : $0.004/kg (0.1%)
       Ramping Cost                            : $0.001/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $453,899,227
-    Total System OPEX                   : $329,850,673
-    Annual H2 Production                : 39,857,605 kg
-    Ancillary Services Revenue          : $19,840,037
+    Total Annual Revenue                : $453,808,268
+    Total System OPEX                   : $314,802,611
+    Annual H2 Production                : 39,575,272 kg
+    Ancillary Services Revenue          : $20,767,583
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -103,27 +103,27 @@ Techno-Economic Analysis Report - Beaver Valley_2_PJM_22
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $309,915,506
+    Total Incremental CAPEX: $311,562,282
     CAPEX Breakdown:
-      Electrolyzer                       : $300,000,000 (96.8%)
-      H2 Storage                         : $7,915,506 (2.6%)
+      Electrolyzer                       : $300,000,000 (96.3%)
+      H2 Storage                         : $9,562,282 (3.1%)
       NPP Modifications                  : $2,000,000 (0.6%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $970,416,218
-    IRR                            : 40.4%
+    NPV                            : $969,873,352
+    IRR                            : 40.2%
     Payback                        : 2.0 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $309,914,706
-    Tax Shield Effect (Value)                     : $65,082,088
-    NPV Contribution from MACRS (Approximation)   : $65,082,088
+    Total Incremental MACRS Depreciation          : $311,561,482
+    Tax Shield Effect (Value)                     : $65,427,911
+    NPV Contribution from MACRS (Approximation)   : $65,427,911
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $252,115,242
-    Incremental Costs                   : $69,333,140
-    Electricity Opportunity Cost        : $57,821,794
-    Thermal Energy Opportunity Cost     : $3,171,122
+    Incremental Revenue                 : $251,397,989
+    Incremental Costs                   : $68,857,015
+    Electricity Opportunity Cost        : $57,419,218
+    Thermal Energy Opportunity Cost     : $3,148,660
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ Techno-Economic Analysis Report - Beaver Valley_2_PJM_22
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |    -7632.5 |   -4.5% |           N/A |  $17.816/kg |   $81.33/MWh |          N/A
-  60 years  | 45Y PTC      |    -6459.5 |   -3.6% |           N/A |  $15.078/kg |   $81.33/MWh |          N/A
-  60 years  | 48E ITC      |    -5475.2 |   -3.5% |           N/A |  $12.781/kg |   $81.33/MWh |          N/A
-  80 years  | Baseline     |    -7704.8 |   -3.2% |           N/A |  $17.606/kg |   $80.12/MWh |          N/A
-  80 years  | 45Y PTC      |    -6531.9 |   -2.6% |           N/A |  $14.926/kg |   $80.12/MWh |          N/A
-  80 years  | 48E ITC      |    -5547.6 |   -2.5% |           N/A |  $12.677/kg |   $80.12/MWh |          N/A
+  60 years  | Baseline     |    -7647.9 |   -4.6% |           N/A |  $17.980/kg |   $81.33/MWh |          N/A
+  60 years  | 45Y PTC      |    -6474.9 |   -3.7% |           N/A |  $15.222/kg |   $81.33/MWh |          N/A
+  60 years  | 48E ITC      |    -5490.7 |   -3.6% |           N/A |  $12.908/kg |   $81.33/MWh |          N/A
+  80 years  | Baseline     |    -7721.0 |   -3.3% |           N/A |  $17.769/kg |   $80.13/MWh |          N/A
+  80 years  | 45Y PTC      |    -6547.9 |   -2.7% |           N/A |  $15.069/kg |   $80.13/MWh |          N/A
+  80 years  | 48E ITC      |    -5563.7 |   -2.6% |           N/A |  $12.804/kg |   $80.13/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,65 +192,65 @@ Techno-Economic Analysis Report - Beaver Valley_2_PJM_22
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 7,987,455 MWh
-    Annual H2 Production                          : 39,857,605 kg
+    Total Nuclear Generation                      : 7,988,174 MWh
+    Annual H2 Production                          : 39,575,272 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
-    Electrolyzer Capacity Factor                  : 96.0%
-    Turbine Capacity Factor                       : 98.7%
+    Electrolyzer Capacity Factor                  : 95.3%
+    Turbine Capacity Factor                       : 98.8%
     Battery Capacity Factor                       : 0.0%
     Average Prices
     Average Electricity Price                     : $31.23/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $19,840,037
+    Total AS Revenue                              : $20,767,583
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3184
-    HTE Heat Opportunity Cost                     : $3,171,122
+    HTE Heat Opportunity Cost                     : $3,148,660
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $300,000,000 (95.3%)
-      H2 Storage System                       : $7,915,506 (2.5%)
+      Electrolyzer System                     : $300,000,000 (94.8%)
+      H2 Storage System                       : $9,562,282 (3.0%)
       Grid Integration                        : $5,000,000 (1.6%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $314,915,506
+      Total CAPEX                             : $316,562,282
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $166,212,000
-      Nuclear Variable O&M                    : $7,987,455
-      Nuclear Fuel Cost                       : $79,874,546
+      Nuclear Variable O&M                    : $7,988,174
+      Nuclear Fuel Cost                       : $80,889,840
       Nuclear Additional Costs                : $46,170,000
-      H2/Battery VOM (Electrolyzer)           : $11,604,831
-      Water Cost (for H2)                     : $1,195,728
-      Ramping Costs                           : $49,886
-      H2 Storage Cycle Cost                   : $781,319
-      Calculated Total Annual OPEX            : $313,875,764
-      Reported Total System OPEX              : $329,850,673
+      H2/Battery VOM (Electrolyzer)           : $11,524,308
+      Water Cost (for H2)                     : $1,187,258
+      Ramping Costs                           : $55,247
+      H2 Storage Cycle Cost                   : $775,784
+      Calculated Total Annual OPEX            : $314,802,611
+      Reported Total System OPEX              : $314,802,611
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $2.668/kg
-        Electricity Opportunity Cost Electrolyzer: $1.318/kg (46.3%)
-        Electrolyzer System                     : $0.625/kg (22.0%)
+      Total LCOH: $2.675/kg
+        Electricity Opportunity Cost Electrolyzer: $1.318/kg (46.1%)
+        Electrolyzer System                     : $0.630/kg (22.0%)
         Vom Electrolyzer                        : $0.291/kg (10.2%)
-        Fixed Om                                : $0.185/kg (6.5%)
-        Stack Replacement                       : $0.171/kg (6.0%)
+        Fixed Om                                : $0.187/kg (6.5%)
+        Stack Replacement                       : $0.173/kg (6.0%)
         Hte Heat Opportunity Cost               : $0.080/kg (2.8%)
-        Water Cost                              : $0.030/kg (1.1%)
+        Water Cost                              : $0.030/kg (1.0%)
+        H2 Storage System                       : $0.020/kg (0.7%)
         H2 Storage Cycle Cost                   : $0.020/kg (0.7%)
-        H2 Storage System                       : $0.016/kg (0.6%)
         Grid Integration                        : $0.010/kg (0.4%)
         Other Replacements                      : $0.005/kg (0.2%)
         Npp Modifications                       : $0.004/kg (0.1%)
         Ramping Cost                            : $0.001/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $314,915,506
-    Total Tax Shield Value (at current tax rate)  : $66,132,256
+    Total MACRS Depreciation Over Lifetime        : $316,562,282
+    Total Tax Shield Value (at current tax rate)  : $66,478,079
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $7,915,506
+      H2 Storage System                             : $9,562,282
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

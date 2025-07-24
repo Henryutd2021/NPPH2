@@ -535,6 +535,11 @@ def create_model(
                 within=pyo.NonNegativeReals,
                 initialize=get_sys_param("npp_fuel_cost", 0.0),
             )
+            # Nuclear Power Plant Nameplate Capacity (true rated capacity for fixed O&M calculation)
+            model.npp_nameplate_capacity_mw = pyo.Param(
+                within=pyo.NonNegativeReals,
+                initialize=get_sys_param("npp_nameplate_capacity_mw", 0.0),
+            )
             model.convertTtE_const = pyo.Param(
                 within=pyo.NonNegativeReals,
                 initialize=get_sys_param(

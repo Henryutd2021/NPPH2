@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "BeaverValley",
+    "unit_id": "2",
+    "iso_region": "PJM",
+    "standardized_name": "BeaverValley_Unit2_PJM"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:15:48.392589",
+    "end_time": "2025-07-14T12:15:56.173179",
+    "duration_seconds": 7.78059,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/BeaverValley_Unit2_PJM_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/BeaverValley_Unit2_PJM_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/BeaverValley_Unit2_PJM_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for BeaverValley",
+      "description": "",
+      "start_time": "2025-07-14T12:15:48.393275",
+      "end_time": "2025-07-14T12:15:56.173051",
+      "duration": 7.780145168304443,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Beaver Valley Unit 2",
+      "start_time": "2025-07-14T12:15:48.393500",
+      "end_time": "2025-07-14T12:15:48.395826",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:15:48.395875",
+      "end_time": "2025-07-14T12:15:49.026683",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:15:49.026842",
+      "end_time": "2025-07-14T12:15:56.072604",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:15:56.073931",
+      "end_time": "2025-07-14T12:15:56.074156",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "5712.0",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:15:48.393456",
+      "phase": "Enhanced TEA for BeaverValley"
+    },
+    "Thermal Capacity": {
+      "value": "2,900.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:15:48.395712",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "923.4",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:15:48.395761",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3184",
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:48.395795",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:49.026554",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:56.074098",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:56.074131",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

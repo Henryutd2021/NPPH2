@@ -58,23 +58,23 @@ Techno-Economic Analysis Report - LaSalle Generating Station_2_MISO_19
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 17,254 kg
+    H2 Storage Capacity                 : 17,472 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $-216,338,484
+    NPV                            : $-48,940,208
     IRR                            : N/A
-    Payback                        : 6.1 years
+    Payback                        : 4.6 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $145,945,266
-    IRR                            : -5.9%
-    Payback                        : 3.1 years
+    NPV                            : $346,351,250
+    IRR                            : -16.6%
+    Payback                        : 2.6 years
 
   LCOH (Detailed Composition):
     Total LCOH: $2.495/kg
-      Electricity Opportunity Cost Electrolyzer: $1.141/kg (44.9%)
+      Electricity Opportunity Cost Electrolyzer: $1.141/kg (44.8%)
       Electrolyzer System                     : $0.652/kg (25.6%)
       Vom Electrolyzer                        : $0.291/kg (11.4%)
       Fixed Om                                : $0.172/kg (6.8%)
@@ -89,10 +89,10 @@ Techno-Economic Analysis Report - LaSalle Generating Station_2_MISO_19
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $478,013,541
-    Total System OPEX                   : $414,981,905
-    Annual H2 Production                : 41,247,291 kg
-    Ancillary Services Revenue          : $6,904,767
+    Total Annual Revenue                : $478,013,280
+    Total System OPEX                   : $395,786,791
+    Annual H2 Production                : 41,236,633 kg
+    Ancillary Services Revenue          : $6,927,782
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -103,27 +103,27 @@ Techno-Economic Analysis Report - LaSalle Generating Station_2_MISO_19
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $304,760,593
+    Total Incremental CAPEX: $304,795,558
     CAPEX Breakdown:
       Electrolyzer                       : $300,000,000 (98.4%)
-      H2 Storage                         : $2,760,593 (0.9%)
+      H2 Storage                         : $2,795,558 (0.9%)
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $926,604,607
+    NPV                            : $926,495,682
     IRR                            : 41.1%
     Payback                        : 1.9 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $304,759,793
-    Tax Shield Effect (Value)                     : $63,999,557
-    NPV Contribution from MACRS (Approximation)   : $63,999,557
+    Total Incremental MACRS Depreciation          : $304,794,758
+    Tax Shield Effect (Value)                     : $64,006,899
+    NPV Contribution from MACRS (Approximation)   : $64,006,899
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $247,502,415
-    Incremental Costs                   : $64,067,086
-    Electricity Opportunity Cost        : $51,987,626
-    Thermal Energy Opportunity Cost     : $2,945,949
+    Incremental Revenue                 : $247,465,893
+    Incremental Costs                   : $64,051,140
+    Electricity Opportunity Cost        : $51,974,431
+    Thermal Energy Opportunity Cost     : $2,945,188
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ Techno-Economic Analysis Report - LaSalle Generating Station_2_MISO_19
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |    -9874.9 |     N/A |           N/A |  $22.274/kg |   $81.27/MWh |          N/A
-  60 years  | 45Y PTC      |    -8385.8 |     N/A |           N/A |  $18.915/kg |   $81.27/MWh |          N/A
-  60 years  | 48E ITC      |    -7170.1 |     N/A |           N/A |  $16.173/kg |   $81.27/MWh |          N/A
-  80 years  | Baseline     |    -9960.6 |     N/A |           N/A |  $21.994/kg |   $80.07/MWh |          N/A
-  80 years  | 45Y PTC      |    -8471.5 |     N/A |           N/A |  $18.706/kg |   $80.07/MWh |          N/A
-  80 years  | 48E ITC      |    -7255.8 |     N/A |           N/A |  $16.022/kg |   $80.07/MWh |          N/A
+  60 years  | Baseline     |    -9875.5 |     N/A |           N/A |  $22.281/kg |   $81.27/MWh |          N/A
+  60 years  | 45Y PTC      |    -8386.4 |     N/A |           N/A |  $18.922/kg |   $81.27/MWh |          N/A
+  60 years  | 48E ITC      |    -7170.7 |     N/A |           N/A |  $16.179/kg |   $81.27/MWh |          N/A
+  80 years  | Baseline     |    -9961.2 |     N/A |           N/A |  $22.001/kg |   $80.07/MWh |          N/A
+  80 years  | 45Y PTC      |    -8472.1 |     N/A |           N/A |  $18.712/kg |   $80.07/MWh |          N/A
+  80 years  | 48E ITC      |    -7256.4 |     N/A |           N/A |  $16.027/kg |   $80.07/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,8 +192,8 @@ Techno-Economic Analysis Report - LaSalle Generating Station_2_MISO_19
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 10,140,324 MWh
-    Annual H2 Production                          : 41,247,291 kg
+    Total Nuclear Generation                      : 10,140,352 MWh
+    Annual H2 Production                          : 41,236,633 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
     Electrolyzer Capacity Factor                  : 99.3%
@@ -203,34 +203,34 @@ Techno-Economic Analysis Report - LaSalle Generating Station_2_MISO_19
     Average Electricity Price                     : $27.06/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $6,904,767
+    Total AS Revenue                              : $6,927,782
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3299
-    HTE Heat Opportunity Cost                     : $2,945,949
+    HTE Heat Opportunity Cost                     : $2,945,188
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
       Electrolyzer System                     : $300,000,000 (96.8%)
       Grid Integration                        : $5,000,000 (1.6%)
-      H2 Storage System                       : $2,760,593 (0.9%)
+      H2 Storage System                       : $2,795,558 (0.9%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $309,760,593
+      Total CAPEX                             : $309,795,558
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $210,600,000
-      Nuclear Variable O&M                    : $10,140,324
-      Nuclear Fuel Cost                       : $101,403,237
+      Nuclear Variable O&M                    : $10,140,352
+      Nuclear Fuel Cost                       : $102,492,000
       Nuclear Additional Costs                : $58,500,000
-      H2/Battery VOM (Electrolyzer)           : $12,001,631
-      Water Cost (for H2)                     : $1,237,418
-      Ramping Costs                           : $10,061
-      H2 Storage Cycle Cost                   : $808,587
-      Calculated Total Annual OPEX            : $394,701,257
-      Reported Total System OPEX              : $414,981,905
+      H2/Battery VOM (Electrolyzer)           : $11,998,589
+      Water Cost (for H2)                     : $1,237,099
+      Ramping Costs                           : $10,366
+      H2 Storage Cycle Cost                   : $808,386
+      Calculated Total Annual OPEX            : $395,786,791
+      Reported Total System OPEX              : $395,786,791
 
     LCOH Detailed Composition (if H2 produced):
       Total LCOH: $2.495/kg
-        Electricity Opportunity Cost Electrolyzer: $1.141/kg (44.9%)
+        Electricity Opportunity Cost Electrolyzer: $1.141/kg (44.8%)
         Electrolyzer System                     : $0.652/kg (25.6%)
         Vom Electrolyzer                        : $0.291/kg (11.4%)
         Fixed Om                                : $0.172/kg (6.8%)
@@ -245,12 +245,12 @@ Techno-Economic Analysis Report - LaSalle Generating Station_2_MISO_19
         Ramping Cost                            : $0.000/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $309,760,593
-    Total Tax Shield Value (at current tax rate)  : $65,049,725
+    Total MACRS Depreciation Over Lifetime        : $309,795,558
+    Total Tax Shield Value (at current tax rate)  : $65,057,067
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $2,760,593
+      H2 Storage System                             : $2,795,558
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

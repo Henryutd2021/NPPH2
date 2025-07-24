@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "ComanchePeak",
+    "unit_id": "2",
+    "iso_region": "ERCOT",
+    "standardized_name": "ComanchePeak_Unit2_ERCOT"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:19:10.122269",
+    "end_time": "2025-07-14T12:19:17.881442",
+    "duration_seconds": 7.759173,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/ComanchePeak_Unit2_ERCOT_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/ComanchePeak_Unit2_ERCOT_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/ComanchePeak_Unit2_ERCOT_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for ComanchePeak",
+      "description": "",
+      "start_time": "2025-07-14T12:19:10.123055",
+      "end_time": "2025-07-14T12:19:17.881365",
+      "duration": 7.75876522064209,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Comanche Peak Unit 2",
+      "start_time": "2025-07-14T12:19:10.123301",
+      "end_time": "2025-07-14T12:19:10.125681",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:19:10.125728",
+      "end_time": "2025-07-14T12:19:10.804741",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:19:10.804904",
+      "end_time": "2025-07-14T12:19:17.840465",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:19:17.841785",
+      "end_time": "2025-07-14T12:19:17.841982",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "5761.6",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:19:10.123255",
+      "phase": "Enhanced TEA for ComanchePeak"
+    },
+    "Thermal Capacity": {
+      "value": "3,612.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:19:10.125572",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,215.0",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:19:10.125621",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3364",
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:10.125652",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:10.804611",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:17.841932",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:17.841958",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

@@ -58,24 +58,24 @@ Techno-Economic Analysis Report - Diablo Canyon_2_CAISO_21
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 14,566 kg
+    H2 Storage Capacity                 : 14,710 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $354,855,703
-    IRR                            : -25.1%
-    Payback                        : 2.9 years
+    NPV                            : $517,299,017
+    IRR                            : 31.1%
+    Payback                        : 2.5 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $866,840,532
-    IRR                            : 44.2%
-    Payback                        : 1.8 years
+    NPV                            : $1,045,218,728
+    IRR                            : 48.5%
+    Payback                        : 1.6 years
 
   LCOH (Detailed Composition):
     Total LCOH: $2.769/kg
       Electricity Opportunity Cost Electrolyzer: $1.457/kg (51.0%)
-      Electrolyzer System                     : $0.615/kg (21.5%)
+      Electrolyzer System                     : $0.616/kg (21.5%)
       Vom Electrolyzer                        : $0.291/kg (10.2%)
       Fixed Om                                : $0.173/kg (6.1%)
       Stack Replacement                       : $0.109/kg (3.8%)
@@ -88,10 +88,10 @@ Techno-Economic Analysis Report - Diablo Canyon_2_CAISO_21
       Npp Modifications                       : $0.004/kg (0.1%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $544,321,132
-    Total System OPEX                   : $412,921,979
-    Annual H2 Production                : 41,442,084 kg
-    Ancillary Services Revenue          : $12,574,856
+    Total Annual Revenue                : $544,304,979
+    Total System OPEX                   : $393,882,176
+    Annual H2 Production                : 41,428,012 kg
+    Ancillary Services Revenue          : $12,593,632
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -102,27 +102,27 @@ Techno-Economic Analysis Report - Diablo Canyon_2_CAISO_21
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $304,330,506
+    Total Incremental CAPEX: $304,353,579
     CAPEX Breakdown:
       Electrolyzer                       : $300,000,000 (98.6%)
-      H2 Storage                         : $2,330,506 (0.8%)
+      H2 Storage                         : $2,353,579 (0.8%)
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $881,663,577
+    NPV                            : $881,455,932
     IRR                            : 39.5%
     Payback                        : 2.0 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $304,329,706
-    Tax Shield Effect (Value)                     : $63,909,238
-    NPV Contribution from MACRS (Approximation)   : $63,909,238
+    Total Incremental MACRS Depreciation          : $304,352,779
+    Tax Shield Effect (Value)                     : $63,914,084
+    NPV Contribution from MACRS (Approximation)   : $63,914,084
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $253,818,323
-    Incremental Costs                   : $78,404,566
-    Electricity Opportunity Cost        : $66,773,744
-    Thermal Energy Opportunity Cost     : $3,909,212
+    Incremental Revenue                 : $253,755,331
+    Incremental Costs                   : $78,378,930
+    Electricity Opportunity Cost        : $66,751,419
+    Thermal Energy Opportunity Cost     : $3,907,884
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -147,12 +147,12 @@ Techno-Economic Analysis Report - Diablo Canyon_2_CAISO_21
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |    -9764.7 |     N/A |           N/A |  $21.922/kg |   $80.92/MWh |          N/A
-  60 years  | 45Y PTC      |    -8284.0 |     N/A |           N/A |  $18.598/kg |   $80.92/MWh |          N/A
-  60 years  | 48E ITC      |    -7073.1 |     N/A |           N/A |  $15.879/kg |   $80.92/MWh |          N/A
-  80 years  | Baseline     |    -9848.7 |     N/A |           N/A |  $21.645/kg |   $79.73/MWh |          N/A
-  80 years  | 45Y PTC      |    -8368.0 |     N/A |           N/A |  $18.391/kg |   $79.73/MWh |          N/A
-  80 years  | 48E ITC      |    -7157.2 |     N/A |           N/A |  $15.730/kg |   $79.73/MWh |          N/A
+  60 years  | Baseline     |    -9765.6 |     N/A |           N/A |  $21.931/kg |   $80.92/MWh |          N/A
+  60 years  | 45Y PTC      |    -8284.9 |     N/A |           N/A |  $18.606/kg |   $80.92/MWh |          N/A
+  60 years  | 48E ITC      |    -7074.1 |     N/A |           N/A |  $15.887/kg |   $80.92/MWh |          N/A
+  80 years  | Baseline     |    -9849.6 |     N/A |           N/A |  $21.654/kg |   $79.73/MWh |          N/A
+  80 years  | 45Y PTC      |    -8368.9 |     N/A |           N/A |  $18.399/kg |   $79.73/MWh |          N/A
+  80 years  | 48E ITC      |    -7158.1 |     N/A |           N/A |  $15.737/kg |   $79.73/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -191,8 +191,8 @@ Techno-Economic Analysis Report - Diablo Canyon_2_CAISO_21
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 10,083,503 MWh
-    Annual H2 Production                          : 41,442,084 kg
+    Total Nuclear Generation                      : 10,083,542 MWh
+    Annual H2 Production                          : 41,428,012 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
     Electrolyzer Capacity Factor                  : 99.7%
@@ -202,35 +202,35 @@ Techno-Economic Analysis Report - Diablo Canyon_2_CAISO_21
     Average Electricity Price                     : $34.55/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $12,574,856
+    Total AS Revenue                              : $12,593,632
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3412
-    HTE Heat Opportunity Cost                     : $3,909,212
+    HTE Heat Opportunity Cost                     : $3,907,884
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
       Electrolyzer System                     : $300,000,000 (97.0%)
       Grid Integration                        : $5,000,000 (1.6%)
-      H2 Storage System                       : $2,330,506 (0.8%)
+      H2 Storage System                       : $2,353,579 (0.8%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $309,330,506
+      Total CAPEX                             : $309,353,579
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $209,520,000
-      Nuclear Variable O&M                    : $10,083,503
-      Nuclear Fuel Cost                       : $100,835,032
+      Nuclear Variable O&M                    : $10,083,542
+      Nuclear Fuel Cost                       : $101,966,400
       Nuclear Additional Costs                : $58,200,000
-      H2/Battery VOM (Electrolyzer)           : $12,057,250
-      Water Cost (for H2)                     : $1,243,262
-      Ramping Costs                           : $3,493
-      H2 Storage Cycle Cost                   : $812,430
-      Calculated Total Annual OPEX            : $392,754,971
-      Reported Total System OPEX              : $412,921,979
+      H2/Battery VOM (Electrolyzer)           : $12,053,235
+      Water Cost (for H2)                     : $1,242,840
+      Ramping Costs                           : $4,004
+      H2 Storage Cycle Cost                   : $812,154
+      Calculated Total Annual OPEX            : $393,882,175
+      Reported Total System OPEX              : $393,882,176
 
     LCOH Detailed Composition (if H2 produced):
       Total LCOH: $2.769/kg
         Electricity Opportunity Cost Electrolyzer: $1.457/kg (51.0%)
-        Electrolyzer System                     : $0.615/kg (21.5%)
+        Electrolyzer System                     : $0.616/kg (21.5%)
         Vom Electrolyzer                        : $0.291/kg (10.2%)
         Fixed Om                                : $0.173/kg (6.1%)
         Stack Replacement                       : $0.109/kg (3.8%)
@@ -243,12 +243,12 @@ Techno-Economic Analysis Report - Diablo Canyon_2_CAISO_21
         Npp Modifications                       : $0.004/kg (0.1%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $309,330,506
-    Total Tax Shield Value (at current tax rate)  : $64,959,406
+    Total MACRS Depreciation Over Lifetime        : $309,353,579
+    Total Tax Shield Value (at current tax rate)  : $64,964,252
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $2,330,506
+      H2 Storage System                             : $2,353,579
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

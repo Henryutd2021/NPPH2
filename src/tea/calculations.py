@@ -90,7 +90,16 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
 
         metrics["Annual_Profit"] = df["Profit_Hourly_USD"].sum()
         metrics["Annual_Revenue"] = df["Revenue_Total_USD"].sum()
-        metrics["Annual_Opex_Cost_from_Opt"] = df["Cost_HourlyOpex_Total_USD"].sum()
+        
+        # Use separated H2/Battery OPEX to avoid double-counting nuclear costs
+        if "Cost_HourlyOpex_H2_Battery_USD" in df.columns:
+            metrics["Annual_Opex_Cost_from_Opt"] = df["Cost_HourlyOpex_H2_Battery_USD"].sum()
+            logger.info(f"Using separated H2/Battery OPEX data: {metrics['Annual_Opex_Cost_from_Opt']:,.0f} USD/year")
+        else:
+            # Fallback to total OPEX (may include nuclear costs - will result in double counting)
+            metrics["Annual_Opex_Cost_from_Opt"] = df["Cost_HourlyOpex_Total_USD"].sum()
+            logger.warning("Cost_HourlyOpex_H2_Battery_USD column not found. Using Cost_HourlyOpex_Total_USD (may include nuclear costs and cause double counting)")
+            logger.warning("To avoid double counting nuclear costs, ensure optimization results include Total_H2_Battery_Opex_USD column")
         metrics["Energy_Revenue"] = df.get(
             "Revenue_Energy_USD", pd.Series(0.0, dtype="float64")
         ).sum()
@@ -671,9 +680,62 @@ def calculate_annual_metrics(df: pd.DataFrame, tea_sys_params: dict) -> dict | N
             variable_om_per_mwh = opex_params["variable_om_per_mwh"]
             annual_nuclear_variable_om = annual_nuclear_generation_mwh * variable_om_per_mwh
 
-            # Nuclear fuel costs ($/MWh - from centralized config)
+            # Nuclear fuel costs - Use total thermal energy output for accurate calculation
             nuclear_fuel_cost_per_mwh = opex_params["fuel_cost_per_mwh"]
-            annual_nuclear_fuel_cost = annual_nuclear_generation_mwh * nuclear_fuel_cost_per_mwh
+
+            # Calculate fuel cost based on total thermal energy output, not just electrical generation
+            total_thermal_energy_annual_mwth = 0
+            thermal_efficiency = metrics.get("thermal_efficiency", 0)
+
+            # Check if thermal energy data is available from hourly results
+            if "qSteam_Turbine_MWth" in df.columns:
+                # Use actual thermal energy data from hourly results
+                total_thermal_energy_annual_mwth = df["qSteam_Turbine_MWth"].sum(
+                )
+
+                # Add thermal energy for electrolyzer (HTE mode only)
+                if ("qSteam_Electrolyzer_MWth" in df.columns and
+                        not metrics.get("HTE_Mode_Detected", False) is False):
+                    total_thermal_energy_annual_mwth += df["qSteam_Electrolyzer_MWth"].sum(
+                    )
+
+                logger.info(
+                    f"Nuclear fuel cost calculation using actual thermal energy data:")
+                logger.info(
+                    f"  Total thermal energy output: {total_thermal_energy_annual_mwth:,.0f} MWth/year")
+
+            elif thermal_efficiency > 0:
+                # Estimate thermal energy from electrical generation using thermal efficiency
+                total_thermal_energy_annual_mwth = annual_nuclear_generation_mwh / thermal_efficiency
+                logger.info(
+                    f"Nuclear fuel cost calculation using estimated thermal energy:")
+                logger.info(
+                    f"  Electrical generation: {annual_nuclear_generation_mwh:,.0f} MWh/year")
+                logger.info(f"  Thermal efficiency: {thermal_efficiency:.4f}")
+                logger.info(
+                    f"  Estimated thermal energy: {total_thermal_energy_annual_mwth:,.0f} MWth/year")
+            else:
+                # Fallback: use electrical generation (original method)
+                total_thermal_energy_annual_mwth = annual_nuclear_generation_mwh
+                logger.warning(
+                    "Thermal efficiency not available. Using electrical generation for fuel cost calculation (may underestimate costs in HTE systems)")
+
+            # Convert electrical fuel cost ($/MWh_elec) to thermal fuel cost ($/MWh_th)
+            if thermal_efficiency > 0 and total_thermal_energy_annual_mwth != annual_nuclear_generation_mwh:
+                # We have thermal energy data, need to convert fuel cost rate
+                fuel_cost_per_mwh_thermal = nuclear_fuel_cost_per_mwh * thermal_efficiency
+                annual_nuclear_fuel_cost = total_thermal_energy_annual_mwth * fuel_cost_per_mwh_thermal
+                logger.info(
+                    f"  Fuel cost rate (thermal): ${fuel_cost_per_mwh_thermal:.2f}/MWh_th")
+            else:
+                # Use original calculation (for electrical generation or when thermal data not available)
+                annual_nuclear_fuel_cost = annual_nuclear_generation_mwh * nuclear_fuel_cost_per_mwh
+
+            logger.info(
+                f"  Total annual nuclear fuel cost: ${annual_nuclear_fuel_cost:,.0f}")
+
+            # Store thermal energy metrics for reference
+            metrics["Total_Thermal_Energy_Annual_MWth"] = total_thermal_energy_annual_mwth
 
             # Additional costs (insurance, regulatory, waste disposal, security)
             additional_costs_per_mw_year = opex_params["additional_costs_per_mw_year"]

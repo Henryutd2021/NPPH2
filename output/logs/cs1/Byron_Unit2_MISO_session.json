@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "Byron",
+    "unit_id": "2",
+    "iso_region": "MISO",
+    "standardized_name": "Byron_Unit2_MISO"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:18:31.658660",
+    "end_time": "2025-07-14T12:18:39.450650",
+    "duration_seconds": 7.79199,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/Byron_Unit2_MISO_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/Byron_Unit2_MISO_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/Byron_Unit2_MISO_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for Byron",
+      "description": "",
+      "start_time": "2025-07-14T12:18:31.659445",
+      "end_time": "2025-07-14T12:18:39.450545",
+      "duration": 7.791549444198608,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Byron Generating Station Unit 2",
+      "start_time": "2025-07-14T12:18:31.659553",
+      "end_time": "2025-07-14T12:18:31.662010",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:18:31.662055",
+      "end_time": "2025-07-14T12:18:32.344341",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:18:32.344497",
+      "end_time": "2025-07-14T12:18:39.351676",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:18:39.353344",
+      "end_time": "2025-07-14T12:18:39.353562",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "6559.8",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:18:31.659516",
+      "phase": "Enhanced TEA for Byron"
+    },
+    "Thermal Capacity": {
+      "value": "3,645.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:18:31.661909",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,224.9",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:18:31.661955",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3360",
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:31.661984",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:32.344211",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:39.353507",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:39.353536",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

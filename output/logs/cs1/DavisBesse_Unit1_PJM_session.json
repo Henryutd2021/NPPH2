@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "DavisBesse",
+    "unit_id": "1",
+    "iso_region": "PJM",
+    "standardized_name": "DavisBesse_Unit1_PJM"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:15:09.741658",
+    "end_time": "2025-07-14T12:15:17.376854",
+    "duration_seconds": 7.635196,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/DavisBesse_Unit1_PJM_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/DavisBesse_Unit1_PJM_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/DavisBesse_Unit1_PJM_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for DavisBesse",
+      "description": "",
+      "start_time": "2025-07-14T12:15:09.742302",
+      "end_time": "2025-07-14T12:15:17.376759",
+      "duration": 7.634791612625122,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Davis Besse Unit 1",
+      "start_time": "2025-07-14T12:15:09.742407",
+      "end_time": "2025-07-14T12:15:09.744788",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:15:09.744835",
+      "end_time": "2025-07-14T12:15:10.357510",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:15:10.357664",
+      "end_time": "2025-07-14T12:15:17.364791",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:15:17.365993",
+      "end_time": "2025-07-14T12:15:17.366213",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "5732.2",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:15:09.742372",
+      "phase": "Enhanced TEA for DavisBesse"
+    },
+    "Thermal Capacity": {
+      "value": "2,817.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:15:09.744675",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "925.2",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:15:09.744724",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3284",
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:09.744758",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:10.357382",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:17.366158",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:15:17.366186",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

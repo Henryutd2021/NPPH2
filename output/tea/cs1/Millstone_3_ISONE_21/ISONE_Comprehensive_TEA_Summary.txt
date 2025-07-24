@@ -58,22 +58,22 @@ Techno-Economic Analysis Report - Millstone_3_ISONE_21
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 18,374 kg
+    H2 Storage Capacity                 : 19,090 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $628,784,843
-    IRR                            : 34.1%
-    Payback                        : 2.3 years
+    NPV                            : $813,452,403
+    IRR                            : 38.8%
+    Payback                        : 2.0 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $1,286,375,256
-    IRR                            : 55.5%
-    Payback                        : 1.4 years
+    NPV                            : $1,484,807,335
+    IRR                            : 59.6%
+    Payback                        : 1.3 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $3.057/kg
+    Total LCOH: $3.058/kg
       Electricity Opportunity Cost Electrolyzer: $1.680/kg (54.9%)
       Electrolyzer System                     : $0.615/kg (20.1%)
       Vom Electrolyzer                        : $0.291/kg (9.5%)
@@ -88,10 +88,10 @@ Techno-Economic Analysis Report - Millstone_3_ISONE_21
       Npp Modifications                       : $0.004/kg (0.1%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $641,600,499
-    Total System OPEX                   : $476,785,610
-    Annual H2 Production                : 41,443,005 kg
-    Ancillary Services Revenue          : $538,509
+    Total Annual Revenue                : $641,608,698
+    Total System OPEX                   : $454,579,958
+    Annual H2 Production                : 41,437,396 kg
+    Ancillary Services Revenue          : $533,368
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -102,27 +102,27 @@ Techno-Economic Analysis Report - Millstone_3_ISONE_21
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $304,939,903
+    Total Incremental CAPEX: $305,054,383
     CAPEX Breakdown:
-      Electrolyzer                       : $300,000,000 (98.4%)
-      H2 Storage                         : $2,939,903 (1.0%)
+      Electrolyzer                       : $300,000,000 (98.3%)
+      H2 Storage                         : $3,054,383 (1.0%)
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $708,548,166
+    NPV                            : $708,277,691
     IRR                            : 35.4%
     Payback                        : 2.3 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $304,939,103
-    Tax Shield Effect (Value)                     : $64,037,212
-    NPV Contribution from MACRS (Approximation)   : $64,037,212
+    Total Incremental MACRS Depreciation          : $305,053,583
+    Tax Shield Effect (Value)                     : $64,061,252
+    NPV Contribution from MACRS (Approximation)   : $64,061,252
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $244,267,863
-    Incremental Costs                   : $88,541,742
-    Electricity Opportunity Cost        : $74,427,924
-    Thermal Energy Opportunity Cost     : $4,807,662
+    Incremental Revenue                 : $244,229,589
+    Incremental Costs                   : $88,530,038
+    Electricity Opportunity Cost        : $74,417,987
+    Thermal Energy Opportunity Cost     : $4,807,011
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -147,12 +147,12 @@ Techno-Economic Analysis Report - Millstone_3_ISONE_21
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |   -11561.8 |     N/A |           N/A |  $25.956/kg |   $81.27/MWh |          N/A
-  60 years  | 45Y PTC      |    -9842.9 |     N/A |           N/A |  $22.097/kg |   $81.27/MWh |          N/A
-  60 years  | 48E ITC      |    -8460.5 |     N/A |           N/A |  $18.994/kg |   $81.27/MWh |          N/A
-  80 years  | Baseline     |   -11659.4 |     N/A |           N/A |  $25.624/kg |   $80.09/MWh |          N/A
-  80 years  | 45Y PTC      |    -9940.5 |     N/A |           N/A |  $21.846/kg |   $80.09/MWh |          N/A
-  80 years  | 48E ITC      |    -8558.2 |     N/A |           N/A |  $18.808/kg |   $80.09/MWh |          N/A
+  60 years  | Baseline     |   -11562.4 |     N/A |           N/A |  $25.961/kg |   $81.27/MWh |          N/A
+  60 years  | 45Y PTC      |    -9843.5 |     N/A |           N/A |  $22.101/kg |   $81.27/MWh |          N/A
+  60 years  | 48E ITC      |    -8461.2 |     N/A |           N/A |  $18.998/kg |   $81.27/MWh |          N/A
+  80 years  | Baseline     |   -11660.0 |     N/A |           N/A |  $25.629/kg |   $80.09/MWh |          N/A
+  80 years  | 45Y PTC      |    -9941.2 |     N/A |           N/A |  $21.851/kg |   $80.09/MWh |          N/A
+  80 years  | 48E ITC      |    -8558.8 |     N/A |           N/A |  $18.812/kg |   $80.09/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -191,8 +191,8 @@ Techno-Economic Analysis Report - Millstone_3_ISONE_21
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 11,705,325 MWh
-    Annual H2 Production                          : 41,443,005 kg
+    Total Nuclear Generation                      : 11,705,341 MWh
+    Annual H2 Production                          : 41,437,396 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
     Electrolyzer Capacity Factor                  : 99.7%
@@ -202,33 +202,33 @@ Techno-Economic Analysis Report - Millstone_3_ISONE_21
     Average Electricity Price                     : $39.84/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $538,509
+    Total AS Revenue                              : $533,368
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3640
-    HTE Heat Opportunity Cost                     : $4,807,662
+    HTE Heat Opportunity Cost                     : $4,807,011
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
       Electrolyzer System                     : $300,000,000 (96.8%)
       Grid Integration                        : $5,000,000 (1.6%)
-      H2 Storage System                       : $2,939,903 (0.9%)
+      H2 Storage System                       : $3,054,383 (1.0%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $309,939,903
+      Total CAPEX                             : $310,054,383
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $243,000,000
-      Nuclear Variable O&M                    : $11,705,325
-      Nuclear Fuel Cost                       : $117,053,251
+      Nuclear Variable O&M                    : $11,705,341
+      Nuclear Fuel Cost                       : $118,260,000
       Nuclear Additional Costs                : $67,500,000
-      H2/Battery VOM (Electrolyzer)           : $12,057,386
-      Water Cost (for H2)                     : $1,243,290
-      Ramping Costs                           : $3,268
-      H2 Storage Cycle Cost                   : $812,440
-      Calculated Total Annual OPEX            : $453,374,960
-      Reported Total System OPEX              : $476,785,610
+      H2/Battery VOM (Electrolyzer)           : $12,055,778
+      Water Cost (for H2)                     : $1,243,122
+      Ramping Costs                           : $3,388
+      H2 Storage Cycle Cost                   : $812,330
+      Calculated Total Annual OPEX            : $454,579,958
+      Reported Total System OPEX              : $454,579,958
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $3.057/kg
+      Total LCOH: $3.058/kg
         Electricity Opportunity Cost Electrolyzer: $1.680/kg (54.9%)
         Electrolyzer System                     : $0.615/kg (20.1%)
         Vom Electrolyzer                        : $0.291/kg (9.5%)
@@ -243,12 +243,12 @@ Techno-Economic Analysis Report - Millstone_3_ISONE_21
         Npp Modifications                       : $0.004/kg (0.1%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $309,939,903
-    Total Tax Shield Value (at current tax rate)  : $65,087,380
+    Total MACRS Depreciation Over Lifetime        : $310,054,383
+    Total Tax Shield Value (at current tax rate)  : $65,111,420
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $2,939,903
+      H2 Storage System                             : $3,054,383
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

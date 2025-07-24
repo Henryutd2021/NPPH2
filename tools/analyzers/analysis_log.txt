@@ -1,0 +1,145 @@
+2025-07-07 20:09:39,947 - INFO - Starting Ancillary Services Analysis
+2025-07-07 20:09:39,947 - INFO - Initialized analyzer for directory: ../output/opt/cs1
+2025-07-07 20:09:39,947 - INFO - Loading hourly results data...
+2025-07-07 20:09:39,948 - INFO - Found 42 hourly results files
+2025-07-07 20:09:39,999 - INFO - Loaded 8760 hours of data for Calvert Cliffs Nuclear Power Plant 1 (PJM)
+2025-07-07 20:09:40,047 - INFO - Loaded 8760 hours of data for South Texas Project 1 (ERCOT)
+2025-07-07 20:09:40,098 - INFO - Loaded 8760 hours of data for Donald C Cook 1 (MISO)
+2025-07-07 20:09:40,148 - INFO - Loaded 8760 hours of data for Davis Besse 1 (PJM)
+2025-07-07 20:09:40,197 - INFO - Loaded 8760 hours of data for PSEG Salem Generating Station 1 (PJM)
+2025-07-07 20:09:40,246 - INFO - Loaded 8760 hours of data for Beaver Valley 1 (PJM)
+2025-07-07 20:09:40,297 - INFO - Loaded 8760 hours of data for TalenEnergy Susquehanna 1 (PJM)
+2025-07-07 20:09:40,347 - INFO - Loaded 8760 hours of data for Clinton Power Station 1 (MISO)
+2025-07-07 20:09:40,396 - INFO - Loaded 8760 hours of data for Beaver Valley 2 (PJM)
+2025-07-07 20:09:40,448 - INFO - Loaded 8760 hours of data for Arkansas Nuclear One 2 (SPP)
+2025-07-07 20:09:40,498 - INFO - Loaded 8760 hours of data for LaSalle Generating Station 2 (MISO)
+2025-07-07 20:09:40,551 - INFO - Loaded 8760 hours of data for Wolf Creek Generating Station 1 (SPP)
+2025-07-07 20:09:40,600 - INFO - Loaded 8760 hours of data for Braidwood Generation Station 1 (PJM)
+2025-07-07 20:09:40,650 - INFO - Loaded 8760 hours of data for Grand Gulf 1 (MISO)
+2025-07-07 20:09:40,703 - INFO - Loaded 8760 hours of data for Diablo Canyon 1 (CAISO)
+2025-07-07 20:09:40,751 - INFO - Loaded 8760 hours of data for Nine Mile Point Nuclear Station 2 (NYISO)
+2025-07-07 20:09:40,803 - INFO - Loaded 8760 hours of data for LaSalle Generating Station 1 (MISO)
+2025-07-07 20:09:40,838 - INFO - Loaded 8760 hours of data for Millstone 2 (ISONE)
+2025-07-07 20:09:40,888 - INFO - Loaded 8760 hours of data for North Anna 2 (PJM)
+2025-07-07 20:09:40,938 - INFO - Loaded 8760 hours of data for Waterford 3 3 (MISO)
+2025-07-07 20:09:40,987 - INFO - Loaded 8760 hours of data for Limerick 1 (PJM)
+2025-07-07 20:09:41,037 - INFO - Loaded 8760 hours of data for Limerick 2 (PJM)
+2025-07-07 20:09:41,087 - INFO - Loaded 8760 hours of data for Fermi 2 (MISO)
+2025-07-07 20:09:41,135 - INFO - Loaded 8760 hours of data for James A Fitzpatrick 1 (NYISO)
+2025-07-07 20:09:41,185 - INFO - Loaded 8760 hours of data for North Anna 1 (PJM)
+2025-07-07 20:09:41,233 - INFO - Loaded 8760 hours of data for Braidwood Generation Station 2 (PJM)
+2025-07-07 20:09:41,283 - INFO - Loaded 8760 hours of data for Callaway 1 (MISO)
+2025-07-07 20:09:41,334 - INFO - Loaded 8760 hours of data for Perry 1 (PJM)
+2025-07-07 20:09:41,383 - INFO - Loaded 8760 hours of data for PSEG Salem Generating Station 2 (PJM)
+2025-07-07 20:09:41,433 - INFO - Loaded 8760 hours of data for Byron Generating Station 2 (MISO)
+2025-07-07 20:09:41,486 - INFO - Loaded 8760 hours of data for Diablo Canyon 2 (CAISO)
+2025-07-07 20:09:41,535 - INFO - Loaded 8760 hours of data for Calvert Cliffs Nuclear Power Plant 2 (PJM)
+2025-07-07 20:09:41,571 - INFO - Loaded 8760 hours of data for Millstone 3 (ISONE)
+2025-07-07 20:09:41,620 - INFO - Loaded 8760 hours of data for TalenEnergy Susquehanna 2 (PJM)
+2025-07-07 20:09:41,669 - INFO - Loaded 8760 hours of data for Comanche Peak 2 (ERCOT)
+2025-07-07 20:09:41,718 - INFO - Loaded 8760 hours of data for Comanche Peak 1 (ERCOT)
+2025-07-07 20:09:41,768 - INFO - Loaded 8760 hours of data for PSEG Hope Creek Generating Station 1 (PJM)
+2025-07-07 20:09:41,803 - INFO - Loaded 8760 hours of data for Seabrook 1 (ISONE)
+2025-07-07 20:09:41,853 - INFO - Loaded 8760 hours of data for South Texas Project 2 (ERCOT)
+2025-07-07 20:09:41,903 - INFO - Loaded 8760 hours of data for River Bend 1 (MISO)
+2025-07-07 20:09:41,953 - INFO - Loaded 8760 hours of data for Donald C Cook 2 (MISO)
+2025-07-07 20:09:42,004 - INFO - Loaded 8760 hours of data for Byron Generating Station 1 (MISO)
+2025-07-07 20:09:42,004 - INFO - Running comprehensive analysis...
+2025-07-07 20:09:42,004 - INFO - Starting analysis of all reactors...
+2025-07-07 20:09:42,004 - INFO - Analyzing Calvert Cliffs Nuclear Power Plant 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,034 - INFO - Completed analysis for Calvert Cliffs Nuclear Power Plant 1
+2025-07-07 20:09:42,034 - INFO - Analyzing South Texas Project 1 (ERCOT) - 8760 hours of data
+2025-07-07 20:09:42,064 - INFO - Completed analysis for South Texas Project 1
+2025-07-07 20:09:42,064 - INFO - Analyzing Donald C Cook 1 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,102 - INFO - Completed analysis for Donald C Cook 1
+2025-07-07 20:09:42,102 - INFO - Analyzing Davis Besse 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,131 - INFO - Completed analysis for Davis Besse 1
+2025-07-07 20:09:42,131 - INFO - Analyzing PSEG Salem Generating Station 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,159 - INFO - Completed analysis for PSEG Salem Generating Station 1
+2025-07-07 20:09:42,159 - INFO - Analyzing Beaver Valley 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,188 - INFO - Completed analysis for Beaver Valley 1
+2025-07-07 20:09:42,188 - INFO - Analyzing TalenEnergy Susquehanna 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,217 - INFO - Completed analysis for TalenEnergy Susquehanna 1
+2025-07-07 20:09:42,217 - INFO - Analyzing Clinton Power Station 1 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,255 - INFO - Completed analysis for Clinton Power Station 1
+2025-07-07 20:09:42,255 - INFO - Analyzing Beaver Valley 2 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,284 - INFO - Completed analysis for Beaver Valley 2
+2025-07-07 20:09:42,284 - INFO - Analyzing Arkansas Nuclear One 2 (SPP) - 8760 hours of data
+2025-07-07 20:09:42,323 - INFO - Completed analysis for Arkansas Nuclear One 2
+2025-07-07 20:09:42,323 - INFO - Analyzing LaSalle Generating Station 2 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,360 - INFO - Completed analysis for LaSalle Generating Station 2
+2025-07-07 20:09:42,361 - INFO - Analyzing Wolf Creek Generating Station 1 (SPP) - 8760 hours of data
+2025-07-07 20:09:42,399 - INFO - Completed analysis for Wolf Creek Generating Station 1
+2025-07-07 20:09:42,399 - INFO - Analyzing Braidwood Generation Station 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,427 - INFO - Completed analysis for Braidwood Generation Station 1
+2025-07-07 20:09:42,427 - INFO - Analyzing Grand Gulf 1 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,464 - INFO - Completed analysis for Grand Gulf 1
+2025-07-07 20:09:42,464 - INFO - Analyzing Diablo Canyon 1 (CAISO) - 8760 hours of data
+2025-07-07 20:09:42,497 - INFO - Completed analysis for Diablo Canyon 1
+2025-07-07 20:09:42,497 - INFO - Analyzing Nine Mile Point Nuclear Station 2 (NYISO) - 8760 hours of data
+2025-07-07 20:09:42,528 - INFO - Completed analysis for Nine Mile Point Nuclear Station 2
+2025-07-07 20:09:42,528 - INFO - Analyzing LaSalle Generating Station 1 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,565 - INFO - Completed analysis for LaSalle Generating Station 1
+2025-07-07 20:09:42,565 - INFO - Analyzing Millstone 2 (ISONE) - 8760 hours of data
+2025-07-07 20:09:42,585 - INFO - Completed analysis for Millstone 2
+2025-07-07 20:09:42,585 - INFO - Analyzing North Anna 2 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,613 - INFO - Completed analysis for North Anna 2
+2025-07-07 20:09:42,613 - INFO - Analyzing Waterford 3 3 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,650 - INFO - Completed analysis for Waterford 3 3
+2025-07-07 20:09:42,650 - INFO - Analyzing Limerick 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,678 - INFO - Completed analysis for Limerick 1
+2025-07-07 20:09:42,679 - INFO - Analyzing Limerick 2 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,707 - INFO - Completed analysis for Limerick 2
+2025-07-07 20:09:42,707 - INFO - Analyzing Fermi 2 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,744 - INFO - Completed analysis for Fermi 2
+2025-07-07 20:09:42,744 - INFO - Analyzing James A Fitzpatrick 1 (NYISO) - 8760 hours of data
+2025-07-07 20:09:42,773 - INFO - Completed analysis for James A Fitzpatrick 1
+2025-07-07 20:09:42,773 - INFO - Analyzing North Anna 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,801 - INFO - Completed analysis for North Anna 1
+2025-07-07 20:09:42,802 - INFO - Analyzing Braidwood Generation Station 2 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,830 - INFO - Completed analysis for Braidwood Generation Station 2
+2025-07-07 20:09:42,830 - INFO - Analyzing Callaway 1 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,866 - INFO - Completed analysis for Callaway 1
+2025-07-07 20:09:42,866 - INFO - Analyzing Perry 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,895 - INFO - Completed analysis for Perry 1
+2025-07-07 20:09:42,895 - INFO - Analyzing PSEG Salem Generating Station 2 (PJM) - 8760 hours of data
+2025-07-07 20:09:42,923 - INFO - Completed analysis for PSEG Salem Generating Station 2
+2025-07-07 20:09:42,923 - INFO - Analyzing Byron Generating Station 2 (MISO) - 8760 hours of data
+2025-07-07 20:09:42,959 - INFO - Completed analysis for Byron Generating Station 2
+2025-07-07 20:09:42,959 - INFO - Analyzing Diablo Canyon 2 (CAISO) - 8760 hours of data
+2025-07-07 20:09:42,992 - INFO - Completed analysis for Diablo Canyon 2
+2025-07-07 20:09:42,992 - INFO - Analyzing Calvert Cliffs Nuclear Power Plant 2 (PJM) - 8760 hours of data
+2025-07-07 20:09:43,021 - INFO - Completed analysis for Calvert Cliffs Nuclear Power Plant 2
+2025-07-07 20:09:43,021 - INFO - Analyzing Millstone 3 (ISONE) - 8760 hours of data
+2025-07-07 20:09:43,041 - INFO - Completed analysis for Millstone 3
+2025-07-07 20:09:43,041 - INFO - Analyzing TalenEnergy Susquehanna 2 (PJM) - 8760 hours of data
+2025-07-07 20:09:43,070 - INFO - Completed analysis for TalenEnergy Susquehanna 2
+2025-07-07 20:09:43,070 - INFO - Analyzing Comanche Peak 2 (ERCOT) - 8760 hours of data
+2025-07-07 20:09:43,099 - INFO - Completed analysis for Comanche Peak 2
+2025-07-07 20:09:43,099 - INFO - Analyzing Comanche Peak 1 (ERCOT) - 8760 hours of data
+2025-07-07 20:09:43,128 - INFO - Completed analysis for Comanche Peak 1
+2025-07-07 20:09:43,128 - INFO - Analyzing PSEG Hope Creek Generating Station 1 (PJM) - 8760 hours of data
+2025-07-07 20:09:43,157 - INFO - Completed analysis for PSEG Hope Creek Generating Station 1
+2025-07-07 20:09:43,157 - INFO - Analyzing Seabrook 1 (ISONE) - 8760 hours of data
+2025-07-07 20:09:43,177 - INFO - Completed analysis for Seabrook 1
+2025-07-07 20:09:43,177 - INFO - Analyzing South Texas Project 2 (ERCOT) - 8760 hours of data
+2025-07-07 20:09:43,207 - INFO - Completed analysis for South Texas Project 2
+2025-07-07 20:09:43,207 - INFO - Analyzing River Bend 1 (MISO) - 8760 hours of data
+2025-07-07 20:09:43,244 - INFO - Completed analysis for River Bend 1
+2025-07-07 20:09:43,244 - INFO - Analyzing Donald C Cook 2 (MISO) - 8760 hours of data
+2025-07-07 20:09:43,281 - INFO - Completed analysis for Donald C Cook 2
+2025-07-07 20:09:43,281 - INFO - Analyzing Byron Generating Station 1 (MISO) - 8760 hours of data
+2025-07-07 20:09:43,318 - INFO - Completed analysis for Byron Generating Station 1
+2025-07-07 20:09:43,320 - INFO - Analysis completed for 42 reactors
+2025-07-07 20:09:43,328 - INFO - Results saved to ../output/ancillary/analysis_results.csv
+ERROR - Error creating summary report: Path.replace() takes 2 positional arguments but 3 were given
+2025-07-07 20:09:43,332 - ERROR - Error creating summary report: Path.replace() takes 2 positional arguments but 3 were given
+2025-07-07 20:09:43,332 - INFO - Analysis completed successfully!
+2025-07-07 20:09:43,332 - INFO - Analyzed 42 reactors across 7 ISO regions
+
+=== Analysis Summary ===
+Total Reactors: 42
+ISO Regions: PJM, ERCOT, MISO, SPP, CAISO, NYISO, ISONE
+Average Service Diversity: 0.870
+Average Ancillary Revenue Share: 0.025
+Average Flexibility Score: 0.059

@@ -58,19 +58,19 @@ Techno-Economic Analysis Report - Comanche Peak_2_ERCOT_28
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 25,663 kg
+    H2 Storage Capacity                 : 25,643 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $-489,676,839
+    NPV                            : $-266,964,572
     IRR                            : N/A
-    Payback                        : 6.9 years
+    Payback                        : 5.0 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $-75,339,696
-    IRR                            : 11.5%
-    Payback                        : 3.3 years
+    NPV                            : $183,056,318
+    IRR                            : -0.3%
+    Payback                        : 2.7 years
 
   LCOH (Detailed Composition):
     Total LCOH: $2.381/kg
@@ -89,10 +89,10 @@ Techno-Economic Analysis Report - Comanche Peak_2_ERCOT_28
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $486,817,817
-    Total System OPEX                   : $430,385,373
-    Annual H2 Production                : 41,096,080 kg
-    Ancillary Services Revenue          : $10,324,913
+    Total Annual Revenue                : $486,816,358
+    Total System OPEX                   : $410,425,197
+    Annual H2 Production                : 41,094,604 kg
+    Ancillary Services Revenue          : $10,326,735
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -103,27 +103,27 @@ Techno-Economic Analysis Report - Comanche Peak_2_ERCOT_28
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $306,106,038
+    Total Incremental CAPEX: $306,102,945
     CAPEX Breakdown:
       Electrolyzer                       : $300,000,000 (98.0%)
-      H2 Storage                         : $4,106,038 (1.3%)
+      H2 Storage                         : $4,102,945 (1.3%)
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $1,070,505,061
+    NPV                            : $1,070,481,344
     IRR                            : 41.8%
     Payback                        : 1.9 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $306,105,238
-    Tax Shield Effect (Value)                     : $64,282,100
-    NPV Contribution from MACRS (Approximation)   : $64,282,100
+    Total Incremental MACRS Depreciation          : $306,102,145
+    Tax Shield Effect (Value)                     : $64,281,451
+    NPV Contribution from MACRS (Approximation)   : $64,281,451
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $250,079,607
-    Incremental Costs                   : $62,347,175
-    Electricity Opportunity Cost        : $50,277,141
-    Thermal Energy Opportunity Cost     : $2,899,482
+    Incremental Revenue                 : $250,072,819
+    Incremental Costs                   : $62,345,007
+    Electricity Opportunity Cost        : $50,275,376
+    Thermal Energy Opportunity Cost     : $2,899,377
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ Techno-Economic Analysis Report - Comanche Peak_2_ERCOT_28
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |   -10267.1 |     N/A |           N/A |  $23.244/kg |   $81.00/MWh |          N/A
-  60 years  | 45Y PTC      |    -8720.4 |     N/A |           N/A |  $19.742/kg |   $81.00/MWh |          N/A
-  60 years  | 48E ITC      |    -7463.0 |     N/A |           N/A |  $16.896/kg |   $81.00/MWh |          N/A
-  80 years  | Baseline     |   -10355.4 |     N/A |           N/A |  $22.950/kg |   $79.80/MWh |          N/A
-  80 years  | 45Y PTC      |    -8808.7 |     N/A |           N/A |  $19.522/kg |   $79.80/MWh |          N/A
-  80 years  | 48E ITC      |    -7551.3 |     N/A |           N/A |  $16.735/kg |   $79.80/MWh |          N/A
+  60 years  | Baseline     |   -10267.2 |     N/A |           N/A |  $23.245/kg |   $81.00/MWh |          N/A
+  60 years  | 45Y PTC      |    -8720.5 |     N/A |           N/A |  $19.743/kg |   $81.00/MWh |          N/A
+  60 years  | 48E ITC      |    -7463.1 |     N/A |           N/A |  $16.896/kg |   $81.00/MWh |          N/A
+  80 years  | Baseline     |   -10355.5 |     N/A |           N/A |  $22.951/kg |   $79.80/MWh |          N/A
+  80 years  | 45Y PTC      |    -8808.8 |     N/A |           N/A |  $19.523/kg |   $79.80/MWh |          N/A
+  80 years  | 48E ITC      |    -7551.4 |     N/A |           N/A |  $16.736/kg |   $79.80/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,8 +192,8 @@ Techno-Economic Analysis Report - Comanche Peak_2_ERCOT_28
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 10,532,809 MWh
-    Annual H2 Production                          : 41,096,080 kg
+    Total Nuclear Generation                      : 10,532,813 MWh
+    Annual H2 Production                          : 41,094,604 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
     Electrolyzer Capacity Factor                  : 98.9%
@@ -203,30 +203,30 @@ Techno-Economic Analysis Report - Comanche Peak_2_ERCOT_28
     Average Electricity Price                     : $26.22/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $10,324,913
+    Total AS Revenue                              : $10,326,735
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3364
-    HTE Heat Opportunity Cost                     : $2,899,482
+    HTE Heat Opportunity Cost                     : $2,899,377
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
       Electrolyzer System                     : $300,000,000 (96.4%)
       Grid Integration                        : $5,000,000 (1.6%)
-      H2 Storage System                       : $4,106,038 (1.3%)
+      H2 Storage System                       : $4,102,945 (1.3%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $311,106,038
+      Total CAPEX                             : $311,102,945
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $218,700,000
-      Nuclear Variable O&M                    : $10,532,809
-      Nuclear Fuel Cost                       : $105,328,089
+      Nuclear Variable O&M                    : $10,532,813
+      Nuclear Fuel Cost                       : $106,434,000
       Nuclear Additional Costs                : $60,750,000
-      H2/Battery VOM (Electrolyzer)           : $11,958,455
-      Water Cost (for H2)                     : $1,232,882
-      Ramping Costs                           : $11,874
-      H2 Storage Cycle Cost                   : $805,645
-      Calculated Total Annual OPEX            : $409,319,754
-      Reported Total System OPEX              : $430,385,373
+      H2/Battery VOM (Electrolyzer)           : $11,958,036
+      Water Cost (for H2)                     : $1,232,838
+      Ramping Costs                           : $11,894
+      H2 Storage Cycle Cost                   : $805,616
+      Calculated Total Annual OPEX            : $410,425,197
+      Reported Total System OPEX              : $410,425,197
 
     LCOH Detailed Composition (if H2 produced):
       Total LCOH: $2.381/kg
@@ -245,12 +245,12 @@ Techno-Economic Analysis Report - Comanche Peak_2_ERCOT_28
         Ramping Cost                            : $0.000/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $311,106,038
-    Total Tax Shield Value (at current tax rate)  : $65,332,268
+    Total MACRS Depreciation Over Lifetime        : $311,102,945
+    Total Tax Shield Value (at current tax rate)  : $65,331,619
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $4,106,038
+      H2 Storage System                             : $4,102,945
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

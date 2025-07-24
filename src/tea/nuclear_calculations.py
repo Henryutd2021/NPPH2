@@ -295,6 +295,11 @@ def calculate_nuclear_annual_opex(nuclear_capacity_mw: float, annual_generation_
     # Calculate annual costs
     fixed_om_annual = nuclear_capacity_mw * fixed_om_per_mw_month * 12
     variable_om_annual = annual_generation_mwh * variable_om_per_mwh
+
+    # Nuclear fuel costs based on electrical generation
+    # Note: This function is typically used for standalone nuclear plant analysis.
+    # For nuclear-hydrogen integrated systems, fuel costs should be calculated based
+    # on total thermal energy output (including thermal energy for hydrogen production)
     fuel_cost_annual = annual_generation_mwh * nuclear_fuel_cost_per_mwh
     additional_costs_annual = nuclear_capacity_mw * additional_costs_per_mw_year
 
@@ -3378,6 +3383,9 @@ def calculate_nuclear_baseline_financial_analysis(
     annual_variable_om = annual_generation_mwh * variable_om_per_mwh
 
     # Nuclear fuel costs
+    # Note: For baseline nuclear plant analysis (no hydrogen production),
+    # fuel cost based on electrical generation is appropriate since all thermal energy
+    # is used for electricity generation
     fuel_cost_per_mwh = opex_params["fuel_cost_per_mwh"]
     annual_fuel_cost = annual_generation_mwh * fuel_cost_per_mwh
 

@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "Perry",
+    "unit_id": "1",
+    "iso_region": "PJM",
+    "standardized_name": "Perry_Unit1_PJM"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:18:16.366902",
+    "end_time": "2025-07-14T12:18:24.061482",
+    "duration_seconds": 7.69458,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/Perry_Unit1_PJM_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/Perry_Unit1_PJM_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/Perry_Unit1_PJM_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for Perry",
+      "description": "",
+      "start_time": "2025-07-14T12:18:16.367770",
+      "end_time": "2025-07-14T12:18:24.061387",
+      "duration": 7.694040298461914,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Perry Unit 1",
+      "start_time": "2025-07-14T12:18:16.367869",
+      "end_time": "2025-07-14T12:18:16.370310",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:18:16.370356",
+      "end_time": "2025-07-14T12:18:16.989200",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:18:16.989346",
+      "end_time": "2025-07-14T12:18:24.021988",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:18:24.023347",
+      "end_time": "2025-07-14T12:18:24.023555",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "5787.3",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:18:16.367836",
+      "phase": "Enhanced TEA for Perry"
+    },
+    "Thermal Capacity": {
+      "value": "3,758.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:18:16.370201",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,311.6",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:18:16.370250",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3490",
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:16.370281",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:16.989074",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:24.023500",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:18:24.023529",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

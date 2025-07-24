@@ -26,9 +26,9 @@ ENV/
 *.out
 *.tmp
 *.bak
-*.json
-*.png
-*.txt
+# *.json
+# *.png
+# *.txt
 
 # ========== System Files ==========
 .DS_Store
@@ -41,16 +41,16 @@ data/data.ipynb
 !data/Raw/.gitkeep
 
 # Output directories (new structure)
-output/opt/*
+# output/opt/*
 # output/tea/*
-output/sa/*
-output/logs/*
+# output/sa/*
+# output/logs/*
 
 # Temporary run directories
 temp_sensitivity_runs/
 
 # Legacy directories (if they exist)
-.tea/
+# .tea/
 
 # Ignore model checkpoints or intermediate files
 checkpoints/

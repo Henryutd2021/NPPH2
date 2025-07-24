@@ -1,0 +1,47 @@
+--- Summary Results for CAISO ---
+Simulation_Mode: Dispatch Execution
+Target_ISO: CAISO
+Optimal_Electrolyzer_Capacity_MW: 200.0000
+Optimal_Battery_Capacity_MWh: 0.0000
+Optimal_Battery_Power_MW: 0.0000
+Optimal_H2_Storage_Capacity_kg: 14,709.8680
+Optimal_H2_Constant_Sales_Rate_kg_hr: 4,542.4663
+Total_Revenue_USD: 544,304,978.7402
+Total_Energy_Revenue_USD: 288,064,924.9100
+Total_Hydrogen_Revenue_USD: 243,646,421.9632
+Total_Hydrogen_Sales_Revenue_USD: 119,362,387.0911
+Total_Hydrogen_Subsidy_Revenue_USD: 124,284,034.8721
+Total_Ancillary_Revenue_USD: 12,593,631.8670
+Total_Hourly_Opex_USD: 393,882,176.2777
+Total_NPP_Opex_USD: 379,769,941.8744
+Total_H2_Battery_Opex_USD: 14,112,234.4033
+Total_VOM_Cost_USD: 22,136,776.9279
+Total_Water_Cost_USD: 1,242,840.3487
+Total_Ramping_Cost_USD: 4,004.2612
+Total_Storage_Cycle_Cost_USD: 812,154.7399
+Total_Startup_Cost_USD: 0.0000
+Total_Fuel_NPP_Cost_USD: 101,966,400.0000
+Total_Fixed_OM_NPP_Cost_USD: 267,720,000.0000
+Total_Annualized_Capex_USD: 43,797,687.0857
+Electrolyzer_Annualized_Capex_USD: 43,592,278.4884
+Battery_Annualized_Capex_USD: 0.0000
+H2_Storage_Annualized_Capex_USD: 205,408.5973
+Total_H2_Produced_kg: 41,428,011.6240
+Total_H2_to_Market_Direct_kg: 0.0000
+Total_H2_from_Storage_kg: 39,787,462.3637
+Final_H2_Storage_Level_kg: 5,000.0000
+Electrolyzer_Capacity_Factor_Actual: 0.9971
+Total_Electrolyzer_Startups: 0
+Final_DegradationState_Units: 0.0000
+Total_Deployed_NSR_MWh: 0.0000
+Total_Deployed_RampDown_MWh: 261,398.7779
+Total_Deployed_RampUp_MWh: 1,235.2824
+Total_Deployed_RegDown_MWh: 16,313.1721
+Total_Deployed_RegUp_MWh: 57,395.3279
+Total_Deployed_SR_MWh: 5.8238
+
+--- Profitability ---
+Objective_Value_USD: 374,345,115.3767
+Total_Profit_Calculated_USD: 106,625,115.3767
+Objective vs Calculated Profit Diff: -267,720,000.0000
+WARNING: Significant difference between objective and calculated profit!

@@ -1,0 +1,111 @@
+================================================================================
+NUCLEAR-HYDROGEN LCA ANALYSIS - OVERALL SUMMARY
+================================================================================
+
+Analysis Date: 2025-07-07 17:38:38
+Total Reactors Analyzed: 42
+
+OVERALL STATISTICS
+------------------------------
+Average Nuclear-Only Intensity: 6.29 gCO₂-eq/kWh
+Average Integrated Intensity: 7.92 gCO₂-eq/kWh
+Average Carbon Reduction: -26.0%
+Total Annual H₂ Production: 1,708,837,687 kg/year
+Total Annual Carbon Reduction: 59,385,035 kg CO₂-eq/year
+
+ISO REGION BREAKDOWN
+------------------------------
+
+SPP Region (2 reactors):
+  Average Nuclear-Only: 6.29 gCO₂-eq/kWh
+  Average Integrated: 7.96 gCO₂-eq/kWh
+  Average Reduction: -26.5%
+  Total H₂ Production: 81,933,455 kg/year
+
+PJM Region (17 reactors):
+  Average Nuclear-Only: 6.29 gCO₂-eq/kWh
+  Average Integrated: 7.97 gCO₂-eq/kWh
+  Average Reduction: -26.7%
+  Total H₂ Production: 677,618,128 kg/year
+
+MISO Region (12 reactors):
+  Average Nuclear-Only: 6.28 gCO₂-eq/kWh
+  Average Integrated: 7.86 gCO₂-eq/kWh
+  Average Reduction: -25.1%
+  Total H₂ Production: 494,901,585 kg/year
+
+ERCOT Region (4 reactors):
+  Average Nuclear-Only: 6.28 gCO₂-eq/kWh
+  Average Integrated: 7.71 gCO₂-eq/kWh
+  Average Reduction: -22.8%
+  Total H₂ Production: 164,384,320 kg/year
+
+CAISO Region (2 reactors):
+  Average Nuclear-Only: 6.29 gCO₂-eq/kWh
+  Average Integrated: 7.92 gCO₂-eq/kWh
+  Average Reduction: -26.0%
+  Total H₂ Production: 82,888,647 kg/year
+
+NYISO Region (2 reactors):
+  Average Nuclear-Only: 6.29 gCO₂-eq/kWh
+  Average Integrated: 8.21 gCO₂-eq/kWh
+  Average Reduction: -30.5%
+  Total H₂ Production: 82,777,512 kg/year
+
+ISONE Region (3 reactors):
+  Average Nuclear-Only: 6.29 gCO₂-eq/kWh
+  Average Integrated: 7.96 gCO₂-eq/kWh
+  Average Reduction: -26.6%
+  Total H₂ Production: 124,334,040 kg/year
+
+
+INDIVIDUAL REACTOR SUMMARY
+----------------------------------------
+Reactor Name                   ISO      Reduction %  H₂ (kg/year)   
+----------------------------------------------------------------------
+Grand Gulf_1                   MISO        -17.6%     41,203,962
+PSEG Hope Creek Generating S   PJM         -20.6%     39,863,074
+Perry_1                        PJM         -20.7%     39,872,716
+TalenEnergy Susquehanna_1      PJM         -21.2%     39,849,678
+TalenEnergy Susquehanna_2      PJM         -21.2%     39,851,878
+South Texas Project_1          ERCOT       -21.3%     41,096,080
+South Texas Project_2          ERCOT       -21.3%     41,096,080
+Millstone_3                    ISONE       -21.6%     41,443,005
+Wolf Creek Generating Statio   SPP         -21.7%     40,975,059
+Seabrook_1                     ISONE       -22.3%     41,445,517
+Braidwood Generation Station   PJM         -23.2%     39,863,074
+Braidwood Generation Station   PJM         -23.2%     39,863,074
+Nine Mile Point Nuclear Stat   NYISO       -23.5%     41,386,869
+Callaway_1                     MISO        -23.9%     41,246,390
+Byron Generating Station_1     MISO        -24.2%     41,251,975
+Byron Generating Station_2     MISO        -24.2%     41,251,975
+Comanche Peak_1                ERCOT       -24.3%     41,096,080
+Comanche Peak_2                ERCOT       -24.3%     41,096,080
+Fermi_2                        MISO        -24.4%     41,251,883
+PSEG Salem Generating Statio   PJM         -24.5%     39,863,074
+PSEG Salem Generating Statio   PJM         -24.5%     39,863,074
+Waterford 3_3                  MISO        -24.8%     41,229,632
+Limerick_1                     PJM         -25.4%     39,851,878
+Limerick_2                     PJM         -25.4%     39,851,878
+LaSalle Generating Station_1   MISO        -25.6%     41,247,291
+LaSalle Generating Station_2   MISO        -25.6%     41,247,291
+Diablo Canyon_2                CAISO       -25.9%     41,442,084
+Diablo Canyon_1                CAISO       -26.1%     41,446,563
+Donald C Cook_1                MISO        -26.1%     41,217,501
+Clinton Power Station_1        MISO        -26.5%     41,250,855
+Donald C Cook_2                MISO        -28.8%     41,250,855
+River Bend_1                   MISO        -30.0%     41,251,975
+Beaver Valley_1                PJM         -30.9%     39,851,878
+North Anna_1                   PJM         -30.9%     39,863,074
+North Anna_2                   PJM         -30.9%     39,863,074
+Beaver Valley_2                PJM         -30.9%     39,857,605
+Arkansas Nuclear One_2         SPP         -31.3%     40,958,396
+Calvert Cliffs Nuclear Power   PJM         -33.0%     39,862,951
+Davis Besse_1                  PJM         -33.3%     39,863,074
+Calvert Cliffs Nuclear Power   PJM         -33.7%     39,863,074
+Millstone_2                    ISONE       -36.0%     41,445,518
+James A Fitzpatrick_1          NYISO       -37.5%     41,390,643
+
+================================================================================
+END OF SUMMARY
+================================================================================

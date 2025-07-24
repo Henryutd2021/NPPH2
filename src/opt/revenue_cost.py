@@ -548,19 +548,61 @@ def opex_cost_rule(m):
             )
 
             # Add nuclear power plant fixed O&M cost (annual cost distributed over simulation period)
-            if hasattr(m, "npp_fixed_om_cost") and hasattr(m, "pTurbine_max"):
+            if hasattr(m, "npp_fixed_om_cost"):
                 # Convert annual fixed O&M cost ($/MW/year) to hourly cost
-                # npp_fixed_om_cost is in $/MW/year, pTurbine_max is the nuclear capacity in MW
-                annual_fixed_om_total = m.npp_fixed_om_cost * m.pTurbine_max
-                # Convert to hourly cost for the simulation period
-                hours_in_simulation = len(m.TimePeriods) * time_factor
-                cost_fixed_om_npp_expr = annual_fixed_om_total * hours_in_simulation / 8760.0
+                # npp_fixed_om_cost is in $/MW/year
+                # Use nameplate capacity if available, otherwise fallback to pTurbine_max
+                npp_nameplate_capacity = getattr(
+                    m, "npp_nameplate_capacity_mw", None)
+                if npp_nameplate_capacity is not None:
+                    # Use actual nameplate capacity for fixed O&M calculation
+                    annual_fixed_om_total = m.npp_fixed_om_cost * npp_nameplate_capacity
+                elif hasattr(m, "pTurbine_max"):
+                    # Fallback to pTurbine_max if nameplate capacity not available
+                    annual_fixed_om_total = m.npp_fixed_om_cost * m.pTurbine_max
+                else:
+                    annual_fixed_om_total = 0.0
 
-            # Add nuclear fuel cost (variable cost based on generation)
+                if annual_fixed_om_total > 0:
+                    # Convert to hourly cost for the simulation period
+                    hours_in_simulation = len(m.TimePeriods) * time_factor
+                    cost_fixed_om_npp_expr = annual_fixed_om_total * hours_in_simulation / 8760.0
+
+            # Add nuclear fuel cost (variable cost based on total thermal energy output)
             if hasattr(m, "npp_fuel_cost"):
-                cost_fuel_npp_expr = sum(
-                    m.npp_fuel_cost * m.pTurbine[t] * time_factor for t in m.TimePeriods
-                )
+                # For accurate fuel cost calculation, use total thermal energy output
+                # instead of just electrical generation
+                if hasattr(m, "qSteam_Turbine"):
+                    # Calculate total thermal energy used (for electricity + hydrogen production)
+                    total_thermal_energy_expr = sum(
+                        m.qSteam_Turbine[t] for t in m.TimePeriods
+                    )
+
+                    # Add thermal energy for electrolyzer (HTE mode only)
+                    if (not getattr(m, "LTE_MODE", False) and
+                            hasattr(m, "qSteam_Electrolyzer")):
+                        total_thermal_energy_expr += sum(
+                            m.qSteam_Electrolyzer[t] for t in m.TimePeriods
+                        )
+
+                    # Fuel cost should be proportional to total thermal energy output
+                    # Convert electrical fuel cost ($/MWh_elec) to thermal fuel cost ($/MWh_th)
+                    # Assuming thermal efficiency for conversion
+                    thermal_efficiency = getattr(m, "convertTtE_const", 0.4)
+                    if thermal_efficiency > 0:
+                        fuel_cost_per_mwh_thermal = m.npp_fuel_cost * thermal_efficiency
+                        cost_fuel_npp_expr = fuel_cost_per_mwh_thermal * \
+                            total_thermal_energy_expr * time_factor
+                    else:
+                        # Fallback to original calculation if thermal efficiency not available
+                        cost_fuel_npp_expr = sum(
+                            m.npp_fuel_cost * m.pTurbine[t] * time_factor for t in m.TimePeriods
+                        )
+                else:
+                    # Fallback to original calculation if thermal variables not available
+                    cost_fuel_npp_expr = sum(
+                        m.npp_fuel_cost * m.pTurbine[t] * time_factor for t in m.TimePeriods
+                    )
 
         cost_vom_electrolyzer_expr = 0.0
         if (

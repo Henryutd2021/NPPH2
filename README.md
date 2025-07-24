@@ -32,10 +32,30 @@ The primary focus is on enhancing nuclear power plant flexibility through the in
   - Non-spinning reserves
   - Responsive reserves (ECRS)
   - Ramping products
-- **Life Cycle Assessment (LCA)**:
-  - Before/after retrofit carbon footprint analysis
-  - Monte Carlo uncertainty analysis
-  - Detailed reporting of carbon emissions from the entire lifecycle
+
+## Optimization and Techno-Economic Analysis (TEA)
+
+The project includes comprehensive models for optimization and techno-economic analysis:
+
+- **Optimization Framework**: Utilizes Pyomo to optimize the allocation of electricity between grid sales and hydrogen production, maximizing profits while considering ancillary services.
+- **Techno-Economic Assessment (TEA)**: Evaluates the economic feasibility of different system configurations, including:
+  - Levelized Cost of Hydrogen (LCOH) and Levelized Cost of Storage (LCOS)
+  - Net Present Value (NPV), Internal Rate of Return (IRR), and payback period calculations
+  - Revenue optimization from energy and ancillary services markets
+  - Investment analysis and strategic recommendations
+
+## Life Cycle Assessment (LCA)
+
+The project includes a comprehensive Life Cycle Assessment (LCA) framework to evaluate the environmental impact of nuclear-hydrogen systems.
+
+- **Before/After Retrofit Analysis**: Compares the carbon footprint of the nuclear plant before and after the integration of hydrogen production and/or battery storage.
+- **Comprehensive Scope**: The analysis covers the entire lifecycle, including:
+  - Nuclear fuel cycle (mining, milling, enrichment, fabrication)
+  - Plant construction, operation, and decommissioning
+  - Electrolyzer manufacturing
+  - Grid electricity displacement effects
+- **Uncertainty Analysis**: Employs Monte Carlo simulations to account for uncertainties in LCA parameters.
+- **Detailed Reporting**: Generates detailed reports for each plant, quantifying carbon intensity (gCO₂-eq/kWh) and total emissions.
 
 ## Business Case Analysis
 
@@ -64,87 +84,56 @@ For the complete list of dependencies, see `requirements.txt`.
 
 ## Project Structure
 
-- `src/`: Core model implementation
-  - `opt/`: Optimization framework
-    - `model.py`: Main optimization model
-    - `constraints.py`: Constraint definitions
-    - `revenue_cost.py`: Revenue and cost calculations
-    - `config.py`: Configuration parameters
-    - `data_io.py`: Data input/output utilities
-    - `utils.py`: Common utility functions
-    - `result_processing.py`: Tools for analyzing optimization results
-  - `tea/`: Techno-economic analysis framework
-    - `tea.py`: Main TEA calculations
-    - `calculations.py`: Economic calculations
-    - `data_loader.py`: TEA data loading utilities
-    - `config.py`: TEA configuration parameters
-  - `lca/`: Life Cycle Assessment framework
-  - `logger_utils/`: Unified logging system
-- `input/`: Input data files
-  - `hourly_data/`: ISO-specific hourly market data
-- `output/`: All output results organized by category
-  - `opt/`: Optimization results
-    - `cs1/`: Case study 1 results
-    - `Results_Standardized/`: Standardized optimization results
-  - `tea/`: Techno-economic analysis results
-    - `cs1/`: Case study 1 TEA results
-  - `lca/`: Life Cycle Assessment results
-  - `sa/`: Sensitivity analysis results
-  - `logs/`: All system logs
-- `run/`: Execution scripts
-  - `opt_main.py`: Main optimization runner
-  - `opt_cs1.py`: Case study 1 optimization
-  - `tea_cs1.py`: TEA analysis for case study 1
-  - `run_lca.py`: LCA analysis runner
-  - `sa.py`: Sensitivity analysis runner
-- `tests/`: Test cases
-- `flex/`: Flexibility analysis tools
-- `data/`: Data utilities and sources
-  - `data_gen.py`: Generates synthetic datasets
-  - `data_ana.ipynb`: Data analysis notebook
-  - `Raw/`: Raw downloaded data files
+- `src/`: Core model implementation, including optimization, TEA, and LCA frameworks.
+- `executables/`: Main execution scripts organized by function.
+  - `opt/`: Optimization-related scripts (`opt_main.py`, `opt_cs1.py`).
+  - `tea/`: TEA analysis scripts (`tea_main.py`, `tea_cs1.py`, etc.).
+  - `lca/`: LCA analysis scripts (`run_lca.py`).
+  - `sensitivity/`: Sensitivity analysis scripts (`sa.py`, etc.).
+- `tools/`: Utility and analysis scripts for parsing, analysis, and data extraction.
+- `plotting/`: Summary of results data used for plotting and plotting Jupyter notebook.
+- `docs/`: Project documentation and guides.
+- `input/`: Input data files, including ISO-specific hourly market data.
+- `output/`: All output results, organized by category (optimization, TEA, LCA, sensitivity, logs).
+- `tests/`: Test cases for the project.
 
 ## Usage
 
-1. Configure the system in `src/opt/config.py` and `src/tea/config.py`
-2. Prepare input data files in the `input/` directory
-3. Run the optimization model with:
+1. Configure the system in `src/opt/config.py` and `src/tea/config.py`.
+2. Prepare input data files in the `input/` directory.
+3. Run the desired analysis from the project root directory. For example:
 
-   ```bash
-   python run/opt_main.py
-   ```
+    - **Run the main optimization model:**
 
-4. The techno-economic analysis (TEA) mode performs detailed financial assessment including:
+        ```bash
+        python executables/opt/opt_main.py
+        ```
 
-    ```bash
-    python run/tea_cs1.py
-    ```
+    - **Run the Techno-Economic Analysis (TEA) for Case Study 1:**
 
-    - Net Present Value (NPV) calculations
-    - Internal Rate of Return (IRR) analysis
-    - Payback period estimation
-    - Levelized cost metrics (LCOH, LCOS)
-    - Annual cash flow projections
+        ```bash
+        python executables/tea/tea_cs1.py
+        ```
 
-5. The life cycle assessment (LCA) mode evaluates the environmental impact:
+        This performs a detailed financial assessment, including NPV, IRR, payback period, levelized costs (LCOH, LCOS), and cash flow projections.
 
-    ```bash
-    python run/run_lca.py
-    ```
+    - **Run the Life Cycle Assessment (LCA):**
 
-6. The sensitivity analysis (SA) mode evaluates system performance across parameter variations:
+        ```bash
+        python executables/lca/run_lca.py
+        ```
 
-    ```bash
-    python run/sa.py
-    ```
+        This evaluates the environmental impact and carbon footprint.
 
-    - Parameter variations (capital costs, efficiencies, etc.)
-    - Market scenarios (different price trajectories)
-    - Technology combinations
-    - Operating strategies
-    - Policy scenarios (subsidies, carbon pricing)
+    - **Run a sensitivity analysis:**
 
-7. Use `src/opt/result_processing.py` for automated result processing and analysis
+        ```bash
+        python executables/sensitivity/sa.py
+        ```
+
+        This evaluates system performance across variations in parameters, market scenarios, and technologies.
+
+4. Use scripts in `tools/` for post-processing and `src/opt/result_processing.py` for automated result analysis.
 
 ## Configuration Options
 
@@ -193,19 +182,6 @@ The project includes comprehensive models for hydrogen cost analysis:
 - Water consumption costs
 - Compression and storage costs
 - Capital recovery factor calculations
-
-## Life Cycle Assessment (LCA)
-
-The project includes a comprehensive Life Cycle Assessment (LCA) framework to evaluate the environmental impact of nuclear-hydrogen systems.
-
-- **Before/After Retrofit Analysis**: Compares the carbon footprint of the nuclear plant before and after the integration of hydrogen production and/or battery storage.
-- **Comprehensive Scope**: The analysis covers the entire lifecycle, including:
-  - Nuclear fuel cycle (mining, milling, enrichment, fabrication)
-  - Plant construction, operation, and decommissioning
-  - Electrolyzer manufacturing
-  - Grid electricity displacement effects
-- **Uncertainty Analysis**: Employs Monte Carlo simulations to account for uncertainties in LCA parameters.
-- **Detailed Reporting**: Generates detailed reports for each plant, quantifying carbon intensity (gCO₂-eq/kWh) and total emissions.
 
 ## Sensitivity Analysis
 

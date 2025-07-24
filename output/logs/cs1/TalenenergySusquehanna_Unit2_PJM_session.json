@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "TalenenergySusquehanna",
+    "unit_id": "2",
+    "iso_region": "PJM",
+    "standardized_name": "TalenenergySusquehanna_Unit2_PJM"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:19:02.439246",
+    "end_time": "2025-07-14T12:19:10.121451",
+    "duration_seconds": 7.682205,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/TalenenergySusquehanna_Unit2_PJM_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/TalenenergySusquehanna_Unit2_PJM_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/TalenenergySusquehanna_Unit2_PJM_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for TalenenergySusquehanna",
+      "description": "",
+      "start_time": "2025-07-14T12:19:02.439995",
+      "end_time": "2025-07-14T12:19:10.121352",
+      "duration": 7.681781530380249,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up TalenEnergy Susquehanna Unit 2",
+      "start_time": "2025-07-14T12:19:02.440275",
+      "end_time": "2025-07-14T12:19:02.442616",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:19:02.442662",
+      "end_time": "2025-07-14T12:19:03.059534",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:19:03.059691",
+      "end_time": "2025-07-14T12:19:10.063521",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:19:10.064913",
+      "end_time": "2025-07-14T12:19:10.065132",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "5777.1",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:19:02.440211",
+      "phase": "Enhanced TEA for TalenenergySusquehanna"
+    },
+    "Thermal Capacity": {
+      "value": "3,952.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:19:02.442506",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "1,266.0",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:19:02.442555",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3203",
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:02.442587",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:03.059411",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:10.065068",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:19:10.065103",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

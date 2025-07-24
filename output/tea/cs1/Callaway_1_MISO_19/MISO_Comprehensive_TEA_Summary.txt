@@ -58,22 +58,22 @@ Techno-Economic Analysis Report - Callaway_1_MISO_19
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 17,182 kg
+    H2 Storage Capacity                 : 17,931 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $-278,892,617
+    NPV                            : $-101,786,596
     IRR                            : N/A
-    Payback                        : 7.0 years
+    Payback                        : 5.0 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $117,900,505
-    IRR                            : -3.5%
-    Payback                        : 3.1 years
+    NPV                            : $328,250,657
+    IRR                            : -13.8%
+    Payback                        : 2.6 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $2.499/kg
+    Total LCOH: $2.500/kg
       Electricity Opportunity Cost Electrolyzer: $1.141/kg (44.8%)
       Electrolyzer System                     : $0.652/kg (25.6%)
       Vom Electrolyzer                        : $0.291/kg (11.4%)
@@ -89,10 +89,10 @@ Techno-Economic Analysis Report - Callaway_1_MISO_19
       Ramping Cost                            : $0.000/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $493,670,834
-    Total System OPEX                   : $437,537,367
-    Annual H2 Production                : 41,246,390 kg
-    Ancillary Services Revenue          : $7,111,327
+    Total Annual Revenue                : $493,552,032
+    Total System OPEX                   : $417,250,819
+    Annual H2 Production                : 41,220,082 kg
+    Ancillary Services Revenue          : $7,048,284
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -103,27 +103,27 @@ Techno-Economic Analysis Report - Callaway_1_MISO_19
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $304,749,064
+    Total Incremental CAPEX: $304,869,016
     CAPEX Breakdown:
       Electrolyzer                       : $300,000,000 (98.4%)
-      H2 Storage                         : $2,749,064 (0.9%)
+      H2 Storage                         : $2,869,016 (0.9%)
       NPP Modifications                  : $2,000,000 (0.7%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $926,233,770
-    IRR                            : 41.1%
+    NPV                            : $924,910,213
+    IRR                            : 41.0%
     Payback                        : 1.9 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $304,748,264
-    Tax Shield Effect (Value)                     : $63,997,135
-    NPV Contribution from MACRS (Approximation)   : $63,997,135
+    Total Incremental MACRS Depreciation          : $304,868,216
+    Tax Shield Effect (Value)                     : $64,022,325
+    NPV Contribution from MACRS (Approximation)   : $64,022,325
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $247,603,553
-    Incremental Costs                   : $64,214,860
-    Electricity Opportunity Cost        : $52,235,754
-    Thermal Energy Opportunity Cost     : $3,094,976
+    Incremental Revenue                 : $247,389,534
+    Incremental Costs                   : $64,175,179
+    Electricity Opportunity Cost        : $52,202,723
+    Thermal Energy Opportunity Cost     : $3,093,002
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ Techno-Economic Analysis Report - Callaway_1_MISO_19
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |   -10471.4 |     N/A |           N/A |  $23.620/kg |   $81.14/MWh |          N/A
-  60 years  | 45Y PTC      |    -8898.5 |     N/A |           N/A |  $20.072/kg |   $81.14/MWh |          N/A
-  60 years  | 48E ITC      |    -7621.4 |     N/A |           N/A |  $17.191/kg |   $81.14/MWh |          N/A
-  80 years  | Baseline     |   -10561.0 |     N/A |           N/A |  $23.320/kg |   $79.95/MWh |          N/A
-  80 years  | 45Y PTC      |    -8988.1 |     N/A |           N/A |  $19.847/kg |   $79.95/MWh |          N/A
-  80 years  | 48E ITC      |    -7711.0 |     N/A |           N/A |  $17.027/kg |   $79.95/MWh |          N/A
+  60 years  | Baseline     |   -10474.1 |     N/A |           N/A |  $23.641/kg |   $81.14/MWh |          N/A
+  60 years  | 45Y PTC      |    -8901.2 |     N/A |           N/A |  $20.091/kg |   $81.14/MWh |          N/A
+  60 years  | 48E ITC      |    -7624.1 |     N/A |           N/A |  $17.208/kg |   $81.14/MWh |          N/A
+  80 years  | Baseline     |   -10563.8 |     N/A |           N/A |  $23.341/kg |   $79.95/MWh |          N/A
+  80 years  | 45Y PTC      |    -8990.8 |     N/A |           N/A |  $19.866/kg |   $79.95/MWh |          N/A
+  80 years  | 48E ITC      |    -7713.7 |     N/A |           N/A |  $17.044/kg |   $79.95/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,44 +192,44 @@ Techno-Economic Analysis Report - Callaway_1_MISO_19
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 10,711,225 MWh
-    Annual H2 Production                          : 41,246,390 kg
+    Total Nuclear Generation                      : 10,711,298 MWh
+    Annual H2 Production                          : 41,220,082 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
-    Electrolyzer Capacity Factor                  : 99.3%
+    Electrolyzer Capacity Factor                  : 99.2%
     Turbine Capacity Factor                       : 98.9%
     Battery Capacity Factor                       : 0.0%
     Average Prices
     Average Electricity Price                     : $27.06/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $7,111,327
+    Total AS Revenue                              : $7,048,284
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3466
-    HTE Heat Opportunity Cost                     : $3,094,976
+    HTE Heat Opportunity Cost                     : $3,093,002
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $300,000,000 (96.9%)
+      Electrolyzer System                     : $300,000,000 (96.8%)
       Grid Integration                        : $5,000,000 (1.6%)
-      H2 Storage System                       : $2,749,064 (0.9%)
+      H2 Storage System                       : $2,869,016 (0.9%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $309,749,064
+      Total CAPEX                             : $309,869,016
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $222,444,000
-      Nuclear Variable O&M                    : $10,711,225
-      Nuclear Fuel Cost                       : $107,112,246
+      Nuclear Variable O&M                    : $10,711,298
+      Nuclear Fuel Cost                       : $108,256,080
       Nuclear Additional Costs                : $61,790,000
-      H2/Battery VOM (Electrolyzer)           : $12,001,375
-      Water Cost (for H2)                     : $1,237,391
-      Ramping Costs                           : $10,111
-      H2 Storage Cycle Cost                   : $808,569
-      Calculated Total Annual OPEX            : $416,114,918
-      Reported Total System OPEX              : $437,537,367
+      H2/Battery VOM (Electrolyzer)           : $11,993,801
+      Water Cost (for H2)                     : $1,236,602
+      Ramping Costs                           : $10,977
+      H2 Storage Cycle Cost                   : $808,061
+      Calculated Total Annual OPEX            : $417,250,818
+      Reported Total System OPEX              : $417,250,819
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $2.499/kg
+      Total LCOH: $2.500/kg
         Electricity Opportunity Cost Electrolyzer: $1.141/kg (44.8%)
         Electrolyzer System                     : $0.652/kg (25.6%)
         Vom Electrolyzer                        : $0.291/kg (11.4%)
@@ -245,12 +245,12 @@ Techno-Economic Analysis Report - Callaway_1_MISO_19
         Ramping Cost                            : $0.000/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $309,749,064
-    Total Tax Shield Value (at current tax rate)  : $65,047,303
+    Total MACRS Depreciation Over Lifetime        : $309,869,016
+    Total Tax Shield Value (at current tax rate)  : $65,072,493
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $2,749,064
+      H2 Storage System                             : $2,869,016
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

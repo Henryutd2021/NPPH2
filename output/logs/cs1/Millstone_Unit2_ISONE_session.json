@@ -1,0 +1,118 @@
+{
+  "reactor_info": {
+    "name": "Millstone",
+    "unit_id": "2",
+    "iso_region": "ISONE",
+    "standardized_name": "Millstone_Unit2_ISONE"
+  },
+  "session_info": {
+    "start_time": "2025-07-14T12:16:58.646981",
+    "end_time": "2025-07-14T12:17:06.325372",
+    "duration_seconds": 7.678391,
+    "log_files": {
+      "main_log": "/home/honglin/NPPH2/output/logs/cs1/Millstone_Unit2_ISONE_main.log",
+      "data_issues": "/home/honglin/NPPH2/output/logs/cs1/Millstone_Unit2_ISONE_data_issues.log",
+      "session_summary": "/home/honglin/NPPH2/output/logs/cs1/Millstone_Unit2_ISONE_session.json"
+    }
+  },
+  "analysis_phases": [
+    {
+      "name": "Enhanced TEA for Millstone",
+      "description": "",
+      "start_time": "2025-07-14T12:16:58.647633",
+      "end_time": "2025-07-14T12:17:06.325268",
+      "duration": 7.677962064743042,
+      "status": "completed"
+    },
+    {
+      "name": "Plant Parameter Extraction",
+      "description": "Looking up Millstone Unit 2",
+      "start_time": "2025-07-14T12:16:58.647737",
+      "end_time": "2025-07-14T12:16:58.650153",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "Found 5 parameters"
+    },
+    {
+      "name": "CSV Enhancement",
+      "description": "Adding plant-specific parameters to input file",
+      "start_time": "2025-07-14T12:16:58.650201",
+      "end_time": "2025-07-14T12:16:59.114018",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Main TEA Analysis",
+      "description": "Starting core calculations (NO PLOTTING)",
+      "start_time": "2025-07-14T12:16:59.114179",
+      "end_time": "2025-07-14T12:17:06.256134",
+      "duration": null,
+      "status": "completed"
+    },
+    {
+      "name": "Results Validation",
+      "description": "Checking generated output files (NO PLOTTING mode)",
+      "start_time": "2025-07-14T12:17:06.257254",
+      "end_time": "2025-07-14T12:17:06.257462",
+      "duration": null,
+      "status": "completed",
+      "results_summary": "2 reports, 0 plots (plotting disabled)"
+    }
+  ],
+  "calculation_results": {
+    "Input file size": {
+      "value": "4393.2",
+      "unit": "KB",
+      "timestamp": "2025-07-14T12:16:58.647702",
+      "phase": "Enhanced TEA for Millstone"
+    },
+    "Thermal Capacity": {
+      "value": "2,700.0",
+      "unit": "MWt",
+      "timestamp": "2025-07-14T12:16:58.650033",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Nameplate Capacity": {
+      "value": "909.9",
+      "unit": "MW",
+      "timestamp": "2025-07-14T12:16:58.650082",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Thermal Efficiency": {
+      "value": "0.3370",
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:58.650123",
+      "phase": "Plant Parameter Extraction"
+    },
+    "Enhanced CSV Columns": {
+      "value": 5,
+      "unit": "",
+      "timestamp": "2025-07-14T12:16:59.113897",
+      "phase": "CSV Enhancement"
+    },
+    "Generated Reports": {
+      "value": 2,
+      "unit": "",
+      "timestamp": "2025-07-14T12:17:06.257408",
+      "phase": "Results Validation"
+    },
+    "Generated Plots": {
+      "value": 0,
+      "unit": "",
+      "timestamp": "2025-07-14T12:17:06.257435",
+      "phase": "Results Validation"
+    }
+  },
+  "data_issues": {
+    "total_count": 0,
+    "by_type": {},
+    "by_impact": {},
+    "summary": {
+      "missing_data": 0,
+      "invalid_data": 0,
+      "fallback_usage": 0,
+      "critical_issues": 0,
+      "high_impact": 0
+    }
+  }
+}

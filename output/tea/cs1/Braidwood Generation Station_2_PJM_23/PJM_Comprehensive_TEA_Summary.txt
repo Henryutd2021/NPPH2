@@ -58,22 +58,22 @@ Techno-Economic Analysis Report - Braidwood Generation Station_2_PJM_23
 
   New System Capacities (Electrolyzer, H2 Storage, Battery):
     Electrolyzer Capacity               : 200.00 MW
-    H2 Storage Capacity                 : 49,094 kg
+    H2 Storage Capacity                 : 50,510 kg
     Battery Energy Capacity             : 0.00 MWh
     Battery Power Capacity              : 0.00 MW
 
   Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):
-    NPV                            : $71,498,457
-    IRR                            : -0.2%
-    Payback                        : 3.7 years
+    NPV                            : $266,081,927
+    IRR                            : -9.9%
+    Payback                        : 3.1 years
 
   45U PTC Policy Impact on Nuclear Portion (Integrated System Financials with 45U for Nuclear):
-    NPV                            : $579,306,668
-    IRR                            : -16.0%
-    Payback                        : 2.1 years
+    NPV                            : $794,043,805
+    IRR                            : -32.4%
+    Payback                        : 1.9 years
 
   LCOH (Detailed Composition):
-    Total LCOH: $2.672/kg
+    Total LCOH: $2.674/kg
       Electricity Opportunity Cost Electrolyzer: $1.318/kg (46.8%)
       Electrolyzer System                     : $0.612/kg (21.7%)
       Vom Electrolyzer                        : $0.291/kg (10.3%)
@@ -89,10 +89,10 @@ Techno-Economic Analysis Report - Braidwood Generation Station_2_PJM_23
       Ramping Cost                            : $0.001/kg (0.0%)
 
   Key Annual Operating Data (Total Revenue, Total OPEX, H2 Production, AS Revenue etc.):
-    Total Annual Revenue                : $536,554,584
-    Total System OPEX                   : $433,458,508
-    Annual H2 Production                : 39,863,074 kg
-    Ancillary Services Revenue          : $20,142,771
+    Total Annual Revenue                : $536,513,096
+    Total System OPEX                   : $413,270,232
+    Annual H2 Production                : 39,817,659 kg
+    Ancillary Services Revenue          : $20,248,157
 
 4. Case 3: Incremental System Financial Analysis (Hydrogen and Battery Systems)
 ---------------------------------------------------------------------------
@@ -103,27 +103,27 @@ Techno-Economic Analysis Report - Braidwood Generation Station_2_PJM_23
     project, considering its own CAPEX, revenues, and opportunity costs.
 
   Incremental Investment CAPEX:
-    Total Incremental CAPEX: $309,855,101
+    Total Incremental CAPEX: $310,081,570
     CAPEX Breakdown:
-      Electrolyzer                       : $300,000,000 (96.8%)
-      H2 Storage                         : $7,855,101 (2.5%)
+      Electrolyzer                       : $300,000,000 (96.7%)
+      H2 Storage                         : $8,081,570 (2.6%)
       NPP Modifications                  : $2,000,000 (0.6%)
 
   Incremental Financial Metrics (NPV, IRR, Payback):
-    NPV                            : $983,038,368
+    NPV                            : $982,657,649
     IRR                            : 40.4%
     Payback                        : 2.0 years
 
   MACRS Depreciation Impact on Incremental Project:
-    Total Incremental MACRS Depreciation          : $309,854,301
-    Tax Shield Effect (Value)                     : $65,069,403
-    NPV Contribution from MACRS (Approximation)   : $65,069,403
+    Total Incremental MACRS Depreciation          : $310,080,770
+    Tax Shield Effect (Value)                     : $65,116,962
+    NPV Contribution from MACRS (Approximation)   : $65,116,962
 
   Key Annual Incremental Operating Data (Incremental Revenue, Cost, Opportunity Costs):
-    Incremental Revenue                 : $252,332,521
-    Incremental Costs                   : $69,517,625
-    Electricity Opportunity Cost        : $58,122,729
-    Thermal Energy Opportunity Cost     : $3,347,217
+    Incremental Revenue                 : $252,179,589
+    Incremental Costs                   : $69,440,947
+    Electricity Opportunity Cost        : $58,057,661
+    Thermal Energy Opportunity Cost     : $3,343,403
 
 5. Case 4: Greenfield Nuclear-Hydrogen Project (60-year) - Federal Tax Incentive Analysis
 ------------------------------------------------------------------------------------------
@@ -148,12 +148,12 @@ Techno-Economic Analysis Report - Braidwood Generation Station_2_PJM_23
   -----------------------------------------------------------------------------------------------------------
   Lifecycle | Tax Scenario |   NPV ($M) | IRR (%) | Payback (yrs) | LCOH ($/kg) | LCOE ($/MWh) | LCOS ($/MWh)
   -----------------------------------------------------------------------------------------------------------
-  60 years  | Baseline     |   -10375.7 |     N/A |           N/A |  $24.216/kg |   $80.67/MWh |          N/A
-  60 years  | 45Y PTC      |    -8815.8 |     N/A |           N/A |  $20.576/kg |   $80.67/MWh |          N/A
-  60 years  | 48E ITC      |    -7549.8 |     N/A |           N/A |  $17.621/kg |   $80.67/MWh |          N/A
-  80 years  | Baseline     |   -10466.0 |     N/A |           N/A |  $23.913/kg |   $79.48/MWh |          N/A
-  80 years  | 45Y PTC      |    -8906.0 |     N/A |           N/A |  $20.348/kg |   $79.48/MWh |          N/A
-  80 years  | 48E ITC      |    -7640.0 |     N/A |           N/A |  $17.456/kg |   $79.48/MWh |          N/A
+  60 years  | Baseline     |   -10378.5 |     N/A |           N/A |  $24.250/kg |   $80.67/MWh |          N/A
+  60 years  | 45Y PTC      |    -8818.5 |     N/A |           N/A |  $20.605/kg |   $80.67/MWh |          N/A
+  60 years  | 48E ITC      |    -7552.5 |     N/A |           N/A |  $17.647/kg |   $80.67/MWh |          N/A
+  80 years  | Baseline     |   -10468.9 |     N/A |           N/A |  $23.946/kg |   $79.48/MWh |          N/A
+  80 years  | 45Y PTC      |    -8908.9 |     N/A |           N/A |  $20.378/kg |   $79.48/MWh |          N/A
+  80 years  | 48E ITC      |    -7642.9 |     N/A |           N/A |  $17.482/kg |   $79.48/MWh |          N/A
   -----------------------------------------------------------------------------------------------------------
 
   Different Lifecycle Key Differences Analysis and Conclusions:
@@ -192,44 +192,44 @@ Techno-Economic Analysis Report - Braidwood Generation Station_2_PJM_23
 ----------------------------------------
   A. Annual System Performance Indicators (from typical year `annual_metrics_rpt`):
     Total Generation/H2 Production/Battery Throughput
-    Total Nuclear Generation                      : 10,622,956 MWh
-    Annual H2 Production                          : 39,863,074 kg
+    Total Nuclear Generation                      : 10,623,078 MWh
+    Annual H2 Production                          : 39,817,659 kg
     Battery Annual Throughput                     : 0 MWh
     Capacity Factors
-    Electrolyzer Capacity Factor                  : 96.0%
+    Electrolyzer Capacity Factor                  : 95.9%
     Turbine Capacity Factor                       : 99.0%
     Battery Capacity Factor                       : 0.0%
     Average Prices
     Average Electricity Price                     : $31.23/MWh
     Average Hydrogen Price (if set)               : $N/A/kg
     Ancillary Services
-    Total AS Revenue                              : $20,142,771
+    Total AS Revenue                              : $20,248,157
     Thermal Energy Utilization
     HTE Thermal Efficiency                        : 0.3360
-    HTE Heat Opportunity Cost                     : $3,347,217
+    HTE Heat Opportunity Cost                     : $3,343,403
 
   B. Detailed Cost Composition (based on primary analysis case, e.g., Case 2 or Case 4 Baseline):
     Total CAPEX Composition Details:
-      Electrolyzer System                     : $300,000,000 (95.3%)
-      H2 Storage System                       : $7,855,101 (2.5%)
+      Electrolyzer System                     : $300,000,000 (95.2%)
+      H2 Storage System                       : $8,081,570 (2.6%)
       Grid Integration                        : $5,000,000 (1.6%)
       NPP Modifications                       : $2,000,000 (0.6%)
-      Total CAPEX                             : $314,855,101
+      Total CAPEX                             : $315,081,570
 
     Total Annual OPEX Composition Details (Fixed, Variable, Fuel, etc.):
       Nuclear Fixed O&M                       : $220,482,000
-      Nuclear Variable O&M                    : $10,622,956
-      Nuclear Fuel Cost                       : $106,229,560
+      Nuclear Variable O&M                    : $10,623,078
+      Nuclear Fuel Cost                       : $107,301,240
       Nuclear Additional Costs                : $61,245,000
-      H2/Battery VOM (Electrolyzer)           : $11,606,395
-      Water Cost (for H2)                     : $1,195,892
-      Ramping Costs                           : $49,366
-      H2 Storage Cycle Cost                   : $781,426
-      Calculated Total Annual OPEX            : $412,212,595
-      Reported Total System OPEX              : $433,458,508
+      H2/Battery VOM (Electrolyzer)           : $11,593,427
+      Water Cost (for H2)                     : $1,194,529
+      Ramping Costs                           : $50,400
+      H2 Storage Cycle Cost                   : $780,557
+      Calculated Total Annual OPEX            : $413,270,232
+      Reported Total System OPEX              : $413,270,232
 
     LCOH Detailed Composition (if H2 produced):
-      Total LCOH: $2.672/kg
+      Total LCOH: $2.674/kg
         Electricity Opportunity Cost Electrolyzer: $1.318/kg (46.8%)
         Electrolyzer System                     : $0.612/kg (21.7%)
         Vom Electrolyzer                        : $0.291/kg (10.3%)
@@ -245,12 +245,12 @@ Techno-Economic Analysis Report - Braidwood Generation Station_2_PJM_23
         Ramping Cost                            : $0.001/kg (0.0%)
 
   C. MACRS Depreciation Summary:
-    Total MACRS Depreciation Over Lifetime        : $314,855,101
-    Total Tax Shield Value (at current tax rate)  : $66,119,571
+    Total MACRS Depreciation Over Lifetime        : $315,081,570
+    Total Tax Shield Value (at current tax rate)  : $66,167,130
 
     MACRS Depreciation by Asset Type/Component Category:
       Electrolyzer System                           : $300,000,000
-      H2 Storage System                             : $7,855,101
+      H2 Storage System                             : $8,081,570
       Grid Integration                              : $5,000,000
       NPP Modifications                             : $2,000,000
 

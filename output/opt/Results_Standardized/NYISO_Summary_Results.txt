@@ -1,0 +1,46 @@
+--- Summary Results for NYISO ---
+Simulation_Mode: Dispatch Execution
+Target_ISO: NYISO
+Optimal_Electrolyzer_Capacity_MW: 200.0000
+Optimal_Battery_Capacity_MWh: 0.0000
+Optimal_Battery_Power_MW: 0.0000
+Optimal_H2_Storage_Capacity_kg: 20,979.7597
+Optimal_H2_Constant_Sales_Rate_kg_hr: 4,538.3572
+Total_Revenue_USD: 578,604,721.4681
+Total_Energy_Revenue_USD: 331,447,432.8763
+Total_Hydrogen_Revenue_USD: 243,426,344.4675
+Total_Hydrogen_Sales_Revenue_USD: 119,254,412.7345
+Total_Hydrogen_Subsidy_Revenue_USD: 124,171,931.7330
+Total_Ancillary_Revenue_USD: 3,730,944.1243
+Total_Hourly_Opex_USD: 424,981,684.2052
+Total_NPP_Opex_USD: 410,880,587.8336
+Total_H2_Battery_Opex_USD: 14,101,096.3716
+Total_VOM_Cost_USD: 22,969,347.9248
+Total_Water_Cost_USD: 1,241,719.3173
+Total_Ramping_Cost_USD: 5,515.8148
+Total_Storage_Cycle_Cost_USD: 811,421.1482
+Total_Startup_Cost_USD: 0.0000
+Total_Fuel_NPP_Cost_USD: 110,314,680.0000
+Total_Fixed_OM_NPP_Cost_USD: 289,639,000.0000
+Total_Annualized_Capex_USD: 43,885,239.8529
+Electrolyzer_Annualized_Capex_USD: 43,592,278.4884
+Battery_Annualized_Capex_USD: 0.0000
+H2_Storage_Annualized_Capex_USD: 292,961.3644
+Total_H2_Produced_kg: 41,390,643.9110
+Total_H2_to_Market_Direct_kg: 0.0000
+Total_H2_from_Storage_kg: 39,751,470.9115
+Final_H2_Storage_Level_kg: 5,105.6129
+Electrolyzer_Capacity_Factor_Actual: 0.9962
+Total_Electrolyzer_Startups: 0
+Final_DegradationState_Units: 0.0000
+Total_Deployed_NSR_MWh: 2.3676
+Total_Deployed_RegDown_MWh: 0.0000
+Total_Deployed_RegUp_MWh: 0.0000
+Total_Deployed_SR_MWh: 98.8183
+Total_Deployed_ThirtyMin_MWh: 0.0000
+
+--- Profitability ---
+Objective_Value_USD: 399,376,797.4100
+Total_Profit_Calculated_USD: 109,737,797.4101
+Objective vs Calculated Profit Diff: -289,638,999.9999
+WARNING: Significant difference between objective and calculated profit!
