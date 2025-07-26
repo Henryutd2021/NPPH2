@@ -37,10 +37,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, List, Dict
 
-# Add the project root to Python path
-# Go up three levels: lca -> executables -> project_root
-project_root = Path(__file__).parent.parent.parent.resolve()
-sys.path.insert(0, str(project_root))
+# Setup Python paths for importing src modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from path_setup import setup_src_paths
+setup_src_paths()
 
 # Import project modules after path setup
 from src.lca.config import setup_lca_logging

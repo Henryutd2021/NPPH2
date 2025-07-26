@@ -12,15 +12,10 @@ import pandas as pd
 from contextlib import contextmanager
 import importlib.util
 
-# Add the project root to sys.path FIRST - before any src imports
-# Go up three levels: tea -> executables -> project_root
-project_root = str(Path(__file__).parent.parent.parent.resolve())
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-# Add src/logging to the path for unified logging
-src_logging_path = Path(__file__).parent.parent.parent / "src" / "logging"
-sys.path.append(str(src_logging_path))
+# Setup Python paths for importing src modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from path_setup import setup_src_paths
+setup_src_paths()
 
 # Import tqdm for progress bar
 try:

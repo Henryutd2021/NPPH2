@@ -11,7 +11,7 @@ from typing import Dict, Optional
 
 import pandas as pd
 
-from config import HOURS_IN_YEAR
+from .config import HOURS_IN_YEAR
 from src.logger_utils.logging_setup import logger
 
 

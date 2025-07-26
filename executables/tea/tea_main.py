@@ -14,12 +14,10 @@ from pathlib import Path
 import numpy as np  # Keep for np.array, np.cumsum, etc.
 import pandas as pd  # Keep for pd.Series, pd.isna etc.
 
-# Add src directory to Python path for relative imports
-current_dir = Path(__file__).resolve().parent
-# Go up two levels: tea -> executables -> project_root
-project_root = current_dir.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Setup Python paths for importing src modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from path_setup import setup_src_paths
+setup_src_paths()
 
 # Now import src modules AFTER adding to path
 

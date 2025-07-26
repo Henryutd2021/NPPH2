@@ -26,37 +26,23 @@ try:
 except ImportError:
     TQDM_AVAILABLE = False
 
-# Add src directory to Python path for importing optimization framework modules
-# Get the absolute path to the workspace root (parent of opt directory)
-workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-src_opt_path = os.path.join(workspace_root, 'src', 'opt')
-src_logger_utils_path = os.path.join(workspace_root, 'src', 'logger_utils')
-src_root_path = os.path.join(workspace_root, 'src')
-
-# Add all necessary paths to sys.path, including workspace root for absolute 'src' imports
-for path in [workspace_root, src_opt_path, src_logger_utils_path, src_root_path]:
-    if path not in sys.path:
-        sys.path.insert(0, path)
-
-# Debug: Print the paths being added
-print(f"Added paths to sys.path:")
-print(f"  - {workspace_root} (for 'src' absolute imports)")
-print(f"  - {src_opt_path}")
-print(f"  - {src_logger_utils_path}")
-print(f"  - {src_root_path}")
+# Setup Python paths for importing src modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from path_setup import setup_src_paths
+setup_src_paths()
 
 # Try to import the optimization framework modules
 try:
-    from config import HOURS_IN_YEAR, TARGET_ISO
-    from data_io import load_hourly_data
-    from model import create_model
-    from result_processing import extract_results
+    from src.opt.config import HOURS_IN_YEAR, TARGET_ISO
+    from src.opt.data_io import load_hourly_data
+    from src.opt.model import create_model
+    from src.opt.result_processing import extract_results
     from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
     import pyomo.environ as pyo
     # Import the framework's optimization module
-    from optimization_utils import run_plant_optimization
+    from src.opt.optimization_utils import run_plant_optimization
     # Import unified progress indicator
-    from progress_indicators import SolverProgressIndicator
+    from src.logger_utils.progress_indicators import SolverProgressIndicator
     optimization_framework_available = True
     print("Successfully imported optimization framework modules")
 except ImportError as e:

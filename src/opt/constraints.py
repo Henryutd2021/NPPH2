@@ -8,7 +8,7 @@ These functions are imported by model.py to create the constraints.
 import pyomo.environ as pyo
 
 # Config flags are used by Pyomo rules, so direct import is fine here.
-from config import (
+from .config import (
     CAN_PROVIDE_ANCILLARY_SERVICES,
     ENABLE_BATTERY,
     ENABLE_ELECTROLYZER,
@@ -20,7 +20,7 @@ from config import (
     ENABLE_STARTUP_SHUTDOWN,
 )
 from src.logger_utils.logging_setup import logger
-from utils import get_symbolic_as_bid_sum, get_symbolic_as_deployed_sum
+from .utils import get_symbolic_as_bid_sum, get_symbolic_as_deployed_sum
 
 # This map defines which services are considered "actually available" or "expected" for each ISO.
 # It will be used by link_deployed_to_bid_rule to determine if a warning for missing parameters is appropriate.
@@ -1299,7 +1299,7 @@ def link_deployed_to_bid_rule(m, t, internal_service_name, component_name):
     a warning is logged and the deployed amount for that service at that time is constrained to 0.
     If the service is not defined for the ISO (per ACTUAL_ISO_SERVICES_PROVIDED),
     missing parameters are expected, and deployed amount is constrained to 0 without a warning.
-    
+
     UPDATED: Both regulation and reserve services now use actual deploy_factor values.
     """
     if not getattr(m, "SIMULATE_AS_DISPATCH_EXECUTION", False) or not getattr(

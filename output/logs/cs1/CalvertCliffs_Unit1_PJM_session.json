@@ -6,9 +6,9 @@
     "standardized_name": "CalvertCliffs_Unit1_PJM"
   },
   "session_info": {
-    "start_time": "2025-07-14T12:14:46.281372",
-    "end_time": "2025-07-14T12:14:54.237391",
-    "duration_seconds": 7.956019,
+    "start_time": "2025-07-26T12:28:16.195910",
+    "end_time": "2025-07-26T12:28:24.153285",
+    "duration_seconds": 7.957375,
     "log_files": {
       "main_log": "/home/honglin/NPPH2/output/logs/cs1/CalvertCliffs_Unit1_PJM_main.log",
       "data_issues": "/home/honglin/NPPH2/output/logs/cs1/CalvertCliffs_Unit1_PJM_data_issues.log",
@@ -19,16 +19,16 @@
     {
       "name": "Enhanced TEA for CalvertCliffs",
       "description": "",
-      "start_time": "2025-07-14T12:14:46.282305",
-      "end_time": "2025-07-14T12:14:54.237284",
-      "duration": 7.955636024475098,
+      "start_time": "2025-07-26T12:28:16.196812",
+      "end_time": "2025-07-26T12:28:24.153190",
+      "duration": 7.956777334213257,
       "status": "completed"
     },
     {
       "name": "Plant Parameter Extraction",
       "description": "Looking up Calvert Cliffs Nuclear Power Plant Unit 1",
-      "start_time": "2025-07-14T12:14:46.282552",
-      "end_time": "2025-07-14T12:14:46.287282",
+      "start_time": "2025-07-26T12:28:16.197094",
+      "end_time": "2025-07-26T12:28:16.200936",
       "duration": null,
       "status": "completed",
       "results_summary": "Found 5 parameters"
@@ -36,24 +36,24 @@
     {
       "name": "CSV Enhancement",
       "description": "Adding plant-specific parameters to input file",
-      "start_time": "2025-07-14T12:14:46.287327",
-      "end_time": "2025-07-14T12:14:46.908332",
+      "start_time": "2025-07-26T12:28:16.200981",
+      "end_time": "2025-07-26T12:28:16.827178",
       "duration": null,
       "status": "completed"
     },
     {
       "name": "Main TEA Analysis",
       "description": "Starting core calculations (NO PLOTTING)",
-      "start_time": "2025-07-14T12:14:46.908482",
-      "end_time": "2025-07-14T12:14:54.166801",
+      "start_time": "2025-07-26T12:28:16.827340",
+      "end_time": "2025-07-26T12:28:24.071622",
       "duration": null,
       "status": "completed"
     },
     {
       "name": "Results Validation",
       "description": "Checking generated output files (NO PLOTTING mode)",
-      "start_time": "2025-07-14T12:14:54.168034",
-      "end_time": "2025-07-14T12:14:54.168258",
+      "start_time": "2025-07-26T12:28:24.073156",
+      "end_time": "2025-07-26T12:28:24.073345",
       "duration": null,
       "status": "completed",
       "results_summary": "2 reports, 0 plots (plotting disabled)"
@@ -63,43 +63,43 @@
     "Input file size": {
       "value": "5756.2",
       "unit": "KB",
-      "timestamp": "2025-07-14T12:14:46.282393",
+      "timestamp": "2025-07-26T12:28:16.196940",
       "phase": "Enhanced TEA for CalvertCliffs"
     },
     "Thermal Capacity": {
       "value": "2,737.0",
       "unit": "MWt",
-      "timestamp": "2025-07-14T12:14:46.287156",
+      "timestamp": "2025-07-26T12:28:16.200813",
       "phase": "Plant Parameter Extraction"
     },
     "Nameplate Capacity": {
       "value": "918.0",
       "unit": "MW",
-      "timestamp": "2025-07-14T12:14:46.287215",
+      "timestamp": "2025-07-26T12:28:16.200868",
       "phase": "Plant Parameter Extraction"
     },
     "Thermal Efficiency": {
       "value": "0.3354",
       "unit": "",
-      "timestamp": "2025-07-14T12:14:46.287251",
+      "timestamp": "2025-07-26T12:28:16.200904",
       "phase": "Plant Parameter Extraction"
     },
     "Enhanced CSV Columns": {
       "value": 5,
       "unit": "",
-      "timestamp": "2025-07-14T12:14:46.908210",
+      "timestamp": "2025-07-26T12:28:16.827047",
       "phase": "CSV Enhancement"
     },
     "Generated Reports": {
       "value": 2,
       "unit": "",
-      "timestamp": "2025-07-14T12:14:54.168203",
+      "timestamp": "2025-07-26T12:28:24.073297",
       "phase": "Results Validation"
     },
     "Generated Plots": {
       "value": 0,
       "unit": "",
-      "timestamp": "2025-07-14T12:14:54.168232",
+      "timestamp": "2025-07-26T12:28:24.073322",
       "phase": "Results Validation"
     }
   },

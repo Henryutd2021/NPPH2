@@ -30,16 +30,10 @@ except ImportError:
     TQDM_AVAILABLE = False
     print("Warning: tqdm not available. Install with 'pip install tqdm' for progress bars.")
 
-# Add src directory to Python path
-# Go up three levels: opt -> executables -> project_root
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-# Add src directories to Python path
-src_opt_path = project_root / "src" / "opt"
-src_logging_path = project_root / "src" / "logging"
-sys.path.append(str(src_opt_path))
-sys.path.append(str(src_logging_path))
+# Setup Python paths for importing src modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from path_setup import setup_src_paths
+setup_src_paths()
 
 
 # Global variables for lazy loading

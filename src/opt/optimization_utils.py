@@ -12,10 +12,10 @@ import pandas as pd
 from pathlib import Path
 
 # Import framework modules
-from config import HOURS_IN_YEAR, TARGET_ISO
-from data_io import load_hourly_data
-from model import create_model
-from result_processing import extract_results
+from .config import HOURS_IN_YEAR, TARGET_ISO
+from .data_io import load_hourly_data
+from .model import create_model
+from .result_processing import extract_results
 from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
 import pyomo.environ as pyo
 

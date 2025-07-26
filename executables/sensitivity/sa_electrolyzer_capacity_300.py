@@ -16,15 +16,10 @@ from pathlib import Path
 from datetime import datetime
 from pyomo.opt import SolverFactory, SolverStatus, TerminationCondition
 
-# Add src directory to Python path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-# Add src directories to Python path
-src_opt_path = project_root / "src" / "opt"
-src_logging_path = project_root / "src" / "logging"
-sys.path.append(str(src_opt_path))
-sys.path.append(str(src_logging_path))
+# Setup Python paths for importing src modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from path_setup import setup_src_paths
+setup_src_paths()
 
 from src.opt.result_processing import extract_results
 from src.opt.model import create_model
@@ -36,8 +31,8 @@ from src.opt.config import TARGET_ISO, SIMULATE_AS_DISPATCH_EXECUTION
 # Configuration
 BASE_INPUT_DIR = "../input/hourly_data"
 BASE_SYS_DATA_FILE = os.path.join(BASE_INPUT_DIR, "sys_data_advanced.csv")
-OUTPUT_DIR = "../output/sensitivity_analysis/electrolyzer_capacity_300"
-TEMP_DIR = "../temp_sensitivity_runs/electrolyzer_capacity_300"
+OUTPUT_DIR = "../../output/sensitivity_analysis/electrolyzer_capacity_300"
+TEMP_DIR = "../../temp_sensitivity_runs/electrolyzer_capacity_300"
 
 # Parameters to modify
 ELECTROLYZER_CAPACITY_MW = 300.0

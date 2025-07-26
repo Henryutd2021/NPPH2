@@ -14,10 +14,10 @@ import json
 from datetime import datetime
 import argparse
 
-# Add project root to path
-project_root = str(Path(__file__).parent.parent.resolve())
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Setup Python paths for importing src modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from path_setup import setup_src_paths
+setup_src_paths()
 
 # Configuration
 SENSITIVITY_BASE_DIR = Path(__file__).parent.parent / \

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
 
-from config import (
+from .config import (
     ENABLE_BATTERY,
     ENABLE_ELECTROLYZER,
     ENABLE_ELECTROLYZER_DEGRADATION_TRACKING,
@@ -15,7 +15,7 @@ from config import (
     ENABLE_STARTUP_SHUTDOWN,
 )
 from src.logger_utils.logging_setup import logger
-from utils import get_param, get_total_deployed_as, get_var_value
+from .utils import get_param, get_total_deployed_as, get_var_value
 
 
 def _get_regulation_revenue_component_results(
