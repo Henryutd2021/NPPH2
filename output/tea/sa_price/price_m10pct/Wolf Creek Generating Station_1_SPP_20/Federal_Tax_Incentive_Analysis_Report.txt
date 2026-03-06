@@ -1,0 +1,156 @@
+====================================================================================================
+FEDERAL TAX INCENTIVE ANALYSIS REPORT
+Greenfield Nuclear-Hydrogen System
+====================================================================================================
+
+EXECUTIVE SUMMARY
+--------------------------------------------------
+
+Best Performing Scenario: 48E Investment Tax Credit
+
+Net Present Value (NPV) Summary:
+  Baseline Scenario:        $-11,118,196,629
+  45Y PTC Scenario:         $ -9,468,230,526 ($ +1,649,966,103)
+  48E ITC Scenario:         $ -8,134,973,654 ($ +2,983,222,975)
+
+Key Financial Metrics Comparison:
+----------------------------------------
+Metric                         Baseline        45Y PTC         48E ITC        
+---------------------------------------------------------------------------
+NPV (Million USD)              $-11118.2       $-9468.2        $-8135.0       
+IRR                            N/A             N/A             N/A            
+Payback Period (years)         N/A             N/A             N/A            
+
+PROJECT PARAMETERS
+--------------------------------------------------
+
+Project Lifetime:           80 years
+Construction Period:        8 years
+Discount Rate:              6.0%
+Corporate Tax Rate:         21.0%
+Total Project CAPEX:        $10,585,236,721
+Annual H2 Production:       41,108,955 kg/year
+
+DETAILED SCENARIO ANALYSIS
+==================================================
+
+BASELINE SCENARIO (No Tax Incentives)
+-------------------------------------
+
+Description: Baseline scenario without federal tax incentives
+
+Financial Metrics:
+  Net Present Value:        $-11,118,196,629
+  Internal Rate of Return:  N/A
+  Payback Period:           N/A
+  Return on Investment:     -100.00%
+  LCOH:                     $24.63/kg
+  Total Investment:         $18,793,395,913
+  Total Returns:            $0
+  Incremental Value:        $0
+
+45Y PRODUCTION TAX CREDIT SCENARIO
+----------------------------------
+
+Description: 45Y Production Tax Credit scenario ($30/MWh for 10 years)
+
+Financial Metrics:
+  Net Present Value:        $-9,468,230,526
+  Internal Rate of Return:  N/A
+  Payback Period:           N/A
+  Return on Investment:     -85.23%
+  LCOH:                     $20.98/kg
+  Total Investment:         $18,095,242,937
+  Total Returns:            $2,672,648,132
+  Incremental Value:        $3,370,801,109
+
+48E INVESTMENT TAX CREDIT SCENARIO
+----------------------------------
+
+Description: 48E Investment Tax Credit scenario (50% of qualified CAPEX)
+
+Financial Metrics:
+  Net Present Value:        $-8,134,973,654
+  Internal Rate of Return:  N/A
+  Payback Period:           N/A
+  Return on Investment:     -73.84%
+  LCOH:                     $18.02/kg
+  Total Investment:         $19,234,934,924
+  Total Returns:            $5,031,778,342
+  Incremental Value:        $4,590,239,331
+
+TAX INCENTIVE VALUE ANALYSIS
+==================================================
+
+45Y Production Tax Credit Details:
+----------------------------------------
+PTC Rate:                   $30.00/MWh
+Eligible Duration:          10 years
+Annual Generation:          11,236,004 MWh
+Annual PTC Benefit:         $337,080,111
+Total PTC Value:            $3,370,801,109
+Total PTC NPV:              $1,319,758,988
+Data Source:                pTurbine_MW
+
+48E Investment Tax Credit Details:
+----------------------------------------
+ITC Rate:                   50%
+Qualified CAPEX:            $10,257,036,721
+ITC Credit Amount:          $5,128,518,361
+Depreciation Reduction:     $2,564,259,180
+Net ITC Benefit:            $4,590,239,331
+
+Qualified Equipment Categories:
+  Nuclear_Power_Plant      :   100% ($7,677,529,527)
+  Nuclear_Site_Preparation :   100% ($ 386,876,781)
+  Nuclear_Safety_Systems   :   100% ($1,929,370,414)
+  Nuclear_Grid_Connection  :   100% ($ 259,260,000)
+  Grid_Integration         :    80% ($   4,000,000)
+
+ANNUAL CASH FLOW IMPACT SUMMARY
+==================================================
+
+Cash Flow Comparison (First 20 Years, Million USD):
+--------------------------------------------------------------------------------
+Year   Baseline     45Y PTC      48E ITC      PTC Delta    ITC Delta   
+--------------------------------------------------------------------------------
+0           -750.8      -750.8      -750.8        +0.0        +0.0
+1          -1084.9     -1084.9     -1084.9        +0.0        +0.0
+2          -1538.0     -1538.0     -1538.0        +0.0        +0.0
+3          -2495.5     -2495.5     -2495.5        +0.0        +0.0
+4          -2643.8     -2643.8     -2643.8        +0.0        +0.0
+5          -1982.9     -1982.9     -1982.9        +0.0        +0.0
+6          -1334.9     -1334.9     -1334.9        +0.0        +0.0
+7           -773.4      -773.4      -773.4        +0.0        +0.0
+8            -69.8       267.3      5031.8      +337.1     +5101.6
+9            -69.8       267.3      -121.0      +337.1       -51.2
+10           -69.8       267.3      -115.9      +337.1       -46.0
+11           -69.8       267.3      -111.3      +337.1       -41.5
+12           -69.8       267.3      -107.1      +337.1       -37.3
+13           -69.8       267.3      -103.4      +337.1       -33.5
+14           -69.8       267.3      -101.6      +337.1       -31.8
+15           -69.8       267.3      -101.6      +337.1       -31.8
+16           -69.8       267.3      -101.6      +337.1       -31.8
+17           -69.8       267.3      -101.6      +337.1       -31.8
+18           -69.8       -69.8      -101.6        +0.0       -31.8
+19           -69.8       -69.8      -101.6        +0.0       -31.8
+
+RECOMMENDATIONS
+==================================================
+
+1. The 48E Investment Tax Credit provides superior financial returns with an NPV
+   improvement of $2,983,222,975 compared to the baseline scenario.
+
+2. Both tax incentive scenarios improve project economics significantly:
+   - 45Y PTC improves NPV by $1,649,966,103
+   - 48E ITC improves NPV by $2,983,222,975
+
+3. Consider the following factors when choosing between incentives:
+   - PTC provides steady cash flows over 10 years
+   - ITC provides immediate cash benefit but reduces depreciation
+   - Risk tolerance and financing requirements
+   - Regulatory and policy stability considerations
+
+====================================================================================================
+End of Tax Incentive Analysis Report
+====================================================================================================

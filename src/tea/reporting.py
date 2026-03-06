@@ -498,7 +498,7 @@ def generate_report(
                     elif metric == "NPV_USD":
                         financial_items["NPV (USD)"] = f"${v:,.2f}"
                     elif metric == "Payback_Period_Years":
-                        financial_items["Payback Period (Years)"] = f"{v:.2f}"
+                        financial_items["Discounted Payback Period (Years)"] = f"{v:.2f}"
                     elif metric == "Roi":
                         financial_items["Return on Investment (ROI)"] = f"{v:.4f}"
 
@@ -943,7 +943,7 @@ def generate_report(
                 without_45u_items = {
                     "NPV": f"${scenario_without_45u.get('npv_usd', 0):,.0f}",
                     "IRR": f"{scenario_without_45u.get('irr_percent', 0):.2f}%" if scenario_without_45u.get('irr_percent') is not None else "N/A",
-                    "Payback Period": f"{scenario_without_45u.get('payback_period_years', 0):.1f} years" if scenario_without_45u.get('payback_period_years') is not None else "N/A"
+                    "Discounted Payback Period": f"{scenario_without_45u.get('payback_period_years', 0):.1f} years" if scenario_without_45u.get('payback_period_years') is not None else "N/A"
                 }
                 f.write(format_aligned_section(
                     without_45u_items, min_width=25, indent="    "))
@@ -952,7 +952,7 @@ def generate_report(
                 with_45u_items = {
                     "NPV": f"${scenario_with_45u.get('npv_usd', 0):,.0f}",
                     "IRR": f"{scenario_with_45u.get('irr_percent', 0):.2f}%" if scenario_with_45u.get('irr_percent') is not None else "N/A",
-                    "Payback Period": f"{scenario_with_45u.get('payback_period_years', 0):.1f} years" if scenario_with_45u.get('payback_period_years') is not None else "N/A"
+                    "Discounted Payback Period": f"{scenario_with_45u.get('payback_period_years', 0):.1f} years" if scenario_with_45u.get('payback_period_years') is not None else "N/A"
                 }
                 f.write(format_aligned_section(
                     with_45u_items, min_width=25, indent="    "))
@@ -1386,7 +1386,7 @@ def generate_report(
             core_metrics = {
                 "NPV_USD": ("NPV (USD)", "currency"),
                 "IRR_percent": ("IRR (%)", "percent"),
-                "Payback_Period_Years": ("Payback Period (Years)", "number"),
+                "Payback_Period_Years": ("Discounted Payback Period (Years)", "number"),
                 "Total_Incremental_CAPEX_Learned_USD": ("Total Incremental CAPEX (USD)", "currency"),
                 "Annual_Electricity_Opportunity_Cost_USD": ("Annual Electricity Opportunity Cost (USD)", "currency"),
             }
@@ -1791,9 +1791,9 @@ def generate_report(
 
             payback_value = financial_metrics.get('payback_period_years')
             if payback_value is not None:
-                financial_items["Payback Period"] = f"{payback_value:.1f} years"
+                financial_items["Discounted Payback Period"] = f"{payback_value:.1f} years"
             else:
-                financial_items["Payback Period"] = "N/A"
+                financial_items["Discounted Payback Period"] = "N/A"
 
             f.write(format_aligned_section(
                 financial_items, min_width=45, indent="  "))
@@ -1875,7 +1875,7 @@ def generate_report(
                 without_45u_metrics = {
                     "NPV": f"${scenario_without_45u.get('npv_usd', 0):,.0f}",
                     "IRR": f"{scenario_without_45u.get('irr_percent', 0):.2f}%" if scenario_without_45u.get('irr_percent') is not None else "N/A",
-                    "Payback": f"{scenario_without_45u.get('payback_period_years', 0):.1f} years" if scenario_without_45u.get('payback_period_years') is not None else "N/A"
+                    "Discounted Payback": f"{scenario_without_45u.get('payback_period_years', 0):.1f} years" if scenario_without_45u.get('payback_period_years') is not None else "N/A"
                 }
                 f.write(format_aligned_section(
                     without_45u_metrics, min_width=15, indent="    "))
@@ -1884,7 +1884,7 @@ def generate_report(
                 with_45u_metrics = {
                     "NPV": f"${scenario_with_45u.get('npv_usd', 0):,.0f}",
                     "IRR": f"{scenario_with_45u.get('irr_percent', 0):.2f}%" if scenario_with_45u.get('irr_percent') is not None else "N/A",
-                    "Payback": f"{scenario_with_45u.get('payback_period_years', 0):.1f} years" if scenario_with_45u.get('payback_period_years') is not None else "N/A"
+                    "Discounted Payback": f"{scenario_with_45u.get('payback_period_years', 0):.1f} years" if scenario_with_45u.get('payback_period_years') is not None else "N/A"
                 }
                 f.write(format_aligned_section(
                     with_45u_metrics, min_width=15, indent="    "))
@@ -2003,10 +2003,10 @@ def generate_report(
                 f"  Return on Investment (ROI)      : {greenfield_results.get('roi_percent', 0):.2f}%\n")
 
             if isinstance(payback_value, float) and math.isnan(payback_value):
-                f.write(f"  Payback Period                  : N/A\n")
+                f.write(f"  Discounted Payback Period       : N/A\n")
             else:
                 f.write(
-                    f"  Payback Period                  : {payback_value:.1f} years\n")
+                    f"  Discounted Payback Period       : {payback_value:.1f} years\n")
 
             f.write(
                 f"  LCOH (Integrated System)        : ${greenfield_results.get('lcoh_integrated_usd_per_kg', 0):.3f}/kg\n")
@@ -2212,7 +2212,7 @@ def generate_report(
                 ('NPV (USD)', 'npv_usd', 'npv_usd'),
                 ('IRR (%)', 'irr_percent', 'irr_percent'),
                 ('ROI (%)', 'roi_percent', 'roi_percent'),
-                ('Payback (Years)', 'payback_period_years', 'payback_period_years'),
+                ('Discounted Payback (Years)', 'payback_period_years', 'payback_period_years'),
                 ('LCOH (USD/kg)', 'lcoh_integrated_usd_per_kg',
                  'lcoh_integrated_usd_per_kg'),
                 ('LCOE (USD/MWh)', 'nuclear_lcoe_usd_per_mwh',
@@ -2452,7 +2452,7 @@ def generate_report(
                         "financial_metrics", {}).get("payback_period_years")
 
                     if baseline_payback is not None and not np.isnan(baseline_payback):
-                        f.write(f"{'Payback (years)':<25} {baseline_payback:<14.1f} {ptc_payback if ptc_payback is not None and not np.isnan(ptc_payback) else 'N/A':<14} {itc_payback if itc_payback is not None and not np.isnan(itc_payback) else 'N/A':<14}\n")
+                        f.write(f"{'Discounted PB (years)':<25} {baseline_payback:<14.1f} {ptc_payback if ptc_payback is not None and not np.isnan(ptc_payback) else 'N/A':<14} {itc_payback if itc_payback is not None and not np.isnan(itc_payback) else 'N/A':<14}\n")
 
                 f.write("\n")
                 f.write("ANALYSIS METHODOLOGY:\n")

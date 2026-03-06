@@ -1151,19 +1151,25 @@ def calculate_greenfield_nuclear_hydrogen_system(
     else:
         roi_percent = 0
 
-    # Payback period calculation
-    cumulative_cash_flow = -total_system_capex
-    payback_years = float('nan')
-
+    # Discounted payback period calculation
+    payback_cash_flows = [-total_system_capex]
     for year in range(1, project_lifetime + 1):
-        annual_net_revenue_calc = (annual_h2_revenue + turbine_as_revenue + h2_system_as_revenue +
-                                   annual_electricity_revenue - total_annual_opex - hte_thermal_cost)
+        annual_net_revenue_calc = (
+            annual_h2_revenue
+            + turbine_as_revenue
+            + h2_system_as_revenue
+            + annual_electricity_revenue
+            - total_annual_opex
+            - hte_thermal_cost
+        )
         if year <= h2_subsidy_yrs:
             annual_net_revenue_calc += h2_subsidy_revenue
-        cumulative_cash_flow += annual_net_revenue_calc
-        if cumulative_cash_flow > 0 and payback_years != payback_years:  # Check for NaN
-            payback_years = year
-            break
+        payback_cash_flows.append(annual_net_revenue_calc)
+
+    payback_years = calculate_payback_period(
+        np.array(payback_cash_flows),
+        discount_rate=discount_rate,
+    )
 
     logger.info(f"\nFinancial Results (60-year lifecycle with MACRS):")
     logger.info(f"  Net Present Value (NPV)         : ${npv:,.0f}")
@@ -2636,14 +2642,24 @@ def calculate_irr(cash_flows: np.ndarray, is_baseline_analysis: bool = False) ->
         return None
 
 
-def calculate_payback_period(cash_flows: np.ndarray) -> float:
-    """Calculate simple payback period."""
-    cumulative_cash_flows = np.cumsum(cash_flows)
+def calculate_payback_period(cash_flows: np.ndarray, discount_rate: float = 0.0) -> float:
+    """Calculate discounted payback period."""
+    cash_flows_array = np.array(cash_flows, dtype=float)
+    discount_factors = np.power(1 + discount_rate, np.arange(len(cash_flows_array), dtype=float))
+    discounted_cash_flows = cash_flows_array / discount_factors
+    cumulative_cash_flows = np.cumsum(discounted_cash_flows)
+
     for year, cum_cf in enumerate(cumulative_cash_flows):
         if cum_cf > 0:
-            # If the very first period (year 0) is already positive, the payback is instant
-            # and should be reported as 0 rather than 1.
-            return 0 if year == 0 else year
+            if year == 0:
+                return 0
+            previous_cumulative = cumulative_cash_flows[year - 1]
+            current_cumulative = cumulative_cash_flows[year]
+            if previous_cumulative < 0 and current_cumulative != previous_cumulative:
+                return (year - 1) + abs(previous_cumulative) / (
+                    current_cumulative - previous_cumulative
+                )
+            return year
     return None
 
 
@@ -3490,7 +3506,10 @@ def calculate_nuclear_baseline_financial_analysis(
     # because there's no initial investment - the plant already exists
     irr_without_45u = calculate_irr(
         cash_flows_without_45u, is_baseline_analysis=True)
-    payback_without_45u = calculate_payback_period(cash_flows_without_45u)
+    payback_without_45u = calculate_payback_period(
+        cash_flows_without_45u,
+        discount_rate=discount_rate_config,
+    )
 
     # With 45U policy
     discounted_cash_flows_with_45u = cash_flows_with_45u * discount_factors
@@ -3500,7 +3519,10 @@ def calculate_nuclear_baseline_financial_analysis(
     # The 45U policy doesn't create an investment scenario - it's just additional revenue
     irr_with_45u = calculate_irr(
         cash_flows_with_45u, is_baseline_analysis=True)
-    payback_with_45u = calculate_payback_period(cash_flows_with_45u)
+    payback_with_45u = calculate_payback_period(
+        cash_flows_with_45u,
+        discount_rate=discount_rate_config,
+    )
 
     # Calculate 45U impact
     npv_improvement_45u = npv_with_45u - npv_without_45u

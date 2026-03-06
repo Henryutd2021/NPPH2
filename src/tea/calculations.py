@@ -1414,6 +1414,41 @@ def calculate_cash_flows(
     return cash_flows_array
 
 
+def calculate_discounted_payback_period(
+    cash_flows: np.ndarray,
+    discount_rate: float,
+    construction_period_years: int = 0,
+) -> float:
+    """Calculate discounted payback period using discounted cumulative cash flows."""
+    cf_array = np.array(cash_flows, dtype=float)
+    discount_factors = np.power(1 + discount_rate, np.arange(len(cf_array), dtype=float))
+    discounted_cash_flows = cf_array / discount_factors
+    cumulative_discounted_cash_flow = np.cumsum(discounted_cash_flows)
+    positive_indices = np.where(cumulative_discounted_cash_flow >= 0)[0]
+
+    if positive_indices.size == 0:
+        return np.nan
+
+    first_positive_idx = positive_indices[0]
+    if first_positive_idx == 0 and discounted_cash_flows[0] >= 0:
+        return 0
+
+    if (
+        first_positive_idx > 0
+        and cumulative_discounted_cash_flow[first_positive_idx - 1] < 0
+    ):
+        return (
+            (first_positive_idx - 1)
+            + abs(cumulative_discounted_cash_flow[first_positive_idx - 1])
+            / (
+                cumulative_discounted_cash_flow[first_positive_idx]
+                - cumulative_discounted_cash_flow[first_positive_idx - 1]
+            )
+        ) - construction_period_years + 1
+
+    return first_positive_idx - construction_period_years + 1
+
+
 def calculate_financial_metrics(
     cash_flows_input: np.ndarray,
     discount_rate: float,  # Standardized parameter name
@@ -1438,27 +1473,11 @@ def calculate_financial_metrics(
     except Exception:  # Catch any error from npf.irr
         metrics_results["IRR_percent"] = np.nan
 
-    cumulative_cash_flow = np.cumsum(cf_array)
-    positive_indices = np.where(cumulative_cash_flow >= 0)[0]
-    if positive_indices.size > 0:
-        first_positive_idx = positive_indices[0]
-        # Payback in year 0 if CF starts positive
-        if first_positive_idx == 0 and cf_array[0] >= 0:
-            metrics_results["Payback_Period_Years"] = 0
-        # Ensure previous CF was negative
-        elif first_positive_idx > 0 and cumulative_cash_flow[first_positive_idx - 1] < 0:
-            metrics_results["Payback_Period_Years"] = (
-                (first_positive_idx - 1) + abs(cumulative_cash_flow[first_positive_idx - 1]) /
-                (cumulative_cash_flow[first_positive_idx] -
-                 cumulative_cash_flow[first_positive_idx - 1])
-            ) - construction_period_years + 1  # Adjust for construction period and 0-based indexing
-        # Fallback if payback calculation is unusual (e.g. all positive CFs)
-        else:
-            metrics_results["Payback_Period_Years"] = first_positive_idx - \
-                construction_period_years + 1
-    else:
-        # No payback within project lifetime
-        metrics_results["Payback_Period_Years"] = np.nan
+    metrics_results["Payback_Period_Years"] = calculate_discounted_payback_period(
+        cash_flows=cf_array,
+        discount_rate=discount_rate,
+        construction_period_years=construction_period_years,
+    )
 
     # LCOH is now handled by calculate_lcoh_breakdown
     # ROI will be calculated in the main script after total_capex is available in annual_metrics
@@ -1737,20 +1756,11 @@ def calculate_incremental_metrics(
     except:
         inc_metrics["IRR_percent"] = np.nan
 
-    cum_pure_inc_cf = np.cumsum(pure_incremental_cf)
-    pos_idx_pure = np.where(cum_pure_inc_cf >= 0)[0]
-    if pos_idx_pure.size > 0:
-        first_pos = pos_idx_pure[0]
-        if first_pos == 0 and pure_incremental_cf[0] >= 0:
-            inc_metrics["Payback_Period_Years"] = 0
-        elif first_pos > 0 and cum_pure_inc_cf[first_pos-1] < 0:
-            inc_metrics["Payback_Period_Years"] = (first_pos - 1) + abs(cum_pure_inc_cf[first_pos-1]) / (
-                cum_pure_inc_cf[first_pos] - cum_pure_inc_cf[first_pos-1]) - construction_period_years + 1
-        else:
-            inc_metrics["Payback_Period_Years"] = first_pos - \
-                construction_period_years + 1
-    else:
-        inc_metrics["Payback_Period_Years"] = np.nan
+    inc_metrics["Payback_Period_Years"] = calculate_discounted_payback_period(
+        cash_flows=pure_incremental_cf,
+        discount_rate=discount_rate,
+        construction_period_years=construction_period_years,
+    )
 
     inc_metrics["pure_incremental_cash_flows"] = pure_incremental_cf
     inc_metrics["traditional_incremental_cash_flows"] = optimized_cash_flows - \

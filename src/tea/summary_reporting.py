@@ -382,11 +382,11 @@ def _write_existing_reactor_baseline_section(f, nuclear_baseline_analysis_rpt: d
     }
     f.write(format_aligned_section(assumptions, min_width=35, indent="    "))
 
-    f.write("\n  Financial Metrics (NPV, IRR, Payback - without 45U):\n")
+    f.write("\n  Financial Metrics (NPV, IRR, Discounted Payback - without 45U):\n")
     fin_metrics_no_45u_items = {
         "NPV": _format_currency(scenario_no_45u.get("npv_usd")),
         "IRR": _format_percentage(scenario_no_45u.get("irr_percent")),
-        "Payback": f"{_format_number(scenario_no_45u.get('payback_period_years'), default_na=True)} years"
+        "Discounted Payback": f"{_format_number(scenario_no_45u.get('payback_period_years'), default_na=True)} years"
     }
     f.write(format_aligned_section(
         fin_metrics_no_45u_items, min_width=25, indent="    "))
@@ -403,11 +403,11 @@ def _write_existing_reactor_baseline_section(f, nuclear_baseline_analysis_rpt: d
 
     if benefits_45u and benefits_45u.get('total_45u_credits', 0) > 0:
         f.write("\n  45U PTC Policy Impact:\n")
-        f.write("    Financial Metrics (NPV, IRR, Payback - with 45U):\n")
+        f.write("    Financial Metrics (NPV, IRR, Discounted Payback - with 45U):\n")
         fin_metrics_45u_items = {
             "NPV": _format_currency(scenario_45u.get("npv_usd")),
             "IRR": _format_percentage(scenario_45u.get("irr_percent")),
-            "Payback": f"{_format_number(scenario_45u.get('payback_period_years'), default_na=True)} years"
+            "Discounted Payback": f"{_format_number(scenario_45u.get('payback_period_years'), default_na=True)} years"
         }
         f.write(format_aligned_section(
             fin_metrics_45u_items, min_width=25, indent="      "))
@@ -456,11 +456,18 @@ def _write_existing_reactor_retrofit_section(
     }
     f.write(format_aligned_section(capacities, min_width=35, indent="    "))
 
-    f.write("\n  Financial Metrics (Integrated System - NPV, IRR, Payback - nuclear part without 45U):\n")
+    scenario_without_45u = nuclear_integrated_analysis_rpt.get(
+        "scenario_without_45u", {}
+    ) if nuclear_integrated_analysis_rpt else {}
+    f.write("\n  Financial Metrics (Integrated System - NPV, IRR, Discounted Payback - nuclear part without 45U):\n")
     fin_metrics_integrated_no_45U = {
-        "NPV": _format_currency(financial_metrics_rpt.get("NPV_USD")),
-        "IRR": _format_percentage(financial_metrics_rpt.get("IRR_percent")),
-        "Payback": f"{_format_number(financial_metrics_rpt.get('Payback_Period_Years'), default_na=True)} years"
+        "NPV": _format_currency(
+            scenario_without_45u.get("npv_usd", financial_metrics_rpt.get("NPV_USD"))
+        ),
+        "IRR": _format_percentage(
+            scenario_without_45u.get("irr_percent", financial_metrics_rpt.get("IRR_percent"))
+        ),
+        "Discounted Payback": f"{_format_number(scenario_without_45u.get('payback_period_years', financial_metrics_rpt.get('Payback_Period_Years')), default_na=True)} years"
     }
     f.write(format_aligned_section(
         fin_metrics_integrated_no_45U, min_width=30, indent="    "))
@@ -472,7 +479,7 @@ def _write_existing_reactor_retrofit_section(
         fin_metrics_integrated_with_45U = {
             "NPV": _format_currency(scenario_with_45u.get("npv_usd")),
             "IRR": _format_percentage(scenario_with_45u.get("irr_percent")),
-            "Payback": f"{_format_number(scenario_with_45u.get('payback_period_years'), default_na=True)} years"
+            "Discounted Payback": f"{_format_number(scenario_with_45u.get('payback_period_years'), default_na=True)} years"
         }
         f.write(format_aligned_section(
             fin_metrics_integrated_with_45U, min_width=30, indent="    "))
@@ -574,8 +581,8 @@ def _write_lifecycle_cash_flow_analysis_section(f, lifecycle_comparison_rpt: dic
                 avg_annual_cf_80 = 0
 
             cf_characteristics = {
-                "60-Year Payback Period": f"{payback_60:.1f} years" if payback_60 else "N/A",
-                "80-Year Payback Period": f"{payback_80:.1f} years" if payback_80 else "N/A",
+                "60-Year Discounted Payback": f"{payback_60:.1f} years" if payback_60 else "N/A",
+                "80-Year Discounted Payback": f"{payback_80:.1f} years" if payback_80 else "N/A",
                 "60-Year Avg Annual Operating CF": _format_currency(avg_annual_cf_60),
                 "80-Year Avg Annual Operating CF": _format_currency(avg_annual_cf_80),
                 "Extended Operations Benefit": _format_currency((avg_annual_cf_80 * 20)) if avg_annual_cf_80 > 0 else "N/A"
@@ -636,11 +643,11 @@ def _write_incremental_system_analysis_section(f, incremental_metrics_rpt: dict,
                 f.write(
                     f"      {display_comp_name:<35}: {_format_currency(cost_val)} ({_format_percentage((cost_val / inc_capex_total * 100) if inc_capex_total else 0)})\n")
 
-    f.write("\n  Incremental Financial Metrics (NPV, IRR, Payback):\n")
+    f.write("\n  Incremental Financial Metrics (NPV, IRR, Discounted Payback):\n")
     inc_fin_metrics = {
         "NPV": _format_currency(incremental_metrics_rpt.get("NPV_USD")),
         "IRR": _format_percentage(incremental_metrics_rpt.get("IRR_percent")),
-        "Payback": f"{_format_number(incremental_metrics_rpt.get('Payback_Period_Years'), default_na=True)} years"
+        "Discounted Payback": f"{_format_number(incremental_metrics_rpt.get('Payback_Period_Years'), default_na=True)} years"
     }
     f.write(format_aligned_section(
         inc_fin_metrics, min_width=30, indent="    "))
@@ -718,7 +725,7 @@ def _write_greenfield_60yr_analysis_section(f, greenfield_60yr_tax_analysis_main
         metrics_to_display = {
             "NPV": _format_currency(scenario_fin_metrics.get("npv_usd")),
             "IRR": _format_percentage(scenario_fin_metrics.get("irr_percent")),
-            "Payback": f"{_format_number(scenario_fin_metrics.get('payback_period_years'), default_na=True)} years",
+            "Discounted Payback": f"{_format_number(scenario_fin_metrics.get('payback_period_years'), default_na=True)} years",
         }
 
         metrics_to_display["LCOH (Hydrogen)"] = _format_lcoh(
@@ -821,7 +828,7 @@ def _write_greenfield_lifecycle_comparison_section(f, lifecycle_comparison_rpt: 
 
     f.write("  Comparison Summary Table:\n")
     header_parts = ["Lifecycle", "Tax Scenario",
-                    "NPV ($M)", "IRR (%)", "Payback (yrs)", "LCOH ($/kg)", "LCOE ($/MWh)", "LCOS ($/MWh)"]
+                    "NPV ($M)", "IRR (%)", "Disc. PB (yrs)", "LCOH ($/kg)", "LCOE ($/MWh)", "LCOS ($/MWh)"]
     col_widths = [9, 12, 10, 7, 13, 11, 12, 12]
     header_format = " | ".join(
         [f"{{:<{w}}}" if i < 2 else f"{{:>{w}}}" for i, w in enumerate(col_widths)])
@@ -1345,11 +1352,13 @@ def _extract_case_data(annual_metrics_rpt: dict, financial_metrics_rpt: dict, in
         }
 
     # Case 2: Existing Reactor Retrofit (Integrated System)
+    nuclear_integrated = annual_metrics_rpt.get("nuclear_integrated_analysis", {})
+    case2_without_45u = nuclear_integrated.get("scenario_without_45u", {})
     case_data['case2'] = {
         'name': 'Case 2: Existing Reactor Retrofit',
-        'npv': financial_metrics_rpt.get("NPV_USD", 0),
-        'irr': financial_metrics_rpt.get("IRR_percent", 0),
-        'payback': financial_metrics_rpt.get("Payback_Period_Years", 0),
+        'npv': case2_without_45u.get("npv_usd", financial_metrics_rpt.get("NPV_USD", 0)),
+        'irr': case2_without_45u.get("irr_percent", financial_metrics_rpt.get("IRR_percent", 0)),
+        'payback': case2_without_45u.get("payback_period_years", financial_metrics_rpt.get("Payback_Period_Years", 0)),
         'annual_revenue': annual_metrics_rpt.get("Annual_Revenue", 0),
         'annual_opex': annual_metrics_rpt.get("Total_System_OPEX_Annual_USD", 0),
         'annual_generation': annual_metrics_rpt.get("Annual_Nuclear_Generation_MWh", 0),
@@ -1428,7 +1437,7 @@ def _extract_case_data(annual_metrics_rpt: dict, financial_metrics_rpt: dict, in
 
 
 def _create_financial_metrics_comparison(case_data: dict, output_dir: Path, target_iso: str, plant_name: str):
-    """Create financial metrics comparison chart (NPV, IRR, Payback)."""
+    """Create financial metrics comparison chart (NPV, IRR, discounted payback)."""
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
 
     # Extract data for plotting
@@ -1480,7 +1489,7 @@ def _create_financial_metrics_comparison(case_data: dict, output_dir: Path, targ
                  transform=ax2.transAxes, fontsize=12, fontweight='bold')
         ax2.set_title('Internal Rate of Return Comparison', fontweight='bold')
 
-    # Payback Period Comparison
+    # Discounted Payback Period Comparison
     valid_paybacks = [pb for pb in paybacks if pb is not None and pb > 0]
     valid_cases_pb = [case for case, pb in zip(
         cases, paybacks) if pb is not None and pb > 0]
@@ -1490,8 +1499,8 @@ def _create_financial_metrics_comparison(case_data: dict, output_dir: Path, targ
     if valid_paybacks:
         bars3 = ax3.bar(valid_cases_pb, valid_paybacks,
                         color=valid_colors_pb, alpha=0.8)
-        ax3.set_ylabel('Payback Period (Years)')
-        ax3.set_title('Payback Period Comparison', fontweight='bold')
+        ax3.set_ylabel('Discounted Payback (Years)')
+        ax3.set_title('Discounted Payback Comparison', fontweight='bold')
         ax3.tick_params(axis='x', rotation=45)
 
         for bar, value in zip(bars3, valid_paybacks):
@@ -1499,9 +1508,9 @@ def _create_financial_metrics_comparison(case_data: dict, output_dir: Path, targ
             ax3.text(bar.get_x() + bar.get_width()/2., height + max(valid_paybacks) * 0.01,
                      f'{value:.1f}y', ha='center', va='bottom', fontweight='bold')
     else:
-        ax3.text(0.5, 0.5, 'No Valid Payback Data Available', ha='center', va='center',
+        ax3.text(0.5, 0.5, 'No Valid Discounted Payback Data Available', ha='center', va='center',
                  transform=ax3.transAxes, fontsize=12, fontweight='bold')
-        ax3.set_title('Payback Period Comparison', fontweight='bold')
+        ax3.set_title('Discounted Payback Comparison', fontweight='bold')
 
     # Financial Performance Summary (Radar Chart)
     if len(valid_irrs) >= 2:
@@ -2235,7 +2244,7 @@ def _create_comprehensive_dashboard(case_data: dict, output_dir: Path, target_is
 
         ax6.set_xticks(range(3))
         ax6.set_xticklabels(
-            ['NPV > 0', 'IRR > 8%', 'Payback < 10y'], rotation=45, ha='right', fontsize=9)
+            ['NPV > 0', 'IRR > 8%', 'Discounted PB < 10y'], rotation=45, ha='right', fontsize=9)
         ax6.set_yticks(range(len(cases)))
         ax6.set_yticklabels(cases, fontsize=9)
         ax6.set_title('Financial Performance Matrix',

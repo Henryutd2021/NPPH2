@@ -1,217 +1,295 @@
-# NPPH2: Optimizing Nuclear Plant Flexibility and Hydrogen Production for Grid Ancillary Services
+# NPPH2
 
-## Overview
+NPPH2 is a Python-based modeling and analysis workflow for flexible nuclear-hydrogen systems. The project combines hourly operational optimization, techno-economic analysis (TEA), life cycle assessment (LCA), sensitivity studies, and figure generation for integrated nuclear plants that can sell power to the grid, produce hydrogen, and participate in ancillary service markets.
 
-This project models and optimizes the economic operation of integrated nuclear power and hydrogen production systems. It employs a Pyomo-based optimization framework to maximize profits by optimizing the allocation of electricity between grid sales and hydrogen production, while considering ancillary services participation.
+The repository has evolved into a multi-stage pipeline:
 
-The primary focus is on enhancing nuclear power plant flexibility through the integration of electrolyzers and/or battery storage systems, enabling participation in grid ancillary services markets. The project performs detailed techno-economic feasibility analyses and life cycle assessments of these hybrid systems and explores how new technologies and strategic investments can increase nuclear power plant revenue streams.
+1. Run optimization to generate hourly dispatch and revenue results.
+2. Feed those results into TEA to evaluate retrofit and greenfield business cases.
+3. Use TEA and optimization outputs as inputs to LCA.
+4. Aggregate and visualize outputs through dedicated scripts and the plotting notebook.
 
-## Key Features
+## What The Project Supports
 
-- **Multi-ISO Support**: Compatible with CAISO, ERCOT, ISONE, MISO, NYISO, PJM, and SPP markets
-- **Flexible System Configuration**: Models various system configurations including:
-  - Nuclear power generation with variable efficiency
-  - Different electrolyzer technologies (PEM, AWE, SOEC, AEM)
-  - Battery energy storage systems
-  - Hydrogen storage
-- **Economic Analysis**:
-  - Levelized Cost of Hydrogen (LCOH) calculations
-  - Levelized Cost of Storage (LCOS) calculations
-  - Techno-economic assessment (TEA)
-  - Revenue optimization from energy and ancillary services markets
-  - Investment analysis and payback period calculations
-- **Advanced Operational Features**:
-  - Electrolyzer degradation tracking
-  - Startup/shutdown scheduling
-  - Ancillary services dispatch simulation
-  - Ramping constraints
-  - Realistic power balance
-- **Ancillary Services Participation**:
-  - Regulation Up/Down services
-  - Spinning reserves
-  - Non-spinning reserves
-  - Responsive reserves (ECRS)
-  - Ramping products
+- Multi-ISO electricity market analysis for `CAISO`, `ERCOT`, `ISONE`, `MISO`, `NYISO`, `PJM`, and `SPP`
+- Hybrid system configurations with nuclear generation, electrolyzers, hydrogen storage, and batteries
+- Hourly dispatch optimization with ancillary service participation
+- TEA metrics including `NPV`, `IRR`, `payback`, `LCOH`, and `LCOE`
+- Existing-plant retrofit and greenfield nuclear-hydrogen business cases
+- Reactor-by-reactor batch studies using plant metadata from `input/hourly_data/NPPs info.csv`
+- LCA workflows built on top of completed optimization and TEA runs
+- Price sensitivity workflows and downstream result aggregation
+- Notebook-driven figure generation for reports and manuscripts
 
-## Optimization and Techno-Economic Analysis (TEA)
+## Current Workflow Map
 
-The project includes comprehensive models for optimization and techno-economic analysis:
+| Stage | Primary entry point | Purpose | Main outputs |
+| --- | --- | --- | --- |
+| Optimization, single ISO | `executables/opt/opt_main.py` | Run the standardized Pyomo model for one ISO | `output/opt/Results_Standardized/` and logs |
+| Optimization, batch reactor study | `executables/opt/opt_cs1.py` | Run plant-specific optimization for reactors listed in `NPPs info.csv` | `output/opt/cs1/` |
+| TEA, ISO-level | `executables/tea/tea_main.py` | Run TEA on standardized optimization outputs | `output/tea/iso/` |
+| TEA, batch reactor study | `executables/tea/tea_cs1.py` | Run detailed TEA for each reactor in `output/opt/cs1/` | `output/tea/cs1/` |
+| LCA | `executables/lca/run_lca.py` | Discover reactors with both OPT and TEA results and run LCA | `output/lca/reactor_reports/` |
+| Price sensitivity | `executables/sensitivity/sa_price_sensitivity.py` | Run optimization + TEA across hourly electricity price scenarios | `output/opt/sa_price/`, `output/tea/sa_price/` |
+| Price sensitivity aggregation | `executables/sensitivity/extract_price_sensitivity_results.py` | Parse TEA/OPT outputs into an Excel workbook | `output/tea/sa_price/*.xlsx` |
+| Plotting | `plotting/plotting.ipynb` | Generate publication-style figures from results | `output/figs/` |
 
-- **Optimization Framework**: Utilizes Pyomo to optimize the allocation of electricity between grid sales and hydrogen production, maximizing profits while considering ancillary services.
-- **Techno-Economic Assessment (TEA)**: Evaluates the economic feasibility of different system configurations, including:
-  - Levelized Cost of Hydrogen (LCOH) and Levelized Cost of Storage (LCOS)
-  - Net Present Value (NPV), Internal Rate of Return (IRR), and payback period calculations
-  - Revenue optimization from energy and ancillary services markets
-  - Investment analysis and strategic recommendations
-
-## Life Cycle Assessment (LCA)
-
-The project includes a comprehensive Life Cycle Assessment (LCA) framework to evaluate the environmental impact of nuclear-hydrogen systems.
-
-- **Before/After Retrofit Analysis**: Compares the carbon footprint of the nuclear plant before and after the integration of hydrogen production and/or battery storage.
-- **Comprehensive Scope**: The analysis covers the entire lifecycle, including:
-  - Nuclear fuel cycle (mining, milling, enrichment, fabrication)
-  - Plant construction, operation, and decommissioning
-  - Electrolyzer manufacturing
-  - Grid electricity displacement effects
-- **Uncertainty Analysis**: Employs Monte Carlo simulations to account for uncertainties in LCA parameters.
-- **Detailed Reporting**: Generates detailed reports for each plant, quantifying carbon intensity (gCO₂-eq/kWh) and total emissions.
-
-## Business Case Analysis
-
-The project evaluates multiple business cases:
-
-1. **Baseline**: Traditional nuclear power plant with grid electricity sales only
-2. **Hydrogen Production**: Nuclear + Electrolyzer systems with various technologies
-3. **Energy Storage**: Nuclear + Battery storage systems for time-shifting and grid services
-4. **Hybrid Systems**: Nuclear + Electrolyzer + Battery combinations for maximum flexibility
-5. **Revenue Stacking**: Optimized participation in multiple markets (energy, H₂, ancillary services)
-
-## Requirements
+## Repository Structure
 
 ```text
-pyomo>=6.9.2
-numpy>=2.2.5
-pandas>=2.2.3
-matplotlib>=3.10.1
-seaborn>=0.13.2
-plotly>=6.0.1
-gurobipy>=12.0.1
-gridstatus>=0.30.1
+NPPH2/
+├── src/
+│   ├── opt/              # Core optimization model, constraints, I/O, result extraction
+│   ├── tea/              # TEA engine, calculations, incentives, reporting, visualization
+│   ├── lca/              # LCA models, integration, reporting, analysis logic
+│   └── logger_utils/     # Shared logging and progress utilities
+├── executables/
+│   ├── opt/              # Runnable optimization entry points
+│   ├── tea/              # Runnable TEA entry points
+│   ├── lca/              # Runnable LCA entry points
+│   ├── sensitivity/      # Sensitivity pipelines and post-processing scripts
+│   └── path_setup.py     # Shared import-path bootstrapper
+├── input/
+│   └── hourly_data/      # ISO hourly prices, ancillary-service data, system inputs, NPP metadata
+├── output/
+│   ├── opt/              # Optimization outputs
+│   ├── tea/              # TEA reports and summaries
+│   ├── lca/              # LCA reports
+│   ├── figs/             # Final figures generated from notebook/scripts
+│   └── logs/             # Runtime logs
+├── plotting/
+│   └── plotting.ipynb    # Main notebook for figures
+├── tools/                # Parsing and downstream analysis helpers
+├── docs/                 # Project notes and workflow-specific docs
+└── tests/                # Test suite for optimization and result-processing logic
 ```
 
-For the complete list of dependencies, see `requirements.txt`.
+## Installation
 
-## Project Structure
+Create a Python environment and install the project dependencies from `requirements.txt`.
 
-- `src/`: Core model implementation, including optimization, TEA, and LCA frameworks.
-- `executables/`: Main execution scripts organized by function.
-  - `opt/`: Optimization-related scripts (`opt_main.py`, `opt_cs1.py`).
-  - `tea/`: TEA analysis scripts (`tea_main.py`, `tea_cs1.py`, etc.).
-  - `lca/`: LCA analysis scripts (`run_lca.py`).
-  - `sensitivity/`: Sensitivity analysis scripts (`sa.py`, etc.).
-- `tools/`: Utility and analysis scripts for parsing, analysis, and data extraction.
-- `plotting/`: Summary of results data used for plotting and plotting Jupyter notebook.
-- `docs/`: Project documentation and guides.
-- `input/`: Input data files, including ISO-specific hourly market data.
-- `output/`: All output results, organized by category (optimization, TEA, LCA, sensitivity, logs).
-- `tests/`: Test cases for the project.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-## Usage
+Key libraries used in the current stack include `pyomo`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `plotly`, `gridstatus`, and `gurobipy`.
 
-1. Configure the system in `src/opt/config.py` and `src/tea/config.py`.
-2. Prepare input data files in the `input/` directory.
-3. Run the desired analysis from the project root directory. For example:
+## Input Data
 
-    - **Run the main optimization model:**
+The project expects input files under `input/hourly_data/`, including:
 
-        ```bash
-        python executables/opt/opt_main.py
-        ```
+- `sys_data_advanced.csv` for system-level technical and economic parameters
+- `NPPs info.csv` for plant-level metadata used by batch case-study workflows
+- ISO-specific hourly electricity price files such as `Price_hourly.csv`
+- ISO-specific ancillary service price and market files such as `Price_ANS_hourly.csv`, `WinningRate_hourly.csv`, `DeploymentFactor_hourly.csv`, and `MileageMultiplier_hourly.csv`
 
-    - **Run the Techno-Economic Analysis (TEA) for Case Study 1:**
+## Configuration
 
-        ```bash
-        python executables/tea/tea_cs1.py
-        ```
+The two most important configuration files are:
 
-        This performs a detailed financial assessment, including NPV, IRR, payback period, levelized costs (LCOH, LCOS), and cash flow projections.
+- `src/opt/config.py` for optimization settings and feature flags
+- `src/tea/config.py` for TEA assumptions, cost parameters, tax policies, and output defaults
 
-    - **Run the Life Cycle Assessment (LCA):**
-
-        ```bash
-        python executables/lca/run_lca.py
-        ```
-
-        This evaluates the environmental impact and carbon footprint.
-
-    - **Run a sensitivity analysis:**
-
-        ```bash
-        python executables/sensitivity/sa.py
-        ```
-
-        This evaluates system performance across variations in parameters, market scenarios, and technologies.
-
-4. Use scripts in `tools/` for post-processing and `src/opt/result_processing.py` for automated result analysis.
-
-## Configuration Options
-
-Key configuration parameters in `src/opt/config.py`:
+Examples of optimization flags currently exposed in `src/opt/config.py` include:
 
 ```python
-# ISO selection
-TARGET_ISO: str = "ERCOT"  # Options: CAISO, ERCOT, ISONE, MISO, NYISO, PJM, SPP
+TARGET_ISO = "ERCOT"
+HOURS_IN_YEAR = 8760
 
-# Component selection
-ENABLE_NUCLEAR_GENERATOR: bool = True
-ENABLE_ELECTROLYZER: bool = True
-ENABLE_LOW_TEMP_ELECTROLYZER: bool = False
-ENABLE_BATTERY: bool = True
-ENABLE_H2_STORAGE: bool = True
+ENABLE_NUCLEAR_GENERATOR = True
+ENABLE_ELECTROLYZER = True
+ENABLE_LOW_TEMP_ELECTROLYZER = False
+ENABLE_BATTERY = True
+ENABLE_H2_STORAGE = True
 
-# Advanced features
-ENABLE_H2_CAP_FACTOR: bool = False
-ENABLE_NONLINEAR_TURBINE_EFF: bool = True
-ENABLE_ELECTROLYZER_DEGRADATION_TRACKING: bool = True
-ENABLE_STARTUP_SHUTDOWN: bool = True
-SIMULATE_AS_DISPATCH_EXECUTION: bool = True
+ENABLE_NONLINEAR_TURBINE_EFF = True
+ENABLE_ELECTROLYZER_DEGRADATION_TRACKING = True
+ENABLE_STARTUP_SHUTDOWN = True
+ENABLE_OPTIMAL_H2_STORAGE_SIZING = True
+SIMULATE_AS_DISPATCH_EXECUTION = True
 ```
 
-TEA-specific configuration in `src/tea/config.py`:
+On the TEA side, `src/tea/config.py` contains project lifetime assumptions, case classification, nuclear cost parameters, replacement schedules, tax incentive policies, and sensitivity-analysis overrides.
 
-```python
-# TEA Parameters
-PROJECT_LIFETIME_YEARS = 30
-DISCOUNT_RATE = 0.08
-CONSTRUCTION_YEARS = 2
-TAX_RATE = 0.21
+## Quick Start
 
-# Output directories
-BASE_OUTPUT_DIR_DEFAULT = "output/tea"
-LOG_DIR = "output/logs"
+Run commands from the repository root.
+
+### 1. Single-ISO Optimization
+
+Use this when you want to solve the standardized optimization model for one ISO.
+
+```bash
+python executables/opt/opt_main.py --iso ERCOT --solver gurobi --hours 8760
 ```
 
-## Hydrogen Cost Analysis
+Useful CLI options:
 
-The project includes comprehensive models for hydrogen cost analysis:
+- `--iso` target ISO
+- `--solver` Pyomo solver name
+- `--hours` simulation horizon
+- `--debug-infeasibility` write an LP file for IIS debugging when supported by the solver
 
-- Capital expenditure (CAPEX) modeling
-- Operational expenditure (OPEX) modeling
-- Stack replacement scheduling
-- Water consumption costs
-- Compression and storage costs
-- Capital recovery factor calculations
+### 2. ISO-Level TEA
 
-## Sensitivity Analysis
+This workflow consumes a standardized optimization CSV and produces TEA outputs for one ISO.
 
-The model enables detailed sensitivity analysis for key parameters:
+```bash
+python executables/tea/tea_main.py --iso ERCOT
+```
 
-- Electrolyzer capital costs
-- Battery capital costs
-- Hydrogen market prices
-- Electricity market prices
-- Grid ancillary service price dynamics
-- Technology performance parameters
-- Operational constraints
+Optional overrides include:
 
-## Key Results
+- `--input-file` to point TEA at a specific hourly results CSV
+- `--output-dir` to redirect TEA outputs
+- `--project-lifetime`, `--construction-years`, `--discount-rate`, `--tax-rate`
+- `--enable-battery` or `--disable-battery`
+- `--enable-greenfield` or `--disable-greenfield`
 
-- Quantification of economic benefits from flexible nuclear operation
-- Optimal sizing for electrolyzers and battery storage systems
-- Break-even points for different technology combinations
-- Revenue enhancement potential from ancillary services participation
-- Comparative analysis of different ISO markets
-- Investment prioritization recommendations
+### 3. Batch Reactor Optimization For Case Study Work
+
+This workflow reads `input/hourly_data/NPPs info.csv`, adjusts plant-specific parameters and remaining life, and runs optimization reactor by reactor.
+
+```bash
+python executables/opt/opt_cs1.py
+```
+
+Outputs are written to:
+
+- `output/opt/cs1/`
+
+Each reactor produces an hourly CSV such as:
+
+- `<Plant>_<Generator>_<ISO>_<RemainingYears>_hourly_results.csv`
+
+### 4. Batch Reactor TEA
+
+This workflow processes all reactor-level optimization outputs from `output/opt/cs1/` and generates text-only TEA reports.
+
+```bash
+python executables/tea/tea_cs1.py
+```
+
+Outputs are written to:
+
+- `output/tea/cs1/`
+- `output/logs/cs1/`
+
+For each reactor, the main outputs include:
+
+- `<ISO>_TEA_Summary_Report.txt`
+- `<ISO>_Comprehensive_TEA_Summary.txt`
+
+### 5. LCA
+
+The LCA workflow is downstream of optimization and TEA. It automatically discovers reactors that have both result types available.
+
+```bash
+python executables/lca/run_lca.py --mc 1000
+```
+
+Useful options:
+
+- `--mc` Monte Carlo iterations
+- `--tea-dir` custom TEA results directory
+- `--opt-dir` custom optimization results directory
+- `--output-dir` custom LCA output directory
+- `--verbose` enable detailed logging
+
+Outputs are written to:
+
+- `output/lca/reactor_reports/`
+
+### 6. Price Sensitivity Pipeline
+
+The current integrated sensitivity workflow is the hourly electricity price sensitivity pipeline. For each scenario, it runs optimization first and then TEA for every eligible plant.
+
+```bash
+python executables/sensitivity/sa_price_sensitivity.py
+```
+
+Current price scenarios defined in the script are:
+
+- `price_m10pct`
+- `price_m5pct`
+- `price_p5pct`
+- `price_p10pct`
+- `price_p20pct`
+- `price_p30pct`
+
+Outputs are organized by scenario under:
+
+- `output/opt/sa_price/`
+- `output/tea/sa_price/`
+- `output/logs/sa_price/`
+
+To aggregate these outputs into an Excel workbook:
+
+```bash
+python executables/sensitivity/extract_price_sensitivity_results.py
+```
+
+### 7. Plotting
+
+The main plotting workflow lives in `plotting/plotting.ipynb`. It reads processed outputs and generates figures under `output/figs/`.
+
+Recent figure outputs in the repository indicate the notebook is currently used for:
+
+- case-comparison figures
+- NPV and LCOE comparisons
+- ancillary service revenue plots
+- country-level nuclear cost and capacity figures
+- price sensitivity figures and heatmaps
+
+## Important Notes On Workflow Dependencies
+
+- `tea_main.py` typically expects optimization output to already exist.
+- `tea_cs1.py` expects reactor-level hourly result CSVs under `output/opt/cs1/`.
+- `run_lca.py` is not a first-step workflow; it depends on both TEA and optimization outputs.
+- `sa_price_sensitivity.py` is currently the most up-to-date integrated sensitivity pipeline in the repository.
+- `executables/sensitivity/sa.py` still exists, but it appears to reflect an older workflow and should be treated as a legacy script unless you are intentionally working with it.
+
+## Testing
+
+The repository includes tests under `tests/`, covering parts of the optimization stack such as:
+
+- configuration behavior
+- model construction
+- constraints
+- result processing
+- revenue and regulation balance logic
+
+To run the test suite:
+
+```bash
+pytest
+```
+
+Or use the helper script:
+
+```bash
+python tests/run_tests.py
+```
+
+## Supporting Utilities
+
+Additional downstream analysis utilities are available in `tools/`, including:
+
+- TEA summary parsing
+- LCA extraction
+- sensitivity analysis support
+- ancillary service analysis and visualization
+
+The `docs/` directory also contains workflow-specific notes, including sensitivity-analysis summaries and project reorganization notes.
 
 ## License
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0. See `LICENSE` for details.
 
 ## Contact
 
-For inquiries, please contact:
-
-- Name: Honglin Li
-- Email: <honglin.li@utdallas.edu>
-- Organization: UT-Dallas, INL
+- Honglin Li, Ph.D.
+- <honglin.li@utdallas.edu>
+- UT-Dallas, INL
