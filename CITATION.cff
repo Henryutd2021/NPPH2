@@ -1,0 +1,56 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite the article below."
+title: "Rethinking the economics and flexibility of U.S. nuclear power through hydrogen integration and policy support"
+authors:
+  - family-names: Li
+    given-names: Honglin
+    email: honglin.li@utdallas.edu
+    affiliation: "Department of Mechanical Engineering, The University of Texas at Dallas; Center for Wind Energy, The University of Texas at Dallas; Idaho National Laboratory"
+  - family-names: Huang
+    given-names: Jianqiao
+    affiliation: "Idaho National Laboratory"
+  - family-names: Poudel
+    given-names: Bikash
+    affiliation: "Idaho National Laboratory"
+  - family-names: Sun
+    given-names: Mucun
+    affiliation: "Idaho National Laboratory"
+  - family-names: Westover
+    given-names: Tyler
+    affiliation: "Idaho National Laboratory"
+  - family-names: Wendt
+    given-names: Daniel
+    affiliation: "Idaho National Laboratory"
+  - family-names: Zhang
+    given-names: Jie
+    email: jiezhang@utdallas.edu
+    affiliation: "Department of Mechanical Engineering, The University of Texas at Dallas; Center for Wind Energy, The University of Texas at Dallas; Department of Electrical and Computer Engineering, The University of Texas at Dallas"
+preferred-citation:
+  type: article
+  title: "Rethinking the economics and flexibility of U.S. nuclear power through hydrogen integration and policy support"
+  authors:
+    - family-names: Li
+      given-names: Honglin
+      email: honglin.li@utdallas.edu
+      affiliation: "Department of Mechanical Engineering, The University of Texas at Dallas; Center for Wind Energy, The University of Texas at Dallas; Idaho National Laboratory"
+    - family-names: Huang
+      given-names: Jianqiao
+      affiliation: "Idaho National Laboratory"
+    - family-names: Poudel
+      given-names: Bikash
+      affiliation: "Idaho National Laboratory"
+    - family-names: Sun
+      given-names: Mucun
+      affiliation: "Idaho National Laboratory"
+    - family-names: Westover
+      given-names: Tyler
+      affiliation: "Idaho National Laboratory"
+    - family-names: Wendt
+      given-names: Daniel
+      affiliation: "Idaho National Laboratory"
+    - family-names: Zhang
+      given-names: Jie
+      email: jiezhang@utdallas.edu
+      affiliation: "Department of Mechanical Engineering, The University of Texas at Dallas; Center for Wind Energy, The University of Texas at Dallas; Department of Electrical and Computer Engineering, The University of Texas at Dallas"
+  journal: "Nature Communications"
+  year: 2026
